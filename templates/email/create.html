@@ -1,4 +1,70 @@
 {% extends 'base.html' %}
+{% block footer_scripts %}
+	{{block.super}}
+{% endblock %}
 {% block content %}
-
+<div id="email-create">
+	<h2>Create Email</h2>
+	<form action="{% url mailer-email-create %" method="post">
+		<div class="input">
+			{{form.title.label_tag}}
+			{{form.title}}
+			{% if form.title.help_text %}
+			<p class="note">{{form.title.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input or">
+			{{form.html.label_tag}}
+			{{form.html}}
+			{% if form.html.help_text %}
+			<p class="note">{{form.html.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="or_label">
+			<strong>OR</strong>
+		</div>
+		<div class="input or">
+			{{form.source_uri.label_tag}}
+			{{form.source_uri}}
+			{% if form.source_uri.help_text %}
+			<p class="note">{{form.source_uri.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.start.label_tag}}
+			{{form.start}}
+			{% if form.start.help_text %}
+			<p class="note">{{form.start.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.recurrence.label_tag}}
+			{{form.recurrence}}
+			{% if form.recurrence.help_text %}
+			<p class="note">{{form.recurrence.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.replace_delimiter.label_tag}}
+			{{form.replace_delimiter}}
+			{% if form.replace_delimiter.help_text %}
+			<p class="note">{{form.replace_delimiter.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.recipient_groups.label_tag}}
+			{{form.recipient_groups}}
+			{% if form.recipient_groups.help_text %}
+			<p class="note">{{form.recipient_groups.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.confirm_send.label_tag}}
+			{{form.confirm_send}}
+			{% if form.confirm_send.help_text %}
+			<p class="note">{{form.confirm_send.help_text}}</p>
+			{% endif %}
+		</div>
+	</form>
+</div>
 {% endblock %}

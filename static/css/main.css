@@ -1,8 +1,25 @@
 /* General Styles */
 html {background:none;color:#333;}
 h1 {color:#333;border-bottom:1px solid #333;font-size:220%;margin-bottom:5px;}
+h2 {margin-bottom:5px;}
 
 th {background-color:#CCC;font-weight:bold;padding:5px;color:#555;}
 
+label {color:#666;}
+input[type="text"] {font-size:130%;}
+select {font-size:120%;}
+textarea {height:5em;}
+
+.or, .or_label {width:80%;margin:auto;}
+.or_label {margin-top:10px;text-align:center;font-weight:bold;font-size:120%;text-transform:uppercase;}
+
+.note {color:#666;}
+
 /* List Emails */
 #email-list #actions {margin:10px 0;}
+
+/* Create Email */
+#email-create form label {display:block;font-size:120%;font-weight:100;margin-top:10px;}
+#email-create form input,
+	#email-create form textarea {width:98%;}
+#email-create form select {width:100%;}

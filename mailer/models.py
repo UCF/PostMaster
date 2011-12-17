@@ -31,14 +31,25 @@ class Email(models.Model):
 			(yearly   , 'Yearly'),
 		)
 
-	title             = models.CharField(max_length=100)
-	html              = models.TextField(blank=True, null=True)
-	source            = models.URLField(blank=True, null=True)
-	start      = models.DateTimeField()
-	recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices)
-	replace_delimiter = models.CharField(max_length=10, default='!@!')
-	recipient_groups  = models.ManyToManyField(RecipientGroup)
-	confirm_send      = models.BooleanField(default=True)
+	_HELP_TEXT = {
+		'title'             : 'Internal identifier of the email',
+		'html'              : 'HTML source code of the email content',
+		'source_uri'        : 'Source URI of the email content',
+		'start'             : 'Date and time that the email will be sent.',
+		'recurrence'        : 'If and how often the email will be resent.',
+		'replace_delimiter' : 'Character(s) that replacement labels are wrapped in.',
+		'recipient_groups'  : 'Which group(s) of recipients this email will go to.',
+		'confirm_send'      : 'Send a go/no-go email to the administrators before the email is sent.'
+	}
+
+	title             = models.CharField(max_length=100, help_text=_HELP_TEXT['title'])
+	html              = models.TextField(blank=True, null=True, help_text=_HELP_TEXT['html'])
+	source_uri        = models.URLField(blank=True, null=True, help_text=_HELP_TEXT['source_uri'])
+	start             = models.DateTimeField(help_text=_HELP_TEXT['start'])
+	recurrence        = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices, help_text=_HELP_TEXT['recurrence'])
+	replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
+	recipient_groups  = models.ManyToManyField(RecipientGroup, help_text=_HELP_TEXT['recipient_groups'])
+	confirm_send      = models.BooleanField(default=True, help_text=_HELP_TEXT['confirm_send'])
 
 class Instance(models.Model):
 	'''
