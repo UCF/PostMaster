@@ -39,39 +39,49 @@ def create_update_email(request, email_id=None):
 
 	return direct_to_template(request, tmpl, ctx)
 
-def map_email(request, email_id):
+def map_labels_fields(request, email_id):
 	'''
 		Maps email labels to recipient fields
 	'''
-	ctx  = {'forms':[]}
+	ctx  = {'forms':[], 'email':None}
 	tmpl = 'email/map.html'
 
 	try:
-		email = Email.objects.get(id=email_id)
+		ctx['email'] = Email.objects.get(id=email_id)
 	except Email.DoesNotExist:
 		raise HttpResponseNotFound('Email specifiec does not exist.')
 	else:
 		
 		# Fetch remote template if needed
 		html = ''
-		if email.source_uri != '':
-			page = urllib.urlopen(email.source_uri)
+		if ctx['email'].source_uri != '':
+			page = urllib.urlopen(ctx['email'].source_uri)
 			html = page.read()
 		else:
-			html = email.html
+			html = ctx['email'].html
 		
 		# Extract label names
-		delimiter    = email.replacement_delimiter
-		labels_names = frozenset(re.findall(delmiter + '([^' + delimiter + '])+' + delimiter, html))
-
+		delimiter    = ctx['email'].replace_delimiter
+		label_names = frozenset(re.findall(delimiter + '([^' + delimiter + ']+)' + delimiter, html))
+		
 		if request.method == 'POST':
-
+			for label_name in label_names:
+				try:
+					label = EmailLabelRecipientFieldMapping.objects.get(email=ctx['email'], email_label=label_name)
+					form = LabelMappingForm(request.POST, instance=label, prefix=label_name+'_')
+					form.save()
+					ctx['forms'].append(form)
+				except EmailLabelRecipientFieldMapping.DoesNotExist:
+					label = EmailLabelRecipientFieldMapping(email=ctx['email'], email_label=label_name)
+					label.save()
+			messages.success(request, 'Mappings successfully saved.')
+			return HttpResponseRedirect(reverse('mailer-email-list'))
 		else:
 			for label_name in label_names:
 				try:
-					label = EmailLabelRecipientFieldMapping.objects.filter(email=email, email_label=label_name)
+					label = EmailLabelRecipientFieldMapping.objects.get(email=ctx['email'], email_label=label_name)
 				except EmailLabelRecipientFieldMapping.DoesNotExist:
-					label = EmailLabelRecipientFieldMapping(email=email, email_label=label_name)
+					label = EmailLabelRecipientFieldMapping(email=ctx['email'], email_label=label_name)
 					label.save()
 				finally:
 					ctx['forms'].append(LabelMappingForm(instance=label, prefix=label_name+'_'))

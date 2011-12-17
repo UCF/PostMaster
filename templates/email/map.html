@@ -4,6 +4,30 @@
 {% endblock %}
 {% block content %}
 <div id="email-map">
-	
+	<h2>Map Email Labels to Recipient Fields</h2>
+	<form action="{% url mailer-email-map email.id %}" method="post">
+		<table id="mappings">
+			<thead>
+				<tr>
+					<th scope="col">Email Label</th>
+					<th scope="col">Recipient Attribute</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for form in forms %}
+					{% if forloop.first %}
+					{% endif %}
+					<tr>
+						<td>{{form.instance.email_label}}</td>
+						<td>{{form.recipient_field}}</td>
+					</tr>
+				{% empty %}
+				<td colspan="2">No email labels were detected.</td>
+				{% endfor %}
+
+			</tbody>
+		</table>
+		<button type="submit">Save Mappings</button>
+	</form>
 </div>
 {% endblock %}

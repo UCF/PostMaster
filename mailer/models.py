@@ -5,11 +5,11 @@ class Recipient(models.Model):
 		Describes the details of a possible email recipient
 	'''
 
-	LABELABLE_FIELD_NAMES = (
-		'first_name',
-		'last_name',
-		'email_address',
-	)
+	LABELABLE_FIELD_NAMES = [
+		('first_name',    'First name'),
+		('last_name',     'Last Name'),
+		('email_address', 'Email Address'),
+	]
 
 	first_name    = models.CharField(max_length=100)
 	last_name     = models.CharField(max_length=100)
