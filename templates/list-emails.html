@@ -2,7 +2,7 @@
 {% block content %}
 <div id="list-emails">
 	<div id="actions">
-		<a class="button" id="create-email">Create Email</a>
+		<a href="{% url mailer-email-create %}" class="button" id="create-email">Create Email</a>
 	</div>
 	<table id="emails">
 		<thead>
