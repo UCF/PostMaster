@@ -4,9 +4,20 @@ class Recipient(models.Model):
 	'''
 		Describes the details of a possible email recipient
 	'''
+
+	_EXCLUDED_FIELD_LABEL_NAMES = ('id',)
+
 	first_name    = models.CharField(max_length=100)
 	last_name     = models.CharField(max_length=100)
 	email_address = models.CharField(max_length=100)
+
+	@property
+	def lablelable_field_names(self):
+		field_names = []
+		for field in Recipient._meta.fields:
+			if field.name not in _EXCLUDED_FIELD_LABEL_NAMES:
+				field_names.append(field.name)
+		return field_names
 
 class RecipientGroup(models.Model):
 	'''
@@ -52,6 +63,15 @@ class Email(models.Model):
 	replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
 	recipient_groups  = models.ManyToManyField(RecipientGroup, help_text=_HELP_TEXT['recipient_groups'])
 	confirm_send      = models.BooleanField(default=True, help_text=_HELP_TEXT['confirm_send'])
+
+class EmailLabelRecipientFieldMapping(models.Model):
+	'''
+		Describes the mapping between attributes on a recipient
+		objects to a label in an email for replacement.
+	'''
+	email           = models.ForeignKey(Email)
+	recipient_field = models.CharField(max_length=100, blank=True, null=True)
+	email_label     = models.CharField(max_length=100)
 
 class Instance(models.Model):
 	'''
