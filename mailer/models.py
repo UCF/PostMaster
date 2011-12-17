@@ -15,12 +15,18 @@ class Recipient(models.Model):
 	last_name     = models.CharField(max_length=100)
 	email_address = models.CharField(max_length=100)
 
+	def __str__(self):
+		return ' '.join([self.first_name, self.last_name, self.email_address])
+
 class RecipientGroup(models.Model):
 	'''
 		Describes the details of a named group of email recipients
 	'''
 	name       = models.CharField(max_length=100)
 	recipients = models.ManyToManyField(Recipient)
+
+	def __str__(self):
+		return self.name + ' (' +  str(self.recipients.count()) + ' recipients)'
 
 class Email(models.Model):
 	'''
