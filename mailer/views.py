@@ -31,7 +31,7 @@ def create_update_email(request, email_id=None):
 		if ctx['form'].is_valid():
 			ctx['form'].save()
 			messages.success(request, 'Email successfully created.')
-			return HttpResponseRedirect(reverse('mailer-list-emails'))
+			return HttpResponseRedirect(reverse('mailer-email-list'))
 	else:
 		ctx['form'] = CreateEmailForm(**form_kwargs)
 
