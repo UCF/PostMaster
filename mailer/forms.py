@@ -34,7 +34,7 @@ class CreateEmailForm(forms.ModelForm):
 
 class LabelMappingForm(forms.ModelForm):
 
-	recipient_field = forms.CharField(choices=Recipient.labelable_field_names)
+	recipient_field = forms.ChoiceField(choices=Recipient.LABELABLE_FIELD_NAMES)
 	
 	class Meta:
 		model   = EmailLabelRecipientFieldMapping

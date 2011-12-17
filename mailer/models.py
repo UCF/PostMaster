@@ -5,19 +5,15 @@ class Recipient(models.Model):
 		Describes the details of a possible email recipient
 	'''
 
-	_EXCLUDED_FIELD_LABEL_NAMES = ('id',)
+	LABELABLE_FIELD_NAMES = (
+		'first_name',
+		'last_name',
+		'email_address',
+	)
 
 	first_name    = models.CharField(max_length=100)
 	last_name     = models.CharField(max_length=100)
 	email_address = models.CharField(max_length=100)
-
-	@property
-	def lablelable_field_names(self):
-		field_names = []
-		for field in Recipient._meta.fields:
-			if field.name not in _EXCLUDED_FIELD_LABEL_NAMES:
-				field_names.append(field.name)
-		return field_names
 
 class RecipientGroup(models.Model):
 	'''
