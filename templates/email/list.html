@@ -7,7 +7,7 @@
 	<table id="emails">
 		<thead>
 			<tr>
-				<th scope="col">Name</th>
+				<th scope="col">Title</th>
 				<th scope="col">Schedule</th>
 				<th scope="col">Recipient Groups</th>
 			</tr>
@@ -15,10 +15,11 @@
 		<tbody>
 			{% for email in emails %}
 			<tr>
-				<td>{{email.name}}</td>
+				<td>{{email.title}}</td>
 				<td>
-					<p>Starts: {{email.schedule.starts}}</p>
-					<p>Recurs: {{email.schedule.get_recurrence_display}}</p>
+					<p>Start Date: {{email.start_date}}</p>
+					<p>Send Time: {{email.send_time}}</p>
+					<p>Recurs: {{email.get_recurrence_display}}</p>
 				</td>
 				<td>
 					<ul class="recipient-groups">
