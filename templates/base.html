@@ -29,9 +29,13 @@
 	</head>
 		<body>
 		<!-- Content -->
-		works
 		{%block body%}
-		{%block content%}{%endblock%}
+		<div class="container">
+			<div class="span-16 prepend-4 column last">
+				<h1>Post Master</h1>
+				{%block content%}{%endblock%}
+			</div>
+		</div>
 		{%block footer_scripts%}
 		<!-- Footer Scripts -->
 		<script src="{{MEDIA_URL}}js/jquery.js" type="text/javascript" charset="utf-8"></script>
