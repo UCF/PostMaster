@@ -8,7 +8,9 @@
 		<thead>
 			<tr>
 				<th scope="col">Title</th>
-				<th scope="col">Schedule</th>
+				<th scope="col">Start Date</th>
+				<th scope="col">Send Time (24 Hour)</th>
+				<th scope="col">Recurrence</th>
 				<th scope="col">Recipient Groups</th>
 			</tr>
 		</thead>
@@ -16,11 +18,9 @@
 			{% for email in emails %}
 			<tr>
 				<td>{{email.title}}</td>
-				<td>
-					<p>Start Date: {{email.start_date}}</p>
-					<p>Send Time: {{email.send_time}}</p>
-					<p>Recurs: {{email.get_recurrence_display}}</p>
-				</td>
+				<td>{{email.start_date}}</td>
+				<td>{{email.send_time}}</td>
+				<td>{{email.get_recurrence_display}}</td>
 				<td>
 					<ul class="recipient-groups">
 						{% for group in email.recipient_groups.all %}
