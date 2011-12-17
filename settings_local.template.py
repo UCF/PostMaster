@@ -32,3 +32,7 @@ DATABASES = {
 		'PORT'    : '',
 	}
 }
+
+class MailChimp(object):
+	API_KEY   = ''
+	END_POINT = ''
