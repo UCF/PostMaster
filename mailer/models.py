@@ -66,6 +66,10 @@ class Email(models.Model):
 	recipient_groups  = models.ManyToManyField(RecipientGroup, help_text=_HELP_TEXT['recipient_groups'])
 	confirm_send      = models.BooleanField(default=True, help_text=_HELP_TEXT['confirm_send'])
 
+	@property
+	def total_sent(self):
+		return sum(list(i.sent for i in self.instances.all()))
+
 class EmailLabelRecipientFieldMapping(models.Model):
 	'''
 		Describes the mapping between attributes on a recipient
@@ -79,4 +83,9 @@ class Instance(models.Model):
 	'''
 		Describes a sending of an email based on its schedule
 	'''
-	email = models.ForeignKey(Email)
+	email       = models.ForeignKey(Email, related_name='instances')
+	sent_html   = models.TextField()
+	start       = models.DateTimeField()
+	end         = models.DateTimeField()
+	in_progress = models.BooleanField(default=False)
+	sent        = models.IntegerField()

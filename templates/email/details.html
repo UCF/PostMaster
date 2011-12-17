@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div id="email-details">
+	<h2>{{email.title}} <span>Total Sent All-Time: {{email.total_sent}}</span></h2>
+	<div>
+		<strong>Send Time:</strong> {{email.send_time}} -
+		<strong>Recurring:</strong> {{email.get_recurrence_display}} -
+		<strong>Started On:</strong> {{email.start_date}}
+	</div>
+	<img id="overall_stats" src="https://chart.googleapis.com/chart?cht=lc&chco=FF0000,00FF00,0000FF&chs=630x225&chd=s:FOETHECat,lkjtf3asv,KATYPSNXJ&chxt=x,y&chxl=0:|Oct|Nov|Dec|1:||20K||60K||100K&chdl=Opened|Sent|Bounced&chtt=2 Month Stats" />
+	<h3>Instances</h3>
+	{% for instance in email.instances.all %}
+		{% if forloop.first %}
+		<ul id="instances">
+		{% endif %}
+		<li>
+			<h4>
+		</li>
+		{% if forloop.last %}
+		</ul>
+		{% endif %}
+	{% empty %}
+	<p>There are no instances of the email.</p>
+	{% endfor %}
+</div>
+{% endblock %}
+
+https://chart.googleapis.com/chart?cht=lc&chco=FF0000,00FF00,0000FF&chs=200x125&chd=s:FOETHECat,lkjtf3asv,KATYPSNXJ&chxt=x,y&chxl=0:|Oct|Nov|Dec|1:||20K||60K||100K

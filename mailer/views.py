@@ -15,6 +15,16 @@ def list_emails(request):
 
 	return direct_to_template(request, tmpl, ctx)
 
+def details(request, email_id):
+	ctx  = {'email':None} 
+	tmpl = 'email/details.html'
+
+	try:
+		ctx['email'] = Email.objects.get(id=email_id)
+	except Email.DoesNotExist:
+		return HttpResponseNotFound('Email specified does not exist.')
+	return direct_to_template(request, tmpl, ctx)
+
 def create_update_email(request, email_id=None):
 	ctx  = {'form':None} 
 	tmpl = 'email/create.html'

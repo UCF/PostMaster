@@ -23,7 +23,13 @@ textarea {height:5em;}
 .fright {float:right;}
 
 /* List Emails */
-#email-list #actions {margin:10px 0;}
+#email-list #actions{margin:10px 0;}
+#email-list #emails {margin:0;padding:0;}
+#email-list #emails li {list-style-type:none;padding:0;background-color:#f7f7f7;border:1px solid #ccc;margin-bottom:10px;}
+#email-list #emails li a {text-decoration:none;}
+#email-list #emails li a:hover {cursor:pointer;}
+#email-list #emails li h3 {font-weight:normal;font-size:150%;margin:0;padding:15px 5px;}
+#email-list #emails li h3 span {float:right;color:#666;font-size:120%;}
 
 /* Create Email */
 #email-create form label {font-size:130%;font-weight:100;}
@@ -32,3 +38,8 @@ textarea {height:5em;}
 #email-create form select {width:100%;}
 #email-create form button {font-size:130%;width:100%;}
 #email-create form #start_date select {width:100px;}
+
+/* Email Details */
+#email-details h2 {font-size:150%;}
+#email-details h2 span {font-size:70%;font-weight:normal;float:right;}
+#email-details #overall_stats {margin-top:10px;display:block;}
