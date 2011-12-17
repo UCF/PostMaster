@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div id="list-emails">
+	<div id="actions">
+		<a class="button" id="create-email">Create Email</a>
+	</div>
+	<table id="emails">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Schedule</th>
+				<th scope="col">Recipient Groups</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for email in emails %}
+			<tr>
+				<td>{{email.name}}</td>
+				<td>
+					<p>Starts: {{email.schedule.starts}}</p>
+					<p>Recurs: {{email.schedule.get_recurrence_display}}</p>
+				</td>
+				<td>
+					<ul class="recipient-groups">
+						{% for group in email.recipient_groups.all %}
+						<li>{{group.name}}</li>
+						{% endfor %}
+					</ul>
+				</td>
+			</tr>
+			{% empty %}
+			<tr>
+				<td colspan="3">There are no emails.</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
