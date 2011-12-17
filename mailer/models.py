@@ -22,14 +22,14 @@ class Schedule(models.Model):
 	'''
 	class Recurs:
 		never, daily, weekly, biweekly, monthly, yearly = range(0,6)
-			choices = (
-				(never    , 'Never'),
-				(daily    , 'Daily'),
-				(weekly   , 'Weekly'),
-				(biweekly , 'Biweekly'),
-				(monthly  , 'Monthly'),
-				(yearly   , 'Yearly'),
-			)
+		choices = (
+			(never    , 'Never'),
+			(daily    , 'Daily'),
+			(weekly   , 'Weekly'),
+			(biweekly , 'Biweekly'),
+			(monthly  , 'Monthly'),
+			(yearly   , 'Yearly'),
+		)
 
 	start      = models.DateTimeField()
 	recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices)
