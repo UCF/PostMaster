@@ -7,7 +7,7 @@ from django.core.urlresolvers       import reverse
 
 def list_emails(request):
 	ctx  = {} 
-	tmpl = 'list-emails.html'
+	tmpl = 'email/list.html'
 
 	ctx['emails'] = Email.objects.all()
 
@@ -15,7 +15,7 @@ def list_emails(request):
 
 def create_update_email(request, email_id=None):
 	ctx  = {} 
-	tmpl = 'create-email.html'
+	tmpl = 'email/create.html'
 
 	form_kwargs = {}
 	if email_id is not None:
