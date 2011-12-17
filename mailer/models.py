@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Recipient(models.Model):
 	'''
 		Describes the details of a possible email recipient
@@ -16,10 +15,11 @@ class RecipientGroup(models.Model):
 	name       = models.CharField(max_length=100)
 	recipients = models.ManyToManyField(Recipient)
 
-class Schedule(models.Model):
+class Email(models.Model):
 	'''
-		Describes the schedule of an email
+		Describes the details of an email 
 	'''
+
 	class Recurs:
 		never, daily, weekly, biweekly, monthly, yearly = range(0,6)
 		choices = (
@@ -31,20 +31,14 @@ class Schedule(models.Model):
 			(yearly   , 'Yearly'),
 		)
 
-	start      = models.DateTimeField()
-	recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices)
-
-
-class Email(models.Model):
-	'''
-		Describes the details of an email 
-	'''
 	title             = models.CharField(max_length=100)
 	html              = models.TextField(blank=True, null=True)
-	source            = models.URLField(blank=True, null=True)	
+	source            = models.URLField(blank=True, null=True)
+	start      = models.DateTimeField()
+	recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices)
 	replace_delimiter = models.CharField(max_length=10, default='!@!')
-	schedule          = models.ForeignKey(Schedule)
 	recipient_groups  = models.ManyToManyField(RecipientGroup)
+	confirm_send      = models.BooleanField(default=True)
 
 class Instance(models.Model):
 	'''
