@@ -4,10 +4,16 @@
 {% endblock %}
 {% block content %}
 <div id="email-create">
-	<h2>Create Email</h2>
-	<form action="{% url mailer-email-create %" method="post">
+	<form action="{% url mailer-email-create %}" method="post">
 		<div class="input">
 			{{form.title.label_tag}}
+			{% if form.title.errors %}
+			<ul class="errors fright">
+				{% for error in form.title.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.title}}
 			{% if form.title.help_text %}
 			<p class="note">{{form.title.help_text}}</p>
@@ -15,6 +21,13 @@
 		</div>
 		<div class="input or">
 			{{form.html.label_tag}}
+			{% if form.html.errors %}
+			<ul class="errors fright">
+				{% for error in form.html.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.html}}
 			{% if form.html.help_text %}
 			<p class="note">{{form.html.help_text}}</p>
@@ -25,20 +38,57 @@
 		</div>
 		<div class="input or">
 			{{form.source_uri.label_tag}}
+			{% if form.source_uri.errors %}
+			<ul class="errors fright">
+				{% for error in form.source_uri.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.source_uri}}
 			{% if form.source_uri.help_text %}
 			<p class="note">{{form.source_uri.help_text}}</p>
 			{% endif %}
 		</div>
 		<div class="input">
-			{{form.start.label_tag}}
-			{{form.start}}
-			{% if form.start.help_text %}
-			<p class="note">{{form.start.help_text}}</p>
+			{{form.start_date.label_tag}}
+			{% if form.start_date.errors %}
+			<ul class="errors fright">
+				{% for error in form.start_date.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			<div id="start_date">
+				{{form.start_date}}
+			</div>
+			{% if form.start_date.help_text %}
+			<p class="note">{{form.start_date.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.send_time.label_tag}}
+			{% if form.send_time.errors %}
+			<ul class="errors fright">
+				{% for error in form.send_time.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.send_time}}
+			{% if form.send_time.help_text %}
+			<p class="note">{{form.send_time.help_text}}</p>
 			{% endif %}
 		</div>
 		<div class="input">
 			{{form.recurrence.label_tag}}
+			{% if form.recurrence.errors %}
+			<ul class="errors fright">
+				{% for error in form.recurrence.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.recurrence}}
 			{% if form.recurrence.help_text %}
 			<p class="note">{{form.recurrence.help_text}}</p>
@@ -46,6 +96,13 @@
 		</div>
 		<div class="input">
 			{{form.replace_delimiter.label_tag}}
+			{% if form.replace_delimiter.errors %}
+			<ul class="errors fright">
+				{% for error in form.replace_delimiter.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.replace_delimiter}}
 			{% if form.replace_delimiter.help_text %}
 			<p class="note">{{form.replace_delimiter.help_text}}</p>
@@ -53,6 +110,13 @@
 		</div>
 		<div class="input">
 			{{form.recipient_groups.label_tag}}
+			{% if form.recipient_groups.errors %}
+			<ul class="errors fright">
+				{% for error in form.recipient_groups.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.recipient_groups}}
 			{% if form.recipient_groups.help_text %}
 			<p class="note">{{form.recipient_groups.help_text}}</p>
@@ -60,11 +124,19 @@
 		</div>
 		<div class="input">
 			{{form.confirm_send.label_tag}}
+			{% if form.confirm_send.errors %}
+			<ul class="errors fright">
+				{% for error in form.confirm_send.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 			{{form.confirm_send}}
 			{% if form.confirm_send.help_text %}
 			<p class="note">{{form.confirm_send.help_text}}</p>
 			{% endif %}
 		</div>
+		<button type="submit">Create Email</button>
 	</form>
 </div>
 {% endblock %}

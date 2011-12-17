@@ -13,13 +13,21 @@ textarea {height:5em;}
 .or, .or_label {width:80%;margin:auto;}
 .or_label {margin-top:10px;text-align:center;font-weight:bold;font-size:120%;text-transform:uppercase;}
 
-.note {color:#666;}
+.note {color:#666;font-style:italic;}
+
+.errors {margin:0;padding:0;}
+.errors li {list-style-type:none;color:#FF0000;display:inline;padding-right:5px;font-weight:bold;}
+
+.fleft {float:left;}
+.fright {float:right;}
 
 /* List Emails */
 #email-list #actions {margin:10px 0;}
 
 /* Create Email */
-#email-create form label {display:block;font-size:120%;font-weight:100;margin-top:10px;}
+#email-create form label {font-size:130%;font-weight:100;}
 #email-create form input,
 	#email-create form textarea {width:98%;}
 #email-create form select {width:100%;}
+#email-create form button {font-size:130%;width:100%;}
+#email-create form #start_date select {width:100px;}
