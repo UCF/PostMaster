@@ -12,8 +12,8 @@ class CreateEmailForm(forms.ModelForm):
 				if name == model_field.name:
 					self.fields[name].help_text = model_field.help_text
 
-	html       = forms.CharField(label='HTML', widget=forms.Textarea())
-	source_uri = forms.CharField(label='Source URI')
+	html       = forms.CharField(label='HTML', widget=forms.Textarea(), required=False)
+	source_uri = forms.CharField(label='Source URI', required=False)
 	start_date = forms.DateField(widget=SelectDateWidget())
 	send_time  = forms.CharField(label='Send time (24 Hour)')
 
