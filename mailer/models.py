@@ -23,7 +23,7 @@ class RecipientGroup(models.Model):
 		Describes the details of a named group of email recipients
 	'''
 	name       = models.CharField(max_length=100)
-	recipients = models.ManyToManyField(Recipient)
+	recipients = models.ManyToManyField(Recipient, related_name='groups')
 
 	def __str__(self):
 		return self.name + ' (' +  str(self.recipients.count()) + ' recipients)'
@@ -70,6 +70,15 @@ class Email(models.Model):
 	def total_sent(self):
 		return sum(list(i.sent for i in self.instances.all()))
 
+	@property
+	def content(self):
+		if self.html != '':
+			return self.html
+		else:
+			import urllib
+			page = urllib.urlopen(self.source_uri)
+			return page.read()
+
 class EmailLabelRecipientFieldMapping(models.Model):
 	'''
 		Describes the mapping between attributes on a recipient
@@ -85,7 +94,7 @@ class Instance(models.Model):
 	'''
 	email       = models.ForeignKey(Email, related_name='instances')
 	sent_html   = models.TextField()
-	start       = models.DateTimeField()
+	start       = models.DateTimeField(auto_now_add=True)
 	end         = models.DateTimeField()
 	in_progress = models.BooleanField(default=False)
-	sent        = models.IntegerField()
+	sent        = models.IntegerField(default=0)

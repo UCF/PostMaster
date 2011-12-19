@@ -33,6 +33,9 @@ DATABASES = {
 	}
 }
 
-class MailChimp(object):
-	API_KEY   = ''
-	END_POINT = ''
+AMAZON_SMTP = {
+	'host'    : 'email-smtp.us-east-1.amazonaws.com',
+	'port'    : 465,
+	'username': '',
+	'password': ''
+}

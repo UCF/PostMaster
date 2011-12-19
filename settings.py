@@ -96,15 +96,11 @@ LOGGING = {
             'propogate': True,
             'level':'INFO'
         },
-        'events': {
+        'mailer': {
             'handlers':['console', 'file'],
             'propogate': True,
             'level':'DEBUG'
         },
-        'util': {
-            'handlers':['console', 'file'],
-            'level':'DEBUG'
-        }
     }
 }
 
