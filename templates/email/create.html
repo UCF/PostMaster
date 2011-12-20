@@ -4,7 +4,13 @@
 {% endblock %}
 {% block content %}
 <div id="email-create">
+	{% if mode == 'create' %}
 	<form action="{% url mailer-email-create %}" method="post">
+	{% else %}
+		{% if mode == 'update' %}
+		<form action="{% url mailer-email-update form.instance.id %}" method="post">
+		{% endif %}
+	{% endif %}
 		<div class="input">
 			{{form.title.label_tag}}
 			{% if form.title.errors %}
@@ -95,6 +101,34 @@
 			{% endif %}
 		</div>
 		<div class="input">
+			{{form.from_email_address.label_tag}}
+			{% if form.from_email_address.errors %}
+			<ul class="errors fright">
+				{% for error in form.from_email_address.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.from_email_address}}
+			{% if form.from_email_address.help_text %}
+			<p class="note">{{form.from_email_address.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.from_friendly_name.label_tag}}
+			{% if form.from_friendly_name.errors %}
+			<ul class="errors fright">
+				{% for error in form.from_friendly_name.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.from_friendly_name}}
+			{% if form.from_friendly_name.help_text %}
+			<p class="note">{{form.from_friendly_name.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
 			{{form.replace_delimiter.label_tag}}
 			{% if form.replace_delimiter.errors %}
 			<ul class="errors fright">
@@ -136,7 +170,13 @@
 			<p class="note">{{form.confirm_send.help_text}}</p>
 			{% endif %}
 		</div>
-		<button type="submit">Create Email</button>
+		{% if mode == 'create' %}
+			<button type="submit">Create Email</button>
+		{% else %}
+			{% if mode == 'update' %}
+			<button type="submit">Update Email</button>
+			{% endif %}
+		{% endif %}
 	</form>
 </div>
 {% endblock %}

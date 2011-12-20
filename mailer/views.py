@@ -26,7 +26,7 @@ def details(request, email_id):
 	return direct_to_template(request, tmpl, ctx)
 
 def create_update_email(request, email_id=None):
-	ctx  = {'form':None} 
+	ctx  = {'form':None, 'mode':'create'} 
 	tmpl = 'email/create.html'
 
 	form_kwargs = {}
@@ -37,12 +37,16 @@ def create_update_email(request, email_id=None):
 			return HttpResponseNotFound('Email specified does not exist.')
 		else:
 			form_kwargs['instance'] = email
+			ctx['mode'] = 'update'
 
 	if request.method == 'POST':
 		ctx['form'] = CreateEmailForm(request.POST, **form_kwargs)
 		if ctx['form'].is_valid():
 			ctx['form'].save()
-			messages.success(request, 'Email successfully created.')
+			if ctx['mode'] =='create':
+				messages.success(request, 'Email successfully created.')
+			elif ctx['mode'] == 'update':
+				messages.success(request, 'Email successfully updated.')
 			return HttpResponseRedirect(reverse('mailer-email-list'))
 	else:
 		ctx['form'] = CreateEmailForm(**form_kwargs)
