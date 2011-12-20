@@ -27,7 +27,7 @@ def details(request, email_id):
 
 def create_update_email(request, email_id=None):
 	ctx  = {'form':None, 'mode':'create'} 
-	tmpl = 'email/create.html'
+	tmpl = 'email/create_update.html'
 
 	form_kwargs = {}
 	if email_id is not None:
