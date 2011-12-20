@@ -172,6 +172,34 @@
 			<p class="note">{{form.confirm_send.help_text}}</p>
 			{% endif %}
 		</div>
+		<div class="input">
+			{{form.track_urls.label_tag}}
+			{% if form.track_urls.errors %}
+			<ul class="errors fright">
+				{% for error in form.track_urls.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.track_urls}}
+			{% if form.track_urls.help_text %}
+			<p class="note">{{form.track_urls.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.track_opens.label_tag}}
+			{% if form.track_opens.errors %}
+			<ul class="errors fright">
+				{% for error in form.track_opens.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.track_opens}}
+			{% if form.track_opens.help_text %}
+			<p class="note">{{form.track_opens.help_text}}</p>
+			{% endif %}
+		</div>
 		{% if mode == 'create' %}
 			<button type="submit">Create Email</button>
 		{% else %}

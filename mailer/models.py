@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+import hmac
 
 class Recipient(models.Model):
 	'''
@@ -14,6 +16,10 @@ class Recipient(models.Model):
 	first_name    = models.CharField(max_length=100)
 	last_name     = models.CharField(max_length=100)
 	email_address = models.CharField(max_length=256)
+
+	@property
+	def hmac_hash(self):
+		return hmac.new(settings.SECRET_KEY, self.email_address).hexdigest()
 
 	@property
 	def smtp_address(self):
@@ -59,7 +65,9 @@ class Email(models.Model):
 		'recipient_groups'  : 'Which group(s) of recipients this email will go to.',
 		'confirm_send'      : 'Send a go/no-go email to the administrators before the email is sent.',
 		'from_email_address': 'Email address from where the sent emails will originate',
-		'from_friendly_name': 'A display name associated with the from email address'
+		'from_friendly_name': 'A display name associated with the from email address',
+		'track_urls'        : 'Rewrites all URLs in the email content to be recorded',
+		'track_opens'       : 'Adds a tracking image to email content to track if and when an email is opened.'
 	}
 
 	title              = models.CharField(max_length=100, help_text=_HELP_TEXT['title'])
@@ -73,6 +81,8 @@ class Email(models.Model):
 	replace_delimiter  = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
 	recipient_groups   = models.ManyToManyField(RecipientGroup, help_text=_HELP_TEXT['recipient_groups'])
 	confirm_send       = models.BooleanField(default=True, help_text=_HELP_TEXT['confirm_send'])
+	track_urls         = models.BooleanField(default=False, help_text=_HELP_TEXT['track_urls'])
+	track_opens        = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
 
 	@property
 	def smtp_from_address(self):
@@ -93,6 +103,28 @@ class Email(models.Model):
 			import urllib
 			page = urllib.urlopen(self.source_uri)
 			return page.read()
+
+class URL(models.Model):
+	'''
+		Describes a particular URL in an email
+	'''
+	name     = models.CharField(max_length=2000)
+	created  = models.DateTimeField(auto_now_add=True)
+
+	# An email's content may have more than on link
+	# to the same URL (e.g. multiple donate buttons
+	# throughout an email).
+	# Track these separately, ascending to descending
+	# and left to right.
+	position = models.PositiveIntegerField(default=0)
+
+class URLClick(models.Model):
+	'''
+		Describes a recipient's clicking of a URL
+	'''
+	recipient = models.ForeignKey(Recipient, related_name='urls_clicked')
+	url       = models.ForeignKey(URL, related_name='clicks')
+	when      = models.DateTimeField(auto_now_add=True)
 
 class EmailLabelRecipientFieldMapping(models.Model):
 	'''
