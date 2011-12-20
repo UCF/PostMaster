@@ -1,9 +1,10 @@
 from django.views.generic.simple    import direct_to_template
-from mailer.models                  import Email, EmailLabelRecipientFieldMapping
+from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick
 from mailer.forms                   import CreateEmailForm, LabelMappingForm
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
+from util                           import calc_url_mac
 import urllib
 import re
 
@@ -100,3 +101,46 @@ def map_labels_fields(request, email_id):
 				finally:
 					ctx['forms'].append(LabelMappingForm(instance=label, prefix=label_name+'_'))
 		return direct_to_template(request, tmpl, ctx)
+
+def redirect(request):
+	'''
+		Redirects based on URL and records URL click
+	'''
+	url_string    = request.GET.get('url',       None)
+	position      = request.GET.get('position',  None)
+	recipient_id  = request.GET.get('recipient', None)
+	mac           = request.GET.get('mac',     None)
+
+	if url_string is None and url_string != '':
+		pass # Where do we go?
+	else:
+		url_string = urllib.unquote(url_string)
+		# No matter what happens, make sure the redirection works
+		try:
+			if position is not None and position != '' and recipient_id is not None and recipient_id != '' and mac != '':
+				try:
+					position = int(position)
+				except ValueError:
+					pass
+				else:
+					try:
+						recipient_id = int(recipient_id)
+					except ValueError:
+						pass
+					else:
+						if mac == calc_url_mac(url_string, position, recipient_id):
+							try:
+								url = URL.objects.get(name=url_string)
+							except URL.DoesNotExist:
+								url = URL(name=url)
+								url.save()
+							else:
+								try:
+									recipient = Recipient.objects.get(id=recipient_id)
+								except Recipient.DoesNotExist:
+									pass
+								else:
+									url_click = URLClick(recipient=recipient, url=url, position=position)
+									url_click.save()
+		except Exception, e:
+			return HttpResponseRedirect(url_string)
