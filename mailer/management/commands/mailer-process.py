@@ -7,6 +7,7 @@ import hashlib
 import smtplib
 import logging
 import re
+import urllib
 
 log = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class Command(BaseCommand):
 			'send_time__lt'   :later_t}
 		emails = Email.objects.filter(**email_kwargs)
 
-		log.debug('Emails being sent in this run: ' + str(todays_email_ids))
+		log.debug('Emails being sent in this run: ' + str(list(e.id for e in emails)))
 
 		for email in emails:
 			content      = email.content.decode('ascii', errors='ignore')
@@ -78,14 +79,30 @@ class Command(BaseCommand):
 						# Customize the content for this recipient
 						customized_content = content
 						for mapping in email.mappings.all():
-							find    = email.replace_delimiter + mapping.email_label + email.replace_delimiter
-							try:
-								replace = getattr(recipient, mapping.recipient_field) 
-							except AttributeError:
-								log.error('Invalid email label mapping from `%s` to `%s` on the recipient object' % (find, mapping.recipient_field))
-							else:
-								customized_content = customized_content.replace(find, replace)
+							if mapping.recipient_field is not None and mapping.recipient_field != '':
+								find    = email.replace_delimiter + mapping.email_label + email.replace_delimiter
+								try:
+									replace = getattr(recipient, mapping.recipient_field) 
+								except AttributeError:
+									log.error('Invalid email label mapping from `%s` to `%s` on the recipient object' % (find, mapping.recipient_field))
+								else:
+									customized_content = customized_content.replace(find, replace)
 						
+						# Tracking URLs
+						if email.track_urls:
+							hrefs = re.findall('<a[^href]*href="([^"]+)"', customized_content)
+
+							positioned_urls = []
+							for href in hrefs:
+								params = {
+									'recipient':recipient.id,
+									'url'      :urllib.quote(href),
+									'position' :positioned_urls.count(href)
+								}
+								tracked_url = '?'.join([request.build_absolute_url(reverse('mailer-email-redirect')), urllib.urlencode(params)])
+								customized_content = customize_content.replace('href="' + href + '"', tracked_url)
+								positioned_urls.append(href)
+
 						# Construct the final SMTP headers
 						final_smtp_headers = smtp_headers.copy()
 						final_smtp_headers['To: '] = recipient.smtp_address
