@@ -5,9 +5,11 @@
 {% block content %}
 <div id="email-create">
 	{% if mode == 'create' %}
+	<h2>Create Email</h2>
 	<form action="{% url mailer-email-create %}" method="post">
 	{% else %}
 		{% if mode == 'update' %}
+		<h2>Update {{form.instance.title}}</h2>
 		<form action="{% url mailer-email-update form.instance.id %}" method="post">
 		{% endif %}
 	{% endif %}
