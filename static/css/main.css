@@ -22,6 +22,8 @@ textarea {height:5em;}
 .fleft {float:left;}
 .fright {float:right;}
 
+#messages {padding-left:0;}
+#messages li {list-style-type:none;}
 /* List Emails */
 #email-list #actions{margin:10px 0;}
 #email-list #emails {margin:0;padding:0;}
