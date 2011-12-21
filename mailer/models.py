@@ -1,6 +1,9 @@
 from django.db import models
 from django.conf import settings
 import hmac
+import calendar
+import datetime
+import urllib
 
 class Recipient(models.Model):
 	'''
@@ -93,16 +96,68 @@ class Email(models.Model):
 
 	@property
 	def total_sent(self):
-		return sum(list(i.sent for i in self.instances.all()))
+		return sum(list(i.recipient_details.count() for i in self.instances.all()))
 
 	@property
 	def content(self):
 		if self.html != '':
 			return self.html
 		else:
-			import urllib
 			page = urllib.urlopen(self.source_uri)
 			return page.read()
+	
+	def graph(self, duration=15, width=630, height=225):
+
+		base_url = 'https://chart.googleapis.com/chart'
+		params = {
+			'cht' :'lc',      # chart type - lc=line chart
+			'chco': '',       # line colors
+			'chs' : '',       # chart dimensions - width by height in pixels
+			'chd' : '',       # chart data
+			'chxt': 'x,y',    # visible axes
+			'chxl': '',       # custom axis label
+			'chdl': '',       # legend names
+			'chtt': '',       # graph title
+			'chxr': '',       # axis range
+		}
+
+		# Dimensions
+		params['chs'] = 'x'.join([str(width), str(height)])
+
+		# Define the lines we are going to have
+		lines = {'Sent' : 'FF0000'}
+		if self.track_urls:
+			lines['URLs Clicked'] = '00FF00'
+		if self.track_opens:
+			lines['Opened'] = '0000FF'
+		
+		# line colors
+		params['chco'] = ','.join(list(val for key,val in lines.items()))
+
+		# Data and labels
+		data = {'sent':[]}
+		labels = []
+		now = datetime.datetime.now()
+		for i in range(duration):
+			start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0) - datetime.timedelta(days=i)
+			end   = datetime.datetime(now.year, now.month, now.day, 23, 59, 59) - datetime.timedelta(days=i)
+			# Sent
+			total = 0
+			for instance in self.instances.filter(start__gte=start, start__lt=end):
+				total += instance.recipient_details.count()
+			data['sent'].append(total)
+			labels.append('/'.join([str(start.month), str(start.day)]))
+
+		data['sent'].reverse()
+		labels.reverse()
+
+		params['chd']  = 't:' + ','.join(list(str(d) for d in data['sent']))
+		params['chxr'] = ','.join(['1', '0', str(max(data['sent']))])
+		params['chds'] = ','.join(['0', str(max(data['sent']))])
+		params['chxl'] = '0:|' + '|'.join(labels)
+		params['chdl'] = '|'.join(list(key for key,val in lines.items()))
+		
+		return '?'.join([base_url,urllib.urlencode(params)])
 
 class URL(models.Model):
 	'''
@@ -146,7 +201,10 @@ class Instance(models.Model):
 	in_progress = models.BooleanField(default=False)
 	sent        = models.IntegerField(default=0)
 	recipients  = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
-		
+	
+	class Meta:
+		ordering = ('-start',)
+
 class InstanceRecipientDetails(models.Model):
 	'''
 		Describes the response from the SMTP server
@@ -161,7 +219,7 @@ class InstanceRecipientDetails(models.Model):
 	)
 
 	recipient      = models.ForeignKey(Recipient)
-	instance       = models.ForeignKey(Instance)
+	instance       = models.ForeignKey(Instance, related_name='recipient_details')
 	when           = models.DateTimeField(auto_now_add=True)
 	exception_type = models.SmallIntegerField(null=True, blank=True, choices=_EXCEPTION_CHOICES)
 	exception_msg  = models.TextField(null=True, blank=True)

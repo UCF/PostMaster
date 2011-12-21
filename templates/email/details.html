@@ -8,7 +8,7 @@
 		<strong>Started On:</strong> {{email.start_date}}
 	</div>
 	<a class="fright" href="{% url mailer-email-update email.id %}">Edit Details</a>
-	<img id="overall_stats" src="https://chart.googleapis.com/chart?cht=lc&chco=FF0000,00FF00,0000FF&chs=630x225&chd=s:FOETHECat,lkjtf3asv,KATYPSNXJ&chxt=x,y&chxl=0:|Oct|Nov|Dec|1:||20K||60K||100K&chdl=Opened|Sent|Bounced&chtt=2 Month Stats" />
+	<img id="overall_stats" src="{{email.graph}}" />
 	<h3>Instances</h3>
 	{% for instance in email.instances.all %}
 		{% if forloop.first %}
