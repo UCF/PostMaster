@@ -267,6 +267,6 @@ class InstanceOpen(models.Model):
 	'''
 		Describes a recipient opening an email
 	'''
-	recipient = models.ForeignKey(Recipient)
-	instance  = models.ForeignKey(Instance)
+	recipient = models.ForeignKey(Recipient, related_name='instances_opened')
+	instance  = models.ForeignKey(Instance, related_name='opens')
 	when      = models.DateTimeField(auto_now_add=True)
