@@ -137,7 +137,7 @@ class Email(models.Model):
 		if self.track_urls:
 			lines['URLs Clicked'] = '00FF00'
 		if self.track_opens:
-			lines['Opened'] = '0000FF'
+			lines['Opened'] = 'FF00FF'
 		
 		# line colors
 		params['chco'] = ','.join(list(val for key,val in lines.items()))
