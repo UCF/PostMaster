@@ -8,7 +8,8 @@ import smtplib
 import logging
 import re
 import urllib
-
+import time
+ 
 log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
@@ -115,19 +116,23 @@ class Command(BaseCommand):
 						}
 
 						try:
-							amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
+							log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
+							response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
+							time.sleep(settings.AMAZON_SMTP.rate)
+							log.debug(' '.join([recipient.email_address, str(response)]))	
 						except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
 							instance_details_kwargs['exception_type'] = 0
 							instance_details_kwargs['exception_msg']  = str(e)
+							log.error(' '.join([recipient.email_address, str(e)]))
 						except smtplib.SMTPHeloError, e:         # Exception type 1
 							instance_details_kwargs['exception_type'] = 1
-							instance_details_kwargs['exception_msg']  = str(e)
+							log.error(' '.join([recipient.email_address, str(e)]))
 						except smtplib.SMTPSenderRefused, e:     # Exception type 2
 							instance_details_kwargs['exception_type'] = 2
-							instance_details_kwargs['exception_msg']  = str(e)
+							log.error(' '.join([recipient.email_address, str(e)]))
 						except smtplib.SMTPDataError, e:         # Exception type 3
 							instance_details_kwargs['exception_type'] = 3
-							instance_details_kwargs['exception_msg']  = str(e)
+							log.error(' '.join([recipient.email_address, str(e)]))
 						instance_details = InstanceRecipientDetails(**instance_details_kwargs)
 						instance_details.save()
 			instance.in_progress = False

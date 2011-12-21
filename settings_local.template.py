@@ -37,5 +37,7 @@ AMAZON_SMTP = {
 	'host'    : 'email-smtp.us-east-1.amazonaws.com',
 	'port'    : 465,
 	'username': '',
-	'password': ''
+	'password': '',
+	'quota'   : 10000, # per 24 hours
+	'rate'    : 1/5 # 5 per second
 }
