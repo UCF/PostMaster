@@ -20,9 +20,6 @@ class Command(BaseCommand):
 		set to run every 15 minutes
 	'''
 	def handle(self, *args, **options):
-		amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-		amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-		
 		now_dt          = datetime.now()
 		now_d           = now_dt.date()
 		now_t           = now_dt.time()
@@ -56,102 +53,106 @@ class Command(BaseCommand):
 
 		log.debug('Emails being sent in this run: ' + str(list(e.id for e in emails)))
 
-		for email in emails:
-			content      = email.content.decode('ascii', errors='ignore')
-			subject      = email.title
+		if len(emails) > 0:
+			amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 
-			# These headers will be the same for every sent email
-			smtp_headers = {
-				'From: '         : email.smtp_from_address,
-				'Subject: '      : subject,
-				'Content-type: ' : 'text/html; charset=us-ascii',
-			}
+			for email in emails:
+				content      = email.content.decode('ascii', errors='ignore')
+				subject      = email.title
 
-			instance = Instance(email=email, sent_html=content, in_progress=True)
-			instance.save()
+				# These headers will be the same for every sent email
+				smtp_headers = {
+					'From: '         : email.smtp_from_address,
+					'Subject: '      : subject,
+					'Content-type: ' : 'text/html; charset=us-ascii',
+				}
 
-			for group in email.recipient_groups.all():
-				for recipient in group.recipients.all():
+				instance = Instance(email=email, sent_html=content, in_progress=True)
+				instance.save()
 
-					try:
-						# Check to see if this email has already been
-						# sent to this recipient
-						InstanceRecipientDetails.objects.get(instance=instance, recipient=recipient)
-					except InstanceRecipientDetails.DoesNotExist:
-
-						# Customize the content for this recipient
-						customized_content = content
-						for mapping in email.mappings.all():
-							if mapping.recipient_field is not None and mapping.recipient_field != '':
-								find    = email.replace_delimiter + mapping.email_label + email.replace_delimiter
-								try:
-									replace = getattr(recipient, mapping.recipient_field) 
-								except AttributeError:
-									log.error('Invalid email label mapping from `%s` to `%s` on the recipient object' % (find, mapping.recipient_field))
-								else:
-									customized_content = customized_content.replace(find, replace)
-						
-						# Tracking URLs
-						if email.track_urls:
-							hrefs = re.findall('<a[^href]*href="([^"]+)"', customized_content)
-
-							positioned_urls = []
-							for href in hrefs:
-								# Records these URLs so they can be tracked
-								url = URL(instance=instance, name=href, position=positioned_urls.count(href))
-								url.save()
-								params = {
-									'instance' :instance.id,
-									'recipient':recipient.id,
-									'url'      :urllib.quote(href),
-									'position' :positioned_urls.count(href),
-								}
-								params['mac'] = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
-								tracked_url = '?'.join([request.build_absolute_url(reverse('mailer-email-redirect')), urllib.urlencode(params)])
-								customized_content = customize_content.replace('href="' + href + '"', tracked_url)
-								positioned_urls.append(href)
-						
-						# Tracking opens
-						if email.track_opens:
-							params = {
-								'recipient':recipient.id,
-								'instance' :instance.id
-							}
-							params['mac'] = calc_open_mac(params['recipient'], params['instance'])
-							customized_content += '<img src="' + settings.PROJECT_URL + reverse('mailer-email-open') + '?' + urllib.urlencode(params) + '" />'
-
-						# Construct the final SMTP headers
-						final_smtp_headers = smtp_headers.copy()
-						final_smtp_headers['To: '] = recipient.smtp_address
-
-						msg = '\r\n'.join(list(k + v for k,v in final_smtp_headers.items())) + '\r\n\r\n' + customized_content
-
-						instance_details_kwargs = {
-							'instance'  :instance,
-							'recipient' :recipient,
-						}
+				for group in email.recipient_groups.all():
+					for recipient in group.recipients.all():
 
 						try:
-							log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
-							response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
-							time.sleep(settings.AMAZON_SMTP.rate)
-							log.debug(' '.join([recipient.email_address, str(response)]))	
-						except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
-							instance_details_kwargs['exception_type'] = 0
-							instance_details_kwargs['exception_msg']  = str(e)
-							log.error(' '.join([recipient.email_address, str(e)]))
-						except smtplib.SMTPHeloError, e:         # Exception type 1
-							instance_details_kwargs['exception_type'] = 1
-							log.error(' '.join([recipient.email_address, str(e)]))
-						except smtplib.SMTPSenderRefused, e:     # Exception type 2
-							instance_details_kwargs['exception_type'] = 2
-							log.error(' '.join([recipient.email_address, str(e)]))
-						except smtplib.SMTPDataError, e:         # Exception type 3
-							instance_details_kwargs['exception_type'] = 3
-							log.error(' '.join([recipient.email_address, str(e)]))
-						instance_details = InstanceRecipientDetails(**instance_details_kwargs)
-						instance_details.save()
-			instance.in_progress = False
-			instance.end = datetime.now()
-			instance.save()
-		amazon_ses.quit()
+							# Check to see if this email has already been
+							# sent to this recipient
+							InstanceRecipientDetails.objects.get(instance=instance, recipient=recipient)
+						except InstanceRecipientDetails.DoesNotExist:
+
+							# Customize the content for this recipient
+							customized_content = content
+							for mapping in email.mappings.all():
+								if mapping.recipient_field is not None and mapping.recipient_field != '':
+									find    = email.replace_delimiter + mapping.email_label + email.replace_delimiter
+									try:
+										replace = getattr(recipient, mapping.recipient_field) 
+									except AttributeError:
+										log.error('Invalid email label mapping from `%s` to `%s` on the recipient object' % (find, mapping.recipient_field))
+									else:
+										customized_content = customized_content.replace(find, replace)
+							
+							# Tracking URLs
+							if email.track_urls:
+								hrefs = re.findall('<a[^href]*href="([^"]+)"', customized_content)
+
+								positioned_urls = []
+								for href in hrefs:
+									# Records these URLs so they can be tracked
+									url = URL(instance=instance, name=href, position=positioned_urls.count(href))
+									url.save()
+									params = {
+										'instance' :instance.id,
+										'recipient':recipient.id,
+										'url'      :urllib.quote(href),
+										'position' :positioned_urls.count(href),
+									}
+									params['mac'] = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
+									tracked_url = '?'.join([request.build_absolute_url(reverse('mailer-email-redirect')), urllib.urlencode(params)])
+									customized_content = customize_content.replace('href="' + href + '"', tracked_url)
+									positioned_urls.append(href)
+							
+							# Tracking opens
+							if email.track_opens:
+								params = {
+									'recipient':recipient.id,
+									'instance' :instance.id
+								}
+								params['mac'] = calc_open_mac(params['recipient'], params['instance'])
+								customized_content += '<img src="' + settings.PROJECT_URL + reverse('mailer-email-open') + '?' + urllib.urlencode(params) + '" />'
+
+							# Construct the final SMTP headers
+							final_smtp_headers = smtp_headers.copy()
+							final_smtp_headers['To: '] = recipient.smtp_address
+
+							msg = '\r\n'.join(list(k + v for k,v in final_smtp_headers.items())) + '\r\n\r\n' + customized_content
+
+							instance_details_kwargs = {
+								'instance'  :instance,
+								'recipient' :recipient,
+							}
+
+							try:
+								log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
+								response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
+								time.sleep(settings.AMAZON_SMTP.rate)
+								log.debug(' '.join([recipient.email_address, str(response)]))	
+							except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
+								instance_details_kwargs['exception_type'] = 0
+								instance_details_kwargs['exception_msg']  = str(e)
+								log.error(' '.join([recipient.email_address, str(e)]))
+							except smtplib.SMTPHeloError, e:         # Exception type 1
+								instance_details_kwargs['exception_type'] = 1
+								log.error(' '.join([recipient.email_address, str(e)]))
+							except smtplib.SMTPSenderRefused, e:     # Exception type 2
+								instance_details_kwargs['exception_type'] = 2
+								log.error(' '.join([recipient.email_address, str(e)]))
+							except smtplib.SMTPDataError, e:         # Exception type 3
+								instance_details_kwargs['exception_type'] = 3
+								log.error(' '.join([recipient.email_address, str(e)]))
+							instance_details = InstanceRecipientDetails(**instance_details_kwargs)
+							instance_details.save()
+				instance.in_progress = False
+				instance.end = datetime.now()
+				instance.save()
+			amazon_ses.quit()
