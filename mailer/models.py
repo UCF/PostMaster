@@ -215,8 +215,8 @@ class Instance(models.Model):
 	in_progress   = models.BooleanField(default=False)
 	sent          = models.IntegerField(default=0)
 	recipients    = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
-	opens_tracked = models.BooleanField()
-	urls_tracked  = models.BooleanField()
+	opens_tracked = models.BooleanField(default=False)
+	urls_tracked  = models.BooleanField(default=False)
 	
 	class Meta:
 		ordering = ('-start',)
