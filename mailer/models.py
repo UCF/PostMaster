@@ -234,7 +234,7 @@ class InstanceRecipientDetails(models.Model):
 		(3, 'SMTPDataError')
 	)
 
-	recipient      = models.ForeignKey(Recipient)
+	recipient      = models.ForeignKey(Recipient, related_name='instance_receipts')
 	instance       = models.ForeignKey(Instance, related_name='recipient_details')
 	when           = models.DateTimeField(auto_now_add=True)
 	exception_type = models.SmallIntegerField(null=True, blank=True, choices=_EXCEPTION_CHOICES)
@@ -244,7 +244,7 @@ class URL(models.Model):
 	'''
 		Describes a particular URL in an email
 	'''
-	instance = models.ForeignKey(Instance)
+	instance = models.ForeignKey(Instance, related_name='urls')
 	name     = models.CharField(max_length=2000)
 	created  = models.DateTimeField(auto_now_add=True)
 
