@@ -68,7 +68,7 @@ class Command(BaseCommand):
 					'Content-type: ' : 'text/html; charset=us-ascii',
 				}
 
-				instance = Instance(email=email, sent_html=content, in_progress=True)
+				instance = Instance(email=email, sent_html=content, in_progress=True, opens_tracked=email.track_opens, urls_tracked=email.track_urls)
 				instance.save()
 
 				for group in email.recipient_groups.all():
@@ -93,7 +93,7 @@ class Command(BaseCommand):
 										customized_content = customized_content.replace(find, replace)
 							
 							# Tracking URLs
-							if email.track_urls:
+							if instance.urls_tracked:
 								hrefs = re.findall('<a[^href]*href="([^"]+)"', customized_content)
 
 								positioned_urls = []
@@ -113,7 +113,7 @@ class Command(BaseCommand):
 									positioned_urls.append(href)
 							
 							# Tracking opens
-							if email.track_opens:
+							if instance.opens_tracked:
 								params = {
 									'recipient':recipient.id,
 									'instance' :instance.id
