@@ -1,5 +1,5 @@
 from django.views.generic.simple    import direct_to_template
-from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick, InstanceOpen
+from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick, InstanceOpen, Recipient, Instance
 from mailer.forms                   import CreateEmailForm, LabelMappingForm
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
@@ -9,6 +9,9 @@ from django.conf                    import settings
 from datetime                       import datetime
 import urllib
 import re
+import logging
+
+log = logging.getLogger(__name__)
 
 def list_emails(request):
 	ctx  = {'emails':Email.objects.none()} 
@@ -108,7 +111,7 @@ def redirect(request):
 	'''
 		Redirects based on URL and records URL click
 	'''
-	instance_id   = request.GET.GET('instance',  None)
+	instance_id   = request.GET.get('instance',  None)
 	url_string    = request.GET.get('url',       None)
 	position      = request.GET.get('position',  None)
 	recipient_id  = request.GET.get('recipient', None)
@@ -126,11 +129,12 @@ def redirect(request):
 					recipient_id = int(recipient_id)
 					instance_id  = int(instance_id)
 				except ValueError:
+					log.error('value error')
 					pass
 				else:
 					if mac == calc_url_mac(url_string, position, recipient_id, instance_id):
 						try:
-							url       = URL.objects.get(name=url_string)
+							url       = URL.objects.get(name=url_string, position=position)
 							recipient = Recipient.objects.get(id=recipient_id)
 							instance  = Instance.objects.get(id=instance_id)
 						except URL.DoesNotExist:
@@ -140,14 +144,22 @@ def redirect(request):
 							pass
 						except Recipient.DoesNotExist:
 							# strange
+							log.error('bad recipient')
 							pass
 						except Instance.DoesNotExist:
 							# also strange
+							log.error('bad instance')
 							pass
 						else:
 							url_click = URLClick(recipient=recipient, url=url, position=position)
 							url_click.save()
+							log.debug('url click saved')
+					else:
+						log.error('wrong mac')
+			else:
+				log.error('something none')
 		except Exception, e:
+			log.error(str(e))
 			pass
 		return HttpResponseRedirect(url_string)
 
