@@ -134,10 +134,10 @@ class Email(models.Model):
 			'Sent'           : '0000FF',
 			'Sending Errors' : 'FF0000',
 		}
-		if self.track_urls:
-			lines['URLs Clicked'] = '00FF00'
-		if self.track_opens:
-			lines['Opened'] = 'FF00FF'
+		#if any(list(i.urls_tracked for i in self.instances.all())):
+		lines['URLs Clicked'] = '00FF00'
+		#if any(list(i.opens_tracked for i in self.instances.all())):
+		lines['Opened'] = 'FF00FF'
 		
 		# line colors
 		params['chco'] = ','.join(list(val for key,val in lines.items()))
@@ -145,7 +145,9 @@ class Email(models.Model):
 		# Compile data and labels
 		data_sets = {
 			'sent'  :[],
-			'errors':[]
+			'errors':[],
+			'opens' :[],
+			'clicks':[]
 		}
 		labels = []
 		now = datetime.datetime.now()
@@ -154,16 +156,27 @@ class Email(models.Model):
 			end   = datetime.datetime(now.year, now.month, now.day, 23, 59, 59) - datetime.timedelta(days=i)
 
 			# Sent
-			total = 0
-			for instance in self.instances.filter(start__gte=start, start__lt=end):
-				total += instance.recipient_details.count()
-			data_sets['sent'].append(total)
-			
-			# Sending Errors
-			total = 0
-			for instance in self.instances.filter(start__gte=start, start__lt=end):
-				total += instance.recipient_details.exclude(exception_type=None).count()
-			data_sets['errors'].append(total)
+			sent_total  = 0
+			open_total  = 0
+			click_total = 0
+			error_total = 0
+			instances = self.instances.filter(start__gte=start, start__lt=end)
+			for instance in instances:
+				sent_total += instance.recipient_details.count()
+
+				# Opens
+				open_total = instance.opens.filter(when__gte=start, when__lt=end).count()
+				
+				# URL clicks
+				click_total = instance.urls.filter(clicks__when__gte=start, clicks__when__lt=end).count()
+
+				# Sending Errors
+				error_total = instance.recipient_details.exclude(exception_type=None).count()
+
+			data_sets['sent'].append(sent_total)
+			data_sets['opens'].append(open_total)
+			data_sets['clicks'].append(click_total)
+			data_sets['errors'].append(error_total)
 
 			labels.append('/'.join([str(start.month), str(start.day)]))
 
