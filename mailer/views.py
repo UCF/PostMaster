@@ -7,12 +7,14 @@ from django.core.urlresolvers       import reverse
 from util                           import calc_url_mac, calc_open_mac
 from django.conf                    import settings
 from datetime                       import datetime
+from django.contrib.auth.decorators import login_required
 import urllib
 import re
 import logging
 
 log = logging.getLogger(__name__)
 
+@login_required
 def list_emails(request):
 	ctx  = {'emails':Email.objects.none()} 
 	tmpl = 'email/list.html'
@@ -21,6 +23,7 @@ def list_emails(request):
 
 	return direct_to_template(request, tmpl, ctx)
 
+@login_required
 def details(request, email_id):
 	ctx  = {'email':None} 
 	tmpl = 'email/details.html'
@@ -31,6 +34,7 @@ def details(request, email_id):
 		return HttpResponseNotFound('Email specified does not exist.')
 	return direct_to_template(request, tmpl, ctx)
 
+@login_required
 def create_update_email(request, email_id=None):
 	ctx  = {'form':None, 'mode':'create'} 
 	tmpl = 'email/create_update.html'
@@ -59,6 +63,7 @@ def create_update_email(request, email_id=None):
 
 	return direct_to_template(request, tmpl, ctx)
 
+@login_required
 def map_labels_fields(request, email_id):
 	'''
 		Maps email labels to recipient fields

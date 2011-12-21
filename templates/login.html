@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="mailer-login">
+	<form action="{% url login %}" method="post">
+		{{form}}
+		{% csrf_token %}
+		<input type="hidden" name="next" value="{% url mailer-email-list %}" />
+		<button type="submit">Login</button>
+	</form>
+</div>
+{% endblock %}
