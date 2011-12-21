@@ -45,7 +45,6 @@ textarea {height:5em;}
 
 /* Email Details */
 #email-details h2 {font-size:150%;}
-#email-details h2 span {font-size:70%;font-weight:normal;float:right;}
 #email-details #overall_stats {display:block;padding-top:0;}
 #email-details #instances {margin:0;padding:0;}
 #email-details #instances > li {list-style-type:none;}

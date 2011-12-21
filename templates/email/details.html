@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div id="email-details">
-	<h2>{{email.title}} <span>Total Sent All-Time: {{email.total_sent}}</span></h2>
+	<h2>{{email.title}}</h2>
 	<div>
 		<strong>Send Time:</strong> {{email.send_time}} -
 		<strong>Recurring:</strong> {{email.get_recurrence_display}} -
