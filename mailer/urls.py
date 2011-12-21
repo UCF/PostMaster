@@ -3,7 +3,7 @@ from django.views.generic.simple import direct_to_template
 from django.conf                 import settings
 
 urlpatterns = patterns('mailer.views',
-	url(r'^email/open/?$', view='open', name='mailer-email-open'),
+	url(r'^email/open/?$', view='instance_open', name='mailer-email-open'),
 	url(r'^email/redirect/?$', view='redirect', name='mailer-email-redirect'),
 	url(r'^email/(?P<email_id>\d+)/details/?$', view='details', name='mailer-email-details'),
 	url(r'^email/(?P<email_id>\d+)/map/?$', view='map_labels_fields', name='mailer-email-map'),
