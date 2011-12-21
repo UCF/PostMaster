@@ -2,6 +2,8 @@ from django.core.management.base import BaseCommand
 from mailer.models               import Email, Instance, RecipientGroup, Recipient, InstanceRecipientDetails
 from datetime                    import datetime, timedelta
 from django.conf                 import settings
+from util                        import calc_url_mac, calc_open_mac
+from django.core.urlresolvers    import reverse
 import calendar
 import hashlib
 import smtplib
@@ -102,11 +104,21 @@ class Command(BaseCommand):
 									'instance' :instance.id,
 									'recipient':recipient.id,
 									'url'      :urllib.quote(href),
-									'position' :positioned_urls.count(href)
+									'position' :positioned_urls.count(href),
 								}
+								params['mac'] = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
 								tracked_url = '?'.join([request.build_absolute_url(reverse('mailer-email-redirect')), urllib.urlencode(params)])
 								customized_content = customize_content.replace('href="' + href + '"', tracked_url)
 								positioned_urls.append(href)
+						
+						# Tracking opens
+						if email.track_opens:
+							params = {
+								'recipient':recipient.id,
+								'instance' :instance.id
+							}
+							params['mac'] = calc_open_mac(params['recipient'], params['instance'])
+							customized_content += '<img src="' + settings.PROJECT_URL + reverse('mailer-email-open') + '?' + urllib.urlencode(params) + '" />'
 
 						# Construct the final SMTP headers
 						final_smtp_headers = smtp_headers.copy()

@@ -13,6 +13,11 @@ MEDIA_URL = '/static/'
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
+# Base URL of the project. Needed in places where build_absolute_uri
+# can't be used because there is no request object (e.g. management commands)	
+# No trailing slash
+PROJECT_URL = 'http://127.0.0.1:8000/'
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'whatisthisnonsense?'
 
