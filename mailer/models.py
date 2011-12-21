@@ -195,29 +195,6 @@ class Email(models.Model):
 		
 		return '?'.join([base_url,urllib.urlencode(params)])
 
-class URL(models.Model):
-	'''
-		Describes a particular URL in an email
-	'''
-	instance = models.ForeignKey('Instance')
-	name     = models.CharField(max_length=2000)
-	created  = models.DateTimeField(auto_now_add=True)
-
-	# An email's content may have more than on link
-	# to the same URL (e.g. multiple donate buttons
-	# throughout an email).
-	# Track these separately, ascending to descending
-	# and left to right.
-	position = models.PositiveIntegerField(default=0)
-
-class URLClick(models.Model):
-	'''
-		Describes a recipient's clicking of a URL
-	'''
-	recipient = models.ForeignKey(Recipient, related_name='urls_clicked')
-	url       = models.ForeignKey(URL, related_name='clicks')
-	when      = models.DateTimeField(auto_now_add=True)
-
 class EmailLabelRecipientFieldMapping(models.Model):
 	'''
 		Describes the mapping between attributes on a recipient
@@ -260,3 +237,34 @@ class InstanceRecipientDetails(models.Model):
 	when           = models.DateTimeField(auto_now_add=True)
 	exception_type = models.SmallIntegerField(null=True, blank=True, choices=_EXCEPTION_CHOICES)
 	exception_msg  = models.TextField(null=True, blank=True)
+
+class URL(models.Model):
+	'''
+		Describes a particular URL in an email
+	'''
+	instance = models.ForeignKey(Instance)
+	name     = models.CharField(max_length=2000)
+	created  = models.DateTimeField(auto_now_add=True)
+
+	# An email's content may have more than on link
+	# to the same URL (e.g. multiple donate buttons
+	# throughout an email).
+	# Track these separately, ascending to descending
+	# and left to right.
+	position = models.PositiveIntegerField(default=0)
+
+class URLClick(models.Model):
+	'''
+		Describes a recipient's clicking of a URL
+	'''
+	recipient = models.ForeignKey(Recipient, related_name='urls_clicked')
+	url       = models.ForeignKey(URL, related_name='clicks')
+	when      = models.DateTimeField(auto_now_add=True)
+
+class InstanceOpen(models.Model):
+	'''
+		Describes a recipient opening an email
+	'''
+	recipient = models.ForeignKey(Recipient)
+	instance  = models.ForeignKey(Instance)
+	when      = models.DateTimeField(auto_now_add)
