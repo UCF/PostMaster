@@ -2,14 +2,23 @@
 {% block content %}
 <div id="email-details">
 	<h2>{{email.title}} <span>Total Sent All-Time: {{email.total_sent}}</span></h2>
-	<div class="fleft">
+	<div>
 		<strong>Send Time:</strong> {{email.send_time}} -
 		<strong>Recurring:</strong> {{email.get_recurrence_display}} -
 		<strong>Started On:</strong> {{email.start_date}}
+		<a class="fright" href="{% url mailer-email-update email.id %}">Change Settings</a>
 	</div>
-	<a class="fright" href="{% url mailer-email-update email.id %}">Edit Details</a>
-	<img id="overall_stats" src="{{email.graph}}" />
-	<h3>Instances</h3>
+	<div id="overall">
+		<h4><span>&#9660;</span>Overall</h4>
+		<h5>Last 15 days of activity</h5>
+		<img id="overall_stats" src="{{email.graph}}" />
+		{% if not email.track_opens %}
+		<p><em>Opens are not being tracked.</em></p>
+		{% endif %}
+		{% if not email.track_urls %}
+		<p><em>URLs are not being tracked.</em></p>
+		{% endif %}
+	</div>
 	{% for instance in email.instances.all %}
 		{% if forloop.first %}
 		<ul id="instances">

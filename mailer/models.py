@@ -106,8 +106,12 @@ class Email(models.Model):
 			page = urllib.urlopen(self.source_uri)
 			return page.read()
 	
-	def graph(self, duration=15, width=630, height=225):
+	def graph(self, duration=15, width=630, height=125):
+		'''
+			Creates a graph using the Google Charts Image API.
 
+			http://code.google.com/apis/chart/image/docs/gallery/line_charts.html
+		'''
 		base_url = 'https://chart.googleapis.com/chart'
 		params = {
 			'cht' :'lc',      # chart type - lc=line chart
@@ -117,15 +121,19 @@ class Email(models.Model):
 			'chxt': 'x,y',    # visible axes
 			'chxl': '',       # custom axis label
 			'chdl': '',       # legend names
-			'chtt': '',       # graph title
+			#'chtt': '',       # graph title
 			'chxr': '',       # axis range
+			'chm' : '',       # value markers
 		}
 
 		# Dimensions
 		params['chs'] = 'x'.join([str(width), str(height)])
 
 		# Define the lines we are going to have
-		lines = {'Sent' : 'FF0000'}
+		lines = {
+			'Sent'           : '0000FF',
+			'Sending Errors' : 'FF0000',
+		}
 		if self.track_urls:
 			lines['URLs Clicked'] = '00FF00'
 		if self.track_opens:
@@ -134,28 +142,56 @@ class Email(models.Model):
 		# line colors
 		params['chco'] = ','.join(list(val for key,val in lines.items()))
 
-		# Data and labels
-		data = {'sent':[]}
+		# Compile data and labels
+		data_sets = {
+			'sent'  :[],
+			'errors':[]
+		}
 		labels = []
 		now = datetime.datetime.now()
 		for i in range(duration):
 			start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0) - datetime.timedelta(days=i)
 			end   = datetime.datetime(now.year, now.month, now.day, 23, 59, 59) - datetime.timedelta(days=i)
+
 			# Sent
 			total = 0
 			for instance in self.instances.filter(start__gte=start, start__lt=end):
 				total += instance.recipient_details.count()
-			data['sent'].append(total)
+			data_sets['sent'].append(total)
+			
+			# Sending Errors
+			total = 0
+			for instance in self.instances.filter(start__gte=start, start__lt=end):
+				total += instance.recipient_details.exclude(exception_type=None).count()
+			data_sets['errors'].append(total)
+
 			labels.append('/'.join([str(start.month), str(start.day)]))
 
-		data['sent'].reverse()
-		labels.reverse()
+		graph_max = 0
+		g_data_sets = []
+		for name, data in data_sets.items():
+			set_max = max(data)
+			if set_max > graph_max:
+				graph_max = set_max
+			data.reverse()
+			g_data_sets.append(','.join(list(str(v) for v in data)))
 
-		params['chd']  = 't:' + ','.join(list(str(d) for d in data['sent']))
-		params['chxr'] = ','.join(['1', '0', str(max(data['sent']))])
-		params['chds'] = ','.join(['0', str(max(data['sent']))])
+		params['chd']  = 't:' + '|'.join(g_data_sets)
+
+		# Axis Ranges
+		graph_max += 10
+		params['chxr'] = ','.join(['1', '0', str(graph_max)])
+		params['chds'] = ','.join(['0', str(graph_max)])
+		
+		# Labels
+		labels.reverse()
 		params['chxl'] = '0:|' + '|'.join(labels)
+
+		# Legend
 		params['chdl'] = '|'.join(list(key for key,val in lines.items()))
+
+		# Value Markers
+		params['chm'] = 'N*f0,666666,1,-1,11,,lb:-10:5'
 		
 		return '?'.join([base_url,urllib.urlencode(params)])
 
