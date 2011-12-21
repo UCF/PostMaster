@@ -141,7 +141,7 @@ def redirect(request):
 						except Recipient.DoesNotExist:
 							# strange
 							pass
-						except Instance.DoesNotExist
+						except Instance.DoesNotExist:
 							# also strange
 							pass
 						else:

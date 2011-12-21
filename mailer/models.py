@@ -208,13 +208,15 @@ class Instance(models.Model):
 	'''
 		Describes a sending of an email based on its schedule
 	'''
-	email       = models.ForeignKey(Email, related_name='instances')
-	sent_html   = models.TextField()
-	start       = models.DateTimeField(auto_now_add=True)
-	end         = models.DateTimeField(null=True)
-	in_progress = models.BooleanField(default=False)
-	sent        = models.IntegerField(default=0)
-	recipients  = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
+	email         = models.ForeignKey(Email, related_name='instances')
+	sent_html     = models.TextField()
+	start         = models.DateTimeField(auto_now_add=True)
+	end           = models.DateTimeField(null=True)
+	in_progress   = models.BooleanField(default=False)
+	sent          = models.IntegerField(default=0)
+	recipients    = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
+	opens_tracked = models.BooleanField()
+	urls_tracked  = models.BooleanField()
 	
 	class Meta:
 		ordering = ('-start',)
@@ -267,4 +269,4 @@ class InstanceOpen(models.Model):
 	'''
 	recipient = models.ForeignKey(Recipient)
 	instance  = models.ForeignKey(Instance)
-	when      = models.DateTimeField(auto_now_add)
+	when      = models.DateTimeField(auto_now_add=True)
