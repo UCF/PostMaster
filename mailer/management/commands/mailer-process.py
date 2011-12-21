@@ -135,7 +135,7 @@ class Command(BaseCommand):
 							try:
 								log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
 								response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
-								time.sleep(settings.AMAZON_SMTP.rate)
+								time.sleep(settings.AMAZON_SMTP['rate'])
 								log.debug(' '.join([recipient.email_address, str(response)]))	
 							except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
 								instance_details_kwargs['exception_type'] = 0
