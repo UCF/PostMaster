@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from mailer.models               import Email, Instance, RecipientGroup, Recipient, InstanceRecipientDetails
+from mailer.models               import Email, Instance, RecipientGroup, Recipient, InstanceRecipientDetails, URL
 from datetime                    import datetime, timedelta
 from django.conf                 import settings
 from util                        import calc_url_mac, calc_open_mac
@@ -54,8 +54,8 @@ class Command(BaseCommand):
 		log.debug('Emails being sent in this run: ' + str(list(e.id for e in emails)))
 
 		if len(emails) > 0:
-			amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+			#amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+			#amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 
 			for email in emails:
 				content      = email.content.decode('ascii', errors='ignore')
@@ -108,8 +108,8 @@ class Command(BaseCommand):
 										'position' :positioned_urls.count(href),
 									}
 									params['mac'] = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
-									tracked_url = '?'.join([request.build_absolute_url(reverse('mailer-email-redirect')), urllib.urlencode(params)])
-									customized_content = customize_content.replace('href="' + href + '"', tracked_url)
+									tracked_url = '?'.join([settings.PROJECT_URL + reverse('mailer-email-redirect'), urllib.urlencode(params)])
+									customized_content = customized_content.replace('href="' + href + '"', 'href="' + tracked_url + '"')
 									positioned_urls.append(href)
 							
 							# Tracking opens
@@ -134,7 +134,9 @@ class Command(BaseCommand):
 
 							try:
 								log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
-								response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
+								#response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
+								print msg
+								exit()
 								time.sleep(settings.AMAZON_SMTP.rate)
 								log.debug(' '.join([recipient.email_address, str(response)]))	
 							except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
@@ -155,4 +157,4 @@ class Command(BaseCommand):
 				instance.in_progress = False
 				instance.end = datetime.now()
 				instance.save()
-			amazon_ses.quit()
+			#amazon_ses.quit()
