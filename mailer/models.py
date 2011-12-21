@@ -199,6 +199,7 @@ class URL(models.Model):
 	'''
 		Describes a particular URL in an email
 	'''
+	instance = models.ForeignKey('Instance')
 	name     = models.CharField(max_length=2000)
 	created  = models.DateTimeField(auto_now_add=True)
 
