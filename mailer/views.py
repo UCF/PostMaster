@@ -128,7 +128,7 @@ def redirect(request):
 				except ValueError:
 					pass
 				else:
-					if mac == calc_url_mac(url_string, position, recipient_id):
+					if mac == calc_url_mac(url_string, position, recipient_id, instance_id):
 						try:
 							url       = URL.objects.get(name=url_string)
 							recipient = Recipient.objects.get(id=recipient_id)
