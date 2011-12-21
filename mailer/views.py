@@ -1,11 +1,12 @@
 from django.views.generic.simple    import direct_to_template
-from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick
+from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick, InstanceOpen
 from mailer.forms                   import CreateEmailForm, LabelMappingForm
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
 from util                           import calc_url_mac
 from django.conf                    import settings
+from datetime                       import datetime
 import urllib
 import re
 
@@ -107,55 +108,77 @@ def redirect(request):
 	'''
 		Redirects based on URL and records URL click
 	'''
+	instance_id   = request.GET.GET('instance',  None)
 	url_string    = request.GET.get('url',       None)
 	position      = request.GET.get('position',  None)
 	recipient_id  = request.GET.get('recipient', None)
-	mac           = request.GET.get('mac',     None)
+	mac           = request.GET.get('mac',       None)
 
-	if url_string is None and url_string != '':
+	if not url_string:
 		pass # Where do we go?
 	else:
 		url_string = urllib.unquote(url_string)
 		# No matter what happens, make sure the redirection works
 		try:
-			if position is not None and position != '' and recipient_id is not None and recipient_id != '' and mac != '':
+			if position and recipient_id and mac and instance_id:
 				try:
-					position = int(position)
+					position     = int(position)
+					recipient_id = int(recipient_id)
+					instance_id  = int(instance_id)
 				except ValueError:
 					pass
 				else:
-					try:
-						recipient_id = int(recipient_id)
-					except ValueError:
-						pass
-					else:
-						if mac == calc_url_mac(url_string, position, recipient_id):
-							try:
-								url = URL.objects.get(name=url_string)
-							except URL.DoesNotExist:
-								url = URL(name=url)
-								url.save()
-							else:
-								try:
-									recipient = Recipient.objects.get(id=recipient_id)
-								except Recipient.DoesNotExist:
-									pass
-								else:
-									url_click = URLClick(recipient=recipient, url=url, position=position)
-									url_click.save()
+					if mac == calc_url_mac(url_string, position, recipient_id):
+						try:
+							url       = URL.objects.get(name=url_string)
+							recipient = Recipient.objects.get(id=recipient_id)
+							instance  = Instance.objects.get(id=instance_id)
+						except URL.DoesNotExist:
+							# This should have been created
+							# in the mailer-process command
+							# when this email was sent
+							pass
+						except Recipient.DoesNotExist:
+							# strange
+							pass
+						except Instance.DoesNotExist
+							# also strange
+							pass
+						else:
+							url_click = URLClick(recipient=recipient, url=url, position=position)
+							url_click.save()
 		except Exception, e:
-			return HttpResponseRedirect(url_string)
+			pass
+		return HttpResponseRedirect(url_string)
 
-def open(request):
+def instance_open(request):
 	'''
 		Records an email open
 	'''
-	timestamp     = request.GET.get('timestamp', None)
-	email_id      = request.GET.get('email',     None)
+	instance_id   = request.GET.get('instance',  None)
 	recipient_id  = request.GET.get('recipient', None)
 	mac           = request.GET.get('mac',       None)
 
-	if timestamp is not None and recipient_id is not None and mac is not None and email_id is not None:
-		pass
-	
+	if timestamp and recipient_id and mac and instance_id is not None:
+		try:
+			instance_id  = int(instance_id)
+			recipient_id = int(recipient_id)
+		except ValueError:
+			# corrupted
+			pass
+		else:
+			if mac == calc_open_mac(timestamp, recipient_id, instance_id):
+				try:
+					recipient = Recipient.objects.get(id=recipient_id)
+					instance  = Instance.objects.get(id=instance_id)
+					InstanceOpen.objects.get(recipient=recipient, instance=instance)
+				except Recipient.DoesNotExist:
+					# strange
+					pass
+				except Instance.DoesNotExist:
+					# also strange
+					pass
+				except Open.DoesNotExist:
+					instance_open = InstanceOpen(recipient=recipient, instance=instance)
+					instance_open.save()
 	return HttpResponse(settings.DOT, content_type='image/png')
