@@ -4,7 +4,7 @@ from mailer.forms                   import CreateEmailForm, LabelMappingForm
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
-from util                           import calc_url_mac
+from util                           import calc_url_mac, calc_open_mac
 from django.conf                    import settings
 from datetime                       import datetime
 import urllib
@@ -134,9 +134,9 @@ def redirect(request):
 				else:
 					if mac == calc_url_mac(url_string, position, recipient_id, instance_id):
 						try:
-							url       = URL.objects.get(name=url_string, position=position)
 							recipient = Recipient.objects.get(id=recipient_id)
 							instance  = Instance.objects.get(id=instance_id)
+							url       = URL.objects.get(name=url_string, position=position, instance=instance)
 						except URL.DoesNotExist:
 							# This should have been created
 							# in the mailer-process command
@@ -151,7 +151,7 @@ def redirect(request):
 							log.error('bad instance')
 							pass
 						else:
-							url_click = URLClick(recipient=recipient, url=url, position=position)
+							url_click = URLClick(recipient=recipient, url=url)
 							url_click.save()
 							log.debug('url click saved')
 					else:
@@ -171,7 +171,7 @@ def instance_open(request):
 	recipient_id  = request.GET.get('recipient', None)
 	mac           = request.GET.get('mac',       None)
 
-	if timestamp and recipient_id and mac and instance_id is not None:
+	if recipient_id and mac and instance_id is not None:
 		try:
 			instance_id  = int(instance_id)
 			recipient_id = int(recipient_id)
@@ -179,18 +179,21 @@ def instance_open(request):
 			# corrupted
 			pass
 		else:
-			if mac == calc_open_mac(timestamp, recipient_id, instance_id):
+			if mac == calc_open_mac(recipient_id, instance_id):
 				try:
 					recipient = Recipient.objects.get(id=recipient_id)
 					instance  = Instance.objects.get(id=instance_id)
 					InstanceOpen.objects.get(recipient=recipient, instance=instance)
 				except Recipient.DoesNotExist:
 					# strange
+					log.error('bad recipient')
 					pass
 				except Instance.DoesNotExist:
 					# also strange
+					log.error('bad instance')
 					pass
-				except Open.DoesNotExist:
+				except InstanceOpen.DoesNotExist:
 					instance_open = InstanceOpen(recipient=recipient, instance=instance)
 					instance_open.save()
+					log.debug('open saved')
 	return HttpResponse(settings.DOT, content_type='image/png')
