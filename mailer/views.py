@@ -1,10 +1,11 @@
 from django.views.generic.simple    import direct_to_template
 from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick
 from mailer.forms                   import CreateEmailForm, LabelMappingForm
-from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect
+from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
 from util                           import calc_url_mac
+from django.conf                    import settings
 import urllib
 import re
 
@@ -144,3 +145,17 @@ def redirect(request):
 									url_click.save()
 		except Exception, e:
 			return HttpResponseRedirect(url_string)
+
+def open(request):
+	'''
+		Records an email open
+	'''
+	timestamp     = request.GET.get('timestamp', None)
+	email_id      = request.GET.get('email',     None)
+	recipient_id  = request.GET.get('recipient', None)
+	mac           = request.GET.get('mac',       None)
+
+	if timestamp is not None and recipient_id is not None and mac is not None and email_id is not None:
+		pass
+	
+	return HttpResponse(settings.DOT, content_type='image/png')

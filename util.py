@@ -1,6 +1,10 @@
 from django.conf import settings
 import hmac
 
-def calc_url_mac(url, position, recipient):
-	mash = ''.join([str(url), str(position), str(recipient))
+def calc_url_mac(url, position, recipient, email_id):
+	mash = ''.join([str(url), str(position), str(recipient), str(email_id))
+	return hmac.new(settings.SECRET_KEY, mash).hexdigest()
+
+def calc_open_mac(timestamp, recipient, email_id):
+	mash = ''.join([str(timestamp), str(recipient), str(email_id))
 	return hmac.new(settings.SECRET_KEY, mash).hexdigest()

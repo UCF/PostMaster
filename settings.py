@@ -104,6 +104,10 @@ LOGGING = {
     }
 }
 
+DOT = ''
+with open(os.path.join(PROJECT_FOLDER, 'static', 'img', 'dot.png'), 'r') as dot:
+    DOT = dot.read()
+
 try:
     from settings_local import *
 except ImportError:
