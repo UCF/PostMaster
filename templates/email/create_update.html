@@ -207,6 +207,7 @@
 			<button type="submit">Update Email</button>
 			{% endif %}
 		{% endif %}
+		{% csrf_token %}
 	</form>
 </div>
 {% endblock %}
