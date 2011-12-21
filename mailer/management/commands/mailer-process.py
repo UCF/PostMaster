@@ -58,7 +58,7 @@ class Command(BaseCommand):
 			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 
 			for email in emails:
-				content      = email.content.decode('ascii', errors='ignore')
+				content      = email.content.decode('ascii','ignore')
 				subject      = email.title
 
 				# These headers will be the same for every sent email
