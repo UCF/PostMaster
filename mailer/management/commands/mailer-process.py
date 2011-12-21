@@ -54,8 +54,8 @@ class Command(BaseCommand):
 		log.debug('Emails being sent in this run: ' + str(list(e.id for e in emails)))
 
 		if len(emails) > 0:
-			#amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-			#amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+			amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 
 			for email in emails:
 				content      = email.content.decode('ascii', errors='ignore')
@@ -134,9 +134,7 @@ class Command(BaseCommand):
 
 							try:
 								log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
-								#response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
-								print msg
-								exit()
+								response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
 								time.sleep(settings.AMAZON_SMTP.rate)
 								log.debug(' '.join([recipient.email_address, str(response)]))	
 							except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
@@ -157,4 +155,4 @@ class Command(BaseCommand):
 				instance.in_progress = False
 				instance.end = datetime.now()
 				instance.save()
-			#amazon_ses.quit()
+			amazon_ses.quit()
