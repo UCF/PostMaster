@@ -52,12 +52,12 @@ def create_update_email(request, email_id=None):
 	if request.method == 'POST':
 		ctx['form'] = CreateEmailForm(request.POST, **form_kwargs)
 		if ctx['form'].is_valid():
-			ctx['form'].save()
+			email = ctx['form'].save()
 			if ctx['mode'] =='create':
 				messages.success(request, 'Email successfully created.')
 			elif ctx['mode'] == 'update':
 				messages.success(request, 'Email successfully updated.')
-			return HttpResponseRedirect(reverse('mailer-email-list'))
+			return HttpResponseRedirect(reverse('mailer-email-update', kwargs={'email_id':email.id}))
 	else:
 		ctx['form'] = CreateEmailForm(**form_kwargs)
 
