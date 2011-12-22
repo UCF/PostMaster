@@ -99,8 +99,11 @@ class Command(BaseCommand):
 								positioned_urls = []
 								for href in hrefs:
 									# Records these URLs so they can be tracked
-									url = URL(instance=instance, name=href, position=positioned_urls.count(href))
-									url.save()
+									try:
+										url = URL.objects.get(instance=instance, name=href, position=positioned_urls.count(href))
+									except URL.DoesNotExist:
+										url = URL(instance=instance, name=href, position=positioned_urls.count(href))
+										url.save()
 									params = {
 										'instance' :instance.id,
 										'recipient':recipient.id,
