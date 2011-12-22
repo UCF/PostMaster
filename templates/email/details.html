@@ -1,4 +1,29 @@
 {% extends 'base.html' %}
+{% block footer_scripts %}
+	{{block.super}}
+	<script type="text/javascript">
+		$().ready(function() {
+			$('#instances li')
+				.each(function(index, element) {
+					var content = $(this).find('.content'),
+						h4      = $(this).find('h4');
+
+					if(index > 0) content.hide();
+					h4.click(function() {
+						var span = $(this).find('span');
+						
+						if(span.html() == '►') {
+							span.html('▼');
+						} else {
+							span.html('►');
+						}
+						content.toggle();
+					})
+
+				});
+		})
+	</script>
+{% endblock %}
 {% block content %}
 <div id="email-details">
 	<h2>{{email.title}}</h2>
@@ -8,6 +33,7 @@
 		<strong>Started On:</strong> {{email.start_date}}
 		<a class="fright" href="{% url mailer-email-update email.id %}">Change Settings</a>
 	</div>
+	<!--
 	<div id="overall">
 		<h4><span>&#9660;</span>Overall</h4>
 		<h5>Last 15 days of activity</h5>
@@ -19,12 +45,24 @@
 		<p><em>URLs are not being tracked.</em></p>
 		{% endif %}
 	</div>
+	-->
 	{% for instance in email.instances.all %}
 		{% if forloop.first %}
 		<ul id="instances">
 		{% endif %}
 		<li>
-			<h4><span>&#9658;</span>{{instance.start}}</h4>
+			<h4>
+				{% if forloop.first %}
+				<span>&#9660;</span>
+				{% else %}
+				<span>&#9658;</span>
+				{% endif %}
+				{{instance.start}}
+			</h4>
+			<div class="content">
+				<strong>Sent:</strong> {{instance.recipient_details.count}} -
+				<strong>Opened:</strong> {% if instace.opens_tracked %}{{instance.opens.count}}{% else %}Not Tracked{% endif %}
+			</div>
 		</li>
 		{% if forloop.last %}
 		</ul>
@@ -34,5 +72,3 @@
 	{% endfor %}
 </div>
 {% endblock %}
-
-https://chart.googleapis.com/chart?cht=lc&chco=FF0000,00FF00,0000FF&chs=200x125&chd=s:FOETHECat,lkjtf3asv,KATYPSNXJ&chxt=x,y&chxl=0:|Oct|Nov|Dec|1:||20K||60K||100K
