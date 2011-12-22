@@ -60,8 +60,27 @@
 				{{instance.start}}
 			</h4>
 			<div class="content">
-				<strong>Sent:</strong> {{instance.recipient_details.count}} -
-				<strong>Opened:</strong> {% if instace.opens_tracked %}{{instance.opens.count}}{% else %}Not Tracked{% endif %}
+				<p><strong>Sent:</strong> {{instance.recipient_details.count}}</p>
+				<p><strong>Opened:</strong> {% if instance.opens_tracked %}{{instance.opens.count}}{% else %}Not Tracked{% endif %}</p>
+				<h5>URLs</h5>
+				{% for url in instance.urls.all %}
+					{% if forloop.first %}
+					<ul class="urls">
+					{% endif %}
+					<li>
+						<p>{{url.name}} ({{url.position}}) - {{url.clicks.count}} clicks</p>
+						<ul class="recipients">
+						{% for click in url.clicks.all %}
+							<li>{{click.recipient}} - {{click.when}}</li>
+						{% endfor %}
+						</ul>
+					</li>
+					{% if forloop.last %}
+					</ul>
+					{% endif %}
+				{% empty %}
+				<p>Not Tracked</p>
+				{% endfor %}
 			</div>
 		</li>
 		{% if forloop.last %}
