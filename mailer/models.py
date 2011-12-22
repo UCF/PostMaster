@@ -131,24 +131,36 @@ class Email(models.Model):
 
 		# Define the lines we are going to have
 		lines = {
-			'Sent'           : '0000FF',
-			'Sending Errors' : 'FF0000',
+			'sent'  : {
+				'title':'Sent',
+				'color':'0000FF',
+				'data' :[],
+				},
+			'errors': {
+				'title':'Sending Errors',
+				'color':'FF0000',
+				'data' :[],
+				},
+			'urls'  : {
+				'title':'URLs Clicked',
+				'color':'00FF00',
+				'data' :[],
+				},
+			'opens' : {
+				'title':'Opened',
+				'color':'FF00FF',
+				'data' :[]
+			},
 		}
 		#if any(list(i.urls_tracked for i in self.instances.all())):
-		lines['URLs Clicked'] = '00FF00'
+		#lines['URLs Clicked'] = ''
 		#if any(list(i.opens_tracked for i in self.instances.all())):
-		lines['Opened'] = 'FF00FF'
+		#lines['Opened'] = 'FF00FF'
 		
 		# line colors
-		params['chco'] = ','.join(list(val for key,val in lines.items()))
+		params['chco'] = ','.join(list(details['color'] for key,details in lines.items()))
 
 		# Compile data and labels
-		data_sets = {
-			'sent'  :[],
-			'errors':[],
-			'opens' :[],
-			'clicks':[]
-		}
 		labels = []
 		now = datetime.datetime.now()
 		for i in range(duration):
@@ -173,16 +185,17 @@ class Email(models.Model):
 				# Sending Errors
 				error_total = instance.recipient_details.exclude(exception_type=None).count()
 
-			data_sets['sent'].append(sent_total)
-			data_sets['opens'].append(open_total)
-			data_sets['clicks'].append(click_total)
-			data_sets['errors'].append(error_total)
+			lines['sent']['data'].append(sent_total)
+			lines['opens']['data'].append(open_total)
+			lines['urls']['data'].append(click_total)
+			lines['errors']['data'].append(error_total)
 
 			labels.append('/'.join([str(start.month), str(start.day)]))
 
 		graph_max = 0
 		g_data_sets = []
-		for name, data in data_sets.items():
+		for name, details in lines.items():
+			data = details['data']
 			set_max = max(data)
 			if set_max > graph_max:
 				graph_max = set_max
@@ -201,7 +214,7 @@ class Email(models.Model):
 		params['chxl'] = '0:|' + '|'.join(labels)
 
 		# Legend
-		params['chdl'] = '|'.join(list(key for key,val in lines.items()))
+		params['chdl'] = '|'.join(list(details['title'] for key,details in lines.items()))
 
 		# Value Markers
 		params['chm'] = 'N*f0,666666,1,-1,11,,lb:-10:5'
