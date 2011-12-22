@@ -217,8 +217,9 @@ class Email(models.Model):
 		params['chdl'] = '|'.join(list(details['title'] for key,details in lines.items()))
 
 		# Value Markers
-		params['chm'] = 'N*f0,666666,1,-1,11,,lb:-10:5'
-		
+		#params['chm'] = 'N*f0,666666,0,-1,11,,lb:0:0|N*f0,666666,1,-1,11,,rb:0:0|N*f0,666666,2,-1,11,,lt:0:0|N*f0,666666,3,-1,11,,rt:0:0'
+		params['chm'] = ''
+
 		return '?'.join([base_url,urllib.urlencode(params)])
 
 class EmailLabelRecipientFieldMapping(models.Model):
