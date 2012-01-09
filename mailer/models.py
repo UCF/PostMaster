@@ -297,3 +297,13 @@ class InstanceOpen(models.Model):
 	recipient = models.ForeignKey(Recipient, related_name='instances_opened')
 	instance  = models.ForeignKey(Instance, related_name='opens')
 	when      = models.DateTimeField(auto_now_add=True)
+
+class Preview(models.Model):
+	'''
+		Describes a preview sent to an admin allowing
+		him or her to delay the message from going out
+	'''
+	email   = models.ForeignKey(Email, related_name='confirmations')
+	delay   = models.BooleanField(default=False)
+	html    = models.TextField()
+	created = models.DateTimeField()
