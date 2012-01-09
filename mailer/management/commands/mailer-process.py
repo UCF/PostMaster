@@ -94,7 +94,7 @@ class Command(BaseCommand):
 							
 							# Tracking URLs
 							if instance.urls_tracked:
-								hrefs = re.findall('<a[^href]*href="([^"]+)"', customized_content)
+								hrefs = re.findall('<a.*href="([^"]+)"', customized_content)
 
 								positioned_urls = []
 								for href in hrefs:
@@ -110,8 +110,8 @@ class Command(BaseCommand):
 										'url'      :urllib.quote(href),
 										'position' :positioned_urls.count(href),
 									}
-									params['mac'] = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
-									tracked_url = '?'.join([settings.PROJECT_URL + reverse('mailer-email-redirect'), urllib.urlencode(params)])
+									params['mac']      = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
+									tracked_url        = '?'.join([settings.PROJECT_URL + reverse('mailer-email-redirect'), urllib.urlencode(params)])
 									customized_content = customized_content.replace('href="' + href + '"', 'href="' + tracked_url + '"')
 									positioned_urls.append(href)
 							
