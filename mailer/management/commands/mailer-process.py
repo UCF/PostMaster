@@ -67,7 +67,7 @@ class Command(BaseCommand):
 				deactivate_html = '''
 					<div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
 						This is a preview of the %s email that will be sent in 1 hour.
-						<br />
+						<br /><br />
 						If it is not correct, you can either fix it before it is sent or <a style="color:blue;" href="%s">deactivate it</a> until it is fixed.
 						It can be re-activated on the Change Settings screen <a style="color:blue;" href="%s">here</a>
 					</div>
