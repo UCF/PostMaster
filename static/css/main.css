@@ -44,6 +44,7 @@ textarea {height:5em;}
 #email-create form select {width:100%;}
 #email-create form button {font-size:130%;width:100%;}
 #email-create form #start_date select {width:100px;}
+#email-create form #preview_recipients {width:80%;margin:auto;}
 
 /* Email Details */
 #email-details h2 {font-size:150%;}

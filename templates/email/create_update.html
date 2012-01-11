@@ -14,6 +14,20 @@
 		{% endif %}
 	{% endif %}
 		<div class="input">
+			{{form.active.label_tag}}
+			{% if form.active.errors %}
+			<ul class="errors fright">
+				{% for error in form.active.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.active}}
+			{% if form.active.help_text %}
+			<p class="note">{{form.active.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
 			{{form.title.label_tag}}
 			{% if form.title.errors %}
 			<ul class="errors fright">
@@ -25,6 +39,20 @@
 			{{form.title}}
 			{% if form.title.help_text %}
 			<p class="note">{{form.title.help_text}}</p>
+			{% endif %}
+		</div>
+		<div class="input">
+			{{form.subject.label_tag}}
+			{% if form.subject.errors %}
+			<ul class="errors fright">
+				{% for error in form.subject.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.subject}}
+			{% if form.title.help_text %}
+			<p class="note">{{form.subject.help_text}}</p>
 			{% endif %}
 		</div>
 		<div class="input or">
@@ -159,20 +187,6 @@
 			{% endif %}
 		</div>
 		<div class="input">
-			{{form.confirm_send.label_tag}}
-			{% if form.confirm_send.errors %}
-			<ul class="errors fright">
-				{% for error in form.confirm_send.errors %}
-				<li>{{error}}</li>
-				{% endfor %}
-			</ul>
-			{% endif %}
-			{{form.confirm_send}}
-			{% if form.confirm_send.help_text %}
-			<p class="note">{{form.confirm_send.help_text}}</p>
-			{% endif %}
-		</div>
-		<div class="input">
 			{{form.track_urls.label_tag}}
 			{% if form.track_urls.errors %}
 			<ul class="errors fright">
@@ -199,6 +213,27 @@
 			{% if form.track_opens.help_text %}
 			<p class="note">{{form.track_opens.help_text}}</p>
 			{% endif %}
+		</div>
+		<div class="input">
+			{{form.preview.label_tag}}
+			{% if form.preview.errors %}
+			<ul class="errors fright">
+				{% for error in form.preview.errors %}
+				<li>{{error}}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{{form.preview}}
+			{% if form.preview.help_text %}
+			<p class="note">{{form.preview.help_text}}</p>
+			{% endif %}
+			<div id="preview_recipients">
+				{{form.preview_recipients.label_tag}}
+				{{form.preview_recipients}}
+				{% if form.preview_recipients.help_text %}
+				<p class="note">{{form.preview_recipients.help_text}}</p>
+				{% endif %}
+			</div>
 		</div>
 		{% if mode == 'create' %}
 			<button type="submit">Create Email</button>

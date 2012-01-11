@@ -112,6 +112,37 @@ def map_labels_fields(request, email_id):
 					ctx['forms'].append(LabelMappingForm(instance=label, prefix=label_name+'_'))
 		return direct_to_template(request, tmpl, ctx)
 
+@login_required
+def deactivate(request, email_id):
+	'''
+		Deactivates a specified email
+	'''
+	try:
+		email = Email.objects.get(id=email_id)
+	except Email.DoesNotExist:
+		return HttpResponeNotFound('Email specified does not exist.')
+	else:
+		email.active = False
+		email.save()
+		messages.success(request, 'Email successfully deactivated.')
+		return HttpResponseRedirect(reverse('mailer-email-update', kwargs={'email_id':email.id}))
+
+@login_required
+def activate(request, email_id):
+	'''
+		Activate a specific email
+	'''
+	try:
+		email = Email.objects.get(id=email_id)
+	except Email.DoesNotExist:
+		return HttpResponeNotFound('Email specified does not exist.')
+	else:
+		email.active = True
+		email.save()
+		messages.success(request, 'Email successfully activated.')
+		return HttpResponseRedirect(reverse('mailer-email-update', kwargs={'email_id':email.id}))
+
+
 def redirect(request):
 	'''
 		Redirects based on URL and records URL click

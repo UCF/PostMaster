@@ -58,7 +58,9 @@ class Email(models.Model):
 		)
 
 	_HELP_TEXT = {
+		'active'            : 'Whether the email is active or not. Inactive emails will not be sent',
 		'title'             : 'Internal identifier of the email',
+		'subject'           : 'Subject of the email',
 		'html'              : 'HTML source code of the email content',
 		'source_uri'        : 'Source URI of the email content',
 		'start_date'        : 'Date that the email will first be sent.',
@@ -66,14 +68,17 @@ class Email(models.Model):
 		'recurrence'        : 'If and how often the email will be resent.',
 		'replace_delimiter' : 'Character(s) that replacement labels are wrapped in.',
 		'recipient_groups'  : 'Which group(s) of recipients this email will go to.',
-		'confirm_send'      : 'Send a go/no-go email to the administrators before the email is sent.',
 		'from_email_address': 'Email address from where the sent emails will originate',
 		'from_friendly_name': 'A display name associated with the from email address',
 		'track_urls'        : 'Rewrites all URLs in the email content to be recorded',
-		'track_opens'       : 'Adds a tracking image to email content to track if and when an email is opened.'
+		'track_opens'       : 'Adds a tracking image to email content to track if and when an email is opened.',
+		'preview'           : 'Send a preview to a specific set of individuals allowing them to proof the content.',
+		'preview_recipients': 'A comma-separated list of preview recipient email addresses'
 	}
 
+	active             = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
 	title              = models.CharField(max_length=100, help_text=_HELP_TEXT['title'])
+	subject            = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
 	html               = models.TextField(blank=True, null=True, help_text=_HELP_TEXT['html'])
 	source_uri         = models.URLField(blank=True, null=True, help_text=_HELP_TEXT['source_uri'])
 	start_date         = models.DateField(help_text=_HELP_TEXT['start_date'])
@@ -83,9 +88,10 @@ class Email(models.Model):
 	from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
 	replace_delimiter  = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
 	recipient_groups   = models.ManyToManyField(RecipientGroup, help_text=_HELP_TEXT['recipient_groups'])
-	confirm_send       = models.BooleanField(default=True, help_text=_HELP_TEXT['confirm_send'])
 	track_urls         = models.BooleanField(default=False, help_text=_HELP_TEXT['track_urls'])
 	track_opens        = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
+	preview            = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
+	preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
 
 	@property
 	def smtp_from_address(self):
@@ -297,13 +303,3 @@ class InstanceOpen(models.Model):
 	recipient = models.ForeignKey(Recipient, related_name='instances_opened')
 	instance  = models.ForeignKey(Instance, related_name='opens')
 	when      = models.DateTimeField(auto_now_add=True)
-
-class Preview(models.Model):
-	'''
-		Describes a preview sent to an admin allowing
-		him or her to delay the message from going out
-	'''
-	email   = models.ForeignKey(Email, related_name='confirmations')
-	delay   = models.BooleanField(default=False)
-	html    = models.TextField()
-	created = models.DateTimeField()

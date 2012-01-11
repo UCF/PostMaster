@@ -19,6 +19,7 @@ class Command(BaseCommand):
 		Handles sending emails. Should be 
 		set to run every 15 minutes
 	'''
+
 	def handle(self, *args, **options):
 		now_dt          = datetime.now()
 		now_d           = now_dt.date()
@@ -44,11 +45,56 @@ class Command(BaseCommand):
 
 		log.debug('Emails occurring sometime today: ' + str(todays_email_ids))
 		
+		# Previews - 1 hour before the email is supposed to go out
+		preview_kwargs = {
+			'id__in'         : todays_email_ids,
+			'send_time__gte' : (now_dt + timedelta(seconds=60 * 60)).time(),
+			'send_time__lt'  : (later_dt + timedelta(seconds= 60 * 60)).time(),
+			'active'         : True
+		}
+		preview_emails = Email.objects.filter(**preview_kwargs)
+
+		log.debug('Emails being previewed in this run: ' + str(list(e.id for e in preview_emails)))
+
+		if len(preview_emails) > 0:
+			amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+
+			for email in preview_emails:
+				deactivate_uri = settings.PROJECT_URL + reverse('mailer-email-deactivate', kwargs={'email_id':email.id})
+				update_uri     = settings.PROJECT_URL + reverse('mailer-email-update', kwargs={'email_id':email.id})
+				deactivate_html = '''
+					<div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
+						This is a preview of the %s email that will be sent in 1 hour.
+						<br />
+						If it is not correct, you can either fix it before it is sent or <a style="color:blue;" href="%s">deactivate it</a> until it is fixed.
+						It can be re-activated on the Change Settings screen <a style="color:blue;" href="%s">here</a>
+					</div>
+					<br />
+				''' % (email.title, deactivate_uri, update_uri)
+
+				content = deactivate_html + email.content.decode('ascii', 'ignore')
+
+				for recipient in email.preview_recipients.split(','):
+					smtp_headers = {
+						'From: '         : email.smtp_from_address,
+						'Subject: '      : email.subject,
+						'Content-type: ' : 'text/html; charset=us-ascii',
+						'To: '           : recipient
+					}
+					msg = '\r\n'.join(list(k + v for k,v in smtp_headers.items())) + '\r\n\r\n' + content
+					try:
+						response = amazon_ses.sendmail(email.from_email_address, recipient, msg)
+					except Exception, e:
+						log.error('Error sending preview email for `%s`: %s' % (email.title, str(e)))
+			amazon_ses.quit()
+
 		# Fetch all the emails that are due to be sent in the next 15 minutes
 		email_kwargs = {
 			'id__in'          :todays_email_ids,
 			'send_time__gte'  :now_t,
-			'send_time__lt'   :later_t}
+			'send_time__lt'   :later_t,
+			'active'          :True}
 		emails = Email.objects.filter(**email_kwargs)
 
 		log.debug('Emails being sent in this run: ' + str(list(e.id for e in emails)))
