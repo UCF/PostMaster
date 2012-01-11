@@ -50,7 +50,8 @@ class Command(BaseCommand):
 			'id__in'         : todays_email_ids,
 			'send_time__gte' : (now_dt + timedelta(seconds=60 * 60)).time(),
 			'send_time__lt'  : (later_dt + timedelta(seconds= 60 * 60)).time(),
-			'active'         : True
+			'active'         : True,
+			'preview'        : True
 		}
 		preview_emails = Email.objects.filter(**preview_kwargs)
 
