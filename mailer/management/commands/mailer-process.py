@@ -79,7 +79,7 @@ class Command(BaseCommand):
 				for recipient in email.preview_recipients.split(','):
 					smtp_headers = {
 						'From: '         : email.smtp_from_address,
-						'Subject: '      : email.subject,
+						'Subject: '      : email.subject + ' **PREVIEW**',
 						'Content-type: ' : 'text/html; charset=us-ascii',
 						'To: '           : recipient
 					}
