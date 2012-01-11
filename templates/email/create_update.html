@@ -10,6 +10,9 @@
 	{% else %}
 		{% if mode == 'update' %}
 		<h2>Update {{form.instance.title}}</h2>
+		<a id="update_mapping" href="{% url mailer-email-map form.instance.id %}">
+			Update Label-Field Mapping
+		</a>
 		<form action="{% url mailer-email-update form.instance.id %}" method="post">
 		{% endif %}
 	{% endif %}
