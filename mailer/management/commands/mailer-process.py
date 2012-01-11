@@ -77,6 +77,7 @@ class Command(BaseCommand):
 				content = deactivate_html + email.content.decode('ascii', 'ignore')
 
 				for recipient in email.preview_recipients.split(','):
+					recipeint = recipient.strip()
 					smtp_headers = {
 						'From: '         : email.smtp_from_address,
 						'Subject: '      : email.subject + ' **PREVIEW**',
