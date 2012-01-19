@@ -54,6 +54,7 @@ textarea {height:5em;}
 #email-details #instances > li {list-style-type:none;}
 #email-details #instances > li h4,
 	#email-details #overall h4 {font-weight:normal;font-size:130%;background-color:#f7f7f7;border:1px solid #ccc;padding:10px;}
-#email-details #instances > li h4 span,
-	#email-details #overall h4 span {padding-right:5px;font-size:85%;color:#666;}
+#email-details #instances > li h4 .expand {padding-right:5px;font-size:85%;color:#666;}
+#email-details #instances > li h4 .send_stats {float:right;}
+
 #email-details #instances > li h4:hover {cursor:pointer;}

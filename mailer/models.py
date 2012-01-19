@@ -4,6 +4,10 @@ import hmac
 import calendar
 import datetime
 import urllib
+import logging
+
+
+log = logging.getLogger(__name__)
 
 class Recipient(models.Model):
 	'''
@@ -251,6 +255,14 @@ class Instance(models.Model):
 	opens_tracked = models.BooleanField(default=False)
 	urls_tracked  = models.BooleanField(default=False)
 	
+	@property
+	def opens_percent(self):
+		if self.opens_tracked:
+			if self.recipient_details.count() == 0:
+				return 0
+			else:
+				return self.opens.count()/self.recipient_details.count()
+
 	class Meta:
 		ordering = ('-start',)
 
