@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load humanize %}
 {% block footer_scripts %}
 	{{block.super}}
 	<script type="text/javascript">
@@ -11,7 +10,7 @@
 
 					if(index > 0) content.hide();
 					h4.click(function() {
-						var span = $(this).find('.expand');
+						var span = $(this).find('span');
 						
 						if(span.html() == '►') {
 							span.html('▼');
@@ -54,35 +53,34 @@
 		<li>
 			<h4>
 				{% if forloop.first %}
-				<span class="expand">&#9660;</span>
+				<span>&#9660;</span>
 				{% else %}
-				<span class="expand">&#9658;</span>
+				<span>&#9658;</span>
 				{% endif %}
 				{{instance.start}}
-				<div class="send_stats">
-					<span class="sent">
-						Sent: {{instance.recipient_details.count}}
-					</span>, 
-					<span class="opened">
-						Opened: {% if instance.opens_tracked %}{{instance.opens.count}} ({{instance.opens_percent}}){% else %}Not Tracked{% endif %}
-					</span>
-				</div>
 			</h4>
 			<div class="content">
-				<table>
-					<tr>
-						<th scope="col">URL</th>
-						<th scope="col">Position</th>
-						<th scope="col">Clicks</th>
-					</tr>
-					{% for url in instance.urls.all %}
-					<tr>
-						<td>{{url.name}}</td>
-						<td>{{url.position|ordinal}}</td>
-						<td>{{url.clicks.count}}</td>
-					</tr>
-					{% endfor %}
-				</table>
+				<p><strong>Sent:</strong> {{instance.recipient_details.count}}</p>
+				<p><strong>Opened:</strong> {% if instance.opens_tracked %}{{instance.opens.count}}{% else %}Not Tracked{% endif %}</p>
+				<h5>URLs</h5>
+				{% for url in instance.urls.all %}
+					{% if forloop.first %}
+					<ul class="urls">
+					{% endif %}
+					<li>
+						<p>{{url.name}} ({{url.position}}) - {{url.clicks.count}} clicks</p>
+						<ul class="recipients">
+						{% for click in url.clicks.all %}
+							<li>{{click.recipient}} - {{click.when}}</li>
+						{% endfor %}
+						</ul>
+					</li>
+					{% if forloop.last %}
+					</ul>
+					{% endif %}
+				{% empty %}
+				<p>Not Tracked</p>
+				{% endfor %}
 			</div>
 		</li>
 		{% if forloop.last %}
