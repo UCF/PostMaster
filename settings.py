@@ -8,9 +8,6 @@ APP_FOLDER        = os.path.join(PROJECT_FOLDER, 'apps')
 INC_FOLDER        = os.path.join(PROJECT_FOLDER, 'third-party')
 ROOT_URLCONF      = os.path.basename(PROJECT_FOLDER) + '.urls'
 
-LOGIN_URL         = 'login'
-LOGOUT_URL        = 'logout'
-
 TIME_ZONE         = 'America/New_York'
 LANGUAGE_CODE     = 'en-us'
 SITE_ID           = 1
