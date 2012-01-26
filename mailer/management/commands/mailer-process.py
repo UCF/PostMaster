@@ -4,8 +4,6 @@ from datetime                    import datetime, timedelta
 from django.conf                 import settings
 from util                        import calc_url_mac, calc_open_mac
 from django.core.urlresolvers    import reverse
-from email.mime.multipart        import MIMEMultipart
-from email.mime.text             import MIMEText
 import calendar
 import hashlib
 import smtplib
@@ -108,8 +106,15 @@ class Command(BaseCommand):
 			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 
 			for email in emails:
-				content = email.content.decode('us-ascii','ignore')
-				subject = email.title.decode('us-ascii', 'ignore')
+				content      = email.content.decode('ascii','ignore')
+				subject      = email.title
+
+				# These headers will be the same for every sent email
+				smtp_headers = {
+					'From: '         : email.smtp_from_address,
+					'Subject: '      : subject,
+					'Content-type: ' : 'text/html; charset=us-ascii',
+				}
 
 				instance = Instance(email=email, sent_html=content, in_progress=True, opens_tracked=email.track_opens, urls_tracked=email.track_urls)
 				instance.save()
@@ -167,12 +172,11 @@ class Command(BaseCommand):
 								params['mac'] = calc_open_mac(params['recipient'], params['instance'])
 								customized_content += '<img src="' + settings.PROJECT_URL + reverse('mailer-email-open') + '?' + urllib.urlencode(params) + '" />'
 
-							msg = MIMEMultipart('alternative')
-							msg['Subject'] = subject
-							msg['From']    = email.smtp_from_address
-							msg['To']      = recipient.email_address
+							# Construct the final SMTP headers
+							final_smtp_headers = smtp_headers.copy()
+							final_smtp_headers['To: '] = recipient.smtp_address
 
-							msg.attach(MIMEText(customized_content, 'html', _charset="us-ascii"))
+							msg = '\r\n'.join(list(k + v for k,v in final_smtp_headers.items())) + '\r\n\r\n' + customized_content
 
 							instance_details_kwargs = {
 								'instance'  :instance,
@@ -181,7 +185,7 @@ class Command(BaseCommand):
 
 							try:
 								log.debug('From: %s To: %s' % (email.from_email_address, recipient.email_address))
-								response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg.as_string())
+								response = amazon_ses.sendmail(email.from_email_address, recipient.email_address, msg)
 								time.sleep(settings.AMAZON_SMTP['rate'])
 								log.debug(' '.join([recipient.email_address, str(response)]))	
 							except smtplib.SMTPRecipientsRefused, e: # Exception Type 0
