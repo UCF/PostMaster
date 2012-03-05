@@ -106,18 +106,13 @@
 			{% endif %}
 		</div>
 		<div class="input">
-			{{form.send_time.label_tag}}
-			{% if form.send_time.errors %}
-			<ul class="errors fright">
-				{% for error in form.send_time.errors %}
-				<li>{{error}}</li>
-				{% endfor %}
+			<label>Send Time (24 Hour)</label>
+			{{times.management_form}}
+			<ul>
+			{% for send_time_form in times %}
+				<li>{{send_time_form.send_time}}{{send_time_form.errors}}</li>
+			{% endfor %}
 			</ul>
-			{% endif %}
-			{{form.send_time}}
-			{% if form.send_time.help_text %}
-			<p class="note">{{form.send_time.help_text}}</p>
-			{% endif %}
 		</div>
 		<div class="input">
 			{{form.recurrence.label_tag}}

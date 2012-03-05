@@ -1,6 +1,6 @@
 from django                      import forms
 from django.forms.extras.widgets import SelectDateWidget
-from mailer.models               import Email, EmailLabelRecipientFieldMapping, Recipient
+from mailer.models               import Email, EmailLabelRecipientFieldMapping, Recipient, EmailSendTime
 
 class CreateEmailForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
@@ -39,3 +39,9 @@ class LabelMappingForm(forms.ModelForm):
 	class Meta:
 		model   = EmailLabelRecipientFieldMapping
 		exclude = ('email', 'email_label')
+
+class EmailSendTimeForm(forms.ModelForm):
+
+	class Meta:
+		model = EmailSendTime
+		exclude = ('email')

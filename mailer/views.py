@@ -1,6 +1,6 @@
 from django.views.generic.simple    import direct_to_template
-from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick, InstanceOpen, Recipient, Instance
-from mailer.forms                   import CreateEmailForm, LabelMappingForm
+from mailer.models                  import Email, EmailLabelRecipientFieldMapping, URL, URLClick, InstanceOpen, Recipient, Instance, EmailSendTime
+from mailer.forms                   import CreateEmailForm, LabelMappingForm, EmailSendTimeForm
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
@@ -8,11 +8,14 @@ from util                           import calc_url_mac, calc_open_mac
 from django.conf                    import settings
 from datetime                       import datetime
 from django.contrib.auth.decorators import login_required
+from django.forms.models            import inlineformset_factory
 import urllib
 import re
 import logging
 
 log = logging.getLogger(__name__)
+
+EmailSendTimeFormset = inlineformset_factory(Email, EmailSendTime, form=EmailSendTimeForm, extra = 1)
 
 @login_required
 def list_emails(request):
@@ -50,16 +53,20 @@ def create_update_email(request, email_id=None):
 			ctx['mode'] = 'update'
 
 	if request.method == 'POST':
-		ctx['form'] = CreateEmailForm(request.POST, **form_kwargs)
+		ctx['form']  = CreateEmailForm(request.POST, **form_kwargs)
+		ctx['times'] = EmailSendTimeFormset(request.POST, **dict({'prefix':'times'}, **form_kwargs))
 		if ctx['form'].is_valid():
 			email = ctx['form'].save()
-			if ctx['mode'] =='create':
-				messages.success(request, 'Email successfully created.')
-			elif ctx['mode'] == 'update':
-				messages.success(request, 'Email successfully updated.')
+		 	if ctx['times'].is_valid():
+				times = ctx['times'].save()
+				if ctx['mode'] =='create':
+					messages.success(request, 'Email successfully created.')
+				elif ctx['mode'] == 'update':
+					messages.success(request, 'Email successfully updated.')
 			return HttpResponseRedirect(reverse('mailer-email-update', kwargs={'email_id':email.id}))
 	else:
-		ctx['form'] = CreateEmailForm(**form_kwargs)
+		ctx['form']  = CreateEmailForm(**form_kwargs)
+		ctx['times'] = EmailSendTimeFormset(**dict({'prefix':'times'}, **form_kwargs))
 
 	return direct_to_template(request, tmpl, ctx)
 
