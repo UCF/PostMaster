@@ -10,7 +10,8 @@ th {background-color:#CCC;font-weight:bold;padding:5px;color:#555;}
 td {padding:5px;}
 
 label {color:#666;}
-input[type="text"] {font-size:130%;}
+input[type="text"],
+input[type="password"] {font-size:130%;}
 select {font-size:120%;}
 textarea {height:5em;}
 

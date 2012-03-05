@@ -2,7 +2,9 @@
 {% block content %}
 <div id="mailer-login">
 	<form action="{% url login %}" method="post">
-		{{form}}
+		<table>
+			{{form.as_table}}
+		</table>
 		{% csrf_token %}
 		<input type="hidden" name="next" value="{% url mailer-email-list %}" />
 		<button type="submit">Login</button>
