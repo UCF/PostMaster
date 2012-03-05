@@ -49,7 +49,7 @@ textarea {height:5em;}
 #email-create #send_times {margin:0 0  0 15px;padding:0;}
 #email-create #send_times li {list-style-type:none;}
 #email-create #send_times .remove {float:right;}
-#email-create #add_send_time {float:right;}
+#email-create #send_times .remove input[type="checkbox"] {width:25px;}
 
 /* Email Details */
 #email-details h2 {font-size:150%;}

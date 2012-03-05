@@ -1,16 +1,4 @@
 {% extends 'base.html' %}
-{% block footer_scripts %}
-	{{block.super}}
-	<script type="text/javascript">
-		$().ready(function() {
-			$('#send_times .remove')
-				.click(function() {
-					$(this).parent().remove();
-					$('#id_times-TOTAL_FORMS').val( $('#send_times li').length);
-			})
-		})
-	</script>
-{% endblock %}
 {% block content %}
 <div id="email-create">
 	{% if mode == 'create' %}
@@ -120,7 +108,7 @@
 			<ul id="send_times">
 			{% for send_time_form in times %}
 				<li>
-					<a class="remove">remove</a> 
+					<div class="remove">remove: {{send_time_form.DELETE}}</div>
 					{{send_time_form.id}}
 					{{send_time_form.send_time}}
 					<p class="note">{{send_time_form.send_time.help_text}}</p>
