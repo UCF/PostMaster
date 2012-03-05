@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block footer_scripts %}
 	{{block.super}}
+	<script type="text/javascript">
+		$().ready(function() {
+			$('#send_times .remove')
+				.click(function() {
+					$(this).parent().remove();
+					$('#id_times-TOTAL_FORMS').val( $('#send_times li').length);
+			})
+		})
+	</script>
 {% endblock %}
 {% block content %}
 <div id="email-create">
@@ -106,11 +115,16 @@
 			{% endif %}
 		</div>
 		<div class="input">
-			<label>Send Time (24 Hour)</label>
+			<label>Send Time(s) (24 Hour Format)</label>
 			{{times.management_form}}
-			<ul>
+			<ul id="send_times">
 			{% for send_time_form in times %}
-				<li>{{send_time_form.send_time}}{{send_time_form.errors}}</li>
+				<li>
+					<a class="remove">remove</a> 
+					{{send_time_form.id}}
+					{{send_time_form.send_time}}
+					<p class="note">{{send_time_form.send_time.help_text}}</p>
+				</li>
 			{% endfor %}
 			</ul>
 		</div>

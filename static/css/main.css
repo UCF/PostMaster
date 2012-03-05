@@ -46,6 +46,10 @@ textarea {height:5em;}
 #email-create form #start_date select {width:100px;}
 #email-create form #preview_recipients {width:80%;margin:auto;}
 #email-create #update_mapping {float:right;}
+#email-create #send_times {margin:0 0  0 15px;padding:0;}
+#email-create #send_times li {list-style-type:none;}
+#email-create #send_times .remove {float:right;}
+#email-create #add_send_time {float:right;}
 
 /* Email Details */
 #email-details h2 {font-size:150%;}

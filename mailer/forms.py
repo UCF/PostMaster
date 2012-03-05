@@ -15,7 +15,6 @@ class CreateEmailForm(forms.ModelForm):
 	html       = forms.CharField(label='HTML', widget=forms.Textarea(), required=False)
 	source_uri = forms.CharField(label='Source URI', required=False)
 	start_date = forms.DateField(widget=SelectDateWidget())
-	send_time  = forms.CharField(label='Send time (24 Hour)')
 
 	def clean(self):
 		cleaned_data = self.cleaned_data
@@ -43,5 +42,5 @@ class LabelMappingForm(forms.ModelForm):
 class EmailSendTimeForm(forms.ModelForm):
 
 	class Meta:
-		model = EmailSendTime
+		model   = EmailSendTime
 		exclude = ('email')

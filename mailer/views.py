@@ -15,7 +15,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-EmailSendTimeFormset = inlineformset_factory(Email, EmailSendTime, form=EmailSendTimeForm, extra = 1)
+EmailSendTimeFormset = inlineformset_factory(Email, EmailSendTime, form=EmailSendTimeForm, extra = 1, can_delete=True)
 
 @login_required
 def list_emails(request):
