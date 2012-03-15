@@ -4,6 +4,7 @@ import hmac
 import calendar
 import datetime
 import urllib
+import re
 
 class Recipient(models.Model):
 	'''
@@ -11,9 +12,10 @@ class Recipient(models.Model):
 	'''
 
 	LABELABLE_FIELD_NAMES = [
-		('first_name',    'First name'),
-		('last_name',     'Last Name'),
-		('email_address', 'Email Address'),
+		('first_name',           'First name'),
+		('last_name',            'Last Name'),
+		('email_address',        'Email Address'),
+		('preferred_first_name', 'Preferred First Name')
 	]
 
 	first_name      = models.CharField(max_length=100)
@@ -28,6 +30,17 @@ class Recipient(models.Model):
 	@property
 	def smtp_address(self):
 		return '"%s %s" <%s>' % (self.first_name, self.last_name, self.email_address)
+
+	@property
+	def preferred_first_name(self):
+		if self.preferred_name == '':
+			return self.first_name
+		else:
+			preferred_first_name = re.sub('\s%s$' % self.last_name, '', self.preferred_name)
+			if preferred_first_name ==self.preferred_name or preferred_first_name == '':
+				return self.first_name
+			else:
+				return preferred_first_name
 
 	def __str__(self):
 		return ' '.join([self.first_name, self.last_name, self.email_address])
