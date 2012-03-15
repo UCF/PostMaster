@@ -16,9 +16,10 @@ class Recipient(models.Model):
 		('email_address', 'Email Address'),
 	]
 
-	first_name    = models.CharField(max_length=100)
-	last_name     = models.CharField(max_length=100)
-	email_address = models.CharField(max_length=256)
+	first_name      = models.CharField(max_length=100)
+	last_name       = models.CharField(max_length=100)
+	email_address   = models.CharField(max_length=256)
+	preferred_name  = models.CharField(max_length=200, null=True, blank=True)
 
 	@property
 	def hmac_hash(self):
