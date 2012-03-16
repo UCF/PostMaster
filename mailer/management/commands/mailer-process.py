@@ -109,7 +109,7 @@ class Command(BaseCommand):
 
 			for email in emails:
 				content = email.content.decode('us-ascii','ignore')
-				subject = email.title.decode('us-ascii', 'ignore')
+				subject = email.subject.decode('us-ascii', 'ignore')
 
 				instance = Instance(email=email, sent_html=content, in_progress=True, opens_tracked=email.track_opens, urls_tracked=email.track_urls)
 				instance.save()
