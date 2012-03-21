@@ -49,6 +49,10 @@ INSTALLED_APPS = (
     'mailer',
 )
 
+AUTHENTICATION_BACKENDS = (
+    'mailer.auth.Backend',
+)
+
 LOGGING = {
     'version':1,
     'disable_existing_loggers':True,

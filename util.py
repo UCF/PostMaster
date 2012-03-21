@@ -95,9 +95,9 @@ class LDAPHelper(object):
 	def _extract_attribute(cls,ldap_user,attribute,single=False):
 		try:
 			if(single):
-				return ldap_user[0][attribute][0]
+				return ldap_user[attribute][0]
 			else:
-				return ldap_user[0][attribute]
+				return ldap_user[attribute]
 
 		except KeyError, e:
 			raise LDAPHelper.MissingAttribute(e)
