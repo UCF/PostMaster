@@ -38,7 +38,7 @@
 					<a href="{% url mailer-email-list %}">Post Master</a>
 					{% if user.is_authenticated %}
 					<span class="fright">
-						<a href="{% url password-change %}">{{user.username}}</a> | <a href="{% url logout %}">log out</a>
+						{{user.username}} | <a href="{% url logout %}">log out</a>
 					</span>
 					{% endif %}
 				</h1>
