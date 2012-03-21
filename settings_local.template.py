@@ -64,3 +64,6 @@ LDAP_NET_SEARCH_PASS = ''
 
 # NID of users who are allowed to manage Postmaster
 MANAGERS = ()
+
+# Set to TRUE when operating over SSL
+SESSION_COOKIE_SECURE = True
