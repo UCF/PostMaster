@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block footer_scripts %}
+	{{block.super}}
+{% endblock %}
+{% block body %}
+<div class="container">
+	<div class="span-8 prepend-8 column last">
+		{% block content %}
+			<div id="recipient-preferences">
+				<h2>Your Subscription Preferences</h2>
+				<table>
+					<tr>
+						<th scope="col">Receive</th>
+						<th scope="col">Name</th>
+					</tr>
+					{% for email in recipient.subscriptions %}
+					<tr>
+						<td><input type="checkbox" /></td>
+						<td>{{email.title}}</td>
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		{% endblock %}
+	</div>
+</div>
+{% endblock %}

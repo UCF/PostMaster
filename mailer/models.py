@@ -43,17 +43,32 @@ class Recipient(models.Model):
 				return preferred_first_name
 				
 	@property
-	def emails(self):
+	def subscriptions(self, include_deactivated=False):
 		'''
 			What emails is this recipient set to receive.
 		'''
 		emails = []
 		for group in self.groups.all():
-			map(lambda e: emails.append(e), group.emails.filter(active=True))
+			group_emails = group.emails.all() if include_deactivated is True else group.emails.filter(active=True)
+			map(lambda e: emails.append(e), group_emails)
 		return set(emails)
 
 	def __str__(self):
 		return ' '.join([self.first_name, self.last_name, self.email_address])
+
+class RecipientRole(models.Model):
+	'''
+		Descibes the roles of a particular recipient. recipients
+	'''
+
+	ROLE_CHOICES = (
+		(0, 'Student'),
+		(1, 'Staff'),
+		(2, 'Facutly'),
+		(3, 'Alumni')
+	)
+	pass
+
 
 class RecipientGroup(models.Model):
 	'''

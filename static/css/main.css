@@ -62,3 +62,7 @@ textarea {height:5em;}
 #email-details #instances > li h4 span,
 	#email-details #overall h4 span {padding-right:5px;font-size:85%;color:#666;}
 #email-details #instances > li h4:hover {cursor:pointer;}
+
+/* Subscriptions */
+#recipient-preferences {}
+#recipient-preferences {}
