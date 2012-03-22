@@ -33,7 +33,7 @@ class Recipient(models.Model):
 
 	@property
 	def preferred_first_name(self):
-		if self.preferred_name == '':
+		if self.preferred_name is None or self.preferred_name == '':
 			return self.first_name
 		else:
 			preferred_first_name = re.sub('\s%s$' % self.last_name, '', self.preferred_name)
@@ -41,6 +41,16 @@ class Recipient(models.Model):
 				return self.first_name
 			else:
 				return preferred_first_name
+				
+	@property
+	def emails(self):
+		'''
+			What emails is this recipient set to receive.
+		'''
+		emails = []
+		for group in self.groups.all():
+			map(lambda e: emails.append(e), group.emails.filter(active=True))
+		return set(emails)
 
 	def __str__(self):
 		return ' '.join([self.first_name, self.last_name, self.email_address])
@@ -99,7 +109,7 @@ class Email(models.Model):
 	from_email_address = models.CharField(max_length=256, help_text=_HELP_TEXT['from_email_address'])
 	from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
 	replace_delimiter  = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
-	recipient_groups   = models.ManyToManyField(RecipientGroup, help_text=_HELP_TEXT['recipient_groups'])
+	recipient_groups   = models.ManyToManyField(RecipientGroup, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
 	track_urls         = models.BooleanField(default=False, help_text=_HELP_TEXT['track_urls'])
 	track_opens        = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
 	preview            = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
@@ -239,6 +249,9 @@ class Email(models.Model):
 		params['chm'] = ''
 
 		return '?'.join([base_url,urllib.urlencode(params)])
+
+	def __str__(self):
+		return self.title
 
 class EmailSendTime(models.Model):
 	'''
