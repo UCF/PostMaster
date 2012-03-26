@@ -129,6 +129,8 @@ class Command(BaseCommand):
 								except AttributeError:
 									log.error('Invalid email label mapping from `%s` to `%s` on the recipient object' % (find, mapping.recipient_field))
 								else:
+									if replace is None:
+										replace = ''
 									customized_content = customized_content.replace(find, replace)
 						
 						# Tracking URLs
