@@ -29,7 +29,10 @@ class Recipient(models.Model):
 
 	@property
 	def smtp_address(self):
-		return '"%s %s" <%s>' % (self.first_name, self.last_name, self.email_address)
+		if self.preferred_first_name is None or self.last_name is None:
+			return self.email_address
+		else:
+			return '"%s %s" <%s>' % (self.preferred_first_name, self.last_name, self.email_address)
 
 	@property
 	def preferred_first_name(self):
