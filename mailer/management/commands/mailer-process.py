@@ -50,8 +50,8 @@ class Command(BaseCommand):
 		# Previews - 1 hour before the email is supposed to go out
 		preview_kwargs = {
 			'id__in'                     : todays_email_ids,
-			'send_times__send_time__gte' : (now_dt + timedelta(seconds=60 * 60)).time(),
-			'send_times__send_time__lt'  : (later_dt + timedelta(seconds= 60 * 60)).time(),
+			'send_times__send_time__gt'  : (now_dt + timedelta(seconds=60 * 60)).time(),
+			'send_times__send_time__lte' : (later_dt + timedelta(seconds= 60 * 60)).time(),
 			'active'                     : True,
 			'preview'                    : True
 		}
@@ -94,8 +94,8 @@ class Command(BaseCommand):
 		# Fetch all the emails that are due to be sent in the next 15 minutes
 		email_kwargs = {
 			'id__in'                      :todays_email_ids,
-			'send_times__send_time__gte'  :now_t,
-			'send_times__send_time__lt'   :later_t,
+			'send_times__send_time__gt'   :now_t,
+			'send_times__send_time__lte'  :later_t,
 			'active'                      :True}
 		emails = Email.objects.filter(**email_kwargs)
 
