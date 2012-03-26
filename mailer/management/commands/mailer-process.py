@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
 		# Figure out which emails need to be sent today
 		todays_email_ids = []
-		for email in Email.objects.all():
+		for email in Email.objects.filter(active=True):
 			start = email.start_date
 			if email.recurrence == Email.Recurs.never and start == now_d:
 				todays_email_ids.append(email.id)
