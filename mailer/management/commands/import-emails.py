@@ -2,110 +2,135 @@ from django.core.management.base import BaseCommand, CommandError
 from optparse                    import make_option
 from util                        import LDAPHelper 
 from django.conf                 import settings
-from mailer.models                 import Recipient, RecipientGroup
-import re
+from mailer.models               import Recipient, RecipientGroup
 import csv
 
 class Command(BaseCommand):
-	#option_list = BaseCommand.option_list + (
-	#	make_option(
-	#		'--group_name',
-	#		action  ='store',
-	#		dest    ='group_name',
-	#		default ='',
-	#	),
-	#	make_option(
-	#		'--column-order',
-	#		action  ='store',
-	#		dest    ='column_order',
-	#		default ='first_name,last_name,email'
-	#	),
-	#	make_option(
-	#		'--ignore-first-column',
-	#		action  ='store_true',
-	#		dest    ='ignore_first_column',
-	#		default = False
-	#	)
-	#)
-	
-	
-	ldap = LDAPHelper()
-	LDAPHelper.bind(ldap.connection, settings.LDAP_NET_SEARCH_USER, settings.LDAP_NET_SEARCH_PASS)
-
+	option_list = BaseCommand.option_list + (
+		make_option(
+			'--group-name',
+			action  ='store',
+			dest    ='group_name',
+			default ='',
+		),
+		make_option(
+			'--column-order',
+			action  ='store',
+			dest    ='column_order',
+			default ='first_name,last_name,email,preferred_name'
+		),
+		make_option(
+			'--ignore-first-column',
+			action  ='store_true',
+			dest    ='ignore_first_column',
+			default = False
+		)
+	)
 	def handle(self, *args, **kwargs):
-		#user = LDAPHelper.search(self.ldap.connection, 'conover')
-		#print type(user[0]);
-		#print LDAPHelper.extract_guid(user)
-		#print LDAPHelper._extract_attribute(user, 'directReports')
-		smca_users =  self.build_hierarchy('aharms')
 
-		#csv_writer = csv.writer(open('smca.csv', 'w'))
-		#csv_writer.writerow(['First Name', 'Last Name', 'Display Name', 'Email Address', 'NID'])
-		#for user in smca_users:
-		#	csv_writer.writerow([user['first_name'], user['last_name'], user['display_name'], user['email'], user['nid']])
-
-		group, created = RecipientGroup.objects.get_or_create(name='SMCA')
-
-		for user in smca_users:
-			if user['email'] != '':
-				try:
-					recipient = Recipient.objects.get(email_address=user['email'])
-				except Recipient.DoesNotExist:
-					recipient = Recipient(
-						first_name=user['first_name'],
-						last_name=user['last_name'],
-						email_address=user['email'],
-						preferred_name=['display_name'])
-				else:
-					recipient.first_name = user['first_name']
-					recipient.last_name = user['last_name']
-					recipient.preferred_name = user['display_name']
-
-				recipient.save()
-				group.recipients.add(recipient)
-
-	def build_hierarchy(self, nid):
-		users = []
-
-		user = LDAPHelper.search(self.ldap.connection, nid)
-
-		display_name = ''
-		try:
-			display_name = LDAPHelper._extract_attribute(user, 'displayName', single=True)
-		except LDAPHelper.MissingAttribute:
-			pass
-
-		email = ''
-		try:
-			email = LDAPHelper.extract_email(user)
-		except LDAPHelper.MissingAttribute:
-			pass
-
-		users.append({
-			'first_name'   :LDAPHelper.extract_firstname(user),
-			'last_name'    :LDAPHelper.extract_lastname(user),
-			'email'        :email,
-			'display_name' :display_name,
-			'nid'          :LDAPHelper.extract_username(user)
-		})
-
-		try:
-			direct_reports_dns = LDAPHelper._extract_attribute(user, 'directReports')
-		except LDAPHelper.MissingAttribute:
-			# this person has not direct reports
-			pass
+		if len(args) == 0 or len(args) > 1:
+			print 'Usage: python manage.py import-emails [filename] [options]'
+			print 'Options:'
+			print '--group_name [group name]'
+			print '\tWill add recipients to the specified recipient group.'
+			print '\tThe group will be created if it does not exist.'
+			print '\tIf not specified, recipients will not be added to any group.'
+			print '--column-rrder [columns]'
+			print '\tDefault: first_name,last_name,preferred_name'
+			print '\tThe column order of the CSV. The first_name, last_name, and email'
+			print '\tcolumn names must be present.'
+			print '--ignore-first-column'
+			print '\tIgnore the first column of the CSV. Useful if there are column'
+			print '\theaders present.'
 		else:
-			direct_report_nids = Command.extract_direct_report_nids(direct_reports_dns)
-			for nid in direct_report_nids:
-				users.extend(self.build_hierarchy(nid))
+			filename            = args[0]
+			group_name          = kwargs.get('group_name')
+			columns             = list(col.strip() for col in kwargs.get('column_order').split(','))
+			ignore_first_column = kwargs.get('ignore_first_column')
 
-		return users
+			if 'email' not in columns:
+				print 'At least `email` must be specified in the column-order argument.'
+			else:
 
-	@classmethod
-	def extract_direct_report_nids(cls, direct_reports):
-		nids = []
-		for report in direct_reports:
-			match = re.match('CN=([^,]+),', report)
-			if match is not None:
-				nids.append(match.groups()[0])
-		return nids
+				group = None
+				if group_name != '':
+					try:
+						group = RecipientGroup.objects.get(name=group_name)
+					except RecipientGroup.DoesNotExist:
+						print 'Recipient group does not exist. Creating...'
+						group = RecipientGroup(name=group_name)
+						group.save()
+
+				csv_reader = csv.reader(open(filename, 'rU'))
+
+				email_adress_index = columns.index('email')
+				try:
+					first_name_index = columns.index('first_name')
+				except ValueError:
+					first_name_index = None
+				try:
+					last_name_index = columns.index('last_name_index')
+				except ValueError:
+					last_name_index = None
+				try:
+					preferred_name_index = columns.index('preferred_name')
+				except ValueError:
+					preferred_name_index = None
+
+				row_num = 1
+				for row in csv_reader:
+					if row_num == 1 and ignore_first_column:
+						row_num = 2
+						continue
+					else:
+						try:
+							email_address = row[email_adress_index]
+							if first_name_index is None:
+								first_name = None
+							else:
+								first_name = row[first_name_index]
+							if last_name_index is None:
+								last_name = None
+							else:
+								last_name = row[last_name_index]
+							if preferred_name_index is None:
+								preferred_name = None
+							else:
+								preferred_name = row[preferred_name_index]
+						except IndexError:
+							print 'Malformed row at line %d' % row_num
+						else:
+							# Email is our primary key here
+							created = False
+							try:
+								recipient = Recipient.objects.get(email_address=email_address)
+							except Recipient.DoesNotExist:
+								recipient = Recipient(
+									first_name     = first_name,
+									last_name      = last_name,
+									email_address  = email_address,
+									preferred_name = preferred_name
+								)
+								created = True
+							else:
+								# Update the values if needed
+								recipient = Recipient(
+									first_name     = first_name,
+									last_name      = last_name,
+									preferred_name = preferred_name
+								)
+							try:
+								recipient.save()
+							except Exception, e:
+								print 'Error saving recipient at line %d: %s' % (row_num, str(e))
+							else:
+								print 'Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')
+
+							if group is not None:
+								try:
+									group.recipients.add(recipient)
+								except Exception, e:
+									print 'Failed to add %s to group at line %d: %s' % (email_address, row_num, str(e))
+								else:
+									print 'Recipient %s successfully added to group' % (email_address)
+					row_num += 1
