@@ -18,8 +18,8 @@ class Recipient(models.Model):
 		('preferred_first_name', 'Preferred First Name')
 	]
 
-	first_name      = models.CharField(max_length=100)
-	last_name       = models.CharField(max_length=100)
+	first_name      = models.CharField(max_length=100, null=True, blank=True)
+	last_name       = models.CharField(max_length=100, null=True, blank=True)
 	email_address   = models.CharField(max_length=256)
 	preferred_name  = models.CharField(max_length=200, null=True, blank=True)
 
@@ -54,7 +54,7 @@ class Recipient(models.Model):
 		return set(emails)
 
 	def __str__(self):
-		return ' '.join([self.first_name, self.last_name, self.email_address])
+		return ' '.join([str(self.first_name), str(self.last_name), str(self.preferred_name), self.email_address])
 
 class RecipientRole(models.Model):
 	'''
