@@ -240,3 +240,13 @@ def instance_open(request):
 					instance_open.save()
 					log.debug('open saved')
 	return HttpResponse(settings.DOT, content_type='image/png')
+
+def preferences(request, recipient_id):
+	ctx  = {'recipient':None} 
+	tmpl = 'email/preferences.html'
+
+	try:
+		ctx['recipient'] = Recipient.objects.get(pk=recipient_id)
+	except Recipient.DoesNotExist:
+		return HttpResponseNotFound('The recipient specified does not exist.')
+	return direct_to_template(request, tmpl, ctx)
