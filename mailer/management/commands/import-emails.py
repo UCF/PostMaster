@@ -133,7 +133,7 @@ class Command(BaseCommand):
 									try:
 										group.recipients.add(recipient)
 									except Exception, e:
-										print 'Failed to add %s to group at line %d: %s' % (email_address, row_num, str(e))
+										print 'Failed to add %s to group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
 									else:
-										print 'Recipient %s successfully added to group' % (email_address)
+										print 'Recipient %s successfully added to group %s' % (email_address, group.name)
 					row_num += 1
