@@ -100,37 +100,40 @@ class Command(BaseCommand):
 						except IndexError:
 							print 'Malformed row at line %d' % row_num
 						else:
-							# Email is our primary key here
-							created = False
-							try:
-								recipient = Recipient.objects.get(email_address=email_address)
-							except Recipient.DoesNotExist:
-								recipient = Recipient(
-									first_name     = first_name,
-									last_name      = last_name,
-									email_address  = email_address,
-									preferred_name = preferred_name
-								)
-								created = True
+							if email_address == '':
+								print 'Empty email address at line %d' % row_num
 							else:
-								# Update the values if needed
-								recipient = Recipient(
-									first_name     = first_name,
-									last_name      = last_name,
-									preferred_name = preferred_name
-								)
-							try:
-								recipient.save()
-							except Exception, e:
-								print 'Error saving recipient at line %d: %s' % (row_num, str(e))
-							else:
-								print 'Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')
-
-							if group is not None:
+								# Email is our primary key here
+								created = False
 								try:
-									group.recipients.add(recipient)
-								except Exception, e:
-									print 'Failed to add %s to group at line %d: %s' % (email_address, row_num, str(e))
+									recipient = Recipient.objects.get(email_address=email_address)
+								except Recipient.DoesNotExist:
+									recipient = Recipient(
+										first_name     = first_name,
+										last_name      = last_name,
+										email_address  = email_address,
+										preferred_name = preferred_name
+									)
+									created = True
 								else:
-									print 'Recipient %s successfully added to group' % (email_address)
+									# Update the values if needed
+									recipient = Recipient(
+										first_name     = first_name,
+										last_name      = last_name,
+										preferred_name = preferred_name
+									)
+								try:
+									recipient.save()
+								except Exception, e:
+									print 'Error saving recipient at line %d: %s' % (row_num, str(e))
+								else:
+									print 'Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')
+
+								if group is not None:
+									try:
+										group.recipients.add(recipient)
+									except Exception, e:
+										print 'Failed to add %s to group at line %d: %s' % (email_address, row_num, str(e))
+									else:
+										print 'Recipient %s successfully added to group' % (email_address)
 					row_num += 1
