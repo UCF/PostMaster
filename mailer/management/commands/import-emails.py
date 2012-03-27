@@ -116,12 +116,10 @@ class Command(BaseCommand):
 									)
 									created = True
 								else:
-									# Update the values if needed
-									recipient = Recipient(
-										first_name     = first_name,
-										last_name      = last_name,
-										preferred_name = preferred_name
-									)
+									# Update the values
+									recipient.first_name     = first_name
+									recipient.last_name      = last_name
+									recipient.preferred_name = preferred_name
 								try:
 									recipient.save()
 								except Exception, e:
