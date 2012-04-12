@@ -168,7 +168,7 @@ class Command(BaseCommand):
 						msg = MIMEMultipart('alternative')
 						msg['Subject'] = subject
 						msg['From']    = email.smtp_from_address
-						msg['To']      = recipient.email_address
+						msg['To']      = recipient.smtp_address
 
 						msg.attach(MIMEText(customized_content, 'html', _charset="us-ascii"))
 
