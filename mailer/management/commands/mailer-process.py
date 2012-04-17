@@ -165,6 +165,11 @@ class Command(BaseCommand):
 							params['mac'] = calc_open_mac(params['recipient'], params['instance'])
 							customized_content += '<img src="' + settings.PROJECT_URL + reverse('mailer-email-open') + '?' + urllib.urlencode(params) + '" />'
 
+						# Built-in mappings we don't want tracked
+						## Unsubscribe
+						customized_content = customized_content.replace('!@!UNSUBSCRIBE!@!', '<a href="%s">Unsubscribe</a>' % recipient.unsubscribe_uri(email)]))
+
+
 						msg = MIMEMultipart('alternative')
 						msg['Subject'] = subject
 						msg['From']    = email.smtp_from_address

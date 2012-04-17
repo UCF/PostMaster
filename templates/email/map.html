@@ -4,7 +4,25 @@
 {% endblock %}
 {% block content %}
 <div id="email-map">
-	<h2>Map Email Labels to Recipient Fields</h2>
+	<h2>Built-In Mappings</h2>
+		<table id="mappings">
+			<thead>
+				<tr>
+					<th scope="col">Email Label</th>
+					<th scope="col">Replacement</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>!@!UNSUBSCRIBE!@!</td>
+					<td>
+						This label will be replaced with an unsubcribe link.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	<hr />
+	<h2>Recipient Mappings</h2>
 	<form action="{% url mailer-email-map email.id %}" method="post">
 		<table id="mappings">
 			<thead>
@@ -30,5 +48,6 @@
 		<button type="submit">Save Mappings</button>
 		{% csrf_token %}
 	</form>
+	
 </div>
 {% endblock %}
