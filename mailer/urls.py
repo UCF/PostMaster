@@ -3,6 +3,7 @@ from django.views.generic.simple import direct_to_template
 from django.conf                 import settings
 
 urlpatterns = patterns('mailer.views',
+	url(r'^email/unsubscribe/?$', view='unsubscribe', name='mailer-email-unsubscribe'),
 	url(r'^email/open/?$', view='instance_open', name='mailer-email-open'),
 	url(r'^email/redirect/?$', view='redirect', name='mailer-email-redirect'),
 	url(r'^email/(?P<email_id>\d+)/deactivate/?$', view='deactivate', name='mailer-email-deactivate'),

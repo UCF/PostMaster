@@ -132,7 +132,8 @@ class Email(models.Model):
 	track_opens        = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
 	preview            = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
 	preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
-
+	unsubscriptions    = models.ManyToManyField(Recipient, related_name='unsubscriptions')
+	
 	@property
 	def smtp_from_address(self):
 		if self.from_friendly_name:

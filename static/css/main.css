@@ -66,3 +66,4 @@ textarea {height:5em;}
 /* Subscriptions */
 #recipient-preferences {}
 #recipient-preferences {}
+#unsubcribe-message {text-align:center;font-size:25px;margin-top:20px;}

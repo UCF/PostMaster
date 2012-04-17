@@ -29,7 +29,8 @@ class CreateEmailForm(forms.ModelForm):
 		return cleaned_data
 
 	class Meta:
-		model = Email
+		model   = Email
+		exclude = ('unsubscriptions',)
 
 class LabelMappingForm(forms.ModelForm):
 

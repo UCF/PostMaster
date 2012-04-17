@@ -13,6 +13,11 @@
 		<form action="{% url mailer-email-update form.instance.id %}" method="post">
 		{% endif %}
 	{% endif %}
+		<ul class="errors">
+			{% for error in form.errors %}
+			<li>{{error}}</li>
+			{% endfor %}
+		</ul>
 		<div class="input">
 			{{form.active.label_tag}}
 			{% if form.active.errors %}
@@ -108,6 +113,11 @@
 			<ul id="send_times">
 			{% for send_time_form in times %}
 				<li>
+					<ul class="errors">
+						{% for error in send_time_form.errors %}
+						<li>{{error}}</li>
+						{% endfor %}
+					</ul>
 					<div class="remove">remove: {{send_time_form.DELETE}}</div>
 					{{send_time_form.id}}
 					{{send_time_form.send_time}}

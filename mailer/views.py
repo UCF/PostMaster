@@ -4,7 +4,7 @@ from mailer.forms                   import CreateEmailForm, LabelMappingForm, Em
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
-from util                           import calc_url_mac, calc_open_mac
+from util                           import calc_url_mac, calc_open_mac, calc_unsubcribe_mac
 from django.conf                    import settings
 from datetime                       import datetime
 from django.contrib.auth.decorators import login_required
@@ -240,3 +240,38 @@ def instance_open(request):
 					instance_open.save()
 					log.debug('open saved')
 	return HttpResponse(settings.DOT, content_type='image/png')
+
+def unsubscribe(request):
+	'''
+		Unsubcribe a recipient from a particular email
+	'''
+	ctx  = {'email':None, 'recipient':None}
+
+	email_id     = request.GET.get('email',     None)
+	recipient_id = request.GET.get('recipient', None)
+	mac          = request.GET.get('mac',       None)
+
+	if email_id is None or recipient_id is None or mac is None or mac != calc_unsubcribe_mac(recipient_id, email_id):
+		return direct_to_template(request, 'email/unsubscribe/parameters.html')
+	else:
+		try:
+			recipient_id = int(recipient_id)
+			email_id     = int(email_id)
+		except ValueError:
+			# corrupted
+			return direct_to_template(request, 'email/unsubscribe/parameters.html')
+		else:
+			try:
+				ctx['recipient'] = Recipient.objects.get(id=recipient_id)
+				ctx['email']     = Email.objects.get(id=email_id)
+			except Recipient.DoesNotExist:
+				log.error('Bad unsubscribe recipient id %d for email id %d' % (recipient_id, email_id))
+			except Email.DoesNotExist:
+				log.error('Bad unsubscribe email id %d for recipient id %d' % (recipient_id, email_id))
+			else:
+				if ctx['recipient'] in ctx['email'].unsubscriptions.all():
+					log.info('Recipeint %d already unsubscribed from email %d' % (recipient_id, email_id))
+					return direct_to_template(request, 'email/unsubscribe/already.html', ctx)
+				else:
+					ctx['email'].unsubscriptions.add(ctx['recipient'])
+					return direct_to_template(request, 'email/unsubscribe/success.html', ctx)
