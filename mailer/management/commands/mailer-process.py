@@ -111,7 +111,7 @@ class Command(BaseCommand):
 			amazon_ses = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 			amazon_ses.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 			for group in email.recipient_groups.all():
-				for recipient in group.recipients.all():
+				for recipient in group.recipients.exclude(id__in = email.unsubscriptions.all()):
 
 					try:
 						# Check to see if this email has already been
