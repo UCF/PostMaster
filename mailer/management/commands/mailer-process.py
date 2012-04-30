@@ -167,7 +167,7 @@ class Command(BaseCommand):
 
 						# Built-in mappings we don't want tracked
 						## Unsubscribe
-						customized_content = customized_content.replace('!@!UNSUBSCRIBE!@!', '<a href="%s">Unsubscribe</a>' % recipient.unsubscribe_uri(email))
+						customized_content = customized_content.replace('!@!UNSUBSCRIBE!@!', '<a style="color:blue;text-decoration:underline;" href="%s">Unsubscribe</a>' % recipient.unsubscribe_uri(email))
 
 
 						msg = MIMEMultipart('alternative')
