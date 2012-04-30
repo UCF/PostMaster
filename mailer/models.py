@@ -56,10 +56,10 @@ class Recipient(models.Model):
 			map(lambda e: emails.append(e), group_emails)
 		return set(emails)
 
-	@property
 	def unsubscribe_uri(self, email):
-		from util   import calc_unsubscribe_mac
-		from urllib import urlencode
+		from util                        import calc_unsubscribe_mac
+		from urllib                      import urlencode
+		from django.core.urlresolvers    import reverse
 		params = {'recipient':self.pk, 'email':email.pk, 'mac':calc_unsubscribe_mac(self.pk, email.pk)}
 		return '?'.join([settings.PROJECT_URL + reverse('mailer-email-unsubscribe'), urlencode(params)])
 

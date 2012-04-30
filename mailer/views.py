@@ -4,7 +4,7 @@ from mailer.forms                   import CreateEmailForm, LabelMappingForm, Em
 from django.http                    import HttpResponseNotFound, HttpResponseForbidden,HttpResponseRedirect, HttpResponse
 from django.contrib                 import messages
 from django.core.urlresolvers       import reverse
-from util                           import calc_url_mac, calc_open_mac, calc_unsubcribe_mac
+from util                           import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.conf                    import settings
 from datetime                       import datetime
 from django.contrib.auth.decorators import login_required
@@ -251,7 +251,7 @@ def unsubscribe(request):
 	recipient_id = request.GET.get('recipient', None)
 	mac          = request.GET.get('mac',       None)
 
-	if email_id is None or recipient_id is None or mac is None or mac != calc_unsubcribe_mac(recipient_id, email_id):
+	if email_id is None or recipient_id is None or mac is None or mac != calc_unsubscribe_mac(recipient_id, email_id):
 		return direct_to_template(request, 'email/unsubscribe/parameters.html')
 	else:
 		try:
