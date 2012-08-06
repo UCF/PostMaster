@@ -14,6 +14,27 @@
 		<script src="{{MEDIA_URL}}/js/global.js"></script>
 	</head>
 	<body>
-
+		<div class="container">
+			<header class="span8 offset2">
+				<div class="navbar">
+					<div class="navbar-inner">
+						<div class="container">
+							<a class="brand" href="#">Postmaster Emailer</a>
+							<ul class="nav pull-right">
+								<li class="active">
+									<a href="#">Emails</a>
+								</li>
+								<li>
+									<a href="#">Recipients</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</header>
+			<section class="span8 offset2">
+				{% block page-body %}{% endblock %}
+			</section>
+		</div>
 	</body>
 </html>
