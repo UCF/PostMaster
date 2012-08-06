@@ -1,5 +1,0 @@
-var Webcom   = {};
-
-$().ready(function(){
-
-});
