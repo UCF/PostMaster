@@ -1,5 +1,5 @@
 from django        import forms
-from mailer.models import Email
+from manager.models import Email
 
 class EmailCreateForm(forms.ModelForm):
 

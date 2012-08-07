@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from mailer.models               import Email, Instance, RecipientGroup, Recipient, InstanceRecipientDetails, URL
+from manager.models               import Email, Instance, RecipientGroup, Recipient, InstanceRecipientDetails, URL
 from datetime                    import datetime, timedelta
 from django.conf                 import settings
 from util                        import calc_url_mac, calc_open_mac
@@ -60,8 +60,8 @@ class Command(BaseCommand):
 		log.debug('Emails being previewed in this run: ' + str(list(e.id for e in preview_emails)))
 
 		for email in preview_emails:
-			deactivate_uri = settings.PROJECT_URL + reverse('mailer-email-deactivate', kwargs={'email_id':email.id})
-			update_uri     = settings.PROJECT_URL + reverse('mailer-email-update', kwargs={'email_id':email.id})
+			deactivate_uri = settings.PROJECT_URL + reverse('manager-email-deactivate', kwargs={'email_id':email.id})
+			update_uri     = settings.PROJECT_URL + reverse('manager-email-update', kwargs={'email_id':email.id})
 			deactivate_html = '''
 				<div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
 					This is a preview of the %s email that will be sent in 1 hour.
@@ -152,7 +152,7 @@ class Command(BaseCommand):
 									'position' :positioned_urls.count(href),
 								}
 								params['mac']      = calc_url_mac(href, params['position'], params['recipient'], params['instance'])
-								tracked_url        = '?'.join([settings.PROJECT_URL + reverse('mailer-email-redirect'), urllib.urlencode(params)])
+								tracked_url        = '?'.join([settings.PROJECT_URL + reverse('manager-email-redirect'), urllib.urlencode(params)])
 								customized_content = customized_content.replace('href="' + href + '"', 'href="' + tracked_url + '"')
 								positioned_urls.append(href)
 						
@@ -163,7 +163,7 @@ class Command(BaseCommand):
 								'instance' :instance.id
 							}
 							params['mac'] = calc_open_mac(params['recipient'], params['instance'])
-							customized_content += '<img src="' + settings.PROJECT_URL + reverse('mailer-email-open') + '?' + urllib.urlencode(params) + '" />'
+							customized_content += '<img src="' + settings.PROJECT_URL + reverse('manager-email-open') + '?' + urllib.urlencode(params) + '" />'
 
 						# Built-in mappings we don't want tracked
 						## Unsubscribe

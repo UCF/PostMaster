@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse                    import make_option
-from mailer.models               import Recipient, RecipientGroup
+from manager.models               import Recipient, RecipientGroup
 
 class Command(BaseCommand):
 

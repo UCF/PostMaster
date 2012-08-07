@@ -61,7 +61,7 @@ class Recipient(models.Model):
 		from urllib                      import urlencode
 		from django.core.urlresolvers    import reverse
 		params = {'recipient':self.pk, 'email':email.pk, 'mac':calc_unsubscribe_mac(self.pk, email.pk)}
-		return '?'.join([settings.PROJECT_URL + reverse('mailer-email-unsubscribe'), urlencode(params)])
+		return '?'.join([settings.PROJECT_URL + reverse('manager-email-unsubscribe'), urlencode(params)])
 
 	def __str__(self):
 		return ' '.join([str(self.first_name), str(self.last_name), str(self.preferred_name), self.email_address])

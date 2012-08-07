@@ -46,11 +46,11 @@ INSTALLED_APPS = (
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.sites',
-	'mailer',
+	'manager',
 )
 
 AUTHENTICATION_BACKENDS = (
-	'mailer.auth.Backend',
+	'manager.auth.Backend',
 )
 
 LOGGING = {
@@ -97,7 +97,7 @@ LOGGING = {
 			'propogate': True,
 			'level':'INFO'
 		},
-		'mailer': {
+		'manager': {
 			'handlers':['console', 'file'],
 			'propogate': True,
 			'level':'DEBUG'
