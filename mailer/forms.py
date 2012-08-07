@@ -1,5 +1,5 @@
 from django        import forms
-from mailer.models import Email, EmailSendTime
+from mailer.models import Email
 
 class EmailCreateForm(forms.ModelForm):
 
@@ -12,9 +12,3 @@ class EmailCreateForm(forms.ModelForm):
 	class Meta:
 		model   = Email
 		exclude = ('unsubscriptions', )
-
-class EmailSendTimeCreateForm(forms.ModelForm):
-
-	class Meta:
-		model   = EmailSendTime
-		exclude = ('email',)
