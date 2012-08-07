@@ -113,6 +113,7 @@ class Email(models.Model):
 		'html'              : 'HTML source code of the email content',
 		'source_uri'        : 'Source URI of the email content',
 		'start_date'        : 'Date that the email will first be sent.',
+		'send_time'         : 'Format: %H:%M or %H:%M:%S. Time of day when the email will be sent. Times will be rounded to the nearest quarter hour.',
 		'recurrence'        : 'If and how often the email will be resent.',
 		'replace_delimiter' : 'Character(s) that replacement labels are wrapped in.',
 		'recipient_groups'  : 'Which group(s) of recipients this email will go to.',
@@ -130,6 +131,7 @@ class Email(models.Model):
 	html               = models.TextField(blank=True, null=True, help_text=_HELP_TEXT['html'])
 	source_uri         = models.URLField(blank=True, null=True, help_text=_HELP_TEXT['source_uri'])
 	start_date         = models.DateField(help_text=_HELP_TEXT['start_date'])
+	send_time          = models.TimeField(help_text=_HELP_TEXT['send_time'])
 	recurrence         = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices, help_text=_HELP_TEXT['recurrence'])
 	from_email_address = models.CharField(max_length=256, help_text=_HELP_TEXT['from_email_address'])
 	from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
@@ -162,22 +164,6 @@ class Email(models.Model):
 
 	def __str__(self):
 		return self.title
-
-class EmailSendTime(models.Model):
-	'''
-		Describes a send time for an email
-	'''
-	email      = models.ForeignKey(Email, related_name='send_times')
-	send_time  = models.TimeField(help_text='Format: %H:%M or %H:%M:%S. Time of day when the email will be sent. Times will be rounded to the nearest quarter hour.')
-
-class EmailLabelRecipientFieldMapping(models.Model):
-	'''
-		Describes the mapping between attributes on a recipient
-		objects to a label in an email for replacement.
-	'''
-	email           = models.ForeignKey(Email, related_name='mappings')
-	recipient_field = models.CharField(max_length=100, blank=True, null=True)
-	email_label     = models.CharField(max_length=100)
 
 class Instance(models.Model):
 	'''
