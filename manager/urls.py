@@ -1,5 +1,6 @@
 from django.conf.urls.defaults   import patterns, include, url
 from manager.views               import *
+from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('manager.views',
 
@@ -14,5 +15,5 @@ urlpatterns = patterns('manager.views',
 	url(r'^recipientgroup/create/$',                 RecipientGroupCreateView.as_view(), name='manager-recipientgroup-create'),
 	url(r'^recipientgroup/(?P<pk>\d+)/recipients/$', RecipientListView.as_view(),        name='manager-recipientgroup-recipients'),
 
-	url(r'^$', EmailListView.as_view(), name='manager-home'),
+	url(r'^$', direct_to_template, kwargs={'template':'manager/instructions.html'}, name='manager-home'),
 )

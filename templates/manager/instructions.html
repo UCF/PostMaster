@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block page-body %}
+	<p class="lead">Welcome to the Postmast Emailer.</p>
+	<p>
+		The purpose of this system is gather content
+		from external sources and then email that content
+		to a set of recipients.
+	</p>
+	<p>
+		The system has two parts: <strong>recipients</strong> and <strong>emails</strong>.
+	</p>
+
+	<h3>Recipients</h3>
+	<p>
+		The details of the person or entity. 
+		Recipients have the following fields:
+	</p>
+	<ul>
+		<li>First Name</li>
+		<li>Last Name</li>
+		<li>Email Address</li>
+		<li>Preferred Name</li>
+	</ul>
+	<p>
+		Recipients are aggregated into named groups called <strong>recipient groups</strong>.
+		When creating an email, these groups are how you will define which recipients which
+		recieve your email. Some important notes about recipient groups.
+	</p>
+	<ul>
+		<li>A recipient can be part of more than one recipient group.</li>
+		<li>A recipient can only be present in a recipient group once.</li>
+		<li>
+			If an email is assigned to go to multiple recipient groups and
+			a recipient is in more than one of those recipients groups, the 
+			recipient will only receive the email <em>once</em>.
+		</li>
+	</ul>
+	<h3>Emails</h3>
+	<p>
+		This details what, when, and how an email will be sent to a set of 
+		recipients.
+	</p>
+{% endblock %}
