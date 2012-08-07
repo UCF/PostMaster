@@ -33,6 +33,14 @@
 				</div>
 			</header>
 			<section class="span8 offset2">
+				{% if messages %}
+					{% for message in messages %}
+					<div class="alert{% if message.tags %} {{messages.tags}}{% endif %}">
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+						{{message}}
+					</div>
+					{% endfor %}
+				{% endif %}
 				{% block page-body %}{% endblock %}
 			</section>
 		</div>
