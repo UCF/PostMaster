@@ -1,5 +1,5 @@
 from django.conf.urls.defaults   import patterns, include, url
-from mailer.views                import EmailListView, EmailCreateView, EmailSendTimeCreateView
+from mailer.views                import EmailListView, EmailCreateView
 
 urlpatterns = patterns('mailer.views',
 
