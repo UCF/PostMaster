@@ -25,12 +25,14 @@
 	<thead>
 		<tr>
 			<th scope="col">Name</th>
+			<th></th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for email in emails %}
 		<tr data-link-url="{% url manager-email-update email.pk %}">
 			<td>{{email.title}}</td>
+			<td><a href="{% url manager-email-instances email.pk %}">Instances</a></td>
 		</tr>
 		{% endfor %}
 	</tbody>

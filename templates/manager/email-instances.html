@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h2 class="page-header">{{email.title}} Instances</h2>
+{% if is_paginated %}
+<div class="pagination pull-right">
+	<ul>
+		{% if page_obj.has_previous %}
+		<li>
+			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
+		</li>
+		{% endif %}
+		{% if page_obj.has_next %}
+		<li>
+			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
+		</li>
+		{% endif %}
+		<li class="active">
+			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+		</li>
+	</ul>
+</div>
+{% endif %}
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Start</th>
+			<th scope="col">End</th>
+			<th scope="col">In Process</th>
+			<th scope="col">Recipient</th>
+			<th scope="col">Open Tracked</th>
+			<th scope="col">URLs Tracked</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for instance in instances %}
+		<tr>
+			<td>{{instance.start}}</td>
+			<td>{{instance.end}}</td>
+			<td>{{instance.in_progress}}</td>
+			<td>{{instance.recipients.count}}</td>
+			<td>{{instance.opens_tracked}}</td>
+			<td>{{instance.urls_tracked}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

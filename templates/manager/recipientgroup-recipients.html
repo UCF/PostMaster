@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h2 class="page-header">{{recipient_group.name}} Recipients</h2>
+{% if is_paginated %}
+<div class="pagination pull-right">
+	<ul>
+		{% if page_obj.has_previous %}
+		<li>
+			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
+		</li>
+		{% endif %}
+		{% if page_obj.has_next %}
+		<li>
+			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
+		</li>
+		{% endif %}
+		<li class="active">
+			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+		</li>
+	</ul>
+</div>
+{% endif %}
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">First Name</th>
+			<th scope="col">Last Name</th>
+			<th scope="col">Email Address</th>
+			<th scope="col">Preferred Name</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for recipient in recipients %}
+		<tr>
+			<td>{{instance.first_name}}</td>
+			<td>{{instance.last_name}}</td>
+			<td>{{instance.email_address}}</td>
+			<td>{{instance.preferred_name}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
