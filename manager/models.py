@@ -84,7 +84,7 @@ class RecipientGroup(models.Model):
 	'''
 		Describes the details of a named group of email recipients
 	'''
-	name       = models.CharField(max_length=100)
+	name       = models.CharField(max_length=100, unique=True)
 	recipients = models.ManyToManyField(Recipient, related_name='groups')
 
 	def __str__(self):
