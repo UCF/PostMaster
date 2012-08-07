@@ -2,6 +2,7 @@
 # Django settings for generic project.
 import os
 import sys
+from django.contrib.messages import constants as message_constants
 
 PROJECT_FOLDER    = os.path.dirname(os.path.abspath(__file__))
 APP_FOLDER        = os.path.join(PROJECT_FOLDER, 'apps')
@@ -46,6 +47,7 @@ INSTALLED_APPS = (
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.sites',
+	'django.contrib.messages',
 	'manager',
 )
 
@@ -103,6 +105,14 @@ LOGGING = {
 			'level':'DEBUG'
 		},
 	}
+}
+
+MESSAGE_TAGS = {
+	message_constants.DEBUG   : '',
+	message_constants.INFO    : 'alert-info',
+	message_constants.SUCCESS : 'alert-success',
+	message_constants.WARNING : 'alert-error',
+	message_constants.ERROR   : 'alert-error',
 }
 
 DOT = ''
