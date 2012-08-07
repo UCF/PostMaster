@@ -4,8 +4,9 @@ from manager.views               import *
 urlpatterns = patterns('manager.views',
 
 	# Emails
-	url(r'^emails/$',       EmailListView.as_view(),   name='manager-emails'),
-	url(r'^email/create/$', EmailCreateView.as_view(), name='manager-email-create'),
+	url(r'^emails/$',                   EmailListView.as_view(),   name='manager-emails'),
+	url(r'^email/create/$',             EmailCreateView.as_view(), name='manager-email-create'),
+	url(r'^email/(?P<pk>\d+)/update/$', EmailUpdateView.as_view(), name='manager-email-update'),
 
 	# Recipients
 	url(r'^recipient/groups/$',       RecipientGroupListView.as_view(),   name='manager-recipientgroups'),

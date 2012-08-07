@@ -1,7 +1,7 @@
 from django         import forms
 from manager.models import Email, RecipientGroup
 
-class EmailCreateForm(forms.ModelForm):
+class EmailCreateUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model   = Email

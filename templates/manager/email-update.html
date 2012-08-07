@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-email-create %}" method="post">
+<form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
 	<fieldset>
-		<legend>Create Email</legend>
+		<legend>Update Email</legend>
 		{% for error in form.non_field_errors %}
 			<div class="alert alert-error">
 				{{error}}
@@ -12,7 +12,7 @@
 			{% include 'form-control-group.html' %}
 		{% endfor %}
 		<div class="pull-right">
-			<button type="submit" class="btn btn-primary">Create</button>
+			<button type="submit" class="btn btn-primary">Update</button>
 			<a href="{% url manager-home %}" class="btn">Cancel</a>
 		</div>
 	</fieldset>

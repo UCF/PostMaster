@@ -1,4 +1,38 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <a class="btn" href="{% url manager-email-create %}">Create New Email</a>
+<h2 class="page-header">Emails</h2>
+{% if is_paginated %}
+<div class="pagination pull-right">
+	<ul>
+		{% if page_obj.has_previous %}
+		<li>
+			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
+		</li>
+		{% endif %}
+		{% if page_obj.has_next %}
+		<li>
+			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
+		</li>
+		{% endif %}
+		<li class="active">
+			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+		</li>
+	</ul>
+</div>
+{% endif %}
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Name</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for email in emails %}
+		<tr data-link-url="{% url manager-email-update email.pk %}">
+			<td>{{email.title}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
 {% endblock %}
