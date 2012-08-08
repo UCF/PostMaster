@@ -32,10 +32,10 @@
 	<tbody>
 		{% for recipient in recipients %}
 		<tr>
-			<td>{{instance.first_name}}</td>
-			<td>{{instance.last_name}}</td>
-			<td>{{instance.email_address}}</td>
-			<td>{{instance.preferred_name}}</td>
+			<td>{{recipient.first_name}}</td>
+			<td>{{recipient.last_name}}</td>
+			<td>{{recipient.email_address}}</td>
+			<td>{{recipient.preferred_name}}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
