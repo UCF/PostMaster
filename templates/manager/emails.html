@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<a class="btn" href="{% url manager-email-create %}">Create New Email</a>
-<h2 class="page-header">Emails</h2>
+<a class="btn pull-right" href="{% url manager-email-create %}">Create New Email</a>
+<h2>Emails</h2>
 {% if is_paginated %}
-<div class="pagination pull-right">
+<div class="pagination">
 	<ul>
 		{% if page_obj.has_previous %}
 		<li>
@@ -16,7 +16,7 @@
 		</li>
 		{% endif %}
 		<li class="active">
-			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
 		</li>
 	</ul>
 </div>

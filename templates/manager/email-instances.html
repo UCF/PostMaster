@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<h2 class="page-header">{{email.title}} Instances</h2>
+<h2>{{email.title}} Instances</h2>
 {% if is_paginated %}
-<div class="pagination pull-right">
+<div class="pagination">
 	<ul>
 		{% if page_obj.has_previous %}
 		<li>
@@ -15,7 +15,7 @@
 		</li>
 		{% endif %}
 		<li class="active">
-			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
 		</li>
 	</ul>
 </div>
