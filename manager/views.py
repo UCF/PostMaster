@@ -93,6 +93,9 @@ class RecipientListView(ListView):
 		self._recipient_group = get_object_or_404(RecipientGroup, pk=kwargs['pk'])
 		return super(RecipientListView, self).dispatch(request, *args, **kwargs)
 
+	def get_queryset(self):
+		return Recipient.objects.filter(groups=self._recipient_group)
+
 	def get_context_data(self, **kwargs):
 		context                    = super(RecipientListView, self).get_context_data(**kwargs)
 		context['recipient_group'] = self._recipient_group
