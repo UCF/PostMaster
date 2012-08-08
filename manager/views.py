@@ -100,3 +100,8 @@ class RecipientListView(ListView):
 		context                    = super(RecipientListView, self).get_context_data(**kwargs)
 		context['recipient_group'] = self._recipient_group
 		return context
+
+class RecipientDetailView(DetailView):
+	model               = Recipient
+	template_name       = 'manager/recipient.html'
+	context_object_name = 'recipient'

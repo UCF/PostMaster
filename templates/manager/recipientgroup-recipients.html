@@ -23,19 +23,13 @@
 <table class="table">
 	<thead>
 		<tr>
-			<th scope="col">First Name</th>
-			<th scope="col">Last Name</th>
 			<th scope="col">Email Address</th>
-			<th scope="col">Preferred Name</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for recipient in recipients %}
-		<tr>
-			<td>{{recipient.first_name}}</td>
-			<td>{{recipient.last_name}}</td>
+		<tr data-link-url="{% url manager-recipient recipient.pk %}">
 			<td>{{recipient.email_address}}</td>
-			<td>{{recipient.preferred_name}}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

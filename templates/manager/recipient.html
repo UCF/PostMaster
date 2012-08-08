@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h2>{{recipient.email_address}} Attributes</h2>
+<p></p>
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for attribute in recipient.attributes.all %}
+			<tr>
+				<td>{{attribute.name}}</td>
+				<td>{{attribute.value}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

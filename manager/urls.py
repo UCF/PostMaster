@@ -14,6 +14,7 @@ urlpatterns = patterns('manager.views',
 	url(r'^recipientgroups/$',                       RecipientGroupListView.as_view(),   name='manager-recipientgroups'),
 	url(r'^recipientgroup/create/$',                 RecipientGroupCreateView.as_view(), name='manager-recipientgroup-create'),
 	url(r'^recipientgroup/(?P<pk>\d+)/recipients/$', RecipientListView.as_view(),        name='manager-recipientgroup-recipients'),
+	url(r'^recipient/(?P<pk>\d+)/$',                 RecipientDetailView.as_view(),      name='manager-recipient'),
 
 	url(r'^$', direct_to_template, kwargs={'template':'manager/instructions.html'}, name='manager-home'),
 )
