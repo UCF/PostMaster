@@ -13,6 +13,17 @@ class Recipient(models.Model):
 
 	email_address   = models.CharField(max_length=256)
 
+	def __getattr__(self, name):
+		'''
+			Try to lookup a missing attribute in RecipientAttribute if it's not defined.
+		'''
+		try:
+			attribute = RecipientAttribute.objects.get(recipient=self.pk, name=name)
+		except RecipientAttribute.DoesNotExist:
+			raise AttributeError
+		else:
+			return attribute.value
+
 	@property
 	def hmac_hash(self):
 		return hmac.new(settings.SECRET_KEY, self.email_address).hexdigest()
@@ -36,7 +47,7 @@ class Recipient(models.Model):
 		return '?'.join([settings.PROJECT_URL + reverse('manager-email-unsubscribe'), urlencode(params)])
 
 	def __str__(self):
-		return ' '.join([str(self.first_name), str(self.last_name), str(self.preferred_name), self.email_address])
+		return self.email_address
 
 class RecipientAttribute(models.Model):
 	'''
@@ -45,20 +56,6 @@ class RecipientAttribute(models.Model):
 	recipient = models.ForeignKey(Recipient, related_name='attributes')
 	name      = models.CharField(max_length=100)
 	value     = models.CharField(max_length=1000,blank=True)
-
-class RecipientRole(models.Model):
-	'''
-		Descibes the roles of a particular recipient. recipients
-	'''
-
-	ROLE_CHOICES = (
-		(0, 'Student'),
-		(1, 'Staff'),
-		(2, 'Facutly'),
-		(3, 'Alumni')
-	)
-	pass
-
 
 class RecipientGroup(models.Model):
 	'''
