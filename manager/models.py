@@ -11,39 +11,11 @@ class Recipient(models.Model):
 		Describes the details of a possible email recipient
 	'''
 
-	LABELABLE_FIELD_NAMES = [
-		('first_name',           'First name'),
-		('last_name',            'Last Name'),
-		('email_address',        'Email Address'),
-		('preferred_first_name', 'Preferred First Name')
-	]
-
-	first_name      = models.CharField(max_length=100, null=True, blank=True)
-	last_name       = models.CharField(max_length=100, null=True, blank=True)
 	email_address   = models.CharField(max_length=256)
-	preferred_name  = models.CharField(max_length=200, null=True, blank=True)
 
 	@property
 	def hmac_hash(self):
 		return hmac.new(settings.SECRET_KEY, self.email_address).hexdigest()
-
-	@property
-	def smtp_address(self):
-		if self.preferred_first_name is None or self.last_name is None:
-			return self.email_address
-		else:
-			return '"%s %s" <%s>' % (self.preferred_first_name, self.last_name, self.email_address)
-
-	@property
-	def preferred_first_name(self):
-		if self.preferred_name is None or self.preferred_name == '':
-			return self.first_name
-		else:
-			preferred_first_name = re.sub('\s%s$' % self.last_name, '', self.preferred_name)
-			if preferred_first_name ==self.preferred_name or preferred_first_name == '':
-				return self.first_name
-			else:
-				return preferred_first_name
 				
 	@property
 	def subscriptions(self, include_deactivated=False):
@@ -65,6 +37,14 @@ class Recipient(models.Model):
 
 	def __str__(self):
 		return ' '.join([str(self.first_name), str(self.last_name), str(self.preferred_name), self.email_address])
+
+class RecipientAttribute(models.Model):
+	'''
+		Describes an attribute of a recipient
+	'''
+	recipient = models.ForeignKey(Recipient, related_name='attributes')
+	name      = models.CharField(max_length=100)
+	value     = models.CharField(max_length=1000,blank=True)
 
 class RecipientRole(models.Model):
 	'''
