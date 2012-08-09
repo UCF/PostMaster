@@ -68,7 +68,7 @@ LOGGING = {
 	},
 	'formatters': {
 		'talkative': {
-			'format':'[%(asctime)s] %(levelname)s:%(module)s %(funcName)s %(lineno)d %(message)s'
+			'format':'[%(asctime)s]%(levelname)s:%(module)s:%(funcName)s:%(lineno)d:%(message)s'
 		},
 		'concise': {
 			'format':'%(levelname)s: %(message)s (%(asctime)s)'
