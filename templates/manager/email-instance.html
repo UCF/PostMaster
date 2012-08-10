@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block page-body %}
+	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}</small></h2>
+	{% if instance.in_process %}
+	<div class="alert alert-info">This instance is still in progress.</div>
+	{% endif %}
+	<p>This instance was sent to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients.</p>
+	<section>
+		<h3>Opens</h3>
+		{% if instance.opens_tracked %}
+		<p>Of the <big><strong>{{instance.recipient_details.count}}</strong></big> recipients, <big><strong>{{instance.opens.count}}</strong></big> opened the email. An open rate of <big><strong>{{instance.open_rate}}%</strong></big>.</p>
+		{% else %}
+		<p>Opens were not tracked for this instance.
+		{% endif %}
+	</section>
+	<section>
+		<h3>URLs</h3>
+		{% if not instance.urls_tracked %}
+		<p>URls were not tracked for this instance.</p>
+		{% else %}
+		<p>URLs are tracked top to bottom, left to right. If there is more than one of the same URL in an email, each additional URL will have an increasing position number.</p>
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">URL</th>
+					<th scope="col">Position</th>
+					<th scope="col">Clicks</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for url in instance.urls.all %}
+				<tr>
+					<td>{{url.name}}</td>
+					<td>{{url.position}}</td>
+					<td>{{url.clicks.count}}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% endif %}
+	</section>
+{% endblock %}
