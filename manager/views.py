@@ -62,6 +62,11 @@ class InstanceListView(ListView):
 		context['email'] = self._email
 		return context
 
+class InstanceDetailView(DetailView):
+	model               = Instance
+	template_name       = 'manager/email-instance.html'
+	context_object_name = 'instance'
+
 #
 # Recipients
 #

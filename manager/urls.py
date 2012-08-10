@@ -9,6 +9,7 @@ urlpatterns = patterns('manager.views',
 	url(r'^email/create/$',                EmailCreateView.as_view(),  name='manager-email-create'),
 	url(r'^email/(?P<pk>\d+)/update/$',    EmailUpdateView.as_view(),  name='manager-email-update'),
 	url(r'^email/(?P<pk>\d+)/instances/$', InstanceListView.as_view(), name='manager-email-instances'),
+	url(r'^email/instance/(?P<pk>\d+)/$',  InstanceDetailView.as_view(), name='manager-email-instance'),
 
 	# Recipients
 	url(r'^recipientgroups/$',                       RecipientGroupListView.as_view(),   name='manager-recipientgroups'),
