@@ -104,7 +104,7 @@ class GMUCFImporter(Importer):
 			3. Update any Recipient attributes 
 		'''
 		
-		query = '''
+		self.postmaster_cursor.execute('''
 			DELETE FROM
 				%s.manager_recipientgroup_recipients
 			WHERE
@@ -128,10 +128,10 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.gmucf_recipient_group.id,
 			self.rds_wharehouse_db_name
-		)
-		print query
+		))
+		transaction.commit_unless_managed()
 
-		query = '''
+		self.postmaster_cursor.execute('''
 			INSERT INTO
 				%s.manager_recipient
 			(
@@ -148,11 +148,11 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name,
 			self.postmaster_db_name
-		)
-		print query
+		))
+		transaction.commit_unless_managed()
 
 
-		query = '''
+		self.postmaster_cursor.execute('''
 			INSERT INTO 
 				%s.manager_recipientattribute
 			(
@@ -172,5 +172,5 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
-		)
-		print query
+		))
+		transaction.commit_unless_managed()
