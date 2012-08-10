@@ -57,6 +57,9 @@ class RecipientAttribute(models.Model):
 	name      = models.CharField(max_length=100)
 	value     = models.CharField(max_length=1000,blank=True)
 
+	class Meta:
+		unique_together  = (('recipient', 'name'))
+
 class RecipientGroup(models.Model):
 	'''
 		Describes the details of a named group of email recipients
@@ -154,6 +157,15 @@ class Instance(models.Model):
 	opens_tracked = models.BooleanField(default=False)
 	urls_tracked  = models.BooleanField(default=False)
 	
+	def open_rate(self, significance=2):
+		'''
+			Open rate of this instance as a percent.
+		'''
+		total = self.recipient_details.count()
+		opens = self.opens.count()
+
+		return 0 if total == 0 else round(float(opens)/float(total)*100, significance)
+
 	class Meta:
 		ordering = ('-start',)
 
