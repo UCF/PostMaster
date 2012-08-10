@@ -94,7 +94,8 @@ class GMUCFImporter(Importer):
 		results = self.postmaster_cursor.fetchall()
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.manager_recipient ADD INDEX `email_address` (`email_address`)' % self.postmaster_db_name)
-
+			transaction.commit_unless_managed()
+			
 	def do_import(self):
 		'''
 			1. Remove any recipients from the Good Morning UCF group who are no longer
