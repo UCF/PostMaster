@@ -49,6 +49,9 @@ class DurationChecker(object):
 		Responsible for figuring out of if any emails are being send between
 		now and some point in the future (15 minutes in the future by default) 
 	'''
+	
+	class DurationCheckerException(Exception):
+		pass
 
 	# How often the processing script runs
 	processing_interval   = timedelta(seconds=settings.PROCESSING_INTERVAL)
@@ -123,6 +126,10 @@ class ContentResolver(object):
 	 	Responsible for resolving the content of an email including template
 	 	replacement and tracking details.
 	 '''
+
+	 class ContentResolverException(Exception):
+	 	pass
+
 	 def __init__(self, email):
 	 	self.email = email
 
@@ -137,10 +144,12 @@ class Sender(object):
 	'''
 		Responsible for sending the emails.
 	'''
-	def __init__(self, *args, **kwargs):
+
+	class SenderException(Exception):
 		pass
 
-
+	def __init__(self, *args, **kwargs):
+		pass
 
 
 class Command(BaseCommand):
