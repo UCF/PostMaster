@@ -67,3 +67,6 @@ MANAGERS = ()
 
 # Set to TRUE when operating over SSL
 SESSION_COOKIE_SECURE = True
+
+# How often is the email processing script set to run? In seconds
+PROCESSING_INTERVAL = 60 * 15 # 15 minutes
