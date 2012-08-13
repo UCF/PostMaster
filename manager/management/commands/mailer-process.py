@@ -124,7 +124,14 @@ class ContentResolver(object):
 	 	replacement and tracking details.
 	 '''
 	 def __init__(self, email):
+	 	self.email = email
+
+	 def resolve_preview_content(self):
 	 	pass
+
+	 def resolve_content(self, recipient):
+	 	pass
+
 
 class Sender(object):
 	'''
