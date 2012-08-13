@@ -130,11 +130,22 @@ class ContentResolver(object):
 	 class ContentResolverException(Exception):
 	 	pass
 
+	 _content_cache = None
+
 	 def __init__(self, email):
-	 	self.email = email
+	 	self.email = emails
 
 	 def resolve_preview_content(self):
-	 	pass
+	 	'''
+	 		Fetch the email content and prepend the preview messages.
+	 	'''
+		return '''
+			<div style="background-color:#999;color:#FFF;font-size:18px;padding:20px;">
+				This is a preview of the %s email that will be sent in 1 hour.
+			</div>
+			<br />
+			%s
+		''' % (email.title, email.content)
 
 	 def resolve_content(self, recipient):
 	 	pass
