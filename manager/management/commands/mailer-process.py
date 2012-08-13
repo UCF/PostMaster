@@ -24,10 +24,14 @@ log = logging.getLogger(__name__)
 # those previews need to be sent during this script run (the next 15 minutes by default)? 
 # Previews are sent 1 hour  before the actual email is sent. Check the Email object 
 # send times to figure this out.
-# 3. Do any of the emails being sent today need to be sent in this script run 
+# 3. Construct email content taking into account template replacements and
+# send previews.
+# 4. Do any of the emails being sent today need to be sent in this script run 
 # (the next 15 minutes by default)? Check the Email object send times to figure
 # this out.
-
+# 5. Construct email content taking into account template replacments, URL click
+# tracking, and open tracking and send emails. 
+# 6. Record sending details.
 
 class Command(BaseCommand):
 	'''
