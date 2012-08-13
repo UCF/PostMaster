@@ -58,6 +58,7 @@ class DurationChecker(object):
 		self.email = email
 		self.now   = datetime.now()
 
+	@property
 	def send_today(self):
 		'''
 			Send this email today? Takes into account recurrence. Assumes
@@ -81,6 +82,7 @@ class DurationChecker(object):
 		else:
 			return False
 
+	@property
 	def preview_now(self):
 		'''
 			Send this email's preview during this script run?
@@ -90,6 +92,7 @@ class DurationChecker(object):
 		else:
 			return False
 
+	@property
 	def send_now(self):
 		'''
 			Send this email during this script run?
@@ -99,15 +102,19 @@ class DurationChecker(object):
 		else:
 			return False
 
+	@property
 	def _preview_interval_start(self):
 		return (self.now + self.preview_lead_duration).time()
 
+	@property
 	def _preview_interval_end(self):
 		return (self.now + self.preview_lead_duration + self.processing_interval).time()
 
+	@property
 	def _send_interval_start(self):
 		return self.now.time()
 
+	@property
 	def _send_interval_end(self):
 		return (self.now + self.processing_interval).time()
 
@@ -116,7 +123,7 @@ class ContentResolver(object):
 	 	Responsible for resolving the content of an email including template
 	 	replacement and tracking details.
 	 '''
-	 def __init__(self, *args, **kwargs):
+	 def __init__(self, email):
 	 	pass
 
 class Sender(object):
