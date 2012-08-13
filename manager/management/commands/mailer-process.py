@@ -49,10 +49,67 @@ class DurationChecker(object):
 		Responsible for figuring out of if any emails are being send between
 		now and some point in the future (15 minutes in the future by default) 
 	'''
-	duration = 60 * 15 # 15 minutes in seconds
 
-	def __init__(self, *args, **kwargs):
-		pass
+	# How often the processing script runs
+	processing_interval   = timedelta(seconds=settings.PROCESSING_INTERVAL)
+	preview_lead_duration = timedelta(seconds=3600)
+
+	def __init__(self, email):
+		self.email = email
+		self.now   = datetime.now()
+
+	def send_today(self):
+		'''
+			Send this email today? Takes into account recurrence. Assumes
+			active email.
+		'''
+		start_date = email.start_date
+		today      = self.now.date()
+
+		# One-time
+		if email.recurrence == email.Recurs.never and start_date == today:
+			return True
+		# Daily
+		elif email.recurrence == email.Recurs.daily:
+			return True
+		# Weekly
+		elif email.recurrence == email.Recurds.weekly and ((today-start_date).days % 7) == 0:
+			return True
+		# Montly
+		elif email.recurrence == email.Recurs.monthly and today.day == start_date.day:
+			return True
+		else:
+			return False
+
+	def preview_now(self):
+		'''
+			Send this email's preview during this script run?
+		'''
+		if self.email.preview and self.email.send_time >= self._preview_interval_start and self.email.send_time < self._preview_interval_end:
+			return True
+		else:
+			return False
+
+	def send_now(self):
+		'''
+			Send this email during this script run?
+		'''
+		if self.email.send_time >= self._send_interval_start and self.email.send_time < self._send_interval_end:
+			return True
+		else:
+			return False
+
+	def _preview_interval_start(self):
+		return (self.now + self.preview_lead_duration).time()
+
+	def _preview_interval_end(self):
+		return (self.now + self.preview_lead_duration + self.processing_interval).time()
+
+	def _send_interval_start(self):
+		return self.now.time()
+
+	def _send_interval_end(self):
+		return (self.now + self.processing_interval).time()
 
 class ContentResolver(object):
 	 '''
