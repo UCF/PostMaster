@@ -16,6 +16,19 @@ import time
  
 log = logging.getLogger(__name__)
 
+#
+# Email Sending Process
+# 1. Which emails are being sent sometime today? Check all the Email
+# object start dates taking into account recurrence.
+# 2. Do any of the emails being sent today require previews and, if so, do
+# those previews need to be sent during this script run (the next 15 minutes by default)? 
+# Previews are sent 1 hour  before the actual email is sent. Check the Email object 
+# send times to figure this out.
+# 3. Do any of the emails being sent today need to be sent in this script run 
+# (the next 15 minutes by default)? Check the Email object send times to figure
+# this out.
+
+
 class Command(BaseCommand):
 	'''
 		Handles sending emails. Should be 
