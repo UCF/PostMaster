@@ -33,6 +33,45 @@ log = logging.getLogger(__name__)
 # tracking, and open tracking and send emails. 
 # 6. Record sending details.
 
+class SendingManager(object):
+	'''
+		Responsible for the overall supervision of sending the emails.
+	'''
+
+	class SendingManagerException(Exception):
+		pass
+
+	def __init__(self, *args, **kwargs):
+		pass
+
+class DurationChecker(object):
+	'''
+		Responsible for figuring out of if any emails are being send between
+		now and some point in the future (15 minutes in the future by default) 
+	'''
+	duration = 60 * 15 # 15 minutes in seconds
+
+	def __init__(self, *args, **kwargs):
+		pass
+
+class ContentResolver(object):
+	 '''
+	 	Responsible for resolving the content of an email including template
+	 	replacement and tracking details.
+	 '''
+	 def __init__(self, *args, **kwargs):
+	 	pass
+
+class Sender(object):
+	'''
+		Responsible for sending the emails.
+	'''
+	def __init__(self, *args, **kwargs):
+		pass
+
+
+
+
 class Command(BaseCommand):
 	'''
 		Handles sending emails. Should be 
