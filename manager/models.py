@@ -8,6 +8,9 @@ from email.mime.multipart        import MIMEMultipart
 from email.mime.text             import MIMEText
 import hmac
 import logging
+import smtplib
+import re
+import urllib
 
 log = logging.getLogger(__name__)
 
