@@ -218,11 +218,11 @@ class Email(models.Model):
 			page    = urllib.urlopen(self.source_uri)
 			content = page.read()
 			return content.decode('ascii', 'ignore')
-		else:
+		except Exception, e:
 			logging.exception('Unable to fetch email content')
 			raise self.EmailException()
 
-	def preview(self):
+	def send_preview(self):
 		'''
 			Send preview emails
 		'''
@@ -288,14 +288,14 @@ class Email(models.Model):
 			raise self.EmailException()
 		else:
 			instance = Instance.objects.create(
-				email         = self.email,
-				content       = content,
+				email         = self,
+				sent_html     = content,
 				in_progress   = True,
-				opens_tracked = self.email.track_opens,
-				urls_tracked  = self.email.track_urls
+				opens_tracked = self.track_opens,
+				urls_tracked  = self.track_urls
 			)
 
-			recipients = Recipient.objects.fitler(groups__in = self.recipient_groups).distinct()
+			recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).distinct()
 
 			try:
 				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
@@ -315,14 +315,14 @@ class Email(models.Model):
 					msg            = MIMEMultipart('alternative')
 					msg['subject'] = self.subject
 					msg['From']    = self.smtp_from_address
-					msg['To']      = recipient
+					msg['To']      = recipient.email_address
 
-					msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
+					msg.attach(MIMEText(content, 'html', _charset='us-ascii'))
 
 					# TODO - Implement plaintext alternative
 
 					try:
-						amazon_ses.sendmail(self.from_email_address, recipient, msg.as_string())
+						amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
 					except smtplib.SMTPException, e:
 						instance_recipient_details.exception_msg = str(e)
 					instance_recipient_details.save()
