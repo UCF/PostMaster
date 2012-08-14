@@ -73,3 +73,9 @@ PROCESSING_INTERVAL_DURATION = 60 * 15 # 15 minutes
 
 # How long before an email is sent with the previews be sent?
 PREVIEW_LEAD_TIME  = 60 * 60 # 1 hour
+
+# Email address that test emails will be sent to. See manager/tests.py
+TEST_EMAIL_RECIPIENT = ''
+
+# Source URI that test emails will use
+TEST_EMAIL_SOURCE_URI = ''
