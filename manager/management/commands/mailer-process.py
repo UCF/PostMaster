@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from manager.models               import Email, Instance, RecipientGroup, Recipient, InstanceRecipientDetails, URL
 from datetime                    import datetime, timedelta
 from django.conf                 import settings
-from util                        import calc_url_mac, calc_open_mac
+from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.core.urlresolvers    import reverse
 from email.mime.multipart        import MIMEMultipart
 from email.mime.text             import MIMEText
@@ -147,9 +147,72 @@ class ContentResolver(object):
 			%s
 		''' % (email.title, email.content)
 
-	 def resolve_content(self, recipient):
-	 	pass
 
+	def resolve_content(self, instance, recipient):
+		'''
+			Replace template placeholders.
+			Track URLs if neccessary.
+			Track clicks if necessary.
+		'''
+		content = instance.content
+		# Template placeholders
+		delimiter    = self.email.replace_delimiter
+		placeholders = re.findall(re.escape(delimiter) + '([^' + re.escape(delimiter) + ']+)', content)
+		for placeholder in placeholders:
+			replacement = ''
+			if placeholder.lower() == 'unsubscribe':
+				unsubscribe_url = '?'.join([
+					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+					urllib.urlencode({
+						'recipient':recipient.pk,
+						'email'    :self.email.pk,
+						'mac'      :calc_unsubscribe_mac(recipient.pk, self.email.pk)
+					})
+				])
+				replacement = '<a style="color:blue;text-decoration:underline;" href="%s">Unsubscribe</a>' % unsubscribe_url
+			else:
+				try:
+					replacement = getattr(recipient, placeholder)
+				except AttributeError:
+					log.error('Recipeint %s is missing attribute %s' % (str(recipient), placeholder))
+			content = content.replace(delimiter + placeholder + delimiter, replacement)
+
+		if instance.urls_tracked:
+			def gen_tracking_url(match):
+				url = match.groups(0)
+
+				# The same URL might exist in more than one place in the content.
+				# Use the position field to differentiate them
+				previous_url_count = URL.objects.filter(instnace=instance, name=url).count()
+				tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
+
+				# The mac uniquely identifies the recipient and acts as a secure integrity check
+				mac = calc_url_mac(url, previous_url_count, recipient.pk, instance.pk)
+
+				return '?'.join([
+					settings.PROJECT_UR + reverse('manager-email-redirect'),
+					urllib.urlencode({
+						'instance'  :instance.pk,
+						'recipient' :recipient.pk,
+						'url'       :urllib.quote(url),
+						'position'  :previous_url_count
+					})
+				])
+
+			content = re.sub('<a.*href="([^"]+)"', gen_tracking_url, content)
+
+		if instance.opens_tracked:
+			open_tracking_url = '?'.join([
+				settings.PROJECT_URL + reverse('manager-email-open'),
+				urllib.urlencode({
+					'recipient':recipient.pk,
+					'instance' :instance.pk,
+					'mac'      :calc_open_mac(recipient.pk, instance.pk)
+				})
+			])
+			content += '<img src="%s" />' % open_tracking_url
+
+		return content
 
 class Sender(object):
 	'''
@@ -159,8 +222,34 @@ class Sender(object):
 	class SenderException(Exception):
 		pass
 
-	def __init__(self, *args, **kwargs):
-		pass
+	def __init__(self, email):
+		self.email = email
+
+	def create_email_instance(self):
+		'''
+			Create an email instance making sure to realize that the remote
+			content might not be available/fail to be fetched.
+		'''
+		try:
+			content = self.email.content
+		except Exception, e:
+			logging.exception('Unable to fetch email content')
+			raise self.SenderException()
+		else:
+			self.instance = Instance.objects.create(
+				email         = self.email,
+				content       = content,
+				in_progress   = True,
+				opens_tracked = self.email.track_opens,
+				urls_tracked  = self.email.track_urls
+			)
+
+	def generate_recipient_list(self):
+		'''
+			Generates a queryset of recipients based on the email recipient
+			groups making sure to remove duplicated
+		'''
+		return Recipient.objects.fitler(groups__in = self.email.recipient_groups).distinct()
 
 
 class Command(BaseCommand):
