@@ -63,7 +63,8 @@ class RecipientGroup(models.Model):
 
 class EmailManager(models.Manager):
 	'''
-		A custom manager for determin
+		A custom manager to determine when emails should be sent based on
+		processing interval and preview lead time
 	'''
 	processing_interval_duration = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
 
