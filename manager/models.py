@@ -318,7 +318,7 @@ class Email(models.Model):
 					msg['From']    = self.smtp_from_address
 					msg['To']      = recipient.email_address
 
-					msg.attach(MIMEText(content, 'html', _charset='us-ascii'))
+					msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
 
 					# TODO - Implement plaintext alternative
 
@@ -381,18 +381,19 @@ class InstanceRecipientDetails(models.Model):
 	exception_type = models.SmallIntegerField(null=True, blank=True, choices=_EXCEPTION_CHOICES)
 	exception_msg  = models.TextField(null=True, blank=True)
 
-
+	@property
 	def content(self):
 		'''
 			Replace template placeholders.
 			Track URLs if neccessary.
 			Track clicks if necessary.
 		'''
-		content = self.instance.content
+		content = self.instance.sent_html
 		
 		# Template placeholders
 		delimiter    = self.instance.email.replace_delimiter
-		placeholders = re.findall(re.escape(delimiter) + '([^' + re.escape(delimiter) + ']+)', content)
+		placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), content)
+		log.debug(placeholders)
 		for placeholder in placeholders:
 			replacement = ''
 			if placeholder.lower() == 'unsubscribe':
@@ -413,19 +414,22 @@ class InstanceRecipientDetails(models.Model):
 			content = content.replace(delimiter + placeholder + delimiter, replacement)
 
 		if self.instance.urls_tracked:
+			instance = self.instance
 			def gen_tracking_url(match):
-				url = match.groups(0)
-
+				groups = match.groups()
+				fill   = groups[0]
+				url    = groups[1]
+				
 				# The same URL might exist in more than one place in the content.
 				# Use the position field to differentiate them
-				previous_url_count = URL.objects.filter(instnace=instance, name=url).count()
+				previous_url_count = URL.objects.filter(instance=instance, name=url).count()
 				tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
 
 				# The mac uniquely identifies the recipient and acts as a secure integrity check
 				mac = calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
 
-				return '?'.join([
-					settings.PROJECT_UR + reverse('manager-email-redirect'),
+				href = '?'.join([
+					settings.PROJECT_URL + reverse('manager-email-redirect'),
 					urllib.urlencode({
 						'instance'  :self.instance.pk,
 						'recipient' :self.recipient.pk,
@@ -434,7 +438,9 @@ class InstanceRecipientDetails(models.Model):
 					})
 				])
 
-			content = re.sub('<a.*href="([^"]+)"', gen_tracking_url, content)
+				return '<a%shref="%s"' % (fill, href)
+
+			content = re.sub('<a(.*)href="([^"]+)"', gen_tracking_url, content)
 
 		if self.instance.opens_tracked:
 			open_tracking_url = '?'.join([
