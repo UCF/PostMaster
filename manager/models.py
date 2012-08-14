@@ -301,14 +301,14 @@ class Email(models.Model):
 					msg            = MIMEMultipart('alternative')
 					msg['subject'] = self.subject
 					msg['From']    = self.smtp_from_address
-					msg['To']      = recipient.email_address
+					msg['To']      = recipient
 
 					msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
 
 					# TODO - Implement plaintext alternative
 
 					try:
-						amazon_ses.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+						amazon_ses.sendmail(self.from_email_address, recipient, msg.as_string())
 					except smtplib.SMTPException, e:
 						instance_recipient_details.exception_msg = str(e)
 					instance_recipient_details.save()
