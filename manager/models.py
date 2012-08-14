@@ -393,7 +393,7 @@ class InstanceRecipientDetails(models.Model):
 		# Template placeholders
 		delimiter    = self.instance.email.replace_delimiter
 		placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), content)
-		log.debug(placeholders)
+		
 		for placeholder in placeholders:
 			replacement = ''
 			if placeholder.lower() == 'unsubscribe':
