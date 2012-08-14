@@ -16,6 +16,153 @@ import time
  
 log = logging.getLogger(__name__)
 
+#
+# Email Sending Process
+# 1. Which emails are being sent sometime today? Check all the Email
+# object start dates taking into account recurrence.
+# 2. Do any of the emails being sent today require previews and, if so, do
+# those previews need to be sent during this script run (the next 15 minutes by default)? 
+# Previews are sent 1 hour  before the actual email is sent. Check the Email object 
+# send times to figure this out.
+# 3. Construct email content taking into account template replacements and
+# send previews.
+# 4. Do any of the emails being sent today need to be sent in this script run 
+# (the next 15 minutes by default)? Check the Email object send times to figure
+# this out.
+# 5. Construct email content taking into account template replacments, URL click
+# tracking, and open tracking and send emails. 
+# 6. Record sending details.
+
+class SendingManager(object):
+	'''
+		Responsible for the overall supervision of sending the emails.
+	'''
+
+	class SendingManagerException(Exception):
+		pass
+
+	def __init__(self, *args, **kwargs):
+		pass
+
+class DurationChecker(object):
+	'''
+		Responsible for figuring out of if any emails are being send between
+		now and some point in the future (15 minutes in the future by default) 
+	'''
+	
+	class DurationCheckerException(Exception):
+		pass
+
+	# How often the processing script runs
+	processing_interval   = timedelta(seconds=settings.PROCESSING_INTERVAL)
+	preview_lead_duration = timedelta(seconds=3600)
+
+	def __init__(self, email):
+		self.email = email
+		self.now   = datetime.now()
+
+	@property
+	def send_today(self):
+		'''
+			Send this email today? Takes into account recurrence. Assumes
+			active email.
+		'''
+		start_date = email.start_date
+		today      = self.now.date()
+
+		# One-time
+		if email.recurrence == email.Recurs.never and start_date == today:
+			return True
+		# Daily
+		elif email.recurrence == email.Recurs.daily:
+			return True
+		# Weekly
+		elif email.recurrence == email.Recurds.weekly and ((today-start_date).days % 7) == 0:
+			return True
+		# Montly
+		elif email.recurrence == email.Recurs.monthly and today.day == start_date.day:
+			return True
+		else:
+			return False
+
+	@property
+	def preview_now(self):
+		'''
+			Send this email's preview during this script run?
+		'''
+		if self.email.preview and self.email.send_time >= self._preview_interval_start and self.email.send_time < self._preview_interval_end:
+			return True
+		else:
+			return False
+
+	@property
+	def send_now(self):
+		'''
+			Send this email during this script run?
+		'''
+		if self.email.send_time >= self._send_interval_start and self.email.send_time < self._send_interval_end:
+			return True
+		else:
+			return False
+
+	@property
+	def _preview_interval_start(self):
+		return (self.now + self.preview_lead_duration).time()
+
+	@property
+	def _preview_interval_end(self):
+		return (self.now + self.preview_lead_duration + self.processing_interval).time()
+
+	@property
+	def _send_interval_start(self):
+		return self.now.time()
+
+	@property
+	def _send_interval_end(self):
+		return (self.now + self.processing_interval).time()
+
+class ContentResolver(object):
+	 '''
+	 	Responsible for resolving the content of an email including template
+	 	replacement and tracking details.
+	 '''
+
+	 class ContentResolverException(Exception):
+	 	pass
+
+	 _content_cache = None
+
+	 def __init__(self, email):
+	 	self.email = emails
+
+	 def resolve_preview_content(self):
+	 	'''
+	 		Fetch the email content and prepend the preview messages.
+	 	'''
+		return '''
+			<div style="background-color:#999;color:#FFF;font-size:18px;padding:20px;">
+				This is a preview of the %s email that will be sent in 1 hour.
+			</div>
+			<br />
+			%s
+		''' % (email.title, email.content)
+
+	 def resolve_content(self, recipient):
+	 	pass
+
+
+class Sender(object):
+	'''
+		Responsible for sending the emails.
+	'''
+
+	class SenderException(Exception):
+		pass
+
+	def __init__(self, *args, **kwargs):
+		pass
+
+
 class Command(BaseCommand):
 	'''
 		Handles sending emails. Should be 

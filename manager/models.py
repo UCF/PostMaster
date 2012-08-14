@@ -76,14 +76,13 @@ class Email(models.Model):
 	'''
 
 	class Recurs:
-		never, daily, weekly, biweekly, monthly, yearly = range(0,6)
+		never, daily, weekly, biweekly, monthly = range(0,5)
 		choices = (
 			(never    , 'Never'),
 			(daily    , 'Daily'),
 			(weekly   , 'Weekly'),
 			(biweekly , 'Biweekly'),
 			(monthly  , 'Monthly'),
-			(yearly   , 'Yearly'),
 		)
 
 	_HELP_TEXT = {
