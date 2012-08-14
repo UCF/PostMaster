@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 class Recipient(models.Model):
 	'''
-		Describes the details of a possible email recipient
+		Describes the details of a recipient
 	'''
 
 	email_address   = models.CharField(max_length=256)
@@ -52,7 +52,12 @@ class Recipient(models.Model):
 
 class RecipientAttribute(models.Model):
 	'''
-		Describes an attribute of a recipient
+		Describes an attribute of a recipient. The purpose of this class is 
+		to allow a large amount of flexibility about what attributes are associated
+		with a recipient (other than email address). The __getattr__ on Recipient
+		is overriden to check for a RecipientAttribute of the same name and return
+		it's value. This table is populated by the custom import script for each
+		data source.
 	'''
 	recipient = models.ForeignKey(Recipient, related_name='attributes')
 	name      = models.CharField(max_length=100)
@@ -63,7 +68,8 @@ class RecipientAttribute(models.Model):
 
 class RecipientGroup(models.Model):
 	'''
-		Describes the details of a named group of email recipients
+		Describes a named group of recipients. Email objects are not associated with
+		Recipient objects directly. They are associated to each other via RecipientGroup.
 	'''
 	name       = models.CharField(max_length=100, unique=True)
 	recipients = models.ManyToManyField(Recipient, related_name='groups')
@@ -74,7 +80,7 @@ class RecipientGroup(models.Model):
 class EmailManager(models.Manager):
 	'''
 		A custom manager to determine when emails should be sent based on
-		processing interval and preview lead time
+		processing interval and preview lead time.
 	'''
 	processing_interval_duration = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
 
@@ -132,7 +138,8 @@ class EmailManager(models.Manager):
 
 class Email(models.Model):
 	'''
-		Describes the details of an email 
+		Describes the details of an email. The details of what happens when
+		an email is actual sent is recorded in an Instance object.
 	'''
 
 	objects = EmailManager()
@@ -329,7 +336,7 @@ class Email(models.Model):
 
 class Instance(models.Model):
 	'''
-		Describes a sending of an email based on its schedule
+		Describes what happens when an email is actual sent.
 	'''
 	email         = models.ForeignKey(Email, related_name='instances')
 	sent_html     = models.TextField()
@@ -355,8 +362,8 @@ class Instance(models.Model):
 
 class InstanceRecipientDetails(models.Model):
 	'''
-		Describes the response from the SMTP server
-		when an email was sent to a particular recipient
+		Describes what happens when an instance of an email is sent to specific
+		recipient.
 	'''
 
 	_EXCEPTION_CHOICES = (
@@ -446,7 +453,7 @@ class InstanceRecipientDetails(models.Model):
 
 class URL(models.Model):
 	'''
-		Describes a particular URL in an email
+		Describes a particular URL in email content
 	'''
 	instance = models.ForeignKey(Instance, related_name='urls')
 	name     = models.CharField(max_length=2000)
@@ -469,7 +476,7 @@ class URLClick(models.Model):
 
 class InstanceOpen(models.Model):
 	'''
-		Describes a recipient opening an email
+		Describes a recipient's opening of an email
 	'''
 	recipient = models.ForeignKey(Recipient, related_name='instances_opened')
 	instance  = models.ForeignKey(Instance, related_name='opens')
