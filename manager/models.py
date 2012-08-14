@@ -1,6 +1,7 @@
-from django.db   import models
-from django.conf import settings
-from datetime    import datetime, timedelta
+from django.db        import models
+from django.conf      import settings
+from datetime         import datetime, timedelta
+from django.db.models import Q
 import hmac
 
 class Recipient(models.Model):
@@ -61,14 +62,45 @@ class RecipientGroup(models.Model):
 		return self.name + ' (' +  str(self.recipients.count()) + ' recipients)'
 
 class EmailManager(models.Manager):
+	'''
+		A custom manager for determin
+	'''
 	processing_interval_duration = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
+
+	def sending_today(self, now=None):
+		if now is None:
+			now = datetime.now()
+		today = now.date()
+
+		# The day of the week integers are different between python and django
+		# date.weekday() - Monday is 0 and Sunday is 6
+		# date__week_day - Sunday is 1 and Saturday is 7
+		week_day = today.weekday()
+		if week_day == 6:
+			week_day == 1
+		else:
+			week_day += 2
+
+		return Email.objects.filter(
+			Q(
+				# One-time
+				Q(Q(recurrence=self.model.Recurs.never) & Q(start_date=today)) |
+				# Daily
+				Q(recurrence=self.model.Recurs.daily) |
+				# Weekly
+				Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=week_day)) |
+				# Monthly
+				Q(Q(recurrent=self.model.Recrus.monthly) & Q(start_date__day=today.day))
+			),
+			active=True
+		)
 
 	def sending_now(self, now=None):
 		if now is None:
 			now = datetime.now()
 		send_interval_start = now.time()
 		send_interval_end   = (now + self.processing_interval_duration).time()
-		return Email.objects.filter(
+		return Email.objects.sending_today.filter(
 			active         = True,
 			send_time__gte = send_interval_start,
 			send_time__lt  = send_interval_end)
@@ -80,7 +112,7 @@ class EmailManager(models.Manager):
 		preview_interval_start      = (now + preview_lead_time).time()
 		preview_interval_end        = (now + preview_lead_time + self.processing_interval_duration).time()
 
-		return Email.objects.filter(
+		return Email.objects.sending_today.filter(
 			active         = True,
 			preview        = True,
 			send_time__gte = preview_interval_start,
