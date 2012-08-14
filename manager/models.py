@@ -3,6 +3,9 @@ from django.conf      import settings
 from datetime         import datetime, timedelta
 from django.db.models import Q
 import hmac
+import logging
+
+log = logging.getLogger(__name__)
 
 class Recipient(models.Model):
 	'''
@@ -127,6 +130,9 @@ class Email(models.Model):
 
 	objects = EmailManager()
 
+	class EmailException(Exception):
+		pass
+
 	class Recurs:
 		never, daily, weekly, biweekly, monthly = range(0,5)
 		choices = (
@@ -192,6 +198,71 @@ class Email(models.Model):
 		content = page.read()
 		return content.decode('ascii', 'ignore')
 
+	def send(self):
+		'''
+			Send an email instance.
+			1. Fetch the content.
+			2. Create the instance.
+			3. Fetch recipients
+			4. Connect to Amazon
+			5. Create the InstanceRecipientDetails for each recipient
+			6. Construct the customized message
+			7. Send the message
+			8. Cleanup
+		'''
+
+		# Fetch the email content. At this point, it is not customized
+		# for each recipient.
+		try:
+			content = self.content
+		except Exception, e:
+			logging.exception('Unable to fetch email content')
+			raise self.EmailException()
+		else:
+			instance = Instance.objects.create(
+				email         = self.email,
+				content       = content,
+				in_progress   = True,
+				opens_tracked = self.email.track_opens,
+				urls_tracked  = self.email.track_urls
+			)
+
+			recipients = Recipient.objects.fitler(groups__in = self.recipient_groups).distinct()
+
+			try:
+				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+				amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+			except smtplib.SMTPException, e:
+				logging.exception('Unable to connect to Amazon')
+				raise self.EmailException()
+			else:
+				for recipient in recipients:
+					instance_recipient_details = InstanceRecipientDetails(
+						recipient=recipient,
+						instance =instance
+					)
+
+					# Use alterantive subclass here so that both HTML and plain
+					# versions can be attached
+					msg            = MIMEMultipart('alternative')
+					msg['subject'] = self.subject
+					msg['From']    = self.smtp_from_address
+					msg['To']      = recipient.email_address
+
+					msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
+
+					# TODO - Implement plaintext alternative
+
+					try:
+						amazon_ses.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+					except smtplib.SMTPException, e:
+						instance_recipient_details.exception_msg = str(e)
+					instance_recipient_details.save()
+				amazon.quit()
+			instance.in_process = False
+			instance.end        = datetime.now()
+			instance.save()
+
 	def __str__(self):
 		return self.title
 
@@ -241,7 +312,7 @@ class InstanceRecipientDetails(models.Model):
 	exception_msg  = models.TextField(null=True, blank=True)
 
 
-	def resolve_email_content(self):
+	def content(self):
 		'''
 			Replace template placeholders.
 			Track URLs if neccessary.
