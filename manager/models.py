@@ -101,7 +101,7 @@ class EmailManager(models.Manager):
 			now = datetime.now()
 		send_interval_start = now.time()
 		send_interval_end   = (now + self.processing_interval_duration).time()
-		return Email.objects.sending_today.filter(
+		return Email.objects.sending_today(now=now).filter(
 			active         = True,
 			send_time__gte = send_interval_start,
 			send_time__lt  = send_interval_end)
@@ -113,7 +113,7 @@ class EmailManager(models.Manager):
 		preview_interval_start      = (now + preview_lead_time).time()
 		preview_interval_end        = (now + preview_lead_time + self.processing_interval_duration).time()
 
-		return Email.objects.sending_today.filter(
+		return Email.objects.sending_today(now=now).filter(
 			active         = True,
 			preview        = True,
 			send_time__gte = preview_interval_start,
