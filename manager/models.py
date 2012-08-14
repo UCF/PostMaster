@@ -133,11 +133,12 @@ class Email(models.Model):
 
 	@property
 	def content(self):
-		if self.html != '':
-			return self.html
-		else:
-			page = urllib.urlopen(self.source_uri)
-			return page.read()
+		'''
+			Fetch and decode the remote content.
+		'''
+		page    = urllib.urlopen(self.source_uri)
+		content = page.read()
+		return content.decode('ascii', 'ignore')
 
 	def __str__(self):
 		return self.title
