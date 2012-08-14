@@ -1,10 +1,6 @@
 from django.db   import models
 from django.conf import settings
 import hmac
-import calendar
-import datetime
-import urllib
-import re
 
 class Recipient(models.Model):
 	'''
@@ -38,13 +34,6 @@ class Recipient(models.Model):
 			group_emails = group.emails.all() if include_deactivated is True else group.emails.filter(active=True)
 			map(lambda e: emails.append(e), group_emails)
 		return set(emails)
-
-	def unsubscribe_uri(self, email):
-		from util                        import calc_unsubscribe_mac
-		from urllib                      import urlencode
-		from django.core.urlresolvers    import reverse
-		params = {'recipient':self.pk, 'email':email.pk, 'mac':calc_unsubscribe_mac(self.pk, email.pk)}
-		return '?'.join([settings.PROJECT_URL + reverse('manager-email-unsubscribe'), urlencode(params)])
 
 	def __str__(self):
 		return self.email_address
