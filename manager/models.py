@@ -11,6 +11,7 @@ import logging
 import smtplib
 import re
 import urllib
+import time
 
 log = logging.getLogger(__name__)
 
@@ -325,6 +326,7 @@ class Email(models.Model):
 						amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
 					except smtplib.SMTPException, e:
 						instance_recipient_details.exception_msg = str(e)
+					time.sleep(settings.AMAZON_SMTP['rate'])
 					instance_recipient_details.save()
 				amazon.quit()
 			instance.in_process = False
