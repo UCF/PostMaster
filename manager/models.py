@@ -133,6 +133,12 @@ class Email(models.Model):
 	class EmailException(Exception):
 		pass
 
+	class AmazonConnectionException(EmailException):
+		pass
+
+	class EmailSendingException(EmailException):
+		pass
+
 	class Recurs:
 		never, daily, weekly, biweekly, monthly = range(0,5)
 		choices = (
@@ -194,9 +200,57 @@ class Email(models.Model):
 		'''
 			Fetch and decode the remote content.
 		'''
-		page    = urllib.urlopen(self.source_uri)
-		content = page.read()
-		return content.decode('ascii', 'ignore')
+		try:
+			page    = urllib.urlopen(self.source_uri)
+			content = page.read()
+			return content.decode('ascii', 'ignore')
+		else:
+			logging.exception('Unable to fetch email content')
+			raise self.EmailException()
+
+	def preview(self):
+		'''
+			Send preview emails
+		'''
+		content = self.content
+
+		# The recipients for the preview emails aren't the same as regular
+		# recipients. They are defined in the comma-separate field preview_recipients
+		recipients = [strip(r) for r in self.preview_recipients.split(',')]
+
+		# Prepend a message to the content explaining that this is a preview
+		explanation = '''
+			<div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
+				This is a preview of an email that will go out in one (1) hour.
+				<br /><br />
+				The content of the email when it is sent will be re-requested from 
+				the source for the real delivery.
+			</div>
+		'''
+		try:
+			amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+			amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+		except smtplib.SMTPException, e:
+			logging.exception('Unable to connect to Amazon')
+			raise self.AmazonConnectionException()
+		else:
+			for recipient in recipients:
+				# Use alterantive subclass here so that both HTML and plain
+				# versions can be attached
+				msg            = MIMEMultipart('alternative')
+				msg['subject'] = self.subject
+				msg['From']    = self.smtp_from_address
+				msg['To']      = recipient.email_address
+
+				msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
+
+				# TODO - Implement plaintext alternative
+
+				try:
+					amazon_ses.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+				except smtplib.SMTPException, e:
+					logging.exception('Unable to send email.')
+			amazon.quit()
 
 	def send(self):
 		'''
