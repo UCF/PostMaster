@@ -5,11 +5,14 @@ from django.views.generic.simple import direct_to_template
 urlpatterns = patterns('manager.views',
 
 	# Emails
-	url(r'^emails/$',                      EmailListView.as_view(),    name='manager-emails'),
-	url(r'^email/create/$',                EmailCreateView.as_view(),  name='manager-email-create'),
-	url(r'^email/(?P<pk>\d+)/update/$',    EmailUpdateView.as_view(),  name='manager-email-update'),
-	url(r'^email/(?P<pk>\d+)/instances/$', InstanceListView.as_view(), name='manager-email-instances'),
+	url(r'^email/unsubscribe/?$',           view='unsubscribe',          name='mailer-email-unsubscribe'),
+	url(r'^email/open/?$',                 view='instance_open',         name='mailer-email-open'),
+	url(r'^email/redirect/?$',             view='redirect',              name='mailer-email-redirect'),
+	url(r'^email/create/$',                EmailCreateView.as_view(),    name='manager-email-create'),
+	url(r'^email/(?P<pk>\d+)/update/$',    EmailUpdateView.as_view(),    name='manager-email-update'),
+	url(r'^email/(?P<pk>\d+)/instances/$', InstanceListView.as_view(),   name='manager-email-instances'),
 	url(r'^email/instance/(?P<pk>\d+)/$',  InstanceDetailView.as_view(), name='manager-email-instance'),
+	url(r'^emails/$',                      EmailListView.as_view(),      name='manager-emails'),
 
 	# Recipients
 	url(r'^recipientgroups/$',                       RecipientGroupListView.as_view(),   name='manager-recipientgroups'),
