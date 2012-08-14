@@ -91,7 +91,7 @@ class EmailManager(models.Manager):
 				# Weekly
 				Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=week_day)) |
 				# Monthly
-				Q(Q(recurrent=self.model.Recrus.monthly) & Q(start_date__day=today.day))
+				Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
 			),
 			active=True
 		)
@@ -239,6 +239,78 @@ class InstanceRecipientDetails(models.Model):
 	when           = models.DateTimeField(auto_now_add=True)
 	exception_type = models.SmallIntegerField(null=True, blank=True, choices=_EXCEPTION_CHOICES)
 	exception_msg  = models.TextField(null=True, blank=True)
+
+
+	def resolve_email_content(self):
+		'''
+			Replace template placeholders.
+			Track URLs if neccessary.
+			Track clicks if necessary.
+		'''
+		content = self.instance.content
+		
+		# Template placeholders
+		delimiter    = self.instance.email.replace_delimiter
+		placeholders = re.findall(re.escape(delimiter) + '([^' + re.escape(delimiter) + ']+)', content)
+		for placeholder in placeholders:
+			replacement = ''
+			if placeholder.lower() == 'unsubscribe':
+				unsubscribe_url = '?'.join([
+					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+					urllib.urlencode({
+						'recipient':self.recipient.pk,
+						'email'    :self.instance.email.pk,
+						'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.instance.email.pk)
+					})
+				])
+				replacement = '<a style="color:blue;text-decoration:underline;" href="%s">Unsubscribe</a>' % unsubscribe_url
+			else:
+				try:
+					replacement = getattr(self.recipient, placeholder)
+				except AttributeError:
+					log.error('Recipeint %s is missing attribute %s' % (str(self.recipient), placeholder))
+			content = content.replace(delimiter + placeholder + delimiter, replacement)
+
+		if self.instance.urls_tracked:
+			def gen_tracking_url(match):
+				url = match.groups(0)
+
+				# The same URL might exist in more than one place in the content.
+				# Use the position field to differentiate them
+				previous_url_count = URL.objects.filter(instnace=instance, name=url).count()
+				tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
+
+				# The mac uniquely identifies the recipient and acts as a secure integrity check
+				mac = calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
+
+				return '?'.join([
+					settings.PROJECT_UR + reverse('manager-email-redirect'),
+					urllib.urlencode({
+						'instance'  :self.instance.pk,
+						'recipient' :self.recipient.pk,
+						'url'       :urllib.quote(url),
+						'position'  :previous_url_count
+					})
+				])
+
+			content = re.sub('<a.*href="([^"]+)"', gen_tracking_url, content)
+
+		if self.instance.opens_tracked:
+			open_tracking_url = '?'.join([
+				settings.PROJECT_URL + reverse('manager-email-open'),
+				urllib.urlencode({
+					'recipient':self.recipient.pk,
+					'instance' :self.instance.pk,
+					'mac'      :calc_open_mac(self.recipient.pk, self.instance.pk)
+				})
+			])
+			content += '<img src="%s" />' % open_tracking_url
+
+		return content
+
+	def save(self, *args, **kwargs):
+		if not self.pk:
+			pass
 
 class URL(models.Model):
 	'''
