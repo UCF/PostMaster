@@ -124,6 +124,8 @@ class Email(models.Model):
 		Describes the details of an email 
 	'''
 
+	objects = EmailManager()
+
 	class Recurs:
 		never, daily, weekly, biweekly, monthly = range(0,5)
 		choices = (
