@@ -6,10 +6,10 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test              import TestCase, Client
-from manager.models           import Recipient, RecipientAttribute, RecipientGroup, Email, Instance, URL, URLClick
+from manager.models           import Recipient, RecipientAttribute, RecipientGroup, Email, Instance, URL, URLClick, InstanceOpen
 from django.conf              import settings
 from datetime                 import datetime, timedelta
-from util                     import calc_url_mac
+from util                     import calc_url_mac, calc_open_mac
 from django.core.urlresolvers import reverse
 from django.http              import HttpResponseRedirect
 from django.core.exceptions   import SuspiciousOperation
@@ -90,9 +90,6 @@ class EmailTestCase(TestCase):
 		else:
 			client   = Client()
 
-			##
-			# Generate the tracking URL
-			##
 			# Make sure this is valid URL for redirection
 			test_url = None
 			for url in urls:
@@ -115,7 +112,20 @@ class EmailTestCase(TestCase):
 					'mac'       :calc_url_mac(test_url.name, test_url.position, self.recipient.pk, instance.pk)
 				})
 			]))
-			self.assertTrue(response.status_code, 200)
+			self.assertTrue(response.status_code == 302)
 
 			clicks = URLClick.objects.all()
 			self.assertTrue(clicks.count() == 1)
+
+		# Is the open tracking working?
+		response = client.get('?'.join([
+			reverse('manager-email-open'),
+			urllib.urlencode({
+				'recipient':self.recipient.pk,
+				'instance' :instance.pk,
+				'mac'      :calc_open_mac(self.recipient.pk, instance.pk)
+			})
+		]))
+		self.assertTrue(response.status_code == 200)
+		opens = InstanceOpen.objects.all()
+		self.assertTrue(opens.count() == 1)
