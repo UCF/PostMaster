@@ -425,16 +425,15 @@ class InstanceRecipientDetails(models.Model):
 				previous_url_count = URL.objects.filter(instance=instance, name=url).count()
 				tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
 
-				# The mac uniquely identifies the recipient and acts as a secure integrity check
-				mac = calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
-
 				href = '?'.join([
 					settings.PROJECT_URL + reverse('manager-email-redirect'),
 					urllib.urlencode({
 						'instance'  :self.instance.pk,
 						'recipient' :self.recipient.pk,
 						'url'       :urllib.quote(url),
-						'position'  :previous_url_count
+						'position'  :previous_url_count,
+						# The mac uniquely identifies the recipient and acts as a secure integrity check
+						'mac'       :calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
 					})
 				])
 
