@@ -147,18 +147,45 @@ class EmailTestCase(TestCase):
 		self.assertTrue(self.email.unsubscriptions.count() == 1)
 		self.email.unsubscriptions.clear()
 
+	def _test_email_send(self):
+		'''
+			Test sending the email.
+		'''
+		self.email.send()
+		
+		self.assertTrue(Instance.objects.count() == 1)
+		self.assertTrue(URL.objects.count() > 0)
+		return Instance.objects.all()[0]
+
 	def test_sending_urls_opens(self):
 		'''
 			Test sending the email, url tracking and open tracking.
 		'''
-		self.email.send()
 		
-		# Was the email sent?
-		self.assertTrue(Instance.objects.count() == 1)
-		self.assertTrue(URL.objects.count() > 0)
-
-		instance = Instance.objects.all()[0]
-
+		instance = self._test_email_send()
 		self._test_url_tracking(instance)
 		self._test_open_tracking(instance)
+		self._test_unsubscribe(instance)
+
+	def test_sending_url(self):
+		'''
+			Test sending the email with URL tracking only.
+		'''
+		instance = self._test_email_send()
+		self._test_url_tracking(instance)
+		self._test_unsubscribe(instance)
+
+	def test_sending_open(self):
+		'''
+			Test sending the email with open tracking only.
+		'''
+		instance = self._test_email_send()
+		self._test_open_tracking(instance)
+		self._test_unsubscribe(instance)
+
+	def test_sending(self):
+		'''
+			Test sending the email wit no tracking.
+		'''
+		instance = self._test_email_send()
 		self._test_unsubscribe(instance)
