@@ -14,6 +14,7 @@ LANGUAGE_CODE     = 'en-us'
 SITE_ID           = 1
 USE_I18N          = False
 
+LOGIN_REDIRECT_URL = '/'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
