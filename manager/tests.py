@@ -144,6 +144,8 @@ class EmailTestCase(TestCase):
 			})
 		]))
 		self.assertTrue(response.status_code == 200)
+		self.assertTrue(self.email.unsubscriptions.count() == 1)
+		self.email.unsubscriptions.clear()
 
 	def test_sending_urls_opens(self):
 		'''
