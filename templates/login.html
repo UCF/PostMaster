@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<form action="{% url login %}" method="post">
+	{% for error in form.non_field_errors %}
+	<div class="alert alert-error">{{error}}</div>
+	{% endfor %}
+	{% for field in form %}
+		{% include 'form-control-group.html' %}
+	{% endfor %}
+	{% csrf_token %}
+	<button type="submit" class="btn-primary">Login</button>
+</form>
+{% endblock %}
