@@ -68,7 +68,7 @@ class EmailTestCase(TestCase):
 			subject            = 'Test Email Subject',
 			source_uri         = settings.TEST_EMAIL_SOURCE_URI,
 			start_date         = now.date(),
-			send_time          = str((now + timedelta(5 * 60)).time()).split('.')[0],
+			send_time          = (now + timedelta(5 * 60)).time(),
 			recurrence         = 0, # Never
 			from_email_address = 'webcom@ucf.edu',
 			from_friendly_name = 'Web Communications Team',
@@ -172,7 +172,6 @@ class EmailTestCase(TestCase):
 		self._test_url_tracking(instance)
 		self._test_open_tracking(instance)
 		self._test_unsubscribe(instance)
-
 	def test_sending_url(self):
 		'''
 			Test sending the email with URL tracking only.
@@ -195,3 +194,9 @@ class EmailTestCase(TestCase):
 		'''
 		instance = self._test_email_send()
 		self._test_unsubscribe(instance)
+
+	def test_preview(self):
+		send_time = self.email.send_time
+		self.email.send_time = (datetime.now() + timedelta(seconds=settings.PREVIEW_LEAD_TIME + 30)).time()
+		self.email.save()
+		self.email.send_preview()
