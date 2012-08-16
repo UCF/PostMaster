@@ -5,10 +5,15 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from django.test    import TestCase
-from manager.models import Recipient, RecipientAttribute, RecipientGroup, Email
-from django.conf    import settings
-from datetime       import datetime, timedelta
+from django.test              import TestCase, Client
+from manager.models           import Recipient, RecipientAttribute, RecipientGroup, Email, Instance, URL, URLClick
+from django.conf              import settings
+from datetime                 import datetime, timedelta
+from util                     import calc_url_mac
+from django.core.urlresolvers import reverse
+from django.http              import HttpResponseRedirect
+from django.core.exceptions   import SuspiciousOperation
+import urllib
 
 class RecipientTestCase(TestCase):
 	def setUp(self):
@@ -69,5 +74,48 @@ class EmailTestCase(TestCase):
 			)
 		self.email.recipient_groups.add(self.group)
 
-	def test_sending(self):
+	def test_sending_tracking(self):
 		self.email.send()
+		
+		# Was the email sent?
+		self.assertTrue(Instance.objects.count() == 1)
+		self.assertTrue(URL.objects.count() > 0)
+
+		instance = Instance.objects.all()[0]
+
+		# Is the URL Tracking working?
+		urls = URL.objects.all()
+		if urls.count() == 0:
+			raise AssertionError('There must be at least 1 URL is the email content')
+		else:
+			client   = Client()
+
+			##
+			# Generate the tracking URL
+			##
+			# Make sure this is valid URL for redirection
+			test_url = None
+			for url in urls:
+				try:
+					HttpResponseRedirect(url.name)
+				except SuspiciousOperation:
+					continue
+				else:
+					test_url = url
+			if test_url is None:
+				raise AssertionError('No valid test URL found.')
+
+			response = client.get('?'.join([
+				reverse('manager-email-redirect'),
+				urllib.urlencode({
+					'instance'  :instance.pk,
+					'recipient' :self.recipient.pk,
+					'url'       :urllib.quote(test_url.name),
+					'position'  :test_url.position,
+					'mac'       :calc_url_mac(test_url.name, test_url.position, self.recipient.pk, instance.pk)
+				})
+			]))
+			self.assertTrue(response.status_code, 200)
+
+			clicks = URLClick.objects.all()
+			self.assertTrue(clicks.count() == 1)
