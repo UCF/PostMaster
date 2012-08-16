@@ -465,10 +465,6 @@ class InstanceRecipientDetails(models.Model):
 
 		return content
 
-	def save(self, *args, **kwargs):
-		if not self.pk:
-			pass
-
 class URL(models.Model):
 	'''
 		Describes a particular URL in email content

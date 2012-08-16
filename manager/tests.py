@@ -6,7 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test              import TestCase, Client
-from manager.models           import Recipient, RecipientAttribute, RecipientGroup, Email, Instance, URL, URLClick, InstanceOpen
+from manager.models           import *
 from django.conf              import settings
 from datetime                 import datetime, timedelta
 from util                     import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -55,8 +55,13 @@ class EmailTestCase(TestCase):
 			recipient=self.recipient,
 			name='First Name',
 			value='Test Recipient')
+		
 		self.group     = RecipientGroup.objects.create(name='Test Group')
 		self.group.recipients.add(self.recipient)
+
+		self.second_group = RecipientGroup.objects.create(name='Test Group 1')
+		self.group.recipients.add(self.recipient)
+
 		self.email = Email.objects.create(
 			active             = True,
 			title              = 'Test Email',
@@ -73,11 +78,11 @@ class EmailTestCase(TestCase):
 			preview_recipients = settings.TEST_EMAIL_RECIPIENT
 			)
 		self.email.recipient_groups.add(self.group)
+		self.email.recipient_groups.add(self.second_group)
 
 	def _test_url_tracking(self, instance):
 		'''
 			Test the URL tracking. Must be called in the context of an email instance.
-
 		'''
 		# Is the URL Tracking working?
 		urls = URL.objects.all()
@@ -155,6 +160,7 @@ class EmailTestCase(TestCase):
 		
 		self.assertTrue(Instance.objects.count() == 1)
 		self.assertTrue(URL.objects.count() > 0)
+		self.assertTrue(InstanceRecipientDetails.objects.count() == 1)
 		return Instance.objects.all()[0]
 
 	def test_sending_urls_opens(self):
