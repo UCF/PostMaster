@@ -21,6 +21,7 @@
 					<div class="navbar-inner">
 						<div class="container">
 							<a class="brand" href="{% url manager-home %}">Postmaster Emailer</a>
+							{% if user.is_authenticated %}
 							<ul class="nav pull-right">
 								<li>
 									<a href="{% url manager-emails %}">Emails</a>
@@ -28,7 +29,11 @@
 								<li>
 									<a href="{% url manager-recipientgroups %}">Recipients</a>
 								</li>
+								<li>
+									<a href="{% url logout %}">Logout</a>
+								</li>
 							</ul>
+							{% endif %}
 						</div>
 					</div>
 				</div>
