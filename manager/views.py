@@ -4,9 +4,15 @@ from django.views.generic.list   import ListView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
-from manager.models              import Email, RecipientGroup, Instance, Recipient
+from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen
 from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateForm
 from django.contrib              import messages
+from django.http                 import HttpResponseRedirect
+from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
+import urllib
+import logging
+
+log = logging.getLogger(__name__)
 
 #
 # Emails
