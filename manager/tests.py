@@ -74,15 +74,11 @@ class EmailTestCase(TestCase):
 			)
 		self.email.recipient_groups.add(self.group)
 
-	def test_sending_tracking(self):
-		self.email.send()
-		
-		# Was the email sent?
-		self.assertTrue(Instance.objects.count() == 1)
-		self.assertTrue(URL.objects.count() > 0)
+	def _test_url_tracking(self, instance):
+		'''
+			Test the URL tracking. Must be called in the context of an email instance.
 
-		instance = Instance.objects.all()[0]
-
+		'''
 		# Is the URL Tracking working?
 		urls = URL.objects.all()
 		if urls.count() == 0:
@@ -117,7 +113,11 @@ class EmailTestCase(TestCase):
 			clicks = URLClick.objects.all()
 			self.assertTrue(clicks.count() == 1)
 
-		# Is the open tracking working?
+	def _test_open_tracking(self, instance):
+		'''
+			Test the open tracking. Must be called in the context of an email instance.
+		'''
+		client   = Client()
 		response = client.get('?'.join([
 			reverse('manager-email-open'),
 			urllib.urlencode({
@@ -130,7 +130,11 @@ class EmailTestCase(TestCase):
 		opens = InstanceOpen.objects.all()
 		self.assertTrue(opens.count() == 1)
 
-		# Is the unsubscribe working?
+	def _test_unsubscribe(self, instance):
+		'''
+			Test the unsubcribe functionality. Must be called in the context of an email instance.
+		'''
+		client   = Client()
 		response = client.get('?'.join([
 			reverse('manager-email-unsubscribe'),
 			urllib.urlencode({
@@ -140,3 +144,19 @@ class EmailTestCase(TestCase):
 			})
 		]))
 		self.assertTrue(response.status_code == 200)
+
+	def test_sending_urls_opens(self):
+		'''
+			Test sending the email, url tracking and open tracking.
+		'''
+		self.email.send()
+		
+		# Was the email sent?
+		self.assertTrue(Instance.objects.count() == 1)
+		self.assertTrue(URL.objects.count() > 0)
+
+		instance = Instance.objects.all()[0]
+
+		self._test_url_tracking(instance)
+		self._test_open_tracking(instance)
+		self._test_unsubscribe(instance)
