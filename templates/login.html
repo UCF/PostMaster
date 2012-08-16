@@ -7,6 +7,7 @@
 	{% for field in form %}
 		{% include 'form-control-group.html' %}
 	{% endfor %}
+	<input type="hidden" name="next" value="{{next}}" />
 	{% csrf_token %}
 	<button type="submit" class="btn-primary">Login</button>
 </form>
