@@ -10,6 +10,7 @@ from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.conf                 import settings
+from django.views.generic.simple import direct_to_template
 import urllib
 import logging
 
@@ -221,14 +222,14 @@ def unsubscribe(request):
 	mac          = request.GET.get('mac',       None)
 
 	if email_id is None or recipient_id is None or mac is None or mac != calc_unsubscribe_mac(recipient_id, email_id):
-		return direct_to_template(request, 'email/unsubscribe/parameters.html')
+		return direct_to_template(request, 'manager/email-unsubscribe-parameters.html')
 	else:
 		try:
 			recipient_id = int(recipient_id)
 			email_id     = int(email_id)
 		except ValueError:
 			# corrupted
-			return direct_to_template(request, 'email/unsubscribe/parameters.html')
+			return direct_to_template(request, 'manager/email-unsubscribe-parameters.html')
 		else:
 			try:
 				ctx['recipient'] = Recipient.objects.get(id=recipient_id)
@@ -240,7 +241,7 @@ def unsubscribe(request):
 			else:
 				if ctx['recipient'] in ctx['email'].unsubscriptions.all():
 					log.info('Recipeint %d already unsubscribed from email %d' % (recipient_id, email_id))
-					return direct_to_template(request, 'email/unsubscribe/already.html', ctx)
+					return direct_to_template(request, 'manager/email-unsubscribe-already.html', ctx)
 				else:
 					ctx['email'].unsubscriptions.add(ctx['recipient'])
-					return direct_to_template(request, 'email/unsubscribe/success.html', ctx)
+					return direct_to_template(request, 'manager/email-unsubscribe.html', ctx)

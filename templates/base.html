@@ -16,6 +16,7 @@
 	<body>
 		<div class="container">
 			<header class="span8 offset2">
+				{% block header %}
 				<div class="navbar">
 					<div class="navbar-inner">
 						<div class="container">
@@ -31,6 +32,7 @@
 						</div>
 					</div>
 				</div>
+				{% endblock %}
 			</header>
 			<section class="span8 offset2">
 				{% if messages %}
