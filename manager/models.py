@@ -1,11 +1,13 @@
-from django.db                   import models
-from django.conf                 import settings
-from datetime                    import datetime, timedelta
-from django.db.models            import Q
-from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
-from django.core.urlresolvers    import reverse
-from email.mime.multipart        import MIMEMultipart
-from email.mime.text             import MIMEText
+from django.db                import models
+from django.conf              import settings
+from datetime                 import datetime, timedelta
+from django.db.models         import Q
+from util                     import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
+from django.core.urlresolvers import reverse
+from email.mime.multipart     import MIMEMultipart
+from email.mime.text          import MIMEText
+from django.http              import HttpResponseRedirect
+from django.core.exceptions   import SuspiciousOperation
 import hmac
 import logging
 import smtplib
@@ -420,22 +422,31 @@ class InstanceRecipientDetails(models.Model):
 				fill   = groups[0]
 				url    = groups[1]
 				
-				# The same URL might exist in more than one place in the content.
-				# Use the position field to differentiate them
-				previous_url_count = URL.objects.filter(instance=instance, name=url).count()
-				tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
+				# Check to see if this URL is trackable. Links that don't start
+				# with http, https or ftp will raise a SuspiciousOperation exception
+				# when you try to HttpResponseRedirect them.
+				# See HttpResponseRedirectBase in django/http/__init__.py
+				try:
+					HttpResponseRedirect(url)
+				except SuspiciousOperation:
+					href = url
+				else:
+					# The same URL might exist in more than one place in the content.
+					# Use the position field to differentiate them
+					previous_url_count = URL.objects.filter(instance=instance, name=url).count()
+					tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
 
-				href = '?'.join([
-					settings.PROJECT_URL + reverse('manager-email-redirect'),
-					urllib.urlencode({
-						'instance'  :self.instance.pk,
-						'recipient' :self.recipient.pk,
-						'url'       :urllib.quote(url),
-						'position'  :previous_url_count,
-						# The mac uniquely identifies the recipient and acts as a secure integrity check
-						'mac'       :calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
-					})
-				])
+					href = '?'.join([
+						settings.PROJECT_URL + reverse('manager-email-redirect'),
+						urllib.urlencode({
+							'instance'  :self.instance.pk,
+							'recipient' :self.recipient.pk,
+							'url'       :urllib.quote(url),
+							'position'  :previous_url_count,
+							# The mac uniquely identifies the recipient and acts as a secure integrity check
+							'mac'       :calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
+						})
+					])
 
 				return '<a%shref="%s"' % (fill, href)
 
