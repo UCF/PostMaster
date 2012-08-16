@@ -233,7 +233,7 @@ class Email(models.Model):
 
 		# The recipients for the preview emails aren't the same as regular
 		# recipients. They are defined in the comma-separate field preview_recipients
-		recipients = [strip(r) for r in self.preview_recipients.split(',')]
+		recipients = [r.strip() for r in self.preview_recipients.split(',')]
 
 		# Prepend a message to the content explaining that this is a preview
 		explanation = '''
@@ -255,16 +255,16 @@ class Email(models.Model):
 				# Use alterantive subclass here so that both HTML and plain
 				# versions can be attached
 				msg            = MIMEMultipart('alternative')
-				msg['subject'] = self.subject
+				msg['subject'] = self.subject + ' **PREVIEW**'
 				msg['From']    = self.smtp_from_address
-				msg['To']      = recipient.email_address
+				msg['To']      = recipient
 
-				msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
+				msg.attach(MIMEText(explanation + content, 'html', _charset='us-ascii'))
 
 				# TODO - Implement plaintext alternative
 
 				try:
-					amazon_ses.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+					amazon.sendmail(self.from_email_address, recipient, msg.as_string())
 				except smtplib.SMTPException, e:
 					logging.exception('Unable to send email.')
 			amazon.quit()
