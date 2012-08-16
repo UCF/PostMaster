@@ -7,8 +7,9 @@ from django.shortcuts            import get_object_or_404
 from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen
 from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateForm
 from django.contrib              import messages
-from django.http                 import HttpResponseRedirect
+from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
+from django.conf                 import settings
 import urllib
 import logging
 
