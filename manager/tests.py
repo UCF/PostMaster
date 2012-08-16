@@ -9,7 +9,7 @@ from django.test              import TestCase, Client
 from manager.models           import Recipient, RecipientAttribute, RecipientGroup, Email, Instance, URL, URLClick, InstanceOpen
 from django.conf              import settings
 from datetime                 import datetime, timedelta
-from util                     import calc_url_mac, calc_open_mac
+from util                     import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.core.urlresolvers import reverse
 from django.http              import HttpResponseRedirect
 from django.core.exceptions   import SuspiciousOperation
@@ -129,3 +129,14 @@ class EmailTestCase(TestCase):
 		self.assertTrue(response.status_code == 200)
 		opens = InstanceOpen.objects.all()
 		self.assertTrue(opens.count() == 1)
+
+		# Is the unsubscribe working?
+		response = client.get('?'.join([
+			reverse('manager-email-unsubscribe'),
+			urllib.urlencode({
+				'recipient':self.recipient.pk,
+				'email'    :instance.email.pk,
+				'mac'      :calc_unsubscribe_mac(self.recipient.pk, instance.email.pk)
+			})
+		]))
+		self.assertTrue(response.status_code == 200)
