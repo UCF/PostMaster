@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from manager.models              import Email
 from datetime                    import datetime
+import logging
+
 log = logging.getLogger(__name__)
 
 
