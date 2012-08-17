@@ -1,5 +1,10 @@
 $().ready(function() {
 
+	/**
+	 * If a <table> <tr> has a data-link-url attribute, make a click of that row
+	 * link to the data-link-url value. Also, while hoving over that row, add the
+	 * active class.
+	 **/
 	$('tr')
 		.each(function(index, row) {
 			var row      = $(row),
