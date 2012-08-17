@@ -28,7 +28,7 @@ ALTER TABLE `manager_email` DROP COLUMN `html`;
 ALTER TABLE `manager_email` ADD COLUMN `send_time` TIME NOT NULL AFTER `start_date`;
 
 # Copy send times from mailer_emailsendtime then drop
-UPDATE `manager_email` email SET `send_time` = (SELECT send_time FROM `mailer_emailsendtime` WHERE email_id = email.id)
+UPDATE `manager_email` email SET `send_time` = (SELECT send_time FROM `mailer_emailsendtime` WHERE email_id = email.id);
 DROP TABLE `mailer_emailsendtime`;
 
 # Create recipient attribute table
@@ -37,46 +37,48 @@ CREATE TABLE `manager_recipientattribute` (
 	`recipient_id` INT(11) NOT NULL,
 	`name` VARCHAR(100) NOT NULL,
 	`value` VARCHAR(1000) NOT NULL
-)
+);
 
 # Copy values from manager_recipient column
 INSERT INTO manager_recipientattribute (recipient_id, name, value)
 	(
 		SELECT
 			id AS recipient_id,
-			'first_name' AS name,
+			'First Name' AS name,
 			first_name AS value
 		FROM
 			manager_recipient
 		WHERE
 			first_name IS NOT NULL
 
-	)
+	);
 
 INSERT INTO manager_recipientattribute (recipient_id, name, value)
 	(
 		SELECT
 			id AS recipient_id,
-			'last_name' AS name,
+			'Last Name' AS name,
 			last_name AS value
 		FROM
 			manager_recipient
 		WHERE
 			last_name IS NOT NULL
 
-	)
+	);
 
 INSERT INTO manager_recipientattribute (recipient_id, name, value)
 	(
 		SELECT
 			id AS recipient_id,
-			'preferred_name' AS name,
+			'Preferred Name' AS name,
 			preferred_name AS value
 		FROM
 			manager_recipient
 		WHERE
 			preferred_name IS NOT NULL
-	)
+	);
 
 # Drop columsn from manager_recipient
-ALTER TABLE manager_recipient DROP COLUMN `first_name`, `last_name`, `preferred_name`;
+ALTER TABLE manager_recipient DROP COLUMN `first_name`;
+ALTER TABLE manager_recipient DROP COLUMN `last_name`;
+ALTER TABLE manager_recipient DROP COLUMN `preferred_name`;
