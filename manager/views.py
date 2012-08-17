@@ -62,7 +62,7 @@ class InstanceListView(ListView):
 		self._email = get_object_or_404(Email, pk=kwargs['pk'])
 		return super(InstanceListView, self).dispatch(request, *args, **kwargs)
 
-	def get_query_set(self):
+	def get_queryset(self):
 		return Instance.objects.filter(email=self._email)
 
 	def get_context_data(self, **kwargs):
