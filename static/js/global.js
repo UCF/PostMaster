@@ -11,17 +11,8 @@ $().ready(function() {
 				link_url = row.attr('data-link-url');
 			if(typeof link_url != 'undefined') {
 				row.hover(
-					function() {
-						$(this)
-							.css('cursor', 'pointer')
-							.addClass('active');
-
-					},
-					function() {
-						$(this)
-							.css('cursor', 'none')
-							.removeClass('active');
-					}
+					function() {$(this).addClass('active');},
+					function() {$(this).removeClass('active');}
 				);
 				row.click(function() {window.location = link_url});
 			}
