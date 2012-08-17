@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block page-body %}
+	<p><big>Are you sure you want to delete {{email.title}}?</big></p>
+	<form action="{% url manager-email-delete email.pk %}" method="post" class="pull-right">
+		<button type="submit" class="btn btn-danger">Delete</button>
+		<a href="{% url manager-emails %}" class="btn">Cancel</a>
+	</form>
+{% endblock %}

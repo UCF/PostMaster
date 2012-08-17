@@ -11,6 +11,7 @@
 		{% for field in form %}
 			{% include 'form-control-group.html' %}
 		{% endfor %}
+		<a href="{% url manager-email-delete email.pk %}" class="btn btn-danger">Delete</a>
 		<div class="pull-right">
 			<button type="submit" class="btn btn-primary">Update</button>
 			<a href="{% url manager-home %}" class="btn">Cancel</a>

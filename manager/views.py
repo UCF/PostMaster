@@ -1,5 +1,5 @@
 from django.views.generic.base   import TemplateView
-from django.views.generic.edit   import CreateView, UpdateView
+from django.views.generic.edit   import CreateView, UpdateView, DeleteView
 from django.views.generic.list   import ListView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
@@ -47,6 +47,15 @@ class EmailUpdateView(UpdateView):
 		return super(EmailUpdateView, self).form_valid(form)
 
 	def get_success_url(self):
+		return reverse('manager-emails')
+
+class EmailDeleteView(DeleteView):
+	model                = Email
+	template_name        = 'manager/email-delete.html'
+	template_name_suffix = '-delete-confirm'
+
+	def get_success_url(self):
+		messages.success(self.request, 'Email sucessefully deleted.')
 		return reverse('manager-emails')
 
 #
