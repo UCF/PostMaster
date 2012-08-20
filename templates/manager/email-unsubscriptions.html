@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<a class="btn pull-right" href="{% url manager-email-create %}">Create New Email</a>
-<h2>Emails</h2>
+<h2>{{email.title}} Unsubscriptions</h2>
 {% if is_paginated %}
 <div class="pagination">
 	<ul>
@@ -24,16 +23,13 @@
 <table class="table">
 	<thead>
 		<tr>
-			<th scope="col">Name</th>
-			<th></th>
+			<th scope="col">Email Address</th>
 		</tr>
 	</thead>
 	<tbody>
-		{% for email in emails %}
-		<tr data-link-url="{% url manager-email-update email.pk %}">
-			<td>{{email.title}}</td>
-			<td><a href="{% url manager-email-instances email.pk %}">Instances</a></td>
-			<td><a href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a></td>
+		{% for recipient in recipients %}
+		<tr data-link-url="{% url manager-recipient recipient.pk %}">
+			<td>{{recipient.email_address}}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

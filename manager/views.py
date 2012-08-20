@@ -58,6 +58,24 @@ class EmailDeleteView(DeleteView):
 		messages.success(self.request, 'Email sucessefully deleted.')
 		return reverse('manager-emails')
 
+class EmailUnsubscriptionsListView(ListView):
+	model               = Recipient
+	template_name       = 'manager/email-unsubscriptions.html'
+	context_object_name = 'recipients'
+	paginate_by         = 20
+
+	def dispatch(self, request, *args, **kwargs):
+		self._email = get_object_or_404(Email, pk=kwargs['pk'])
+		return super(EmailUnsubscriptionsListView, self).dispatch(request, *args, **kwargs)
+
+	def get_queryset(self):
+		return self._email.unsubscriptions.all()
+
+	def get_context_data(self, **kwargs):
+		context          = super(EmailUnsubscriptionsListView, self).get_context_data(**kwargs)
+		context['email'] = self._email
+		return context
+
 #
 # Instance
 #

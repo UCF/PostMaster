@@ -6,15 +6,16 @@ from django.contrib.auth.decorators import login_required
 urlpatterns = patterns('manager.views',
 
 	# Emails
-	url(r'^email/unsubscribe/?$',          view='unsubscribe',           name='manager-email-unsubscribe'),
-	url(r'^email/open/?$',                 view='instance_open',         name='manager-email-open'),
-	url(r'^email/redirect/?$',             view='redirect',              name='manager-email-redirect'),
-	url(r'^email/create/$',                login_required(EmailCreateView.as_view()),    name='manager-email-create'),
-	url(r'^email/(?P<pk>\d+)/delete/$',    login_required(EmailDeleteView.as_view()),    name='manager-email-delete'),
-	url(r'^email/(?P<pk>\d+)/update/$',    login_required(EmailUpdateView.as_view()),    name='manager-email-update'),
-	url(r'^email/(?P<pk>\d+)/instances/$', login_required(InstanceListView.as_view()),   name='manager-email-instances'),
-	url(r'^email/instance/(?P<pk>\d+)/$',  login_required(InstanceDetailView.as_view()), name='manager-email-instance'),
-	url(r'^emails/$',                      login_required(EmailListView.as_view()),      name='manager-emails'),
+	url(r'^email/unsubscribe/?$',                view='unsubscribe',                                     name='manager-email-unsubscribe'),
+	url(r'^email/open/?$',                       view='instance_open',                                   name='manager-email-open'),
+	url(r'^email/redirect/?$',                   view='redirect',                                        name='manager-email-redirect'),
+	url(r'^email/create/$',                      login_required(EmailCreateView.as_view()),              name='manager-email-create'),
+	url(r'^email/(?P<pk>\d+)/delete/$',          login_required(EmailDeleteView.as_view()),              name='manager-email-delete'),
+	url(r'^email/(?P<pk>\d+)/update/$',          login_required(EmailUpdateView.as_view()),              name='manager-email-update'),
+	url(r'^email/(?P<pk>\d+)/instances/$',       login_required(InstanceListView.as_view()),             name='manager-email-instances'),
+	url(r'^email/(?P<pk>\d+)/unsubscriptions/$', login_required(EmailUnsubscriptionsListView.as_view()), name='manager-email-unsubscriptions'),
+	url(r'^email/instance/(?P<pk>\d+)/$',        login_required(InstanceDetailView.as_view()),           name='manager-email-instance'),
+	url(r'^emails/$',                            login_required(EmailListView.as_view()),                name='manager-emails'),
 
 	# Recipients
 	url(r'^recipientgroups/$',                       login_required(RecipientGroupListView.as_view()),   name='manager-recipientgroups'),
