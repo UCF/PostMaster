@@ -331,7 +331,7 @@ class Email(models.Model):
 					time.sleep(settings.AMAZON_SMTP['rate'])
 					instance_recipient_details.save()
 				amazon.quit()
-			instance.in_process = False
+			instance.in_progress = False
 			instance.end        = datetime.now()
 			instance.save()
 
