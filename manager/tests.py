@@ -135,7 +135,7 @@ class EmailTestCase(TestCase):
 		opens = InstanceOpen.objects.all()
 		self.assertTrue(opens.count() == 1)
 
-	def _test_unsubscribe(self, instance):
+	def _test_unsubscribe(self):
 		'''
 			Test the unsubcribe functionality. Must be called in the context of an email instance.
 		'''
@@ -144,23 +144,20 @@ class EmailTestCase(TestCase):
 			reverse('manager-email-unsubscribe'),
 			urllib.urlencode({
 				'recipient':self.recipient.pk,
-				'email'    :instance.email.pk,
-				'mac'      :calc_unsubscribe_mac(self.recipient.pk, instance.email.pk)
+				'email'    :self.email.pk,
+				'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.email.pk)
 			})
 		]))
 		self.assertTrue(response.status_code == 200)
 		self.assertTrue(self.email.unsubscriptions.count() == 1)
-		self.email.unsubscriptions.clear()
 
-	def _test_email_send(self):
+	def _test_email_send(self, notation=''):
 		'''
 			Test sending the email.
 		'''
-		self.email.send()
+		self.email.send(additional_subject=notation)
 		
 		self.assertTrue(Instance.objects.count() == 1)
-		self.assertTrue(URL.objects.count() > 0)
-		self.assertTrue(InstanceRecipientDetails.objects.count() == 1)
 		return Instance.objects.all()[0]
 
 	def test_sending_urls_opens(self):
@@ -168,32 +165,49 @@ class EmailTestCase(TestCase):
 			Test sending the email, url tracking and open tracking.
 		'''
 		
-		instance = self._test_email_send()
+		instance = self._test_email_send(notation=' **URL Tracking & Open Tracking**')
 		self._test_url_tracking(instance)
 		self._test_open_tracking(instance)
-		self._test_unsubscribe(instance)
+		self.assertTrue(InstanceRecipientDetails.objects.count() == 1)
+
 	def test_sending_url(self):
 		'''
 			Test sending the email with URL tracking only.
 		'''
-		instance = self._test_email_send()
+		self.email.track_opens = False
+		self.email.save()
+		instance = self._test_email_send(notation=' **URL Tracking**')
 		self._test_url_tracking(instance)
-		self._test_unsubscribe(instance)
+		self.assertTrue(InstanceRecipientDetails.objects.count() == 1)
 
 	def test_sending_open(self):
 		'''
 			Test sending the email with open tracking only.
 		'''
-		instance = self._test_email_send()
+		self.email.track_opens = True
+		self.email.track_urls  = False
+		self.email.save()
+		instance = self._test_email_send(notation=' **Open Tracking**')
 		self._test_open_tracking(instance)
-		self._test_unsubscribe(instance)
+		self.assertTrue(InstanceRecipientDetails.objects.count() == 1)
 
 	def test_sending(self):
 		'''
-			Test sending the email wit no tracking.
+			Test sending the email with no tracking.
 		'''
-		instance = self._test_email_send()
-		self._test_unsubscribe(instance)
+		self.email.track_opens = False
+		self.email.save()
+		instance = self._test_email_send(notation=' **No Tracking**')
+		self.assertTrue(InstanceRecipientDetails.objects.count() == 1)
+
+	def test_sending_unsubscribe(self):
+		'''
+			Test sending the email where the recipient is unsubscribed.
+			No email should be sent from this test.
+		'''
+		self._test_unsubscribe()
+		instance = self._test_email_send(notation=' **Unsubscribed Recipient**')
+		self.assertTrue(InstanceRecipientDetails.objects.count() == 0)
 
 	def test_preview(self):
 		send_time = self.email.send_time

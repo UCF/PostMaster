@@ -269,7 +269,7 @@ class Email(models.Model):
 					logging.exception('Unable to send email.')
 			amazon.quit()
 
-	def send(self):
+	def send(self, additional_subject=''):
 		'''
 			Send an email instance.
 			1. Fetch the content.
@@ -280,6 +280,8 @@ class Email(models.Model):
 			6. Construct the customized message
 			7. Send the message
 			8. Cleanup
+
+			Takes additional_subject for testing purposes
 		'''
 
 		# Fetch the email content. At this point, it is not customized
@@ -298,7 +300,7 @@ class Email(models.Model):
 				urls_tracked  = self.track_urls
 			)
 
-			recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).distinct()
+			recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
 
 			try:
 				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
@@ -316,7 +318,7 @@ class Email(models.Model):
 					# Use alterantive subclass here so that both HTML and plain
 					# versions can be attached
 					msg            = MIMEMultipart('alternative')
-					msg['subject'] = self.subject
+					msg['subject'] = self.subject + str(additional_subject)
 					msg['From']    = self.smtp_from_address
 					msg['To']      = recipient.email_address
 
