@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<a class="btn pull-right" href="{% url manager-email-create %}">Create New Email</a>
+<ul class="nav nav-pills pull-right">
+	<li class="dropdown">
+		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			Actions <b class="caret"></b>
+		</a>
+		<ul class="dropdown-menu">
+			<li><a href="{% url manager-email-create %}">Create New Email</a></li>
+		</ul>
+	</li>
+</ul>
 <h2>Emails</h2>
 {% if is_paginated %}
 <div class="pagination">
