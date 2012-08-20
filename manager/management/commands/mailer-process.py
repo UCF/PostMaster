@@ -16,7 +16,7 @@ class Command(BaseCommand):
 		now = datetime.now()
 
 		for email in Email.objects.previewing_now(now=now):
-			email.preview()
+			email.send_preview()
 
 		for email in Email.objects.sending_now(now=now):
 			email.send()
