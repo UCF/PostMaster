@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+	from django.core.management.base import BaseCommand, CommandError
 from optparse                    import make_option
 from manager.models              import Recipient, RecipientGroup
 from django.conf                 import settings
@@ -90,7 +90,7 @@ class GMUCFImporter(Importer):
 			transaction.commit_unless_managed()
 
 		# Make sure there is an index on the manager_recipient.email_address column
-		self.postmaster_cursor.execute('SHOW INDEX FROM %s.manager_recipient WHERE Key_name=\'email_addres\'' % self.postmaster_db_name)
+		self.postmaster_cursor.execute('SHOW INDEX FROM %s.manager_recipient WHERE Key_name=\'email_address\'' % self.postmaster_db_name)
 		results = self.postmaster_cursor.fetchall()
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.manager_recipient ADD INDEX `email_address` (`email_address`)' % self.postmaster_db_name)
