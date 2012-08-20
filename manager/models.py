@@ -22,7 +22,7 @@ class Recipient(models.Model):
 		Describes the details of a recipient
 	'''
 
-	email_address   = models.CharField(max_length=256)
+	email_address   = models.CharField(max_length=256, unique=True)
 
 	def __getattr__(self, name):
 		'''
