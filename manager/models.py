@@ -123,7 +123,7 @@ class EmailManager(models.Manager):
 		return Email.objects.sending_today(now=now).filter(
 			active         = True,
 			send_time__gte = send_interval_start,
-			send_time__lt  = send_interval_end)
+			send_time__lte = send_interval_end)
 
 	def previewing_now(self, now=None):
 		if now is None:
@@ -136,7 +136,7 @@ class EmailManager(models.Manager):
 			active         = True,
 			preview        = True,
 			send_time__gte = preview_interval_start,
-			send_time__lt  = preview_interval_end)
+			send_time__lte = preview_interval_end)
 
 
 class Email(models.Model):

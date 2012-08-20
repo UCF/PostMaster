@@ -80,7 +80,7 @@ MANAGERS = ()
 SESSION_COOKIE_SECURE = True
 
 # How often is the email processing script set to run? In seconds
-PROCESSING_INTERVAL_DURATION = 60 * 15 # 15 minutes
+PROCESSING_INTERVAL_DURATION = (60 * 14) + 59 # 14:59 seconds - 15 minutes because of zeroith second
 
 # How long before an email is sent with the previews be sent?
 PREVIEW_LEAD_TIME  = 60 * 60 # 1 hour
