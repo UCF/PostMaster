@@ -8,11 +8,6 @@ ADMINS = (
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = '/static/'
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
-
 # Base URL of the project. Needed in places where build_absolute_uri
 # can't be used because there is no request object (e.g. management commands)	
 # No trailing slash
