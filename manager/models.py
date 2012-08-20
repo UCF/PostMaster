@@ -434,7 +434,10 @@ class InstanceRecipientDetails(models.Model):
 					# The same URL might exist in more than one place in the content.
 					# Use the position field to differentiate them
 					previous_url_count = URL.objects.filter(instance=instance, name=url).count()
-					tracking_url       = URL.objects.create(instance=instance, name=url, position=previous_url_count)
+					try:
+						tracking_url = URL.objects.get(instance=instance, name=url, position=previous_url_count)
+					except URL.DoesNotExist:
+						tracking_url = URL.objects.create(instance=instance, name=url, position=previous_url_count)
 
 					href = '?'.join([
 						settings.PROJECT_URL + reverse('manager-email-redirect'),
