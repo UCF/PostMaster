@@ -8,8 +8,9 @@ urlpatterns = patterns('',
 	url(r'^logout/$', view='django.contrib.auth.views.logout', kwargs={'template_name': 'logout.html'}, name='logout'),
 )
 
-handler500 = lambda r: direct_to_template(r, template='500.html')
+handler403 = lambda r: direct_to_template(r, template='403.html')
 handler404 = lambda r: direct_to_template(r, template='404.html')
+handler500 = lambda r: direct_to_template(r, template='500.html')
 
 if settings.DEBUG:
 	urlpatterns += patterns('',
