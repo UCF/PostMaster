@@ -23,10 +23,10 @@
 							<a class="brand" href="{% url manager-home %}">Postmaster Emailer</a>
 							{% if user.is_authenticated %}
 							<ul class="nav pull-left">
-								<li>
+								<li{% if section == 'emails' %} class="active"{% endif %}>
 									<a href="{% url manager-emails %}">Emails</a>
 								</li>
-								<li>
+								<li{% if section == 'recipients' %} class="active"{% endif %}>
 									<a href="{% url manager-recipientgroups %}">Recipient Groups</a>
 								</li>
 							</ul>

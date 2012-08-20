@@ -16,16 +16,31 @@ import logging
 
 log = logging.getLogger(__name__)
 
-#
+##
+# Mixins
+##
+class EmailsMixin(object):
+	def get_context_data(self, **kwargs):
+		context            = super(EmailsMixin, self).get_context_data(**kwargs)
+		context['section'] = 'emails'
+		return context
+
+class RecipientsMixin(object):
+	def get_context_data(self, **kwargs):
+		context            = super(RecipientsMixin, self).get_context_data(**kwargs)
+		context['section'] = 'recipients'
+		return context
+
+##
 # Emails
-# 
-class EmailListView(ListView):
+##
+class EmailListView(EmailsMixin, ListView):
 	model               = Email
 	template_name       = 'manager/emails.html'
 	context_object_name = 'emails'
 	paginate_by         = 20
 
-class EmailCreateView(CreateView):
+class EmailCreateView(EmailsMixin, CreateView):
 	model         = Email
 	template_name = 'manager/email-create.html'
 	form_class    = EmailCreateUpdateForm
@@ -37,7 +52,7 @@ class EmailCreateView(CreateView):
 	def get_success_url(self):
 		return reverse('manager-emails')
 
-class EmailUpdateView(UpdateView):
+class EmailUpdateView(EmailsMixin, UpdateView):
 	model         = Email
 	template_name = 'manager/email-update.html'
 	form_class    = EmailCreateUpdateForm
@@ -49,7 +64,7 @@ class EmailUpdateView(UpdateView):
 	def get_success_url(self):
 		return reverse('manager-emails')
 
-class EmailDeleteView(DeleteView):
+class EmailDeleteView(EmailsMixin, DeleteView):
 	model                = Email
 	template_name        = 'manager/email-delete.html'
 	template_name_suffix = '-delete-confirm'
@@ -58,7 +73,7 @@ class EmailDeleteView(DeleteView):
 		messages.success(self.request, 'Email sucessefully deleted.')
 		return reverse('manager-emails')
 
-class EmailUnsubscriptionsListView(ListView):
+class EmailUnsubscriptionsListView(EmailsMixin, ListView):
 	model               = Recipient
 	template_name       = 'manager/email-unsubscriptions.html'
 	context_object_name = 'recipients'
@@ -76,10 +91,7 @@ class EmailUnsubscriptionsListView(ListView):
 		context['email'] = self._email
 		return context
 
-#
-# Instance
-#
-class InstanceListView(ListView):
+class InstanceListView(EmailsMixin, ListView):
 	model               = Instance
 	template_name       = 'manager/email-instances.html'
 	paginate_by         = 20
@@ -97,21 +109,21 @@ class InstanceListView(ListView):
 		context['email'] = self._email
 		return context
 
-class InstanceDetailView(DetailView):
+class InstanceDetailView(EmailsMixin, DetailView):
 	model               = Instance
 	template_name       = 'manager/email-instance.html'
 	context_object_name = 'instance'
 
-#
+##
 # Recipients
-#
-class RecipientGroupListView(ListView):
+##
+class RecipientGroupListView(RecipientsMixin, ListView):
 	model               = RecipientGroup
 	template_name       = 'manager/recipientgroups.html'
 	context_object_name = 'groups'
 	paginate_by         = 20
 
-class RecipientGroupCreateView(CreateView):
+class RecipientGroupCreateView(RecipientsMixin, CreateView):
 	model         = RecipientGroup
 	template_name = 'manager/recipientgroup-create.html'
 	form_class    = RecipientGroupCreateUpdateForm
@@ -123,7 +135,7 @@ class RecipientGroupCreateView(CreateView):
 	def get_success_url(self):
 		return reverse('manager-recipientgroups')
 
-class RecipientGroupUpdateView(UpdateView):
+class RecipientGroupUpdateView(RecipientsMixin, UpdateView):
 	model         = RecipientGroup
 	template_name = 'manager/recipientgroup-update.html'
 	form_class    = RecipientGroupCreateUpdateForm
@@ -135,7 +147,7 @@ class RecipientGroupUpdateView(UpdateView):
 	def get_success_url(self):
 		return reverse('manager-recipientgroups')
 
-class RecipientListView(ListView):
+class RecipientListView(RecipientsMixin, ListView):
 	model               = Recipient
 	template_name       = 'manager/recipientgroup-recipients.html'
 	context_object_name = 'recipients'
@@ -153,12 +165,14 @@ class RecipientListView(ListView):
 		context['recipient_group'] = self._recipient_group
 		return context
 
-class RecipientDetailView(DetailView):
+class RecipientDetailView(RecipientsMixin, DetailView):
 	model               = Recipient
 	template_name       = 'manager/recipient.html'
 	context_object_name = 'recipient'
 
-
+##
+# Tracking
+##
 def redirect(request):
 	'''
 		Redirects based on URL and records URL click
