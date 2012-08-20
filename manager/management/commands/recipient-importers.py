@@ -109,25 +109,20 @@ class GMUCFImporter(Importer):
 			DELETE FROM
 				%s.manager_recipientgroup_recipients
 			WHERE
+				recipientgroup_id = %d  AND
 				recipient_id IN (
 					SELECT
 						recipient.id
 					FROM
 						%s.manager_recipient recipient
-					JOIN
-						%s.manager_recipientgroup_recipients rgroup
-					ON
-						recipient.id = rgroup.recipient_id
 					WHERE
-						rgroup.recipientgroup_id = %d  AND
 						recipient.email_address NOT IN (
 							SELECT email FROM %s.smca_gmucf
 						)
 				)''' % (
 			self.postmaster_db_name,
-			self.postmaster_db_name,
-			self.postmaster_db_name,
 			self.gmucf_recipient_group.id,
+			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
 		transaction.commit_unless_managed()
