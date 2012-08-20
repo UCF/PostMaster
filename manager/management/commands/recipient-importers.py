@@ -129,7 +129,7 @@ class GMUCFImporter(Importer):
 
 		self.postmaster_cursor.execute('''
 			INSERT INTO
-				%s.manager_recipient
+				%s.manager_recipient(email_address)
 			(
 				SELECT
 					email
@@ -137,7 +137,7 @@ class GMUCFImporter(Importer):
 					%s.smca_gmucf
 				WHERE
 					email NOT IN (
-						SELECT email_address FORM %s.manager_recipient
+						SELECT email_address FROM %s.manager_recipient
 					)
 			)
 		''' % (
@@ -150,7 +150,7 @@ class GMUCFImporter(Importer):
 
 		self.postmaster_cursor.execute('''
 			INSERT INTO 
-				%s.manager_recipientattribute
+				%s.manager_recipientattribute(recipient_id, name, value)
 			(
 				SELECT 
 					recipient.id AS recipient_id,
