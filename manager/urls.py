@@ -19,6 +19,7 @@ urlpatterns = patterns('manager.views',
 	# Recipients
 	url(r'^recipientgroups/$',                       login_required(RecipientGroupListView.as_view()),   name='manager-recipientgroups'),
 	url(r'^recipientgroup/create/$',                 login_required(RecipientGroupCreateView.as_view()), name='manager-recipientgroup-create'),
+	url(r'^recipientgroup/(?P<pk>\d+)/update/$',     login_required(RecipientGroupUpdateView.as_view()), name='manager-recipientgroup-update'),
 	url(r'^recipientgroup/(?P<pk>\d+)/recipients/$', login_required(RecipientListView.as_view()),        name='manager-recipientgroup-recipients'),
 	url(r'^recipient/(?P<pk>\d+)/$',                 login_required(RecipientDetailView.as_view()),      name='manager-recipient'),
 

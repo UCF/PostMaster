@@ -7,7 +7,7 @@ class EmailCreateUpdateForm(forms.ModelForm):
 		model   = Email
 		exclude = ('unsubscriptions', )
 
-class RecipientGroupCreateForm(forms.ModelForm):
+class RecipientGroupCreateUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model   = RecipientGroup

@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
 from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateForm
+from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -96,11 +96,23 @@ class RecipientGroupListView(ListView):
 class RecipientGroupCreateView(CreateView):
 	model         = RecipientGroup
 	template_name = 'manager/recipientgroup-create.html'
-	form_class    = RecipientGroupCreateForm
+	form_class    = RecipientGroupCreateUpdateForm
 
 	def form_valid(self, form):
 		messages.success(self.request, 'Recipient group sucessefully created.')
 		return super(RecipientGroupCreateView, self).form_valid(form)
+
+	def get_success_url(self):
+		return reverse('manager-recipientgroups')
+
+class RecipientGroupUpdateView(UpdateView):
+	model         = RecipientGroup
+	template_name = 'manager/recipientgroup-update.html'
+	form_class    = RecipientGroupCreateUpdateForm
+
+	def form_valid(self, form):
+		messages.success(self.request, 'Recipient group sucessefully updated.')
+		return super(RecipientGroupUpdateView, self).form_valid(form)
 
 	def get_success_url(self):
 		return reverse('manager-recipientgroups')
