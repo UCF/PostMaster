@@ -102,7 +102,8 @@ class GMUCFImporter(Importer):
 				in the RDS wharehouse data.
 			2. Create any recipients who are in the the RDS wharehouse data but not
 				in the recipients table.
-			3. Update any Recipient attributes 
+			3. Update any Recipient attributes
+			4. Add any newly created recipients to the Good Morning UCF group
 		'''
 		
 		self.postmaster_cursor.execute('''
@@ -168,5 +169,37 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
+		))
+		transaction.commit_unless_managed()
+
+		self.postmaster_cursor.execute('''
+			INSERT INTO 
+				%s.manager_recipientgroup_recipients(recipientgroup_id, recipient_id)
+			(
+				SELECT 
+					%s AS recipientgroup_id,
+					recipient.id
+				FROM
+					%s.manager_recipient recipient
+				WHERE
+					recipient.email_address IN (
+						SELECT email FROM %s.smca_gmucf
+					) AND
+					recipient.id NOT IN (
+						SELECT
+							recipient_id
+						FROM
+							%s.manager_recipientgroup_recipients
+						WHERE
+							recipientgroup_id = %d
+					)
+			)
+		''' % (
+			self.postmaster_db_name,
+			self.gmucf_recipient_group.id,
+			self.postmaster_db_name,
+			self.rds_wharehouse_db_name,
+			self.postmaster_db_name,
+			self.gmucf_recipient_group.id
 		))
 		transaction.commit_unless_managed()
