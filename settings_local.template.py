@@ -38,6 +38,22 @@ DATABASES = {
 		'HOST'    : '',
 		# Set to empty string for default. Not used with sqlite3.
 		'PORT'    : '',
+	},
+	# Currently on the database name needs to be filled in for the rds_warehouse
+	# database. It is only used in the recipient-importer script.
+	'rds_wharehouse': {
+		# postgresql_psycopg2, postgresql, mysql, sqlite3, oracle
+		'ENGINE'  : 'django.db.backends.sqlite3',
+		# Or path to database file if using sqlite3.
+		'NAME'    : 'rds_wharehousedev',
+		# Not used with sqlite3.
+		'USER'    : '',
+		# Not used with sqlite3.
+		'PASSWORD': '',
+		# Set to empty string for localhost. Not used with sqlite3.
+		'HOST'    : '',
+		# Set to empty string for default. Not used with sqlite3.
+		'PORT'    : '',
 	}
 }
 
