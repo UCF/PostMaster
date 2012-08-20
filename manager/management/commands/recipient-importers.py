@@ -128,7 +128,7 @@ class GMUCFImporter(Importer):
 		transaction.commit_unless_managed()
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO
+			INSERT IGNORE INTO
 				%s.manager_recipient(email_address)
 			(
 				SELECT
