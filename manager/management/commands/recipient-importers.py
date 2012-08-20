@@ -1,4 +1,4 @@
-	from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand, CommandError
 from optparse                    import make_option
 from manager.models              import Recipient, RecipientGroup
 from django.conf                 import settings
