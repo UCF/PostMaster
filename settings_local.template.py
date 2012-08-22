@@ -71,7 +71,7 @@ LDAP_NET_ATTR_MAP    = { # LDAP Object -> User Object
 	'mail'      : 'email'
 }
 
-# NID of users who are allowed to manage Postmaster
+# NID of users who are allowed to manage Postmaster. Tuple format ('NID', 'NID1', 'NID2')
 MANAGERS = ()
 
 # Set to TRUE when operating over SSL
