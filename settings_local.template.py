@@ -70,8 +70,6 @@ LDAP_NET_ATTR_MAP    = { # LDAP Object -> User Object
 	'sn'        : 'sn',
 	'mail'      : 'email'
 }
-LDAP_NET_SEARCH_USER = ''
-LDAP_NET_SEARCH_PASS = ''
 
 # NID of users who are allowed to manage Postmaster
 MANAGERS = ()
