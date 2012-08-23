@@ -50,7 +50,7 @@ class EmailCreateView(EmailsMixin, CreateView):
 		return super(EmailCreateView, self).form_valid(form)
 
 	def get_success_url(self):
-		return reverse('manager-emails')
+		return reverse('manager-email-update', args=(), kwargs={'pk':self.object.pk})
 
 class EmailUpdateView(EmailsMixin, UpdateView):
 	model         = Email
@@ -62,7 +62,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
 		return super(EmailUpdateView, self).form_valid(form)
 
 	def get_success_url(self):
-		return reverse('manager-emails')
+		return reverse('manager-email-update', args=(), kwargs={'pk':self.object.pk})
 
 class EmailDeleteView(EmailsMixin, DeleteView):
 	model                = Email
@@ -133,7 +133,7 @@ class RecipientGroupCreateView(RecipientsMixin, CreateView):
 		return super(RecipientGroupCreateView, self).form_valid(form)
 
 	def get_success_url(self):
-		return reverse('manager-recipientgroups')
+		return reverse('manager-recipientgroup-update', args=(), kwargs={'pk':self.object.pk})
 
 class RecipientGroupUpdateView(RecipientsMixin, UpdateView):
 	model         = RecipientGroup
@@ -145,7 +145,7 @@ class RecipientGroupUpdateView(RecipientsMixin, UpdateView):
 		return super(RecipientGroupUpdateView, self).form_valid(form)
 
 	def get_success_url(self):
-		return reverse('manager-recipientgroups')
+		return reverse('manager-recipientgroup-update', args=(), kwargs={'pk':self.object.pk})
 
 class RecipientListView(RecipientsMixin, ListView):
 	model               = Recipient
