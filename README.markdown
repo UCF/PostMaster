@@ -31,3 +31,11 @@ Testing
 2. Be sure the application's database credentials have CREATE DATABASE privileges. This is needed because separate test databases are created during the testing process.
 3. Be sure the application can connect out to Amazon Web Services.
 4. From the command line, run `python manage.py test manager` in the project's root directory.
+
+Upgrading
+---------
+- v1.0.10 -> v1.0.11
+	- Rename `manager_email.source_uri` column to `manager_email.source_html_uri`
+	- Create `manager_email.source_text_uri` column with the following definition: `VARCHAR(200) NULL DEFAULT NULL AFTER source_html_uri`
+	- Rename `TEST_EMAIL_SOURCE_URI` to `TEST_EMAIL_SOURCE_HTML_URI` in settings_loca.py
+	- ADD `TEST_EMAIL_SOURCE_TEXT_URI` setting to settings_local.py (see settings_local.template.py)
