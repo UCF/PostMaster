@@ -213,23 +213,23 @@ class Email(models.Model):
 		return sum(list(i.recipient_details.count() for i in self.instances.all()))
 
 	@property
-	def content(self):
+	def html(self):
 		'''
-			Fetch and decode the remote content.
+			Fetch and decode the remote html.
 		'''
 		try:
 			page    = urllib.urlopen(self.source_uri)
 			content = page.read()
 			return content.decode('ascii', 'ignore')
 		except Exception, e:
-			logging.exception('Unable to fetch email content')
+			logging.exception('Unable to fetch email html')
 			raise self.EmailException()
 
 	def send_preview(self):
 		'''
 			Send preview emails
 		'''
-		content = self.content
+		html = self.html
 
 		# The recipients for the preview emails aren't the same as regular
 		# recipients. They are defined in the comma-separate field preview_recipients
@@ -259,7 +259,7 @@ class Email(models.Model):
 				msg['From']    = self.smtp_from_address
 				msg['To']      = recipient
 
-				msg.attach(MIMEText(explanation + content, 'html', _charset='us-ascii'))
+				msg.attach(MIMEText(explanation + html, 'html', _charset='us-ascii'))
 
 				# TODO - Implement plaintext alternative
 
@@ -287,14 +287,14 @@ class Email(models.Model):
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
 		try:
-			content = self.content
+			html = self.html
 		except Exception, e:
 			logging.exception('Unable to fetch email content')
 			raise self.EmailException()
 		else:
 			instance = Instance.objects.create(
 				email         = self,
-				sent_html     = content,
+				sent_html     = html,
 				in_progress   = True,
 				opens_tracked = self.track_opens,
 				urls_tracked  = self.track_urls
@@ -322,7 +322,7 @@ class Email(models.Model):
 					msg['From']    = self.smtp_from_address
 					msg['To']      = recipient.email_address
 
-					msg.attach(MIMEText(instance_recipient_details.content, 'html', _charset='us-ascii'))
+					msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
 
 					# TODO - Implement plaintext alternative
 
@@ -386,17 +386,17 @@ class InstanceRecipientDetails(models.Model):
 	exception_msg  = models.TextField(null=True, blank=True)
 
 	@property
-	def content(self):
+	def html(self):
 		'''
 			Replace template placeholders.
 			Track URLs if neccessary.
 			Track clicks if necessary.
 		'''
-		content = self.instance.sent_html
+		html = self.instance.sent_html
 		
 		# Template placeholders
 		delimiter    = self.instance.email.replace_delimiter
-		placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), content)
+		placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), html)
 		
 		for placeholder in placeholders:
 			replacement = ''
@@ -415,7 +415,7 @@ class InstanceRecipientDetails(models.Model):
 					replacement = getattr(self.recipient, placeholder)
 				except AttributeError:
 					log.error('Recipeint %s is missing attribute %s' % (str(self.recipient), placeholder))
-			content = content.replace(delimiter + placeholder + delimiter, replacement)
+			html = html.replace(delimiter + placeholder + delimiter, replacement)
 
 		if self.instance.urls_tracked:
 			instance = self.instance
@@ -455,7 +455,7 @@ class InstanceRecipientDetails(models.Model):
 
 				return '<a%shref="%s"' % (fill, href)
 
-			content = re.sub('<a(.*)href="([^"]+)"', gen_tracking_url, content)
+			html = re.sub('<a(.*)href="([^"]+)"', gen_tracking_url, html)
 
 		if self.instance.opens_tracked:
 			open_tracking_url = '?'.join([
@@ -466,9 +466,9 @@ class InstanceRecipientDetails(models.Model):
 					'mac'      :calc_open_mac(self.recipient.pk, self.instance.pk)
 				})
 			])
-			content += '<img src="%s" />' % open_tracking_url
+			html += '<img src="%s" />' % open_tracking_url
 
-		return content
+		return html
 
 class URL(models.Model):
 	'''
