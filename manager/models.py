@@ -286,56 +286,51 @@ class Email(models.Model):
 
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
+		html = self.html
+		instance = Instance.objects.create(
+			email         = self,
+			sent_html     = html,
+			in_progress   = True,
+			opens_tracked = self.track_opens,
+			urls_tracked  = self.track_urls
+		)
+
+		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
+
 		try:
-			html = self.html
-		except Exception, e:
-			logging.exception('Unable to fetch email content')
+			amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+			amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+		except smtplib.SMTPException, e:
+			logging.exception('Unable to connect to Amazon')
 			raise self.EmailException()
 		else:
-			instance = Instance.objects.create(
-				email         = self,
-				sent_html     = html,
-				in_progress   = True,
-				opens_tracked = self.track_opens,
-				urls_tracked  = self.track_urls
-			)
+			for recipient in recipients:
+				instance_recipient_details = InstanceRecipientDetails(
+					recipient=recipient,
+					instance =instance
+				)
 
-			recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
+				# Use alterantive subclass here so that both HTML and plain
+				# versions can be attached
+				msg            = MIMEMultipart('alternative')
+				msg['subject'] = self.subject + str(additional_subject)
+				msg['From']    = self.smtp_from_address
+				msg['To']      = recipient.email_address
 
-			try:
-				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-				amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-			except smtplib.SMTPException, e:
-				logging.exception('Unable to connect to Amazon')
-				raise self.EmailException()
-			else:
-				for recipient in recipients:
-					instance_recipient_details = InstanceRecipientDetails(
-						recipient=recipient,
-						instance =instance
-					)
+				msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
 
-					# Use alterantive subclass here so that both HTML and plain
-					# versions can be attached
-					msg            = MIMEMultipart('alternative')
-					msg['subject'] = self.subject + str(additional_subject)
-					msg['From']    = self.smtp_from_address
-					msg['To']      = recipient.email_address
+				# TODO - Implement plaintext alternative
 
-					msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
-
-					# TODO - Implement plaintext alternative
-
-					try:
-						amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
-					except smtplib.SMTPException, e:
-						instance_recipient_details.exception_msg = str(e)
-					time.sleep(settings.AMAZON_SMTP['rate'])
-					instance_recipient_details.save()
-				amazon.quit()
-			instance.in_progress = False
-			instance.end        = datetime.now()
-			instance.save()
+				try:
+					amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+				except smtplib.SMTPException, e:
+					instance_recipient_details.exception_msg = str(e)
+				time.sleep(settings.AMAZON_SMTP['rate'])
+				instance_recipient_details.save()
+			amazon.quit()
+		instance.in_progress = False
+		instance.end        = datetime.now()
+		instance.save()
 
 	def __str__(self):
 		return self.title
