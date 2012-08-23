@@ -14,7 +14,7 @@ $().ready(function() {
 					function() {$(this).addClass('active');},
 					function() {$(this).removeClass('active');}
 				);
-				row.click(function() {window.location = link_url});
+				row.find('td:not(:has(a))').click(function() {window.location = link_url});
 			}
 		})
 });
