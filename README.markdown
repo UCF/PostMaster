@@ -34,8 +34,8 @@ Testing
 
 Upgrading
 ---------
-- v1.0.10 -> v1.0.11
+- v1.0.10 to v1.0.11
 	- Rename `manager_email.source_uri` column to `manager_email.source_html_uri`
 	- Create `manager_email.source_text_uri` column with the following definition: `VARCHAR(200) NULL DEFAULT NULL AFTER source_html_uri`
-	- Rename `TEST_EMAIL_SOURCE_URI` to `TEST_EMAIL_SOURCE_HTML_URI` in settings_loca.py
-	- ADD `TEST_EMAIL_SOURCE_TEXT_URI` setting to settings_local.py (see settings_local.template.py)
+	- Rename `TEST_EMAIL_SOURCE_URI` to `TEST_EMAIL_SOURCE_HTML_URI` in settings_local.py
+	- Add `TEST_EMAIL_SOURCE_TEXT_URI` setting to settings_local.py (see settings_local.template.py)
