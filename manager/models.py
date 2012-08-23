@@ -270,7 +270,7 @@ class Email(models.Model):
 			amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 			amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 		except smtplib.SMTPException, e:
-			logging.exception('Unable to connect to Amazon')
+			log.exception('Unable to connect to Amazon')
 			raise self.AmazonConnectionException()
 		else:
 			for recipient in recipients:
@@ -288,7 +288,7 @@ class Email(models.Model):
 				try:
 					amazon.sendmail(self.from_email_address, recipient, msg.as_string())
 				except smtplib.SMTPException, e:
-					logging.exception('Unable to send email.')
+					log.exception('Unable to send email.')
 			amazon.quit()
 
 	def send(self, additional_subject=''):
@@ -323,7 +323,7 @@ class Email(models.Model):
 			amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 			amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 		except smtplib.SMTPException, e:
-			logging.exception('Unable to connect to Amazon')
+			log.exception('Unable to connect to Amazon')
 			raise self.EmailException()
 		else:
 			for recipient in recipients:
