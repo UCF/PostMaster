@@ -192,7 +192,7 @@ class Email(models.Model):
 	title              = models.CharField(max_length=100, help_text=_HELP_TEXT['title'])
 	subject            = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
 	source_html_uri    = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
-	source_text_uri    = models.URLField(help_text=_HELP_TEXT['source_text_uri'])
+	source_text_uri    = models.URLField(null=True, blank=True, help_text=_HELP_TEXT['source_text_uri'])
 	start_date         = models.DateField(help_text=_HELP_TEXT['start_date'])
 	send_time          = models.TimeField(help_text=_HELP_TEXT['send_time'])
 	recurrence         = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices, help_text=_HELP_TEXT['recurrence'])
@@ -252,13 +252,14 @@ class Email(models.Model):
 			Send preview emails
 		'''
 		html = self.html
+		text = self.text
 
 		# The recipients for the preview emails aren't the same as regular
 		# recipients. They are defined in the comma-separate field preview_recipients
 		recipients = [r.strip() for r in self.preview_recipients.split(',')]
 
 		# Prepend a message to the content explaining that this is a preview
-		explanation = '''
+		html_explanation = '''
 			<div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
 				This is a preview of an email that will go out in one (1) hour.
 				<br /><br />
@@ -266,6 +267,8 @@ class Email(models.Model):
 				the source for the real delivery.
 			</div>
 		'''
+		text_explanation = 'This is a preview of an email that will go out in one (1) hour.\n\nThe content of the email when it is sent will be re-requested from the source for the real delivery.'
+
 		try:
 			amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 			amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
@@ -281,9 +284,12 @@ class Email(models.Model):
 				msg['From']    = self.smtp_from_address
 				msg['To']      = recipient
 
-				msg.attach(MIMEText(explanation + html, 'html', _charset='us-ascii'))
+				msg.attach(MIMEText(html_explanation + html, 'html', _charset='us-ascii'))
 
-				# TODO - Implement plaintext alternative
+				try:
+					msg.attach(MIMEText(text_explanation + text, 'plain', _charset='us-ascii' ))
+				except self.TextContentMissingException():
+					pass
 
 				try:
 					amazon.sendmail(self.from_email_address, recipient, msg.as_string())
@@ -309,6 +315,8 @@ class Email(models.Model):
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
 		html = self.html
+		text = self.text
+
 		instance = Instance.objects.create(
 			email         = self,
 			sent_html     = html,

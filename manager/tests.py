@@ -66,7 +66,8 @@ class EmailTestCase(TestCase):
 			active             = True,
 			title              = 'Test Email',
 			subject            = 'Test Email Subject',
-			source_uri         = settings.TEST_EMAIL_SOURCE_URI,
+			source_html_uri    = settings.TEST_EMAIL_SOURCE_HTML_URI,
+			source_text_uri    = settings.TEST_EMAIL_SOURCE_TEXT_URI,
 			start_date         = now.date(),
 			send_time          = (now + timedelta(5 * 60)).time(),
 			recurrence         = 0, # Never
