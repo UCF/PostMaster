@@ -50,6 +50,16 @@ class Recipient(models.Model):
 			map(lambda e: emails.append(e), group_emails)
 		return set(emails)
 
+	def set_groups(self, groups):
+		if groups is not None:
+			remove_groups = []
+
+			for group in self.groups.all():
+				if group not in groups:
+					remove_groups.append(group)
+			self.groups.remove(*remove_groups)
+			self.groups.add(*groups)
+
 	def __str__(self):
 		return self.email_address
 

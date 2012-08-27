@@ -22,6 +22,8 @@ urlpatterns = patterns('manager.views',
 	url(r'^recipientgroup/create/$',                 login_required(RecipientGroupCreateView.as_view()), name='manager-recipientgroup-create'),
 	url(r'^recipientgroup/(?P<pk>\d+)/update/$',     login_required(RecipientGroupUpdateView.as_view()), name='manager-recipientgroup-update'),
 	url(r'^recipientgroup/(?P<pk>\d+)/recipients/$', login_required(RecipientListView.as_view()),        name='manager-recipientgroup-recipients'),
+	url(r'^recipient/create/$',                      login_required(RecipientCreateView.as_view()),      name='manager-recipient-create'),
+	url(r'^recipient/(?P<pk>\d+)/update/$',          login_required(RecipientUpdateView.as_view()),      name='manager-recipient-update'),
 	url(r'^recipient/(?P<pk>\d+)/$',                 login_required(RecipientDetailView.as_view()),      name='manager-recipient'),
 
 	url(r'^$', login_required(direct_to_template), kwargs={'template':'manager/instructions.html'}, name='manager-home'),

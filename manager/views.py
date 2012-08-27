@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
 from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm
+from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -169,6 +169,33 @@ class RecipientDetailView(RecipientsMixin, DetailView):
 	model               = Recipient
 	template_name       = 'manager/recipient.html'
 	context_object_name = 'recipient'
+
+class RecipientCreateView(RecipientsMixin, CreateView):
+	model               = Recipient
+	template_name       = 'manager/recipient-create.html'
+	context_object_name = 'recipient'
+	form_class          = RecipientCreateUpdateForm
+
+	def form_valid(self, form):
+		messages.success(self.request, 'Recipient sucessefully created.')
+		self.object.set_groups(form.cleaned_data['groups'])
+		return super(RecipientCreateView, self).form_valid(form)
+
+	def get_success_url(self):
+		return reverse('manager-recipient-update', args=(), kwargs={'pk':self.object.pk})
+
+class RecipientUpdateView(RecipientsMixin, UpdateView):
+	model         = Recipient
+	template_name = 'manager/recipient-update.html'
+	form_class    = RecipientCreateUpdateForm
+
+	def form_valid(self, form):
+		messages.success(self.request, 'Recipient sucessefully updated.')
+		self.object.set_groups(form.cleaned_data['groups'])
+		return super(RecipientUpdateView, self).form_valid(form)
+
+	def get_success_url(self):
+		return reverse('manager-recipient-update', args=(), kwargs={'pk':self.object.pk})
 
 ##
 # Tracking
