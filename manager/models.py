@@ -443,7 +443,8 @@ class InstanceRecipientDetails(models.Model):
 			html = html.replace(delimiter + placeholder + delimiter, replacement)
 
 		if self.instance.urls_tracked:
-			instance = self.instance
+			instance     = self.instance
+			tracked_urls = {}
 			def gen_tracking_url(match):
 				groups = match.groups()
 				fill   = groups[0]
@@ -459,8 +460,15 @@ class InstanceRecipientDetails(models.Model):
 					href = url
 				else:
 					# The same URL might exist in more than one place in the content.
-					# Use the position field to differentiate them
-					previous_url_count = URL.objects.filter(instance=instance, name=url).count()
+					# Use the position field to differentiate them.
+					# This is done on a per-email basis rather than a per-recipient basis.
+					try:
+						tracked_urls[url] += 1
+					except KeyError:
+						tracked_urls[url] = 0
+
+					previous_url_count = tracked_urls[url]
+
 					try:
 						tracking_url = URL.objects.get(instance=instance, name=url, position=previous_url_count)
 					except URL.DoesNotExist:
