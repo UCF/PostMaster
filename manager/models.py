@@ -252,7 +252,11 @@ class Email(models.Model):
 			Send preview emails
 		'''
 		html = self.html
-		text = self.text
+
+		try:
+			text = self.text
+		except self.TextContentMissingException:
+			text = None
 
 		# The recipients for the preview emails aren't the same as regular
 		# recipients. They are defined in the comma-separate field preview_recipients
@@ -286,10 +290,8 @@ class Email(models.Model):
 
 				msg.attach(MIMEText(html_explanation + html, 'html', _charset='us-ascii'))
 
-				try:
+				if text is not None:
 					msg.attach(MIMEText(text_explanation + text, 'plain', _charset='us-ascii' ))
-				except self.TextContentMissingException():
-					pass
 
 				try:
 					amazon.sendmail(self.from_email_address, recipient, msg.as_string())
@@ -315,7 +317,11 @@ class Email(models.Model):
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
 		html = self.html
-		text = self.text
+		
+		try:
+			text = self.text
+		except self.TextContentMissingException:
+			text = None
 
 		instance = Instance.objects.create(
 			email         = self,
@@ -349,7 +355,8 @@ class Email(models.Model):
 
 				msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
 
-				# TODO - Implement plaintext alternative
+				if text is not None:
+					msg.attach(MIMEText(text_explanation + text, 'plain', _charset='us-ascii' ))
 
 				try:
 					amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
