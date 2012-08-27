@@ -432,22 +432,12 @@ class InstanceRecipientDetails(models.Model):
 		
 		for placeholder in placeholders:
 			replacement = ''
-			if placeholder.lower() == 'unsubscribe':
-				unsubscribe_url = '?'.join([
-					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
-					urllib.urlencode({
-						'recipient':self.recipient.pk,
-						'email'    :self.instance.email.pk,
-						'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.instance.email.pk)
-					})
-				])
-				replacement = '<a style="color:blue;text-decoration:underline;" href="%s">Unsubscribe</a>' % unsubscribe_url
-			else:
+			if placeholder.lower() != 'unsubscribe':
 				try:
 					replacement = getattr(self.recipient, placeholder)
 				except AttributeError:
 					log.error('Recipeint %s is missing attribute %s' % (str(self.recipient), placeholder))
-			html = html.replace(delimiter + placeholder + delimiter, replacement)
+				html = html.replace(delimiter + placeholder + delimiter, replacement)
 
 		if self.instance.urls_tracked:
 			instance     = self.instance
@@ -507,6 +497,21 @@ class InstanceRecipientDetails(models.Model):
 				})
 			])
 			html += '<img src="%s" />' % open_tracking_url
+
+		# Replace the unsubscribe URL after everything else
+		html = re.sub(
+			re.escape(delimiter) + 'unsubscribe' + re.escape(delimiter),
+			'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
+				'?'.join([
+					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+					urllib.urlencode({
+						'recipient':self.recipient.pk,
+						'email'    :self.instance.email.pk,
+						'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.instance.email.pk)
+					})
+				]),
+			html,
+			flags=re.IGNORECASE)
 
 		return html
 
