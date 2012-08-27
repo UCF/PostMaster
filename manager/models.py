@@ -356,7 +356,7 @@ class Email(models.Model):
 				msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
 
 				if text is not None:
-					msg.attach(MIMEText(text_explanation + text, 'plain', _charset='us-ascii' ))
+					msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
 				try:
 					amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
