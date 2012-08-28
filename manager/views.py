@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
 from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen, RecipientAttribute
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm, RecipientAttributeCreateUpdateForm, RecipientSearchForm
+from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm, RecipientAttributeUpdateForm, RecipientAttributeCreateForm, RecipientSearchForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -243,7 +243,7 @@ class RecipientAttributeListView(RecipientsMixin, ListView):
 class RecipientAttributeCreateView(RecipientsMixin, CreateView):
 	model         = RecipientAttribute
 	template_name = 'manager/recipientattribute-create.html'
-	form_class    = RecipientAttributeCreateUpdateForm
+	form_class    = RecipientAttributeCreateForm
 
 	def dispatch(self, request, *args, **kwargs):
 		self._recipient = get_object_or_404(Recipient, pk=kwargs['pk'])
@@ -277,7 +277,7 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
 class RecipientAttributeUpdateView(RecipientsMixin, UpdateView):
 	model               = RecipientAttribute
 	template_name       = 'manager/recipientattribute-update.html'
-	form_class          = RecipientAttributeCreateUpdateForm
+	form_class          = RecipientAttributeUpdateForm
 	context_object_name = 'attribute'
 
 	def get_success_url(self):

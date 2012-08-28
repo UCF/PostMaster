@@ -10,7 +10,7 @@
 {% block page-body %}
 <form class="form-horizontal" action="{% url manager-recipientattribute-update attribute.pk %}" method="post">
 	<fieldset>
-		<legend>Update Recipient Attribute for {{attribute.recipient.email_address}}</legend>
+		<legend>Update <em>{{attribute.name}}</em> Attribute for {{attribute.recipient.email_address}}</legend>
 		{% for error in form.non_field_errors %}
 			<div class="alert alert-error">
 				{{error}}
