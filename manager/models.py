@@ -24,6 +24,11 @@ class Recipient(models.Model):
 
 	email_address   = models.CharField(max_length=255, unique=True)
 
+	def save(self, *args, **kwargs):
+		if self.pk is None:
+			self.email_address = self.email_address.lower()
+		super(Recipient, self).save(*args, **kwargs)
+
 	def __getattr__(self, name):
 		'''
 			Try to lookup a missing attribute in RecipientAttribute if it's not defined.
