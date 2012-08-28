@@ -188,8 +188,9 @@ class RecipientCreateView(RecipientsMixin, CreateView):
 
 	def form_valid(self, form):
 		messages.success(self.request, 'Recipient sucessefully created.')
+		response = super(RecipientCreateView, self).form_valid(form)
 		self.object.set_groups(form.cleaned_data['groups'])
-		return super(RecipientCreateView, self).form_valid(form)
+		return response
 
 	def get_success_url(self):
 		return reverse('manager-recipient-update', args=(), kwargs={'pk':self.object.pk})
