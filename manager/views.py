@@ -260,7 +260,7 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
 
 	def get_success_url(self):
 		messages.success(self.request, 'Recipient attribute successfully created.')
-		return reverse('manager-recipient', args=(), kwargs={'pk':self._recipient.pk})
+		return reverse('manager-recipient-recipientattributes', args=(), kwargs={'pk':self._recipient.pk})
 
 class RecipientAttributeUpdateView(RecipientsMixin, UpdateView):
 	model               = RecipientAttribute
