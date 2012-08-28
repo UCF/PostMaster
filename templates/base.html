@@ -45,6 +45,7 @@
 				{% endblock %}
 			</header>
 			<section class="span8 offset2">
+				{% block messages-breadcrumbs %}
 				{% if user.is_authenticated %}
 				<ul class="breadcrumb">
 					<li><a href="{% url manager-home %}">Home</a> <span class="divider">/</span></li>
@@ -59,6 +60,7 @@
 					</div>
 					{% endfor %}
 				{% endif %}
+				{% endblock %}
 				{% block page-body %}{% endblock %}
 			</section>
 		</div>
