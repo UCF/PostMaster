@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
 from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen, RecipientAttribute
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm, RecipientAttributeCreateUpdateForm
+from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm, RecipientAttributeCreateUpdateForm, RecipientSearchForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -179,6 +179,20 @@ class RecipientListView(RecipientsMixin, ListView):
 	template_name       = 'manager/recipients.html'
 	context_object_name = 'recipients'
 	paginate_by         = 20
+
+	def get_queryset(self):
+		self._search_form  = RecipientSearchForm(self.request.GET)
+		self._search_valid = self._search_form.is_valid()
+		if self._search_valid:
+			return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
+		else:
+			return Recipient.objects.all()
+
+	def get_context_data(self, **kwargs):
+		context                 = super(RecipientListView, self).get_context_data(**kwargs)
+		context['search_form']  = self._search_form
+		context['search_valid'] = self._search_valid
+		return context
 
 class RecipientCreateView(RecipientsMixin, CreateView):
 	model               = Recipient

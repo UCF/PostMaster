@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
 	{{block.super}}
+	{% if search_valid %}
+	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
+	<li class="active"><a href="{% url manager-recipients %}?email_address={{search_form.email_address.value}}"> Search Results for <em>{{search_form.email_address.value}}</em></a></li>
+	{% else %}
 	<li class="active"><a href="{% url manager-recipients %}">Recipients</a></li>
+	{% endif %}
 {% endblock %}
 {% block page-body %}
 <ul class="nav nav-pills pull-right" style="margin-bottom:0;">
@@ -14,9 +19,9 @@
 		</ul>
 	</li>
 </ul>
-<h2>Recipients</h2>
-{% if is_paginated %}
+<h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
 <div class="pagination">
+	{% if is_paginated %}
 	<ul>
 		{% if page_obj.has_previous %}
 		<li>
@@ -32,8 +37,11 @@
 			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
 		</li>
 	</ul>
+	{% endif %}
+	<form class="form-search pull-right" style="vertical-align:middle;margin-bottom:0;margin-top:4px;" action="{% url manager-recipients %}" method="get">
+		{{search_form.email_address}} <button type="submit" class="btn">Search</button>
+	</form>
 </div>
-{% endif %}
 <table class="table">
 	<thead>
 		<tr>

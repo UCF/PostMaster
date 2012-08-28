@@ -31,3 +31,6 @@ class RecipientAttributeCreateUpdateForm(forms.ModelForm):
 	class Meta:
 		model   = RecipientAttribute
 		exclude = ('recipient',)
+
+class RecipientSearchForm(forms.Form):
+	email_address = forms.CharField(widget=forms.TextInput(attrs={'class':'input-medium search-query'}))
