@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+	{{block.super}}
+	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+	<li><a href="{% url manager-email-update instance.email.pk %}">{{instance.email.title}}</a> <span class="divider">/</span></li>
+	<li><a href="{% url manager-email-instances instance.email.pk %}">Instances</a> <span class="divider">/</span></li>
+	<li class="active"><a href="{% url manager-email-instance instance.pk %}">{{instance.start}}</a></li>
+{% endblock %}
 {% block page-body %}
 	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}</small></h2>
 	{% if instance.in_process %}

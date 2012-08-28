@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+	{{block.super}}
+	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+	<li><a href="{% url manager-email-update email.pk %}">{{email.title}}</a> <span class="divider">/</span></li>
+	<li class="active"><a href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a></li>
+{% endblock %}
 {% block page-body %}
 <h2>{{email.title}} Unsubscriptions</h2>
 {% if is_paginated %}
@@ -28,7 +34,7 @@
 	</thead>
 	<tbody>
 		{% for recipient in recipients %}
-		<tr data-link-url="{% url manager-recipient recipient.pk %}">
+		<tr data-link-url="{% url manager-recipient-update recipient.pk %}">
 			<td>{{recipient.email_address}}</td>
 		</tr>
 		{% endfor %}

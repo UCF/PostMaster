@@ -17,7 +17,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		super(RecipientCreateUpdateForm, self).__init__(*args, **kwargs)
-		if self.instance is not None:
+		if self.instance.pk is not None:
 			self.fields['groups'].initial = self.instance.groups.all()
 
 	groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(), )

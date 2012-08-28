@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+	{{block.super}}
+	<li class="active"><a href="{% url manager-emails %}">Emails</a></li>
+{% endblock %}
 {% block page-body %}
 <ul class="nav nav-pills pull-right" style="margin-bottom:0;">
 	<li class="dropdown">

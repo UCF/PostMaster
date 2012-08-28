@@ -27,6 +27,9 @@
 									<a href="{% url manager-emails %}">Emails</a>
 								</li>
 								<li{% if section == 'recipients' %} class="active"{% endif %}>
+									<a href="{% url manager-recipients %}">Recipients</a>
+								</li>
+								<li{% if section == 'recipientgroupss' %} class="active"{% endif %}>
 									<a href="{% url manager-recipientgroups %}">Recipient Groups</a>
 								</li>
 							</ul>
@@ -42,6 +45,10 @@
 				{% endblock %}
 			</header>
 			<section class="span8 offset2">
+				<ul class="breadcrumb">
+					<li><a href="{% url manager-home %}">Home</a> <span class="divider">/</span></li>
+					{% block breadcrumbs %}{% endblock %}
+				</ul>
 				{% if messages %}
 					{% for message in messages %}
 					<div class="alert{% if message.tags %} {{message.tags}}{% endif %}">

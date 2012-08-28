@@ -25,6 +25,12 @@ class EmailsMixin(object):
 		context['section'] = 'emails'
 		return context
 
+class RecipientGroupsMixin(object):
+	def get_context_data(self, **kwargs):
+		context            = super(RecipientGroupsMixin, self).get_context_data(**kwargs)
+		context['section'] = 'recipientgroups'
+		return context
+
 class RecipientsMixin(object):
 	def get_context_data(self, **kwargs):
 		context            = super(RecipientsMixin, self).get_context_data(**kwargs)
@@ -115,15 +121,15 @@ class InstanceDetailView(EmailsMixin, DetailView):
 	context_object_name = 'instance'
 
 ##
-# Recipients
+# Recipients Groups
 ##
-class RecipientGroupListView(RecipientsMixin, ListView):
+class RecipientGroupListView(RecipientGroupsMixin, ListView):
 	model               = RecipientGroup
 	template_name       = 'manager/recipientgroups.html'
 	context_object_name = 'groups'
 	paginate_by         = 20
 
-class RecipientGroupCreateView(RecipientsMixin, CreateView):
+class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
 	model         = RecipientGroup
 	template_name = 'manager/recipientgroup-create.html'
 	form_class    = RecipientGroupCreateUpdateForm
@@ -135,7 +141,7 @@ class RecipientGroupCreateView(RecipientsMixin, CreateView):
 	def get_success_url(self):
 		return reverse('manager-recipientgroup-update', args=(), kwargs={'pk':self.object.pk})
 
-class RecipientGroupUpdateView(RecipientsMixin, UpdateView):
+class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
 	model         = RecipientGroup
 	template_name = 'manager/recipientgroup-update.html'
 	form_class    = RecipientGroupCreateUpdateForm
@@ -147,7 +153,7 @@ class RecipientGroupUpdateView(RecipientsMixin, UpdateView):
 	def get_success_url(self):
 		return reverse('manager-recipientgroup-update', args=(), kwargs={'pk':self.object.pk})
 
-class RecipientListView(RecipientsMixin, ListView):
+class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
 	model               = Recipient
 	template_name       = 'manager/recipientgroup-recipients.html'
 	context_object_name = 'recipients'
@@ -155,15 +161,24 @@ class RecipientListView(RecipientsMixin, ListView):
 
 	def dispatch(self, request, *args, **kwargs):
 		self._recipient_group = get_object_or_404(RecipientGroup, pk=kwargs['pk'])
-		return super(RecipientListView, self).dispatch(request, *args, **kwargs)
+		return super(RecipientGroupRecipientListView, self).dispatch(request, *args, **kwargs)
 
 	def get_queryset(self):
 		return Recipient.objects.filter(groups=self._recipient_group)
 
 	def get_context_data(self, **kwargs):
-		context                    = super(RecipientListView, self).get_context_data(**kwargs)
-		context['recipient_group'] = self._recipient_group
+		context                    = super(RecipientGroupRecipientListView, self).get_context_data(**kwargs)
+		context['recipientgroup'] = self._recipient_group
 		return context
+
+##
+# Recipients
+##
+class RecipientListView(RecipientsMixin, ListView):
+	model               = Recipient
+	template_name       = 'manager/recipients.html'
+	context_object_name = 'recipients'
+	paginate_by         = 20
 
 class RecipientCreateView(RecipientsMixin, CreateView):
 	model               = Recipient

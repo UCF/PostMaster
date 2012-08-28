@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+	{{block.super}}
+	<li class="active"><a href="{% url manager-recipientgroups %}">Recipient Groups</a></li>
+{% endblock %}
 {% block page-body %}
 <ul class="nav nav-pills pull-right" style="margin-bottom:0;">
 	<li class="dropdown">
@@ -7,7 +11,6 @@
 		</a>
 		<ul class="dropdown-menu">
 			<li><a href="{% url manager-recipientgroup-create %}">Create New Recipient Group</a></li>
-			<li><a href="{% url manager-recipient-create %}">Create New Recipient</a></li>
 		</ul>
 	</li>
 </ul>
