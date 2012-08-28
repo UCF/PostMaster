@@ -45,10 +45,12 @@
 				{% endblock %}
 			</header>
 			<section class="span8 offset2">
+				{% if user.is_authenticated %}
 				<ul class="breadcrumb">
 					<li><a href="{% url manager-home %}">Home</a> <span class="divider">/</span></li>
 					{% block breadcrumbs %}{% endblock %}
 				</ul>
+				{% endif %}
 				{% if messages %}
 					{% for message in messages %}
 					<div class="alert{% if message.tags %} {{message.tags}}{% endif %}">
