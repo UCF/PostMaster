@@ -280,22 +280,6 @@ class RecipientAttributeUpdateView(RecipientsMixin, UpdateView):
 	form_class          = RecipientAttributeCreateUpdateForm
 	context_object_name = 'attribute'
 
-
-	def form_valid(self, form):
-
-		# Check the unique_together(recipient, name) here. It can't be done in the Form class
-		name = form.cleaned_data['name']
-		try:
-			RecipientAttribute.objects.get(name=name, recipient=self.object.recipient)
-		except RecipientAttribute.DoesNotExist:
-			pass
-		else:
-			from django.forms.util import ErrorList
-			form._errors['name'] = ErrorList([u'A attribute with that name already exists for this recipient.'])
-			return super(RecipientAttributeUpdateView, self).form_invalid(form)
-
-		return super(RecipientAttributeUpdateView, self).form_valid(form)
-
 	def get_success_url(self):
 		messages.success(self.request, 'Recipient attribute successfully updated.')
 		return reverse('manager-recipientattribute-update', args=(), kwargs={'pk':self.object.pk})
