@@ -300,6 +300,16 @@ class RecipientAttributeUpdateView(RecipientsMixin, UpdateView):
 		messages.success(self.request, 'Recipient attribute successfully updated.')
 		return reverse('manager-recipientattribute-update', args=(), kwargs={'pk':self.object.pk})
 
+class RecipientAttributeDeleteView(RecipientsMixin, DeleteView):
+	model                = RecipientAttribute
+	template_name        = 'manager/recipientattribute-delete.html'
+	template_name_suffix = '-delete-confirm'
+	context_object_name  = 'attribute'
+
+	def get_success_url(self):
+		messages.success(self.request, 'Attribute sucessefully deleted.')
+		return reverse('manager-recipient-recipientattributes', args=(), kwargs={'pk':self.object.recipient.pk})
+
 ##
 # Tracking
 ##
