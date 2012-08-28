@@ -4,8 +4,8 @@ from django.views.generic.list   import ListView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
-from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm
+from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen, RecipientAttribute
+from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm, RecipientAttributeCreateUpdateForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -165,11 +165,6 @@ class RecipientListView(RecipientsMixin, ListView):
 		context['recipient_group'] = self._recipient_group
 		return context
 
-class RecipientDetailView(RecipientsMixin, DetailView):
-	model               = Recipient
-	template_name       = 'manager/recipient.html'
-	context_object_name = 'recipient'
-
 class RecipientCreateView(RecipientsMixin, CreateView):
 	model               = Recipient
 	template_name       = 'manager/recipient-create.html'
@@ -196,6 +191,56 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
 
 	def get_success_url(self):
 		return reverse('manager-recipient-update', args=(), kwargs={'pk':self.object.pk})
+
+class RecipientAttributeListView(RecipientsMixin, ListView):
+	model               = RecipientAttribute
+	template_name       = 'manager/recipient-recipientattributes.html'
+	context_object_name = 'attributes'
+	pageinate_by        = 20
+
+	def dispatch(self, request, *args, **kwargs):
+		self._recipient = get_object_or_404(Recipient, pk=kwargs['pk'])
+		return super(RecipientAttributeListView, self).dispatch(request, *args, **kwargs)
+
+	def get_queryset(self):
+		return RecipientAttribute.objects.filter(recipient=self._recipient)
+
+	def get_context_data(self, **kwargs):
+		context              = super(RecipientAttributeListView, self).get_context_data(**kwargs)
+		context['recipient'] = self._recipient
+		return context
+
+class RecipientAttributeCreateView(RecipientsMixin, CreateView):
+	model         = RecipientAttribute
+	template_name = 'manager/recipientattribute-create.html'
+	form_class    = RecipientAttributeCreateUpdateForm
+
+	def dispatch(self, request, *args, **kwargs):
+		self._recipient = get_object_or_404(Recipient, pk=kwargs['pk'])
+		return super(RecipientAttributeCreateView, self).dispatch(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context              = super(RecipientAttributeCreateView, self).get_context_data(**kwargs)
+		context['recipient'] = self._recipient
+		return context
+
+	def form_valid(self, form):
+		form.instance.recipient = self._recipient
+		return super(RecipientAttributeCreateView, self).form_valid(form)
+
+	def get_success_url(self):
+		messages.success(self.request, 'Recipient attribute successfully created.')
+		return reverse('manager-recipient', args=(), kwargs={'pk':self._recipient.pk})
+
+class RecipientAttributeUpdateView(RecipientsMixin, UpdateView):
+	model               = RecipientAttribute
+	template_name       = 'manager/recipientattribute-update.html'
+	form_class          = RecipientAttributeCreateUpdateForm
+	context_object_name = 'attribute'
+
+	def get_success_url(self):
+		messages.success(self.request, 'Recipient attribute successfully updated.')
+		return reverse('manager-recipientattribute-update', args=(), kwargs={'pk':self.object.pk})
 
 ##
 # Tracking

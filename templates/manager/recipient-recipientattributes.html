@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<ul class="nav nav-pills pull-right" style="margin-bottom:0;">
+	<li class="dropdown">
+		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			Actions <b class="caret"></b>
+		</a>
+		<ul class="dropdown-menu">
+			<li><a href="{% url manager-recipientattribute-create recipient.pk %}">Create New Attribute</a></li>
+		</ul>
+	</li>
+</ul>
+<h2>Recipient Attributes for {{recipient.email_address}}</h2>
+{% if is_paginated %}
+<div class="pagination">
+	<ul>
+		{% if page_obj.has_previous %}
+		<li>
+			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
+		</li>
+		{% endif %}
+		{% if page_obj.has_next %}
+		<li>
+			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
+		</li>
+		{% endif %}
+		<li class="active">
+			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+		</li>
+	</ul>
+</div>
+{% endif %}
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for attribute in attributes %}
+		<tr data-link-url="{% url manager-recipientattribute-update attribute.pk %}">
+			<td>{{attribute.name}}</td>
+			<td>{{attribute.value}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

@@ -18,13 +18,15 @@ urlpatterns = patterns('manager.views',
 	url(r'^emails/$',                            login_required(EmailListView.as_view()),                name='manager-emails'),
 
 	# Recipients
-	url(r'^recipientgroups/$',                       login_required(RecipientGroupListView.as_view()),   name='manager-recipientgroups'),
-	url(r'^recipientgroup/create/$',                 login_required(RecipientGroupCreateView.as_view()), name='manager-recipientgroup-create'),
-	url(r'^recipientgroup/(?P<pk>\d+)/update/$',     login_required(RecipientGroupUpdateView.as_view()), name='manager-recipientgroup-update'),
-	url(r'^recipientgroup/(?P<pk>\d+)/recipients/$', login_required(RecipientListView.as_view()),        name='manager-recipientgroup-recipients'),
-	url(r'^recipient/create/$',                      login_required(RecipientCreateView.as_view()),      name='manager-recipient-create'),
-	url(r'^recipient/(?P<pk>\d+)/update/$',          login_required(RecipientUpdateView.as_view()),      name='manager-recipient-update'),
-	url(r'^recipient/(?P<pk>\d+)/$',                 login_required(RecipientDetailView.as_view()),      name='manager-recipient'),
+	url(r'^recipientgroups/$',                        login_required(RecipientGroupListView.as_view()),       name='manager-recipientgroups'),
+	url(r'^recipientgroup/create/$',                  login_required(RecipientGroupCreateView.as_view()),     name='manager-recipientgroup-create'),
+	url(r'^recipientgroup/(?P<pk>\d+)/update/$',      login_required(RecipientGroupUpdateView.as_view()),     name='manager-recipientgroup-update'),
+	url(r'^recipientgroup/(?P<pk>\d+)/recipients/$',  login_required(RecipientListView.as_view()),            name='manager-recipientgroup-recipients'),
+	url(r'^recipient/create/$',                       login_required(RecipientCreateView.as_view()),          name='manager-recipient-create'),
+	url(r'^recipient/attribute/(?P<pk>\d+)/update/$', login_required(RecipientAttributeUpdateView.as_view()), name='manager-recipientattribute-update'),
+	url(r'^recipient/(?P<pk>\d+)/attribute/create/$', login_required(RecipientAttributeCreateView.as_view()), name='manager-recipientattribute-create'),
+	url(r'^recipient/(?P<pk>\d+)/attributes/$',       login_required(RecipientAttributeListView.as_view()),   name='manager-recipient-recipientattributes'),
+	url(r'^recipient/(?P<pk>\d+)/update/$',           login_required(RecipientUpdateView.as_view()),          name='manager-recipient-update'),
 
 	url(r'^$', login_required(direct_to_template), kwargs={'template':'manager/instructions.html'}, name='manager-home'),
 )

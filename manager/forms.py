@@ -1,5 +1,5 @@
 from django         import forms
-from manager.models import Email, RecipientGroup, Recipient
+from manager.models import Email, RecipientGroup, Recipient, RecipientAttribute
 
 class EmailCreateUpdateForm(forms.ModelForm):
 
@@ -25,3 +25,9 @@ class RecipientCreateUpdateForm(forms.ModelForm):
 	class Meta:
 		model   = Recipient
 		exclude = ('recipients',)
+
+class RecipientAttributeCreateUpdateForm(forms.ModelForm):
+
+	class Meta:
+		model   = RecipientAttribute
+		exclude = ('recipient',)
