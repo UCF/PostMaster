@@ -118,7 +118,7 @@ class GMUCFImporter(Importer):
 						%s.manager_recipient recipient
 					WHERE
 						recipient.email_address NOT IN (
-							SELECT email FROM %s.smca_gmucf
+							SELECT LOWER(email) FROM %s.smca_gmucf
 						)
 				)''' % (
 			self.postmaster_db_name,
@@ -133,11 +133,11 @@ class GMUCFImporter(Importer):
 				%s.manager_recipient(email_address)
 			(
 				SELECT
-					email
+					LOWER(email)
 				FROM
 					%s.smca_gmucf
 				WHERE
-					email NOT IN (
+					LOWER(email) NOT IN (
 						SELECT email_address FROM %s.manager_recipient
 					)
 			)
@@ -155,14 +155,14 @@ class GMUCFImporter(Importer):
 			(
 				SELECT 
 					recipient.id AS recipient_id,
-					'first_name' AS name,
+					'Preferred Name' AS name,
 					gmucf.first_name AS value
 				FROM
 					%s.manager_recipient recipient
 				JOIN
 					%s.smca_gmucf AS gmucf
 				ON
-					recipient.email_address = gmucf.email
+					recipient.email_address = LOWER(gmucf.email)
 			)
 			ON DUPLICATE KEY UPDATE value=value
 		''' % (
@@ -183,7 +183,7 @@ class GMUCFImporter(Importer):
 					%s.manager_recipient recipient
 				WHERE
 					recipient.email_address IN (
-						SELECT email FROM %s.smca_gmucf
+						SELECT LOWER(email) FROM %s.smca_gmucf
 					) AND
 					recipient.id NOT IN (
 						SELECT
