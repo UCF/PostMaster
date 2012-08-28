@@ -25,12 +25,12 @@
 	<ul>
 		{% if page_obj.has_previous %}
 		<li>
-			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
+			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev">Prev</a>
 		</li>
 		{% endif %}
 		{% if page_obj.has_next %}
 		<li>
-			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
+			<a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next">Next</a>
 		</li>
 		{% endif %}
 		<li class="active">
