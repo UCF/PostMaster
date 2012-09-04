@@ -251,7 +251,7 @@ class Email(models.Model):
 			Fetch and decode the remote text.
 			Raise TextContentMissingException is the source_text_uri field is blank.
 		'''
-		if self.source_text_uri is None:
+		if self.source_text_uri is None or self.source_text_uri == '':
 			raise self.TextContentMissingException()
 		else:
 			try:
