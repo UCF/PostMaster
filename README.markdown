@@ -51,4 +51,4 @@ Upgrading
 
 Windows Event Logger
 --------------------
-To utilize the Windows event logger log handler, win32 Python extensions must be installed. They can be downloaded here: http://sourceforge.net/projects/pywin32/
+To utilize the Windows event logger log handler, the win32 Python extensions must be installed. They can be downloaded here: http://sourceforge.net/projects/pywin32/
