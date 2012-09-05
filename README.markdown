@@ -10,7 +10,7 @@ Requirements
 
 Configuration
 ----------
-- Be sure the application can read and write to logs/application.log
+- Be sure the application can read and write to logs/application.log or, if using, the Windows event logger (see settings_local.py) be sure the win32 Python extensions are installed. They can be downloaded here: http://sourceforge.net/projects/pywin32/
 - Modify the following variables in settings_local.py based on the the deployment environment. An explanation of each is included in the file.
 	- PROJECT_URL
 	- DATABASES
@@ -48,3 +48,7 @@ Upgrading
 	- Create `manager_email.source_text_uri` column with the following definition: `VARCHAR(200) NULL DEFAULT NULL AFTER source_html_uri`
 	- Rename `TEST_EMAIL_SOURCE_URI` to `TEST_EMAIL_SOURCE_HTML_URI` in settings_local.py
 	- Add `TEST_EMAIL_SOURCE_TEXT_URI` setting to settings_local.py (see settings_local.template.py)
+
+Windows Event Logger
+--------------------
+To utilize the Windows event logger log handler, win32 Python extensions must be installed. They can be downloaded here: http://sourceforge.net/projects/pywin32/
