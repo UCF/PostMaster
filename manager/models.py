@@ -399,7 +399,6 @@ class Instance(models.Model):
 	requested_start = models.TimeField()
 	start           = models.DateTimeField(auto_now_add=True)
 	end             = models.DateTimeField(null=True)
-	sent            = models.IntegerField(default=0)
 	recipients      = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
 	opens_tracked   = models.BooleanField(default=False)
 	urls_tracked    = models.BooleanField(default=False)
