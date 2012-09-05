@@ -432,6 +432,7 @@ class Instance(models.Model):
 		else:
 			return False
 
+	@property
 	def open_rate(self, significance=2):
 		'''
 			Open rate of this instance as a percent.
