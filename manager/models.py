@@ -140,7 +140,7 @@ class EmailManager(models.Manager):
 			send_time__gte = send_interval_start,
 			send_time__lte = send_interval_end).exclude(
 				instances__requested_start = F('send_time'),
-				instances__end             = None
+				instnaces__end             = None
 			)
 
 
@@ -351,41 +351,46 @@ class Email(models.Model):
 		)
 
 		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
-
 		try:
-			amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-			amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-		except smtplib.SMTPException, e:
-			log.exception('Unable to connect to Amazon')
-			raise self.EmailException()
-		else:
-			for recipient in recipients:
-				instance_recipient_details = InstanceRecipientDetails(
-					recipient=recipient,
-					instance =instance
-				)
+			try:
+				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+				amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+			except smtplib.SMTPException, e:
+				log.exception('Unable to connect to Amazon')
+				raise self.EmailException()
+			else:
+				for recipient in recipients:
+					instance_recipient_details = InstanceRecipientDetails(
+						recipient=recipient,
+						instance =instance
+					)
 
-				# Use alterantive subclass here so that both HTML and plain
-				# versions can be attached
-				msg            = MIMEMultipart('alternative')
-				msg['subject'] = self.subject + str(additional_subject)
-				msg['From']    = self.smtp_from_address
-				msg['To']      = recipient.email_address
+					# Use alterantive subclass here so that both HTML and plain
+					# versions can be attached
+					msg            = MIMEMultipart('alternative')
+					msg['subject'] = self.subject + str(additional_subject)
+					msg['From']    = self.smtp_from_address
+					msg['To']      = recipient.email_address
 
-				msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
+					msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
 
-				if text is not None:
-					msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
+					if text is not None:
+						msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
-				try:
-					amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
-				except smtplib.SMTPException, e:
-					instance_recipient_details.exception_msg = str(e)
-				time.sleep(settings.AMAZON_SMTP['rate'])
-				instance_recipient_details.save()
-			amazon.quit()
-		instance.end        = datetime.now()
-		instance.save()
+					try:
+						amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+					except smtplib.SMTPException, e:
+						instance_recipient_details.exception_msg = str(e)
+					time.sleep(settings.AMAZON_SMTP['rate'])
+					instance_recipient_details.save()
+				amazon.quit()
+				instance.success = True
+		except Exception, e:
+			instance.success = False
+			log.exception('Unable to send email.')
+		finally:
+			instance.end = datetime.now()
+			instance.save()
 
 	def __str__(self):
 		return self.title
@@ -399,6 +404,7 @@ class Instance(models.Model):
 	requested_start = models.TimeField()
 	start           = models.DateTimeField(auto_now_add=True)
 	end             = models.DateTimeField(null=True)
+	success         = models.NullBooleanField(default=None)
 	recipients      = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
 	opens_tracked   = models.BooleanField(default=False)
 	urls_tracked    = models.BooleanField(default=False)
