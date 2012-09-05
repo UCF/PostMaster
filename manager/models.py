@@ -361,6 +361,9 @@ class Email(models.Model):
 			)
 
 		try:
+			# It's possible to refactor this sending block to be multi-threaded.
+			# Use the instancerecipientdetails.when field as a sent/not sent flag
+			# in order to implement queue-like functionality.
 			try:
 				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 				amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
