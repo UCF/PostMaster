@@ -178,6 +178,9 @@ class Email(models.Model):
 	class TextContentMissingException(EmailException):
 		pass
 
+	class HTMLContentMissingException(EmailException):
+		pass
+
 	class Recurs:
 		never, daily, weekly, biweekly, monthly = range(0,5)
 		choices = (
@@ -241,13 +244,16 @@ class Email(models.Model):
 		'''
 			Fetch and decode the remote html.
 		'''
-		try:
-			page    = urllib.urlopen(self.source_html_uri)
-			content = page.read()
-			return content.decode('ascii', 'ignore')
-		except IOError, e:
-			log.exception('Unable to fetch email html')
-			raise self.EmailException()
+		if self.source_html_uri == '':
+			raise HTMLContentMissingException()
+		else:
+			try:
+				page    = urllib.urlopen(self.source_html_uri)
+				content = page.read()
+				return content.decode('ascii', 'ignore')
+			except IOError, e:
+				log.exception('Unable to fetch email html')
+				raise self.EmailException()
 
 	@property
 	def text(self):
