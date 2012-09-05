@@ -34,7 +34,11 @@ Testing
 
 Upgrading
 ---------
-- v1.0.10 to v1.0.11
+- To v1.0.21
+	- Remove `manager_instance.in_progress` column
+	- Create `manager_instance.requested_start` column with the following definitions: `TIME NOT NULL AFTER send_html`
+	- Run the following SQL query: `UPDATE manager_instance JOIN manager_email ON manager_instance.email_id = manager_email.id SET manager_instance.requested_start = manager_email.send_time`
+- To v1.0.11
 	- Rename `manager_email.source_uri` column to `manager_email.source_html_uri`
 	- Create `manager_email.source_text_uri` column with the following definition: `VARCHAR(200) NULL DEFAULT NULL AFTER source_html_uri`
 	- Rename `TEST_EMAIL_SOURCE_URI` to `TEST_EMAIL_SOURCE_HTML_URI` in settings_local.py

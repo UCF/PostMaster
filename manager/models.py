@@ -1,7 +1,7 @@
 from django.db                import models
 from django.conf              import settings
 from datetime                 import datetime, timedelta
-from django.db.models         import Q
+from django.db.models         import Q, F
 from util                     import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.core.urlresolvers import reverse
 from email.mime.multipart     import MIMEMultipart
@@ -138,7 +138,11 @@ class EmailManager(models.Manager):
 		return Email.objects.sending_today(now=now).filter(
 			active         = True,
 			send_time__gte = send_interval_start,
-			send_time__lte = send_interval_end)
+			send_time__lte = send_interval_end).exclude(
+				instances__requested_start = F('send_time'),
+				instances__end             = None
+			)
+
 
 	def previewing_now(self, now=None):
 		if now is None:
@@ -339,10 +343,11 @@ class Email(models.Model):
 			text = None
 
 		instance = Instance.objects.create(
-			email         = self,
-			sent_html     = html,
-			opens_tracked = self.track_opens,
-			urls_tracked  = self.track_urls
+			email           = self,
+			sent_html       = html,
+			requested_start = self.send_time,
+			opens_tracked   = self.track_opens,
+			urls_tracked    = self.track_urls
 		)
 
 		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
@@ -389,14 +394,15 @@ class Instance(models.Model):
 	'''
 		Describes what happens when an email is actual sent.
 	'''
-	email         = models.ForeignKey(Email, related_name='instances')
-	sent_html     = models.TextField()
-	start         = models.DateTimeField(auto_now_add=True)
-	end           = models.DateTimeField(null=True)
-	sent          = models.IntegerField(default=0)
-	recipients    = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
-	opens_tracked = models.BooleanField(default=False)
-	urls_tracked  = models.BooleanField(default=False)
+	email           = models.ForeignKey(Email, related_name='instances')
+	sent_html       = models.TextField()
+	requested_start = models.TimeField()
+	start           = models.DateTimeField(auto_now_add=True)
+	end             = models.DateTimeField(null=True)
+	sent            = models.IntegerField(default=0)
+	recipients      = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
+	opens_tracked   = models.BooleanField(default=False)
+	urls_tracked    = models.BooleanField(default=False)
 	
 	@property
 	def in_progress(self):
