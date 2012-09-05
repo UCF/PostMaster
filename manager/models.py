@@ -341,7 +341,6 @@ class Email(models.Model):
 		instance = Instance.objects.create(
 			email         = self,
 			sent_html     = html,
-			in_progress   = True,
 			opens_tracked = self.track_opens,
 			urls_tracked  = self.track_urls
 		)
@@ -380,7 +379,6 @@ class Email(models.Model):
 				time.sleep(settings.AMAZON_SMTP['rate'])
 				instance_recipient_details.save()
 			amazon.quit()
-		instance.in_progress = False
 		instance.end        = datetime.now()
 		instance.save()
 
@@ -395,12 +393,18 @@ class Instance(models.Model):
 	sent_html     = models.TextField()
 	start         = models.DateTimeField(auto_now_add=True)
 	end           = models.DateTimeField(null=True)
-	in_progress   = models.BooleanField(default=False)
 	sent          = models.IntegerField(default=0)
 	recipients    = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
 	opens_tracked = models.BooleanField(default=False)
 	urls_tracked  = models.BooleanField(default=False)
 	
+	@property
+	def in_progress(self):
+		if self.start is not None and self.end is None:
+			return True
+		else:
+			return False
+
 	def open_rate(self, significance=2):
 		'''
 			Open rate of this instance as a percent.
