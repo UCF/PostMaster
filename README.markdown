@@ -40,6 +40,7 @@ Upgrading
 	- Run the following SQL query: `UPDATE manager_instance JOIN manager_email ON manager_instance.email_id = manager_email.id SET manager_instance.requested_start = manager_email.send_time`
 	- Remove `manager_instance.sent` column
 	- Create `manager_instance.success` column with the followign defintion: `TINYINT(1) NULL DEFAULT NULL AFTER end`
+	- Run the following SQL query: `UPDATE manager_instance SET success = 1;`
 - To v1.0.11
 	- Rename `manager_email.source_uri` column to `manager_email.source_html_uri`
 	- Create `manager_email.source_text_uri` column with the following definition: `VARCHAR(200) NULL DEFAULT NULL AFTER source_html_uri`
