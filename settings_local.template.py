@@ -89,3 +89,9 @@ TEST_EMAIL_RECIPIENT = ''
 # Source URIs that test emails will use
 TEST_EMAIL_SOURCE_HTML_URI = ''
 TEST_EMAIL_SOURCE_TEXT_URI = ''
+
+# Logging to the Windows Event Log
+# Note: the python win32 extensions must be installed for this to work:
+# http://sourceforge.net/projects/pywin32/
+# To enable, uncomment the following line.
+# LOGGING['loggers']['manager']['handlers'] = ['nteventlog']

@@ -91,6 +91,12 @@ LOGGING = {
 			'filename': os.path.join(PROJECT_FOLDER,'logs', 'application.log'),
 			'formatter':'concise',
 			'filters': ['require_debug_false']
+		},
+		'nteventlog': {
+			'level'  : 'INFO',
+			'class'  : 'logging.handlers.NTEventLogHandler',
+			'appname': 'postmaster',
+			'filters': ['require_debug_false']
 		}
 	},
 	'loggers': {
