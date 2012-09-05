@@ -215,3 +215,4 @@ class EmailTestCase(TestCase):
 		self.email.send_time = (datetime.now() + timedelta(seconds=settings.PREVIEW_LEAD_TIME + 30)).time()
 		self.email.save()
 		self.email.send_preview()
+		self.assertTrue(PreviewInstance.objects.count() == 1)

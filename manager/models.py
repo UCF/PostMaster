@@ -155,7 +155,9 @@ class EmailManager(models.Manager):
 			active         = True,
 			preview        = True,
 			send_time__gte = preview_interval_start,
-			send_time__lte = preview_interval_end)
+			send_time__lte = preview_interval_end).exclude(
+				instances__requested_start = F('send_time')
+			)
 
 
 class Email(models.Model):
@@ -305,6 +307,12 @@ class Email(models.Model):
 			log.exception('Unable to connect to Amazon')
 			raise self.AmazonConnectionException()
 		else:
+			preview_instance = PreviewInstance.objects.create(
+				email           = self,
+				recipients      = self.preview_recipients,
+				requested_start = self.send_time
+			)
+
 			for recipient in recipients:
 				# Use alterantive subclass here so that both HTML and plain
 				# versions can be attached
@@ -444,6 +452,15 @@ class Instance(models.Model):
 
 	class Meta:
 		ordering = ('-start',)
+
+class PreviewInstance(models.Model):
+	'''
+		Record that a preview was sent
+	'''
+	email           = models.ForeignKey(Email, related_name='previews')
+	recipients      = models.TextField()
+	requested_start = models.TimeField()
+	when            = models.DateTimeField(auto_now_add=True)
 
 class InstanceRecipientDetails(models.Model):
 	'''
