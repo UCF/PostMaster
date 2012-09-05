@@ -42,6 +42,7 @@ Upgrading
 	- Create `manager_instance.success` column with the followign defintion: `TINYINT(1) NULL DEFAULT NULL AFTER end`
 	- Run the following SQL query: `UPDATE manager_instance SET success = 1;`
 	- Remove `manager_instancerecipientdetails.exception_type` column
+	- Modify `manager_instancerecipeintdetails.when` to the following definition `DATETIME NULL DEFAULT NULL`
 - To v1.0.11
 	- Rename `manager_email.source_uri` column to `manager_email.source_html_uri`
 	- Create `manager_email.source_text_uri` column with the following definition: `VARCHAR(200) NULL DEFAULT NULL AFTER source_html_uri`

@@ -351,6 +351,15 @@ class Email(models.Model):
 		)
 
 		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
+
+		# Create all the instancerecipientdetails before hand so in case sending
+		# fails, we know who hasn't been sent too
+		for recipient in recipients:
+			InstanceRecipientDetails.objects.create(
+				recipient = recipient,
+				instance  = instance
+			)
+
 		try:
 			try:
 				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
@@ -359,11 +368,7 @@ class Email(models.Model):
 				log.exception('Unable to connect to Amazon')
 				raise self.EmailException()
 			else:
-				for recipient in recipients:
-					instance_recipient_details = InstanceRecipientDetails(
-						recipient=recipient,
-						instance =instance
-					)
+				for instance_recipient_details in instance.recipient_details.all():
 
 					# Use alterantive subclass here so that both HTML and plain
 					# versions can be attached
@@ -381,8 +386,10 @@ class Email(models.Model):
 						amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
 					except smtplib.SMTPException, e:
 						instance_recipient_details.exception_msg = str(e)
+					finally:
+						instance_recipient_details.when = datetime.now()
+						instance_recipient_details.save()
 					time.sleep(settings.AMAZON_SMTP['rate'])
-					instance_recipient_details.save()
 				amazon.quit()
 				instance.success = True
 		except Exception, e:
@@ -433,10 +440,10 @@ class InstanceRecipientDetails(models.Model):
 		Describes what happens when an instance of an email is sent to specific
 		recipient.
 	'''
-	
+
 	recipient      = models.ForeignKey(Recipient, related_name='instance_receipts')
 	instance       = models.ForeignKey(Instance, related_name='recipient_details')
-	when           = models.DateTimeField(auto_now_add=True)
+	when           = models.DateTimeField(null=True)
 	exception_msg  = models.TextField(null=True, blank=True)
 
 	@property
