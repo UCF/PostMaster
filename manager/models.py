@@ -433,18 +433,10 @@ class InstanceRecipientDetails(models.Model):
 		Describes what happens when an instance of an email is sent to specific
 		recipient.
 	'''
-
-	_EXCEPTION_CHOICES = (
-		(0, 'SMTPRecipientsRefused'),
-		(1, 'SMTPHeloError'),
-		(2, 'SMTPSenderRefused'),
-		(3, 'SMTPDataError')
-	)
-
+	
 	recipient      = models.ForeignKey(Recipient, related_name='instance_receipts')
 	instance       = models.ForeignKey(Instance, related_name='recipient_details')
 	when           = models.DateTimeField(auto_now_add=True)
-	exception_type = models.SmallIntegerField(null=True, blank=True, choices=_EXCEPTION_CHOICES)
 	exception_msg  = models.TextField(null=True, blank=True)
 
 	@property
