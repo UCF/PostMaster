@@ -122,7 +122,7 @@ MESSAGE_TAGS = {
 }
 
 DOT = ''
-with open(os.path.join(PROJECT_FOLDER, 'static', 'img', 'dot.png'), 'r') as dot:
+with open(os.path.join(PROJECT_FOLDER, 'static', 'img', 'dot.png'), 'rb') as dot:
 	DOT = dot.read()
 
 try:
