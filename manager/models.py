@@ -107,15 +107,6 @@ class EmailManager(models.Manager):
 			now = datetime.now()
 		today = now.date()
 
-		# The day of the week integers are different between python and django
-		# date.weekday() - Monday is 0 and Sunday is 6
-		# date__week_day - Sunday is 1 and Saturday is 7
-		week_day = today.weekday()
-		if week_day == 6:
-			week_day == 1
-		else:
-			week_day += 2
-
 		return Email.objects.filter(
 			Q(
 				# One-time
@@ -123,7 +114,7 @@ class EmailManager(models.Manager):
 				# Daily
 				Q(recurrence=self.model.Recurs.daily) |
 				# Weekly
-				Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=week_day)) |
+				Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) |
 				# Monthly
 				Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
 			),
