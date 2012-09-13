@@ -42,7 +42,7 @@ Upgrading
 	- Create `manager_instance.success` column with the followign defintion: `TINYINT(1) NULL DEFAULT NULL AFTER end`
 	- Run the following SQL query: `UPDATE manager_instance SET success = 1;`
 	- Remove `manager_instancerecipientdetails.exception_type` column
-	- Modify `manager_instancerecipeintdetails.when` to the following definition `DATETIME NULL DEFAULT NULL`
+	- Modify `manager_instancerecipientdetails.when` to the following definition `DATETIME NULL DEFAULT NULL`
 	- Run `python manage.py syncdb` to create the `manager_previewinstance` table
 - To v1.0.11
 	- Rename `manager_email.source_uri` column to `manager_email.source_html_uri`
