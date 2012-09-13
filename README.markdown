@@ -39,7 +39,7 @@ Upgrading
 	- Create `manager_instance.requested_start` column with the following definition: `TIME NOT NULL AFTER sent_html`
 	- Run the following SQL query: `UPDATE manager_instance JOIN manager_email ON manager_instance.email_id = manager_email.id SET manager_instance.requested_start = manager_email.send_time`
 	- Remove `manager_instance.sent` column
-	- Create `manager_instance.success` column with the followign defintion: `TINYINT(1) NULL DEFAULT NULL AFTER end`
+	- Create `manager_instance.success` column with the followign definition: `TINYINT(1) NULL DEFAULT NULL AFTER end`
 	- Run the following SQL query: `UPDATE manager_instance SET success = 1;`
 	- Remove `manager_instancerecipientdetails.exception_type` column
 	- Modify `manager_instancerecipientdetails.when` to the following definition `DATETIME NULL DEFAULT NULL`
