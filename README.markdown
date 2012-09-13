@@ -36,7 +36,7 @@ Upgrading
 ---------
 - To v1.0.21
 	- Remove `manager_instance.in_progress` column
-	- Create `manager_instance.requested_start` column with the following definition: `TIME NOT NULL AFTER send_html`
+	- Create `manager_instance.requested_start` column with the following definition: `TIME NOT NULL AFTER sent_html`
 	- Run the following SQL query: `UPDATE manager_instance JOIN manager_email ON manager_instance.email_id = manager_email.id SET manager_instance.requested_start = manager_email.send_time`
 	- Remove `manager_instance.sent` column
 	- Create `manager_instance.success` column with the followign defintion: `TINYINT(1) NULL DEFAULT NULL AFTER end`
