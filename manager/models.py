@@ -383,7 +383,7 @@ class Email(models.Model):
 					msg            = MIMEMultipart('alternative')
 					msg['subject'] = self.subject + str(additional_subject)
 					msg['From']    = self.smtp_from_address
-					msg['To']      = recipient.email_address
+					msg['To']      = instance_recipient_details.recipient.email_address
 
 					msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
 
@@ -391,7 +391,7 @@ class Email(models.Model):
 						msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
 					try:
-						amazon.sendmail(self.from_email_address, recipient.email_address, msg.as_string())
+						amazon.sendmail(self.from_email_address, instance_recipient_details.recipient.email_address, msg.as_string())
 					except smtplib.SMTPException, e:
 						instance_recipient_details.exception_msg = str(e)
 					finally:
