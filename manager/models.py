@@ -131,7 +131,7 @@ class EmailManager(models.Manager):
 			send_time__gte = send_interval_start,
 			send_time__lte = send_interval_end).exclude(
 				instances__requested_start = F('send_time'),
-				instnaces__end             = None
+				instances__end             = None
 			)
 
 
