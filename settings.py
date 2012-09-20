@@ -55,64 +55,6 @@ AUTHENTICATION_BACKENDS = (
 	'manager.auth.Backend',
 )
 
-LOGGING = {
-	'version':1,
-	'disable_existing_loggers':True,
-	'filters': {
-		'require_debug_true': {
-			'()': 'logs.RequiredDebugTrue',
-		},
-		'require_debug_false': {
-			'()': 'logs.RequiredDebugFalse',
-		}
-	},
-	'formatters': {
-		'talkative': {
-			'format':'[%(asctime)s]%(levelname)s:%(module)s:%(funcName)s:%(lineno)d:%(message)s'
-		},
-		'concise': {
-			'format':'%(levelname)s: %(message)s (%(asctime)s)'
-		}
-	},
-	'handlers': {
-		'discard': {
-			'level':'DEBUG',
-			'class':'django.utils.log.NullHandler'
-		},
-		'console': {
-			'level':'DEBUG',
-			'class':'logging.StreamHandler',
-			'formatter':'talkative',
-			'filters': ['require_debug_true']
-		},
-		'file': {
-			'level': 'INFO',
-			'class':'logging.FileHandler',
-			'filename': os.path.join(PROJECT_FOLDER,'logs', 'application.log'),
-			'formatter':'concise',
-			'filters': ['require_debug_false']
-		},
-		'nteventlog': {
-			'level'  : 'INFO',
-			'class'  : 'logging.handlers.NTEventLogHandler',
-			'appname': 'postmaster',
-			'filters': ['require_debug_false']
-		}
-	},
-	'loggers': {
-		'django': {
-			'handlers':['discard'],
-			'propogate': True,
-			'level':'INFO'
-		},
-		'manager': {
-			'handlers':['console', 'file'],
-			'propogate': True,
-			'level':'DEBUG'
-		},
-	}
-}
-
 MESSAGE_TAGS = {
 	message_constants.DEBUG   : '',
 	message_constants.INFO    : 'alert-info',
