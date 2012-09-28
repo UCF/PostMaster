@@ -141,13 +141,12 @@ class EmailManager(models.Manager):
 		preview_lead_time           = timedelta(seconds=settings.PREVIEW_LEAD_TIME)
 		preview_interval_start      = (now + preview_lead_time).time()
 		preview_interval_end        = (now + preview_lead_time + self.processing_interval_duration).time()
-
 		return Email.objects.sending_today(now=now).filter(
 			active         = True,
 			preview        = True,
 			send_time__gte = preview_interval_start,
 			send_time__lte = preview_interval_end).exclude(
-				instances__requested_start = F('send_time')
+				previews__requested_start = F('send_time')
 			)
 
 
