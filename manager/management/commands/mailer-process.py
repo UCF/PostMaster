@@ -13,12 +13,20 @@ class Command(BaseCommand):
 	'''
 
 	def handle(self, *args, **options):
-		now = datetime.now()
+		log.info('The mailer-process command is starting...')
 
-		for email in Email.objects.previewing_now(now=now):
+		now       = datetime.now()
+		previews  = Email.objects.previewing_now(now=now)
+		instances = Email.objects.sending_now(now=now)
+
+		log.info('There are %d previews to send.' % len(previews))
+		for email in previews:
 			log.info('Previewing the following email now: %s ' % email.title)
 			email.send_preview()
 
-		for email in Email.objects.sending_now(now=now):
+		log.info('There are %d instances to send.' % len(instances))
+		for email in instances:
 			log.info('Sending the following email now %s' % email.title)
 			email.send()
+
+		log.info('The mailer-process command is finished.')
