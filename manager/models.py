@@ -126,12 +126,17 @@ class EmailManager(models.Manager):
 			now = datetime.now()
 		send_interval_start = now.time()
 		send_interval_end   = (now + self.processing_interval_duration).time()
-		return Email.objects.sending_today(now=now).filter(
-			send_time__gte = send_interval_start,
-			send_time__lte = send_interval_end).exclude(
-				instances__requested_start = F('send_time'),
-				instances__end             = None
-			)
+		
+		# Exclude emails outside this sending interval
+		# Exclude emails with instances that have the same requested_start or
+		# or are in progress (end=None)
+		email_pks = []
+		for candidate in Email.objects.sending_today(now=now):
+			if email.send_time >= send_interval_start and email.send_time <= send_interval_end:
+				requested_start = datetime.combine(now.date(), candidate.send_time)
+				if email.instances.filter(requested_start=requested_start).count() == 0:
+					email_pks.append(email.pk)
+		return Email.objects.filter(pk__in=email_pks)
 
 
 	def previewing_now(self, now=None):
@@ -140,13 +145,17 @@ class EmailManager(models.Manager):
 		preview_lead_time           = timedelta(seconds=settings.PREVIEW_LEAD_TIME)
 		preview_interval_start      = (now + preview_lead_time).time()
 		preview_interval_end        = (now + preview_lead_time + self.processing_interval_duration).time()
-		return Email.objects.sending_today(now=now).filter(
-			preview        = True,
-			send_time__gte = preview_interval_start,
-			send_time__lte = preview_interval_end).exclude(
-				previews__requested_start = F('send_time')
-			)
 
+		# Exclude emails outside this previewing interval
+		# Exclude emails with instances that have the same requested_start or
+		# or are in progress (end=None)
+		email_pks = []
+		for candidate in Email.objects.sending_today(now=now).filter(preview=True):
+			if email.send_time >= preview_interval_start and email.send_time <= preview_interval_end:
+				requested_start = datetime.combine(now.date(), candidate.send_time)
+				if email.instances.filter(requested_start=requested_start).count() == 0:
+					email_pks.append(email.pk)
+		return Email.objects.filter(pk__in=email_pks)
 
 class Email(models.Model):
 	'''
@@ -413,7 +422,7 @@ class Instance(models.Model):
 	'''
 	email           = models.ForeignKey(Email, related_name='instances')
 	sent_html       = models.TextField()
-	requested_start = models.TimeField()
+	requested_start = models.DateFieldTimeField()
 	start           = models.DateTimeField(auto_now_add=True)
 	end             = models.DateTimeField(null=True)
 	success         = models.NullBooleanField(default=None)
@@ -447,7 +456,7 @@ class PreviewInstance(models.Model):
 	'''
 	email           = models.ForeignKey(Email, related_name='previews')
 	recipients      = models.TextField()
-	requested_start = models.TimeField()
+	requested_start = models.DateTimeField()
 	when            = models.DateTimeField(auto_now_add=True)
 
 class InstanceRecipientDetails(models.Model):
