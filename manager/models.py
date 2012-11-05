@@ -307,7 +307,7 @@ class Email(models.Model):
 			preview_instance = PreviewInstance.objects.create(
 				email           = self,
 				recipients      = self.preview_recipients,
-				requested_start = self.send_time
+				requested_start = datetime.combine(datetime.now().today(), self.send_time)
 			)
 
 			for recipient in recipients:
@@ -356,7 +356,7 @@ class Email(models.Model):
 		instance = Instance.objects.create(
 			email           = self,
 			sent_html       = html,
-			requested_start = self.send_time,
+			requested_start = datetime.combine(datetime.now().today(), self.send_time),
 			opens_tracked   = self.track_opens,
 			urls_tracked    = self.track_urls
 		)
