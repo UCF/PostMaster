@@ -34,6 +34,9 @@ Testing
 
 Upgrading
 ---------
+- To v1.0.27
+	- Modify `manager_previewinstance.requested_start` to have the following defintion: `DATETIME NOT NULL`
+	- Modify `manager_instance.requested_start` to have the following defintion: `DATETIME NOT NULL`
 - To v1.0.21
 	- Remove `manager_instance.in_progress` column
 	- Create `manager_instance.requested_start` column with the following definition: `TIME NOT NULL AFTER sent_html`
