@@ -19,12 +19,12 @@ class Command(BaseCommand):
 		previews  = Email.objects.previewing_now(now=now)
 		instances = Email.objects.sending_now(now=now)
 
-		log.info('There are %d previews to send.' % len(previews))
+		log.info('There is/are %d preview(s) to send.' % len(previews))
 		for email in previews:
 			log.info('Previewing the following email now: %s ' % email.title)
 			email.send_preview()
 
-		log.info('There are %d instances to send.' % len(instances))
+		log.info('There is/are %d instance(s) to send.' % len(instances))
 		for email in instances:
 			log.info('Sending the following email now %s' % email.title)
 			email.send()
