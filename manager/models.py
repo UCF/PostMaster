@@ -135,7 +135,7 @@ class EmailManager(models.Manager):
 			if candidate.send_time >= send_interval_start and candidate.send_time <= send_interval_end:
 				requested_start = datetime.combine(now.date(), candidate.send_time)
 				if candidate.instances.filter(requested_start=requested_start).count() == 0:
-					candidate_pks.append(candidate.pk)
+					email_pks.append(candidate.pk)
 		return Email.objects.filter(pk__in=email_pks)
 
 
@@ -154,7 +154,7 @@ class EmailManager(models.Manager):
 			if candidate.send_time >= preview_interval_start and candidate.send_time <= preview_interval_end:
 				requested_start = datetime.combine(now.date(), candidate.send_time)
 				if candidate.previews.filter(requested_start=requested_start).count() == 0:
-					candidate_pks.append(candidate.pk)
+					email_pks.append(candidate.pk)
 		return Email.objects.filter(pk__in=email_pks)
 
 class Email(models.Model):
