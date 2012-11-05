@@ -76,7 +76,7 @@ class EmailTestCase(TestCase):
 			track_urls         = True,
 			track_opens        = True,
 			preview            = True,
-			preview_recipients = settings.TEST_EMAIL_RECIPIENT
+			preview_recipients = settings.TEST_EMAIL_PREVIEW_RECIPIENTS
 			)
 		self.email.recipient_groups.add(self.group)
 		self.email.recipient_groups.add(self.second_group)
