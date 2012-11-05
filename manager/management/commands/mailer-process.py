@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
 		log.info('There is/are %d instance(s) to send.' % len(instances))
 		for email in instances:
-			log.info('Sending the following email now %s' % email.title)
+			log.info('Sending the following email now: %s' % email.title)
 			email.send()
 
 		log.info('The mailer-process command is finished.')
