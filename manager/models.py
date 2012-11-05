@@ -422,7 +422,7 @@ class Instance(models.Model):
 	'''
 	email           = models.ForeignKey(Email, related_name='instances')
 	sent_html       = models.TextField()
-	requested_start = models.DateFieldTimeField()
+	requested_start = models.DateTimeField()
 	start           = models.DateTimeField(auto_now_add=True)
 	end             = models.DateTimeField(null=True)
 	success         = models.NullBooleanField(default=None)
