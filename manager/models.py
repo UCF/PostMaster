@@ -132,10 +132,10 @@ class EmailManager(models.Manager):
 		# or are in progress (end=None)
 		email_pks = []
 		for candidate in Email.objects.sending_today(now=now):
-			if email.send_time >= send_interval_start and email.send_time <= send_interval_end:
+			if candidate.send_time >= send_interval_start and candidate.send_time <= send_interval_end:
 				requested_start = datetime.combine(now.date(), candidate.send_time)
-				if email.instances.filter(requested_start=requested_start).count() == 0:
-					email_pks.append(email.pk)
+				if candidate.instances.filter(requested_start=requested_start).count() == 0:
+					candidate_pks.append(candidate.pk)
 		return Email.objects.filter(pk__in=email_pks)
 
 
@@ -151,10 +151,10 @@ class EmailManager(models.Manager):
 		# or are in progress (end=None)
 		email_pks = []
 		for candidate in Email.objects.sending_today(now=now).filter(preview=True):
-			if email.send_time >= preview_interval_start and email.send_time <= preview_interval_end:
+			if candidate.send_time >= preview_interval_start and candidate.send_time <= preview_interval_end:
 				requested_start = datetime.combine(now.date(), candidate.send_time)
-				if email.instances.filter(requested_start=requested_start).count() == 0:
-					email_pks.append(email.pk)
+				if candidate.instances.filter(requested_start=requested_start).count() == 0:
+					candidate_pks.append(candidate.pk)
 		return Email.objects.filter(pk__in=email_pks)
 
 class Email(models.Model):
