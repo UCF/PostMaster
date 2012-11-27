@@ -58,7 +58,7 @@ AMAZON_SMTP = {
 	'username': '',
 	'password': '',
 	'quota'   : 500000, # per 24 hours
-	'rate'    : 1/70 # 5 per second
+	'rate'    : float(1)/float(70) # 70 per second
 }
 
 # NET Domain LDAP CONFIG
