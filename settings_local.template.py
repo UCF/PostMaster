@@ -57,8 +57,8 @@ AMAZON_SMTP = {
 	'port'    : 465,
 	'username': '',
 	'password': '',
-	'quota'   : 10000, # per 24 hours
-	'rate'    : 1/5 # 5 per second
+	'quota'   : 500000, # per 24 hours
+	'rate'    : 1/70 # 5 per second
 }
 
 # NET Domain LDAP CONFIG
