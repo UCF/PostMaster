@@ -370,7 +370,7 @@ class Email(models.Model):
 		# Create all the instancerecipientdetails before hand so in case sending
 		# fails, we know who hasn't been sent too
 		for recipient in recipients:
-			recipient_queue.put(
+			recipient_details_queue.put(
 				InstanceRecipientDetails.objects.create(
 					recipient = recipient,
 					instance  = instance))
@@ -386,7 +386,7 @@ class Email(models.Model):
 			display_from      = self.smtp_from_address
 			real_from         = self.from_email_address
 
-			class ThottlingThread(threading.Thread):
+			class ThrottlingThread(threading.Thread):
 				def run(self):
 					while queue_empty != True:
 						tick += 1
@@ -400,6 +400,7 @@ class Email(models.Model):
 						amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
 						amazon_connections.append(amazon)
 					except smtplib.SMTPException, e:
+						print str(e)
 						log.exception('Unable to connect to Amazon')
 						raise Email.EmailException()
 					else:
@@ -435,24 +436,25 @@ class Email(models.Model):
 
 							recipient_details.task_done()
 
-				print 'Spin up timer thread'
-				throttling_thread = ThrottlingThread()
-				throttling_thread.start()
-				
-				for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
-					print 'Spin up sending thread %d' % i
-					sending_thread = SendingThread()
-					sending_thread.start()
+			print 'Spin up timer thread'
+			throttling_thread = ThrottlingThread()
+			throttling_thread.start()
+			
+			for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
+				print 'Spin up sending thread %d' % i
+				sending_thread = SendingThread()
+				sending_thread.start()
 
-				recipient_queue.join()
-				queue_empty = True # stop the throttling thread
+			recipient_details_queue.join()
+			queue_empty = True # stop the throttling thread
 
-				# Close the amazon connections
-				for connection in amazon_connections:
-					connection.logout()
+			# Close the amazon connections
+			for connection in amazon_connections:
+				connection.logout()
 
-				instance.success = True
+			instance.success = True
 		except Exception, e:
+			print str(e)
 			instance.success = False
 			log.exception('Unable to send email.')
 		finally:
