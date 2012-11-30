@@ -1,4 +1,4 @@
-from django.db                import models
+7from django.db                import models
 from django.conf              import settings
 from datetime                 import datetime, timedelta
 from django.db.models         import Q, F
@@ -435,10 +435,12 @@ class Email(models.Model):
 
 							recipient_details.task_done()
 
+				print 'Spin up timer thread'
 				throttling_thread = ThrottlingThread()
 				throttling_thread.start()
 				
 				for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
+					print 'Spin up sending thread %d' % i
 					sending_thread = SendingThread()
 					sending_thread.start()
 
@@ -597,7 +599,7 @@ class InstanceRecipientDetails(models.Model):
 
 		# Replace the unsubscribe URL after everything else
 		html = re.sub(
-			re.escape(delimiter) + 'unsubscribe' + re.escape(delimiter),
+			re.escape(delimiter) + 'UNSUBCRIBE' + re.escape(delimiter),
 			'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
 				'?'.join([
 					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
@@ -607,8 +609,7 @@ class InstanceRecipientDetails(models.Model):
 						'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.instance.email.pk)
 					})
 				]),
-			html,
-			flags=re.IGNORECASE)
+			html)
 
 		return html
 
