@@ -15,6 +15,7 @@ import re
 import urllib
 import time
 import Queue
+import threading
 
 log = logging.getLogger(__name__)
 
@@ -364,7 +365,7 @@ class Email(models.Model):
 
 		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
 
-		recipient_queue = Queue.Queue()
+		recipient_details_queue = Queue.Queue()
 
 		# Create all the instancerecipientdetails before hand so in case sending
 		# fails, we know who hasn't been sent too
@@ -375,39 +376,79 @@ class Email(models.Model):
 					instance  = instance))
 
 		try:
-			# It's possible to refactor this sending block to be multi-threaded.
-			# Use the instancerecipientdetails.when field as a sent/not sent flag
-			# in order to implement queue-like functionality.
-			try:
-				amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-				amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-			except smtplib.SMTPException, e:
-				log.exception('Unable to connect to Amazon')
-				raise self.EmailException()
-			else:
-				for instance_recipient_details in instance.recipient_details.all():
 
-					# Use alterantive subclass here so that both HTML and plain
-					# versions can be attached
-					msg            = MIMEMultipart('alternative')
-					msg['subject'] = self.subject + str(additional_subject)
-					msg['From']    = self.smtp_from_address
-					msg['To']      = instance_recipient_details.recipient.email_address
+			# The interval between ticks is one second. This is used to make
+			# sure that the threads don't exceed the sending limit
+			tick              = 0
+			queue_empty       = False
+			amazon_connection = []
+			subject           = self.subject + str(additional_subject)
+			display_from      = self.smtp_from_address
+			real_from         = self.from_email_address
 
-					msg.attach(MIMEText(instance_recipient_details.html, 'html', _charset='us-ascii'))
+			class ThottlingThread(threading.Thread):
+				def run(self):
+					while queue_empty != True:
+						tick += 1
+						time.sleep(1)
 
-					if text is not None:
-						msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
-
+			def SendingThread(threading.Thread):
+				def run(self):
+					# Connect to Amazon
 					try:
-						amazon.sendmail(self.from_email_address, instance_recipient_details.recipient.email_address, msg.as_string())
+						amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+						amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+						amazon_connections.append(amazon)
 					except smtplib.SMTPException, e:
-						instance_recipient_details.exception_msg = str(e)
-					finally:
-						instance_recipient_details.when = datetime.now()
-						instance_recipient_details.save()
-					time.sleep(settings.AMAZON_SMTP['rate'])
-				amazon.quit()
+						log.exception('Unable to connect to Amazon')
+						raise Email.EmailException()
+					else:
+						prev_tick = None
+						while True:
+							# if prev_tick == tick then it means that this thread
+							# came back around in the same second. This could
+							# be a throttling problem so sleep a little and
+							# try again.
+							if prev_tick is not None and tick == prev_tick:
+								time.sleep(.25)
+								continue
+
+							recipient_details = recipient_details_queue.get()
+
+							msg            = MIMEMultipart('alternative')
+							msg['subject'] = subject
+							msg['From']    = display_from
+							msg['To']      = recipient_details.recipient.email_address
+
+							msg.attach(MIMEText(recipient_details.html, 'html', _charset='us-ascii'))
+
+							if text is not None:
+								msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
+
+							try:
+								amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+							except smtplib.SMTPException, e:
+								recipient_details.exception_msg = str(e)
+							finally:
+								recipient_details.when = datetime.now()
+								recipient_details.save()
+
+							recipient_details.task_done()
+
+				throttling_thread = ThrottlingThread()
+				throttling_thread.start()
+				
+				for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
+					sending_thread = SendingThread()
+					sending_thread.start()
+
+				recipient_queue.join()
+				queue_empty = True # stop the throttling thread
+
+				# Close the amazon connections
+				for connection in amazon_connections:
+					connection.logout()
+
 				instance.success = True
 		except Exception, e:
 			instance.success = False
