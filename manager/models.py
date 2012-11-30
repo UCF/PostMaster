@@ -418,7 +418,7 @@ class Email(models.Model):
 								# be a throttling problem so sleep a little and
 								# try again.
 								if prev_tick is not None and prev_tick == tick:
-									time.sleep(.25)
+									time.sleep(.10)
 									continue
 								else:
 									prev_tick = tick
