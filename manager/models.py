@@ -14,6 +14,7 @@ import smtplib
 import re
 import urllib
 import time
+import Queue
 
 log = logging.getLogger(__name__)
 
@@ -363,13 +364,15 @@ class Email(models.Model):
 
 		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
 
+		recipient_queue = Queue.Queue()
+
 		# Create all the instancerecipientdetails before hand so in case sending
 		# fails, we know who hasn't been sent too
 		for recipient in recipients:
-			InstanceRecipientDetails.objects.create(
-				recipient = recipient,
-				instance  = instance
-			)
+			recipient_queue.put(
+				InstanceRecipientDetails.objects.create(
+					recipient = recipient,
+					instance  = instance))
 
 		try:
 			# It's possible to refactor this sending block to be multi-threaded.
