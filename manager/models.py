@@ -380,6 +380,7 @@ class Email(models.Model):
 			# The interval between ticks is one second. This is used to make
 			# sure that the threads don't exceed the sending limit
 			tick               = 0
+			tick_interval      = float(1)
 			amazon_connections = []
 			subject            = self.subject + str(additional_subject)
 			display_from       = self.smtp_from_address
@@ -390,10 +391,16 @@ class Email(models.Model):
 					Empty the queue as fast a possible doing no processing
 				'''
 				while True:
+					if recipient_details_queue.empty():
+						break
 					recipient_details_queue.get()
 					recipient_details_queue.task_done()
 
 			class SendingThread(threading.Thread):
+				def __init__(self, *args, **kwargs):
+					self.html_lock = kwargs.pop('html_lock')
+					super(SendingThread, self).__init__(*args, **kwargs)
+
 				def run(self):
 					try:
 						try:
@@ -426,7 +433,11 @@ class Email(models.Model):
 								msg['From']    = display_from
 								msg['To']      = recipient_details.recipient.email_address
 
-								msg.attach(MIMEText(recipient_details.html, 'html', _charset='us-ascii'))
+								self.html_lock.acquire()
+								customized_html = recipient_details.html
+								self.html_lock.release()
+
+								msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
 
 								if text is not None:
 									msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
@@ -435,11 +446,11 @@ class Email(models.Model):
 								try:
 									amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
 								except smtplib.SMTPResponseException, e:
+									log.error(str(e))
 									if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
-										# put this recipient back in the queue
 										recipient_details_queue.put(recipient_details)
-										# kill this thread
-										break
+										tick_interval += float(.10)
+										continue
 									recipient_details.exception_msg = str(e)
 								finally:
 									recipient_details.when = datetime.now()
@@ -447,23 +458,28 @@ class Email(models.Model):
 
 								recipient_details_queue.task_done()
 					except Exception, e:
+						log.error(str(e))
 						# It there is an exception that ends up here, we need to empty the queue
 						# or else the main thread will be blocked will block forever. 
 						empty_queue()
 						raise
 
+			html_lock = threading.Lock()
 			for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
-				sending_thread = SendingThread()
+				sending_thread = SendingThread(html_lock=html_lock)
 				sending_thread.start()
 
 			# Block the main thread until the queue is empty
 			while not recipient_details_queue.empty():
+				time.sleep(tick_interval)
 				tick += 1
-				time.sleep(1)
 
 			# Close the amazon connections
 			for connection in amazon_connections:
-				connection.quit()
+				try:
+					connection.quit()
+				except:
+					pass
 
 			instance.success = True
 		except Exception, e:
