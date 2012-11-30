@@ -386,21 +386,23 @@ class Email(models.Model):
 			display_from       = self.smtp_from_address
 			real_from          = self.from_email_address
 
+			def empty_queue():
+				'''
+					Empty the queue as fast a possible doing no processing
+				'''
+				while True:
+					recipient_details_queue.get()
+					recipient_details_queue.task_done()
+
 			class ThrottlingThread(threading.Thread):
 				def run(self):
 					while queue_empty != True:
 						tick += 1
 						time.sleep(1)
 
-			def empty_queue():
-				while True:
-					recipient_details_queue.get()
-					recipient_details_queue.task_done()
-
 			class SendingThread(threading.Thread):
 				def run(self):
 					try:
-						# Connect to Amazon
 						try:
 							amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 							amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
@@ -443,8 +445,9 @@ class Email(models.Model):
 									recipient_details.when = datetime.now()
 									recipient_details.save()
 								recipient_details_queue.task_done()
-
 					except Exception, e:
+						# It there is an exception that ends up here, we need to empty the queue
+						# or else recipient_details_queue.join() will block forever. 
 						empty_queue()
 						raise
 
@@ -455,7 +458,7 @@ class Email(models.Model):
 				sending_thread = SendingThread()
 				sending_thread.start()
 
-			recipient_details_queue.join()
+			recipient_details_queue.join() # block until the queue is empty
 			queue_empty = True # stop the throttling thread
 
 			# Close the amazon connections
@@ -464,7 +467,6 @@ class Email(models.Model):
 
 			instance.success = True
 		except Exception, e:
-			print str(e)
 			instance.success = False
 			log.exception('Unable to send email.')
 		finally:
