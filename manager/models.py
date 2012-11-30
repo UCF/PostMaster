@@ -431,6 +431,7 @@ class Email(models.Model):
 								if text is not None:
 									msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
+								log.debug('thread: %s, tick: %d, email: %s' % (self.name, tick, recipient_details.recipient.email_address))
 								try:
 									amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
 								except smtplib.SMTPException, e:
