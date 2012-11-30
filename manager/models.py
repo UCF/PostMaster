@@ -380,7 +380,6 @@ class Email(models.Model):
 			# The interval between ticks is one second. This is used to make
 			# sure that the threads don't exceed the sending limit
 			tick               = 0
-			queue_empty        = False
 			amazon_connections = []
 			subject            = self.subject + str(additional_subject)
 			display_from       = self.smtp_from_address
@@ -393,12 +392,6 @@ class Email(models.Model):
 				while True:
 					recipient_details_queue.get()
 					recipient_details_queue.task_done()
-
-			class ThrottlingThread(threading.Thread):
-				def run(self):
-					while queue_empty != True:
-						tick += 1
-						time.sleep(1)
 
 			class SendingThread(threading.Thread):
 				def run(self):
@@ -415,6 +408,7 @@ class Email(models.Model):
 							while True:
 								if recipient_details_queue.empty():
 									break
+
 								# if prev_tick == tick then it means that this thread
 								# came back around in the same second. This could
 								# be a throttling problem so sleep a little and
@@ -444,22 +438,22 @@ class Email(models.Model):
 								finally:
 									recipient_details.when = datetime.now()
 									recipient_details.save()
+
 								recipient_details_queue.task_done()
 					except Exception, e:
 						# It there is an exception that ends up here, we need to empty the queue
-						# or else recipient_details_queue.join() will block forever. 
+						# or else the main thread will be blocked will block forever. 
 						empty_queue()
 						raise
 
-			throttling_thread = ThrottlingThread()
-			throttling_thread.start()
-			
 			for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
 				sending_thread = SendingThread()
 				sending_thread.start()
 
-			recipient_details_queue.join() # block until the queue is empty
-			queue_empty = True # stop the throttling thread
+			# Block the main thread until the queue is empty
+			while not recipient_details_queue.empty():
+				tick += 1
+				time.sleep(1)
 
 			# Close the amazon connections
 			for connection in amazon_connections:
