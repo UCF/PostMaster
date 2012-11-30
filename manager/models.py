@@ -392,7 +392,7 @@ class Email(models.Model):
 						tick += 1
 						time.sleep(1)
 
-			def SendingThread(threading.Thread):
+			class SendingThread(threading.Thread):
 				def run(self):
 					# Connect to Amazon
 					try:
