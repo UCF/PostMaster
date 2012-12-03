@@ -428,37 +428,40 @@ class Email(models.Model):
 
 								recipient_details = recipient_details_queue.get()
 
-								msg            = MIMEMultipart('alternative')
-								msg['subject'] = subject
-								msg['From']    = display_from
-								msg['To']      = recipient_details.recipient.email_address
-
-								self.html_lock.acquire()
-								customized_html = recipient_details.html
-								self.html_lock.release()
-
-								msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
-
-								if text is not None:
-									msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
-
-								log.debug('thread: %s, tick: %d, email: %s' % (self.name, tick, recipient_details.recipient.email_address))
 								try:
-									amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
-								except smtplib.SMTPResponseException, e:
-									log.error(str(e))
-									if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
-										recipient_details_queue.put(recipient_details)
-										tick_interval += float(.10)
-										continue
+									msg            = MIMEMultipart('alternative')
+									msg['subject'] = subject
+									msg['From']    = display_from
+									msg['To']      = recipient_details.recipient.email_address
+
+									self.html_lock.acquire()
+									customized_html = recipient_details.html
+									self.html_lock.release()
+
+									msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
+
+									if text is not None:
+										msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
+
+									log.debug('thread: %s, tick: %d, email: %s' % (self.name, tick, recipient_details.recipient.email_address))
+									try:
+										amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+									except smtplib.SMTPResponseException, e:
+										log.exception(str(e))
+										if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
+											recipient_details_queue.put(recipient_details)
+											tick_interval += float(.10)
+											continue
+										recipient_details.exception_msg = str(e)
+								except UnicodeEncodeError, e:
+									log.exception(str(e))
 									recipient_details.exception_msg = str(e)
 								finally:
 									recipient_details.when = datetime.now()
 									recipient_details.save()
-
 								recipient_details_queue.task_done()
 					except Exception, e:
-						log.error(str(e))
+						log.exception(str(e))
 						# It there is an exception that ends up here, we need to empty the queue
 						# or else the main thread will be blocked will block forever. 
 						empty_queue()
