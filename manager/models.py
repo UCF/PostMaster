@@ -16,6 +16,7 @@ import urllib
 import time
 import Queue
 import threading
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -249,9 +250,8 @@ class Email(models.Model):
 			raise HTMLContentMissingException()
 		else:
 			try:
-				page    = urllib.urlopen(self.source_html_uri)
-				content = page.read()
-				return content.decode('ascii', 'ignore')
+				request = requests.get(self.source_html_uri)
+				return request.text.decode('ascii', 'ignore')
 			except IOError, e:
 				log.exception('Unable to fetch email html')
 				raise self.EmailException()
