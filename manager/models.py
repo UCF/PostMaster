@@ -629,7 +629,7 @@ class InstanceRecipientDetails(models.Model):
 
 		# Replace the unsubscribe URL after everything else
 		html = re.sub(
-			re.escape(delimiter) + 'UNSUBCRIBE' + re.escape(delimiter),
+			re.escape(delimiter) + 'UNSUBSCRIBE' + re.escape(delimiter),
 			'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
 				'?'.join([
 					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
