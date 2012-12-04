@@ -385,6 +385,7 @@ class Email(models.Model):
 						log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
 						try:
 							amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+							recipient_details.when = datetime.now()
 						except smtplib.SMTPResponseException, e:
 							if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
 								log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
@@ -392,8 +393,7 @@ class Email(models.Model):
 								time.sleep(float(1) + random.random())
 								continue
 							recipient_details.exception_msg = str(e)
-						else:
-							recipient_details.when = datetime.now()
+						finally:
 							recipient_details.save()
 						amazon.quit()
 						recipient_details_queue.task_done()
@@ -402,7 +402,6 @@ class Email(models.Model):
 						log.exception('Thread Exception, emptying queue and exiting...')
 						self._empty_queue()
 						sucess = False
-
 
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
