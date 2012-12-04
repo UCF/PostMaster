@@ -381,7 +381,6 @@ class Email(models.Model):
 			# sure that the threads don't exceed the sending limit
 			tick               = 0
 			tick_interval      = float(1)
-			amazon_connections = []
 			subject            = self.subject + str(additional_subject)
 			display_from       = self.smtp_from_address
 			real_from          = self.from_email_address
@@ -403,16 +402,15 @@ class Email(models.Model):
 
 				def run(self):
 					try:
-						try:
-							amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-							amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-							amazon_connections.append(amazon)
-						except smtplib.SMTPException, e:
-							log.exception('Unable to connect to Amazon')
-							raise Email.EmailException()
-						else:
-							prev_tick = None
-							while True:
+						while True:
+							try:
+								amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+								amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+							except smtplib.SMTPException, e:
+								log.exception('Unable to connect to Amazon')
+								raise Email.EmailException()
+							else:
+								prev_tick = None
 								if recipient_details_queue.empty():
 									break
 
@@ -460,6 +458,7 @@ class Email(models.Model):
 									recipient_details.when = datetime.now()
 									recipient_details.save()
 								recipient_details_queue.task_done()
+								amazon.quit()
 					except Exception, e:
 						log.exception(str(e))
 						# It there is an exception that ends up here, we need to empty the queue
@@ -476,13 +475,6 @@ class Email(models.Model):
 			while not recipient_details_queue.empty():
 				time.sleep(tick_interval)
 				tick += 1
-
-			# Close the amazon connections
-			for connection in amazon_connections:
-				try:
-					connection.quit()
-				except:
-					pass
 
 			instance.success = True
 		except Exception, e:
