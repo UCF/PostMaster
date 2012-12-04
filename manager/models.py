@@ -407,7 +407,7 @@ class Email(models.Model):
 						recipient_details_queue.task_done()
 						log.exception('Thread Exception, emptying queue and exiting...')
 						self._empty_queue()
-						sucess = False
+						success = False
 
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
