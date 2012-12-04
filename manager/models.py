@@ -393,7 +393,7 @@ class Email(models.Model):
 								time.sleep(float(1) + random.random())
 								continue
 							recipient_details.exception_msg = str(e)
-						except SMTPServerDisconnected:
+						except smtplib.SMTPServerDisconnected:
 							# Conneciton error
 							log.debug('thread %s, connection error, sleeping for a bit')
 							time.sleep(float(1) + random.random())
