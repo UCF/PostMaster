@@ -393,6 +393,12 @@ class Email(models.Model):
 								time.sleep(float(1) + random.random())
 								continue
 							recipient_details.exception_msg = str(e)
+						except SMTPServerDisconnected:
+							# Conneciton error
+							log.debug('thread %s, connection error, sleeping for a bit')
+							time.sleep(float(1) + random.random())
+							recipient_details_queue.put(recipient_details)
+							continue
 						finally:
 							recipient_details.save()
 						amazon.quit()
