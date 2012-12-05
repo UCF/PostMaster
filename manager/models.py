@@ -348,14 +348,10 @@ class Email(models.Model):
 		'''
 
 		class SendingThread(threading.Thread):
-			def _empty_queue(self):
-				while True:
-					if recipient_details_queue.empty():
-						break
-					recipient_details_queue.get()
-					recipient_details_queue.task_done()
-
 			def run(self):
+				amazon    = None
+				reconnect = False
+				error     = False
 				while True:
 					if recipient_details_queue.empty():
 						log.debug('%s queue empty, exiting.' % self.name)
@@ -363,52 +359,52 @@ class Email(models.Model):
 
 					recipient_details = recipient_details_queue.get()
 
-					try:
-
-						amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-						amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-
-						msg            = MIMEMultipart('alternative')
-						msg['subject'] = subject
-						msg['From']    = display_from
-						msg['To']      = recipient_details.recipient.email_address
-
-						html_lock.acquire()
-						customized_html = recipient_details.html
-						html_lock.release()
-
-						msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
-
-						if text is not None:
-							msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
-
-						log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
+					if not error:
 						try:
-							amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
-							recipient_details.when = datetime.now()
-						except smtplib.SMTPResponseException, e:
-							if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
-								log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
-								recipient_details_queue.put(recipient_details)
+							if amazon is None or reconnect:
+								amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+								amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+								reconnect = False
+
+							msg            = MIMEMultipart('alternative')
+							msg['subject'] = subject
+							msg['From']    = display_from
+							msg['To']      = recipient_details.recipient.email_address
+
+							html_lock.acquire()
+							customized_html = recipient_details.html
+							html_lock.release()
+
+							msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
+
+							if text is not None:
+								msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
+
+							log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
+							try:
+								amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+								recipient_details.when = datetime.now()
+							except smtplib.SMTPResponseException, e:
+								if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
+									log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
+									recipient_details_queue.put(recipient_details)
+									time.sleep(float(1) + random.random())
+									continue
+								recipient_details.exception_msg = str(e)
+							except smtplib.SMTPServerDisconnected:
+								# Connection error
+								log.debug('thread %s, connection error, sleeping for a bit')
 								time.sleep(float(1) + random.random())
+								recipient_details_queue.put(recipient_details)
+								reconnect = True
 								continue
-							recipient_details.exception_msg = str(e)
-						except smtplib.SMTPServerDisconnected:
-							# Conneciton error
-							log.debug('thread %s, connection error, sleeping for a bit')
-							time.sleep(float(1) + random.random())
-							recipient_details_queue.put(recipient_details)
-							continue
-						finally:
-							recipient_details.save()
-						amazon.quit()
-						recipient_details_queue.task_done()
-					except Exception, e:
-						recipient_details_queue.task_done()
-						log.exception('Thread Exception, emptying queue and exiting...')
-						self._empty_queue()
-						success = False
-						break
+							finally:
+								recipient_details.save()
+						except Exception, e:
+							error   = True
+							success = False
+							log.exception('%s exception' % self.name)
+					recipient_details_queue.task_done()
 
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
