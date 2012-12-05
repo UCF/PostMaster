@@ -431,6 +431,7 @@ class Email(models.Model):
 				self.success_counter += 1
 				
 				if self.success_counter == ThrottleManager.THROTTLE_UP_THRESHOLD and self.allow_throttle_up:
+					log.debug('throttling up')
 					sending_thread = SendingThread()
 					sending_thread.start()
 					self.success_count = 0
