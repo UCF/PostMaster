@@ -353,7 +353,6 @@ class Email(models.Model):
 			_ERROR_THRESHOLD            = 20
 
 			def run(self):
-				amazon             = None
 				reconnect          = False
 				reconnect_counter  = 0
 				error              = False
@@ -369,10 +368,12 @@ class Email(models.Model):
 
 					if not error:
 						try:
-							if amazon is None or reconnect:
+							if reconnect:
 								try:
+									amazon_lock.acquire()
 									amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 									amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+									amazon_lock.release()
 								except:
 									if reconnect_counter == SendingThread._AMAZON_RECONNECT_THRESHOLD:
 										log.debug('%s, reached reconnect threshold, exiting')
@@ -432,6 +433,7 @@ class Email(models.Model):
 								log.debug('%s, reached error threshold, exiting')
 								with recipient_details_queue.mutex:
 									recipient_details_queue.queue.clear()
+									return
 							error_counter += 1
 							log.exception('%s exception' % self.name)
 					recipient_details_queue.task_done()
@@ -513,13 +515,21 @@ class Email(models.Model):
 					instance  = instance))
 
 		html_lock        = threading.Lock()
+		amazon_lock      = threading.Lock()
 		throttle_manager = ThrottleManager()
+		
+		amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+		amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+		
 		for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
 			sending_thread = SendingThread()
 			sending_thread.start()
 
 		# Block the main thread until the queue is empty
 		recipient_details_queue.join()
+		while threading.active_count() > 1:
+			print threading.active_count()
+			time.sleep(1)
 
 		instance.success = success
 		instance.end     = datetime.now()
