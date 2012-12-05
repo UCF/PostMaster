@@ -348,11 +348,18 @@ class Email(models.Model):
 		'''
 
 		class SendingThread(threading.Thread):
+			
+			_AMAZON_RECONNECT_THRESHOLD = 10
+			_ERROR_THRESHOLD            = 20
+
 			def run(self):
 				amazon             = None
 				reconnect          = False
+				reconnect_counter  = 0
 				error              = False
+				error_counter      = 0
 				rate_limit_counter = 0
+				
 				while True:
 					if recipient_details_queue.empty():
 						log.debug('%s queue empty, exiting.' % self.name)
@@ -363,9 +370,18 @@ class Email(models.Model):
 					if not error:
 						try:
 							if amazon is None or reconnect:
-								amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-								amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-								reconnect = False
+								try:
+									amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+									amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+								except:
+									if reconnect_counter == SendingThread._AMAZON_RECONNECT_THRESHOLD:
+										log.debug('%s, reached reconnect threshold, exiting')
+										raise
+									reconnect_counter += 1
+									reconnect         = True
+									continue
+								else:
+									reconnect = False
 
 							msg            = MIMEMultipart('alternative')
 							msg['subject'] = subject
@@ -412,9 +428,11 @@ class Email(models.Model):
 							finally:
 								recipient_details.save()
 						except Exception, e:
-							throttle_manager.disable_throttle_up()
-							error   = True
-							success = False
+							if error_counter == SendingThread._ERROR_THRESHOLD:
+								log.debug('%s, reached error threshold, exiting')
+								with recipient_details_queue.mutex:
+									recipient_details_queue.queue.clear()
+							error_counter += 1
 							log.exception('%s exception' % self.name)
 					recipient_details_queue.task_done()
 
@@ -458,7 +476,6 @@ class Email(models.Model):
 				if self.allow_throttle_up:
 					log.debug('throttle up disabled')
 					self.allow_throttle_up = False
-
 
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
