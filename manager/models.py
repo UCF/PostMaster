@@ -42,7 +42,7 @@ class Recipient(models.Model):
 		except RecipientAttribute.DoesNotExist:
 			raise AttributeError
 		else:
-			return attribute.value.decode('ascii', 'ignore')
+			return attribute.value.encode('ascii', 'ignore')
 
 	@property
 	def hmac_hash(self):
@@ -252,7 +252,7 @@ class Email(models.Model):
 		else:
 			try:
 				request = requests.get(self.source_html_uri)
-				return request.text.decode('ascii', 'ignore')
+				return request.text.encode('ascii', 'ignore')
 			except IOError, e:
 				log.exception('Unable to fetch email html')
 				raise self.EmailException()
@@ -269,7 +269,7 @@ class Email(models.Model):
 			try:
 				page = urllib.urlopen(self.source_text_uri)
 				content = page.read()
-				return content.decode('ascii', 'ignore')
+				return content.encode('ascii', 'ignore')
 			except IOError, e:
 				log.exception('Unable to fetch email text')
 				raise self.EmailException()
