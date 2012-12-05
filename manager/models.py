@@ -434,7 +434,7 @@ class Email(models.Model):
 					log.debug('throttling up')
 					sending_thread = SendingThread()
 					sending_thread.start()
-					self.success_count = 0
+					self.success_counter = 0
 				self.success_counter_lock.release()
 
 			def reset_success(self):
