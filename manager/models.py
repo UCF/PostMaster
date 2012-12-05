@@ -353,6 +353,7 @@ class Email(models.Model):
 			_ERROR_THRESHOLD            = 20
 
 			def run(self):
+				amazon             = None
 				reconnect          = False
 				reconnect_counter  = 0
 				error              = False
@@ -368,7 +369,7 @@ class Email(models.Model):
 
 					if not error:
 						try:
-							if reconnect:
+							if amazon is None or reconnect:
 								try:
 									amazon = smtplib.SMTP_SSL(amazon_host, amazon_port)
 									amazon.login(amazon_user, amazon_pass)
