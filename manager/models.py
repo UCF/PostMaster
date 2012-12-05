@@ -390,6 +390,7 @@ class Email(models.Model):
 							except smtplib.SMTPResponseException, e:
 								if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
 									recipient_details_queue.put(recipient_details)
+									throttle_manager.throttled()
 									rate_limit_counter += 1
 									if rate_limit_counter == ThrottleManager.THROTTLE_DOWN_THRESHOLD:
 										log.debug('thread %s, at rate limit count max, exiting thread')
@@ -397,8 +398,9 @@ class Email(models.Model):
 									log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
 									time.sleep(float(1) + random.random())
 									continue
-								recipient_details.exception_msg = str(e)
-								throttle_manager.reset_success()
+								else:
+									recipient_details.exception_msg = str(e)
+									throttle_manager.reset_success()
 							except smtplib.SMTPServerDisconnected:
 								# Connection error
 								log.debug('thread %s, connection error, sleeping for a bit')
@@ -417,25 +419,35 @@ class Email(models.Model):
 					recipient_details_queue.task_done()
 
 		class ThrottleManager(object):
-			THROTTLE_UP_THRESHOLD   = 300
+			
 			THROTTLE_DOWN_THRESHOLD = 10
 
-			allow_throttle_up = True
-
 			def __init__(self, *args, **kwargs):
-				self.success_counter_lock = threading.Lock()
-				self.success_counter      = 0
+				self.success_counter_lock       = threading.Lock()
+				self.throttle_up_threshold_lock = threading.Lock()
+				self.success_counter            = 0
+				self.throttle_up_threshold      = 50
+				self.allow_throttle_up          = True
+
 
 			def increment_success(self):
 				self.success_counter_lock.acquire()
 				self.success_counter += 1
 				
-				if self.success_counter == ThrottleManager.THROTTLE_UP_THRESHOLD and self.allow_throttle_up:
+				if self.success_counter == self.throttle_up_threshold and self.allow_throttle_up:
 					log.debug('throttling up')
 					sending_thread = SendingThread()
 					sending_thread.start()
 					self.success_counter = 0
 				self.success_counter_lock.release()
+
+			def throttled(self):
+				self.throttle_up_threshold_lock.acquire()
+				self.throttle_up_threshold *= 2
+				log.debug('doubling throttle up threshold, now at %d' % self.throttle_up_threshold)
+				self.throttle_up_threshold_lock.release()
+
+				self.reset_success()
 
 			def reset_success(self):
 				self.success_counter_lock.acquire()
