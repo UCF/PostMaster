@@ -7,11 +7,11 @@
 	<li class="active"><a href="{% url manager-email-instance instance.pk %}">{{instance.start}}</a></li>
 {% endblock %}
 {% block page-body %}
-	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}</small></h2>
-	{% if instance.in_process %}
+	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
+	{% if instance.in_progress %}
 	<div class="alert alert-info">This instance is still in progress.</div>
 	{% endif %}
-	<p>This instance was sent to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients.</p>
+	<p>This instance was scheduled to go to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients. <big><strong>{{instance.sent_count}}</strong></big> were actually sent.</p>
 	<section>
 		<h3>Opens</h3>
 		{% if instance.opens_tracked %}
