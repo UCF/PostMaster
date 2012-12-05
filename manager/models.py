@@ -371,8 +371,10 @@ class Email(models.Model):
 						try:
 							if amazon is None or reconnect:
 								try:
-									amazon = smtplib.SMTP_SSL(amazon_host, amazon_port)
-									amazon.login(amazon_user, amazon_pass)
+									connect_lock.acquire()
+									amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+									amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+									connect_lock.release()
 								except:
 									if reconnect_counter == SendingThread._AMAZON_RECONNECT_THRESHOLD:
 										log.debug('%s, reached reconnect threshold, exiting')
@@ -489,10 +491,6 @@ class Email(models.Model):
 		real_from               = self.from_email_address
 		recipient_details_queue = Queue.Queue()
 		success                 = True
-		amazon_host             = settings.AMAZON_SMTP['host']
-		amazon_port             = settings.AMAZON_SMTP['port']
-		amazon_user             = settings.AMAZON_SMTP['username']
-		amazon_pass             = settings.AMAZON_SMTP['password']
 
 		try:
 			text = self.text
@@ -518,6 +516,7 @@ class Email(models.Model):
 					instance  = instance))
 
 		html_lock        = threading.Lock()
+		connect_lock     = threading.Lock()
 		throttle_manager = ThrottleManager()
 		for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
 			sending_thread = SendingThread()
