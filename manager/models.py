@@ -367,118 +367,114 @@ class Email(models.Model):
 
 					recipient_details = recipient_details_queue.get()
 
-					if not error:
-						try:
-							if amazon is None or reconnect:
-								try:
-									amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-									amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-								except:
-									if reconnect_counter == SendingThread._AMAZON_RECONNECT_THRESHOLD:
-										log.debug('%s, reached reconnect threshold, exiting')
-										raise
-									reconnect_counter += 1
-									reconnect         = True
-									continue
+					try:
+						if amazon is None or reconnect:
+							try:
+								amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+								amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+							except:
+								if reconnect_counter == SendingThread._AMAZON_RECONNECT_THRESHOLD:
+									log.debug('%s, reached reconnect threshold, exiting')
+									raise
+								reconnect_counter += 1
+								reconnect         = True
+								continue
+							else:
+								reconnect = False
+
+						msg            = MIMEMultipart('alternative')
+						msg['subject'] = subject
+						msg['From']    = display_from
+						msg['To']      = recipient_details.recipient.email_address
+
+						# Customize the email for this recipient
+						customized_html = recipient_details.instance.sent_html
+						# Replace template placeholders
+						delimiter = recipient_details.instance.email.replace_delimiter
+						for placeholder in placeholders:
+							replacement = ''
+							if placeholder.lower() != 'unsubscribe':
+								if recipient_attributes[recipient_details.recipient.pk][placeholder] is None:
+									log.error('Recipient %s is missing attribute %s' % (str(recipient_details.recipient), placeholder))
 								else:
-									reconnect = False
-
-							msg            = MIMEMultipart('alternative')
-							msg['subject'] = subject
-							msg['From']    = display_from
-							msg['To']      = recipient_details.recipient.email_address
-
-							# Customize the email for this recipient
-							customized_html = recipient_details.instance.sent_html
-							# Replace template placeholders
-							delimiter = recipient_details.instance.email.replace_delimiter
-							for placeholder in placeholders:
-								replacement = ''
-								if placeholder.lower() != 'unsubscribe':
-									if recipient_attributes[recipient_details.recipient.pk][placeholder] is None:
-										log.error('Recipient %s is missing attribute %s' % (str(recipient_details.recipient), placeholder))
-									else:
-										replacement = recipient_attributes[recipient_details.recipient.pk][placeholder]
-									customized_html = customized_html.replace(delimiter + placeholder + delimiter, replacement)
-							# URL Tracking
-							if recipient_details.instance.urls_tracked:
-								for url in tracking_urls:
-									customized_html = customized_html.replace(
-										url.name,
-										'?'.join([
-											settings.PROJECT_URL + reverse('manager-email-redirect'),
-											urllib.urlencode({
-												'instance'  :recipient_details.instance.pk,
-												'recipient' :recipient_details.recipient.pk,
-												'url'       :urllib.quote(url.name),
-												'position'  :url.position,
-												# The mac uniquely identifies the recipient and acts as a secure integrity check
-												'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
-											})
-										]),
-										1
-									)
-							# Open Tracking
-							if recipient_details.instance.opens_tracked:
-								customized_html += '?'.join([
-									settings.PROJECT_URL + reverse('manager-email-open'),
-									urllib.urlencode({
-										'recipient':recipient_details.recipient.pk,
-										'instance' :recipient_details.instance.pk,
-										'mac'      :calc_open_mac(recipient_details.recipient.pk, recipient_details.instance.pk)
-									})
-								])
-							# Unsubscribe link
-							customized_html = re.sub(
-								re.escape(delimiter) + 'UNSUBSCRIBE' + re.escape(delimiter),
-								'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
+									replacement = recipient_attributes[recipient_details.recipient.pk][placeholder]
+								customized_html = customized_html.replace(delimiter + placeholder + delimiter, replacement)
+						# URL Tracking
+						if recipient_details.instance.urls_tracked:
+							for url in tracking_urls:
+								customized_html = customized_html.replace(
+									url.name,
 									'?'.join([
-										settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+										settings.PROJECT_URL + reverse('manager-email-redirect'),
 										urllib.urlencode({
-											'recipient':recipient_details.recipient.pk,
-											'email'    :recipient_details.instance.email.pk,
-											'mac'      :calc_unsubscribe_mac(recipient_details.recipient.pk, recipient_details.instance.email.pk)
+											'instance'  :recipient_details.instance.pk,
+											'recipient' :recipient_details.recipient.pk,
+											'url'       :urllib.quote(url.name),
+											'position'  :url.position,
+											# The mac uniquely identifies the recipient and acts as a secure integrity check
+											'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
 										})
 									]),
-								customized_html)
+									1
+								)
+						# Open Tracking
+						if recipient_details.instance.opens_tracked:
+							customized_html += '?'.join([
+								settings.PROJECT_URL + reverse('manager-email-open'),
+								urllib.urlencode({
+									'recipient':recipient_details.recipient.pk,
+									'instance' :recipient_details.instance.pk,
+									'mac'      :calc_open_mac(recipient_details.recipient.pk, recipient_details.instance.pk)
+								})
+							])
+						# Unsubscribe link
+						customized_html = re.sub(
+							re.escape(delimiter) + 'UNSUBSCRIBE' + re.escape(delimiter),
+							'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
+								'?'.join([
+									settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+									urllib.urlencode({
+										'recipient':recipient_details.recipient.pk,
+										'email'    :recipient_details.instance.email.pk,
+										'mac'      :calc_unsubscribe_mac(recipient_details.recipient.pk, recipient_details.instance.email.pk)
+									})
+								]),
+							customized_html)
 
-							msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
+						msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
 
-							if text is not None:
-								msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
+						if text is not None:
+							msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
-							log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
-							try:
-								amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
-								recipient_details.when = datetime.now()
-							except smtplib.SMTPResponseException, e:
-								if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
-									recipient_details_queue.put(recipient_details)
-									recipient_details_queue.task_done()
-									log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
-									time.sleep(float(1) + random.random())
-									continue
-								else:
-									recipient_details.exception_msg = str(e)
-							except smtplib.SMTPServerDisconnected:
-								# Connection error
-								log.debug('thread %s, connection error, sleeping for a bit')
-								time.sleep(float(1) + random.random())
+						log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
+						try:
+							amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+							recipient_details.when = datetime.now()
+						except smtplib.SMTPResponseException, e:
+							if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
 								recipient_details_queue.put(recipient_details)
-								recipient_details_queue.task_done()
-								reconnect = True
-								continue
-							finally:
-								recipient_details.save()
-						except Exception, e:
-							if error_counter == SendingThread._ERROR_THRESHOLD:
-								recipient_details_queue.task_done()
-								log.debug('%s, reached error threshold, exiting')
-								with recipient_details_queue.mutex:
-									recipient_details_queue.queue.clear()
-									return
-							error_counter += 1
-							log.exception('%s exception' % self.name)
+								log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
+								time.sleep(float(1) + random.random())
+							else:
+								recipient_details.exception_msg = str(e)
+						except smtplib.SMTPServerDisconnected:
+							# Connection error
+							log.debug('thread %s, connection error, sleeping for a bit')
+							time.sleep(float(1) + random.random())
+							recipient_details_queue.put(recipient_details)
+							reconnect = True
+						finally:
+							recipient_details.save()
+					except Exception, e:
+						if error_counter == SendingThread._ERROR_THRESHOLD:
+							recipient_details_queue.task_done()
+							log.debug('%s, reached error threshold, exiting')
+							with recipient_details_queue.mutex:
+								recipient_details_queue.queue.clear()
+								return
+						error_counter += 1
+						log.exception('%s exception' % self.name)
+
 					recipient_details_queue.task_done()
 
 		try:
