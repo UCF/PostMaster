@@ -382,11 +382,6 @@ class Email(models.Model):
 							else:
 								reconnect = False
 
-						msg            = MIMEMultipart('alternative')
-						msg['subject'] = subject
-						msg['From']    = display_from
-						msg['To']      = recipient_details.recipient.email_address
-
 						# Customize the email for this recipient
 						customized_html = recipient_details.instance.sent_html
 						# Replace template placeholders
@@ -441,15 +436,18 @@ class Email(models.Model):
 								]),
 							customized_html)
 
+						# Construct the message
+						msg            = MIMEMultipart('alternative')
+						msg['subject'] = subject
+						msg['From']    = display_from
+						msg['To']      = recipient_details.recipient.email_address
 						msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
-
 						if text is not None:
 							msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
 						log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
 						try:
 							amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
-							recipient_details.when = datetime.now()
 						except smtplib.SMTPResponseException, e:
 							if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
 								recipient_details_queue.put(recipient_details)
@@ -463,6 +461,8 @@ class Email(models.Model):
 							time.sleep(float(1) + random.random())
 							recipient_details_queue.put(recipient_details)
 							reconnect = True
+						else:
+							recipient_details.when = datetime.now()
 						finally:
 							recipient_details.save()
 					except Exception, e:
@@ -481,7 +481,6 @@ class Email(models.Model):
 			text = self.text
 		except self.TextContentMissingException:
 			text = None
-
 
 		instance = Instance.objects.create(
 			email           = self,
@@ -534,8 +533,7 @@ class Email(models.Model):
 		# Block the main thread until the queue is empty
 		recipient_details_queue.join()
 
-		instance.success = success
-		instance.end     = datetime.now()
+		instance.end = datetime.now()
 		instance.save()
 
 	def __str__(self):
