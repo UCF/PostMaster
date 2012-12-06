@@ -388,9 +388,59 @@ class Email(models.Model):
 							msg['From']    = display_from
 							msg['To']      = recipient_details.recipient.email_address
 
-							html_lock.acquire()
-							customized_html = recipient_details.html
-							html_lock.release()
+							# Customize the email for this recipient
+							customized_html = recipient_details.instance.sent_html
+							# Replace template placeholders
+							delimiter = recipient_details.instance.email.replace_delimiter
+							for placeholder in placeholders:
+								replacement = ''
+								if placeholder.lower() != 'unsubscribe':
+									if recipient_attributes[recipient_details.recipient.pk][placeholder] is None:
+										log.error('Recipient %s is missing attribute %s' % (str(recipient_details.recipient), placeholder))
+									else:
+										replacement = recipient_attributes[recipient_details.recipient.pk][placeholder]
+									customized_html = customized_html.replace(delimiter + placeholder + delimiter, replacement)
+							# URL Tracking
+							if recipient_details.instance.urls_tracked:
+								for url in tracking_urls:
+									customized_html = customized_html.replace(
+										url.name,
+										'?'.join([
+											settings.PROJECT_URL + reverse('manager-email-redirect'),
+											urllib.urlencode({
+												'instance'  :recipient_details.instance.pk,
+												'recipient' :recipient_details.recipient.pk,
+												'url'       :urllib.quote(url.name),
+												'position'  :url.position,
+												# The mac uniquely identifies the recipient and acts as a secure integrity check
+												'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
+											})
+										]),
+										1
+									)
+							# Open Tracking
+							if recipient_details.instance.opens_tracked:
+								customized_html += '?'.join([
+									settings.PROJECT_URL + reverse('manager-email-open'),
+									urllib.urlencode({
+										'recipient':recipient_details.recipient.pk,
+										'instance' :recipient_details.instance.pk,
+										'mac'      :calc_open_mac(recipient_details.recipient.pk, recipient_details.instance.pk)
+									})
+								])
+							# Unsubscribe link
+							customized_html = re.sub(
+								re.escape(delimiter) + 'UNSUBSCRIBE' + re.escape(delimiter),
+								'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
+									'?'.join([
+										settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+										urllib.urlencode({
+											'recipient':recipient_details.recipient.pk,
+											'email'    :recipient_details.instance.email.pk,
+											'mac'      :calc_unsubscribe_mac(recipient_details.recipient.pk, recipient_details.instance.email.pk)
+										})
+									]),
+								customized_html)
 
 							msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
 
@@ -431,9 +481,23 @@ class Email(models.Model):
 							log.exception('%s exception' % self.name)
 					recipient_details_queue.task_done()
 
-		# Fetch the email content. At this point, it is not customized
-		# for each recipient.
-		html = self.html
+		try:
+			text = self.text
+		except self.TextContentMissingException:
+			text = None
+
+
+		instance = Instance.objects.create(
+			email           = self,
+			sent_html       = self.html,
+			requested_start = datetime.combine(datetime.now().today(), self.send_time),
+			opens_tracked   = self.track_opens,
+			urls_tracked    = self.track_urls
+		)
+
+		recipients = Recipient.objects.filter(
+			groups__in = self.recipient_groups.all()).exclude(
+				pk__in=self.unsubscriptions.all()).distinct()
 
 		# The interval between ticks is one second. This is used to make
 		# sure that the threads don't exceed the sending limit
@@ -442,40 +506,37 @@ class Email(models.Model):
 		real_from               = self.from_email_address
 		recipient_details_queue = Queue.Queue()
 		success                 = True
-
-		try:
-			text = self.text
-		except self.TextContentMissingException:
-			text = None
-
-		instance = Instance.objects.create(
-			email           = self,
-			sent_html       = html,
-			requested_start = datetime.combine(datetime.now().today(), self.send_time),
-			opens_tracked   = self.track_opens,
-			urls_tracked    = self.track_urls
-		)
-
-		recipients = Recipient.objects.filter(groups__in = self.recipient_groups.all()).exclude(pk__in=self.unsubscriptions.all()).distinct()
+		recipient_attributes    = {}
+		placeholders            = instance.placeholders
+		tracking_urls           = instance.tracking_urls
 
 		# Create all the instancerecipientdetails before hand so in case sending
 		# fails, we know who hasn't been sent too
+		# Here, also, we want to lookup the recipients attributes that are used
+		# in the template. Do this upfront because looking up each one in the 
+		# sending loop is too slow
+		log.debug('building recipients and recipient attributes...')
 		for recipient in recipients:
+			recipient_attributes[recipient.pk] = {}
+			for placeholder in placeholders:
+				try:
+					recipient_attributes[recipient.pk][placeholder] = getattr(recipient, placeholder)
+				except AttributeError:
+					recipient_attributes[recipient.pk][placeholder] = None
+
 			recipient_details_queue.put(
 				InstanceRecipientDetails.objects.create(
 					recipient = recipient,
 					instance  = instance))
 
+		log.debug('spin up sending threads...')
 		html_lock        = threading.Lock()
-		for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
+		for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1):
 			sending_thread = SendingThread()
 			sending_thread.start()
 
 		# Block the main thread until the queue is empty
 		recipient_details_queue.join()
-		while threading.active_count() > 1:
-			print threading.active_count()
-			time.sleep(1)
 
 		instance.success = success
 		instance.end     = datetime.now()
@@ -515,7 +576,37 @@ class Instance(models.Model):
 
 	@property
 	def sent_count(self):
-  		return self.recipient_details.exclude(when=None).count()
+		return self.recipient_details.exclude(when=None).count()
+
+	@property
+	def placeholders(self):
+		delimiter    = self.email.replace_delimiter
+		placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.sent_html)
+		return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+
+	@property
+	def tracking_urls(self):
+		if not self.urls_tracked:
+			return []
+
+		hrefs = re.findall('<a(?:.*)href="([^"]+)"', self.sent_html)
+		urls  = []
+
+		for href in hrefs:
+			# Check to see if this URL is trackable. Links that don't start
+			# with http, https or ftp will raise a SuspiciousOperation exception
+			# when you try to HttpResponseRedirect them.
+			# See HttpResponseRedirectBase in django/http/__init__.py
+			try:
+				HttpResponseRedirect(href)
+			except SuspiciousOperation:
+				continue
+			else:
+				urls.append(URL.objects.get_or_create(
+					instance = self,
+					name     = href,
+					position = URL.objects.filter(instance=self, name=href).count())[0])
+		return urls
 
 	class Meta:
 		ordering = ('-start',)
@@ -539,103 +630,6 @@ class InstanceRecipientDetails(models.Model):
 	instance       = models.ForeignKey(Instance, related_name='recipient_details')
 	when           = models.DateTimeField(null=True)
 	exception_msg  = models.TextField(null=True, blank=True)
-
-	@property
-	def html(self):
-		'''
-			Replace template placeholders.
-			Track URLs if neccessary.
-			Track clicks if necessary.
-		'''
-		html = self.instance.sent_html
-		
-		# Template placeholders
-		delimiter    = self.instance.email.replace_delimiter
-		placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), html)
-		
-		for placeholder in placeholders:
-			replacement = ''
-			if placeholder.lower() != 'unsubscribe':
-				try:
-					replacement = getattr(self.recipient, placeholder)
-				except AttributeError:
-					log.error('Recipeint %s is missing attribute %s' % (str(self.recipient), placeholder))
-				html = html.replace(delimiter + placeholder + delimiter, replacement)
-
-		if self.instance.urls_tracked:
-			instance     = self.instance
-			tracked_urls = {}
-			def gen_tracking_url(match):
-				groups = match.groups()
-				fill   = groups[0]
-				url    = groups[1]
-				
-				# Check to see if this URL is trackable. Links that don't start
-				# with http, https or ftp will raise a SuspiciousOperation exception
-				# when you try to HttpResponseRedirect them.
-				# See HttpResponseRedirectBase in django/http/__init__.py
-				try:
-					HttpResponseRedirect(url)
-				except SuspiciousOperation:
-					href = url
-				else:
-					# The same URL might exist in more than one place in the content.
-					# Use the position field to differentiate them.
-					# This is done on a per-email basis rather than a per-recipient basis.
-					try:
-						tracked_urls[url] += 1
-					except KeyError:
-						tracked_urls[url] = 0
-
-					previous_url_count = tracked_urls[url]
-
-					try:
-						tracking_url = URL.objects.get(instance=instance, name=url, position=previous_url_count)
-					except URL.DoesNotExist:
-						tracking_url = URL.objects.create(instance=instance, name=url, position=previous_url_count)
-
-					href = '?'.join([
-						settings.PROJECT_URL + reverse('manager-email-redirect'),
-						urllib.urlencode({
-							'instance'  :self.instance.pk,
-							'recipient' :self.recipient.pk,
-							'url'       :urllib.quote(url),
-							'position'  :previous_url_count,
-							# The mac uniquely identifies the recipient and acts as a secure integrity check
-							'mac'       :calc_url_mac(url, previous_url_count, self.recipient.pk, self.instance.pk)
-						})
-					])
-
-				return '<a%shref="%s"' % (fill, href)
-
-			html = re.sub('<a(.*)href="([^"]+)"', gen_tracking_url, html)
-
-		if self.instance.opens_tracked:
-			open_tracking_url = '?'.join([
-				settings.PROJECT_URL + reverse('manager-email-open'),
-				urllib.urlencode({
-					'recipient':self.recipient.pk,
-					'instance' :self.instance.pk,
-					'mac'      :calc_open_mac(self.recipient.pk, self.instance.pk)
-				})
-			])
-			html += '<img src="%s" />' % open_tracking_url
-
-		# Replace the unsubscribe URL after everything else
-		html = re.sub(
-			re.escape(delimiter) + 'UNSUBSCRIBE' + re.escape(delimiter),
-			'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
-				'?'.join([
-					settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
-					urllib.urlencode({
-						'recipient':self.recipient.pk,
-						'email'    :self.instance.email.pk,
-						'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.instance.email.pk)
-					})
-				]),
-			html)
-
-		return html
 
 class URL(models.Model):
 	'''
