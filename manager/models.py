@@ -371,10 +371,8 @@ class Email(models.Model):
 						try:
 							if amazon is None or reconnect:
 								try:
-									connect_lock.acquire()
 									amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
 									amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
-									connect_lock.release()
 								except:
 									if reconnect_counter == SendingThread._AMAZON_RECONNECT_THRESHOLD:
 										log.debug('%s, reached reconnect threshold, exiting')
