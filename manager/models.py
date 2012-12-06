@@ -403,34 +403,28 @@ class Email(models.Model):
 							try:
 								amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
 								recipient_details.when = datetime.now()
-								rate_limit_counter     = 0
-								throttle_manager.increment_success()
 							except smtplib.SMTPResponseException, e:
 								if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
 									recipient_details_queue.put(recipient_details)
-									throttle_manager.throttled()
-									rate_limit_counter += 1
-									if rate_limit_counter == ThrottleManager.THROTTLE_DOWN_THRESHOLD:
-										log.debug('thread %s, at rate limit count max, exiting thread')
-										return
+									recipient_details_queue.task_done()
 									log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
 									time.sleep(float(1) + random.random())
 									continue
 								else:
 									recipient_details.exception_msg = str(e)
-									throttle_manager.reset_success()
 							except smtplib.SMTPServerDisconnected:
 								# Connection error
 								log.debug('thread %s, connection error, sleeping for a bit')
 								time.sleep(float(1) + random.random())
 								recipient_details_queue.put(recipient_details)
+								recipient_details_queue.task_done()
 								reconnect = True
-								throttle_manager.reset_success()
 								continue
 							finally:
 								recipient_details.save()
 						except Exception, e:
 							if error_counter == SendingThread._ERROR_THRESHOLD:
+								recipient_details_queue.task_done()
 								log.debug('%s, reached error threshold, exiting')
 								with recipient_details_queue.mutex:
 									recipient_details_queue.queue.clear()
@@ -438,47 +432,6 @@ class Email(models.Model):
 							error_counter += 1
 							log.exception('%s exception' % self.name)
 					recipient_details_queue.task_done()
-
-		class ThrottleManager(object):
-			
-			THROTTLE_DOWN_THRESHOLD = 10
-
-			def __init__(self, *args, **kwargs):
-				self.success_counter_lock       = threading.Lock()
-				self.throttle_up_threshold_lock = threading.Lock()
-				self.success_counter            = 0
-				self.throttle_up_threshold      = 50
-				self.allow_throttle_up          = True
-
-
-			def increment_success(self):
-				self.success_counter_lock.acquire()
-				self.success_counter += 1
-				
-				if self.success_counter == self.throttle_up_threshold and self.allow_throttle_up:
-					log.debug('throttling up')
-					sending_thread = SendingThread()
-					sending_thread.start()
-					self.success_counter = 0
-				self.success_counter_lock.release()
-
-			def throttled(self):
-				self.throttle_up_threshold_lock.acquire()
-				self.throttle_up_threshold *= 2
-				log.debug('doubling throttle up threshold, now at %d' % self.throttle_up_threshold)
-				self.throttle_up_threshold_lock.release()
-
-				self.reset_success()
-
-			def reset_success(self):
-				self.success_counter_lock.acquire()
-				self.success_counter = 0
-				self.success_counter_lock.release()
-
-			def disable_throttle_up(self):
-				if self.allow_throttle_up:
-					log.debug('throttle up disabled')
-					self.allow_throttle_up = False
 
 		# Fetch the email content. At this point, it is not customized
 		# for each recipient.
@@ -516,8 +469,6 @@ class Email(models.Model):
 					instance  = instance))
 
 		html_lock        = threading.Lock()
-		connect_lock     = threading.Lock()
-		throttle_manager = ThrottleManager()
 		for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1): # Ease off the rate limit a bit
 			sending_thread = SendingThread()
 			sending_thread.start()
@@ -563,7 +514,7 @@ class Instance(models.Model):
 		'''
 		opens = self.opens.count()
 		return 0 if self.sent_count == 0 else round(float(opens)/float(self.sent_count)*100, significance)
-		
+
 	@property
 	def sent_count(self):
   		return self.recipient_details.exclude(when=None).count()
