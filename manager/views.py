@@ -295,8 +295,8 @@ class RecipientAttributeDeleteView(RecipientsMixin, DeleteView):
 		return reverse('manager-recipient-recipientattributes', args=(), kwargs={'pk':self.object.recipient.pk})
 
 class RecipientSubscriptionsUpdateView(UpdateView):
-	model     = Recipient
-	templates = 'manager/recipient-subscriptions.html'
+	model         = Recipient
+	template_name = 'manager/recipient-subscriptions.html'
 
 	def get_context_data(self, **kwargs):
 		context                  = super(RecipientSubscriptionsUpdateView, self).get_context_data(**kwargs)
