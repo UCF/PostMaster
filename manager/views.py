@@ -304,8 +304,8 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 	def get_object(self, *args, **kwargs):
 		recipient         = super(RecipientSubscriptionsUpdateView, self).get_object()
 		# Validate MAC
-		self.incoming_mac = self.request.GET.get('mac', None)
-		if self.incoming_mac is None or self.incoming_mac != calc_unsubscribe_mac(recipient.pk):
+		mac = self.request.GET.get('mac', None)
+		if mac is None or mac != calc_unsubscribe_mac(recipient.pk):
 			raise PermissionDenied
 		return recipient
 
