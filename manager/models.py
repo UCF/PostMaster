@@ -71,8 +71,11 @@ class Recipient(models.Model):
 
 	@property
 	def unsubscribe_url(self):
+		# Use prefix='/' for reverse here instead of relying on get_script_prefix inside of
+		# reverse. This is because this method is called by management commands which
+		# have no concept of get_script_prefix().
 		return '?'.join([
-			settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}),
+			settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}, prefix='/'),
 			urllib.urlencode({
 				'mac'      :calc_unsubscribe_mac(self.pk)
 			})
