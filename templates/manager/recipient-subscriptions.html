@@ -3,7 +3,6 @@
 <h1 class="page-header">Manage Subscriptions for {{recipient.email_address}}</h1>
 {% endblock %}
 {% block page-body %}
-{{form.errors}}
 <form action="{{recipient.unsubscribe_url}}" method="post">
 	<table class="table table-bordered table-striped">
 		<thead>
