@@ -5,7 +5,8 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers    import reverse
 from django.shortcuts            import get_object_or_404
 from manager.models              import Email, RecipientGroup, Instance, Recipient, URL, URLClick, InstanceOpen, RecipientAttribute
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, RecipientCreateUpdateForm, RecipientAttributeUpdateForm, RecipientAttributeCreateForm, RecipientSearchForm
+from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, \
+	RecipientCreateUpdateForm, RecipientAttributeUpdateForm, RecipientAttributeCreateForm, RecipientSearchForm, RecipientSubscriptionsForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
@@ -297,12 +298,27 @@ class RecipientAttributeDeleteView(RecipientsMixin, DeleteView):
 class RecipientSubscriptionsUpdateView(UpdateView):
 	model         = Recipient
 	template_name = 'manager/recipient-subscriptions.html'
+	form_class    = RecipientSubscriptionsForm
 
-	def get_context_data(self, **kwargs):
-		context                  = super(RecipientSubscriptionsUpdateView, self).get_context_data(**kwargs)
-		context['subscriptions'] = self.object.pk
-		return context
+	def form_valid(self, form):
+		current_subscriptions   = self.object.subscriptions
+		current_unsubscriptions = self.object.unsubscriptions.all()
 
+		# Add new unsubscriptions
+		for email in current_subscriptions:
+			if email not in form.cleaned_data['subscribed_emails']:
+				email.unsubscriptions.add(self.object)
+		
+		# Add new subscriptions
+		for email in form.cleaned_data['subscribed_emails']:
+			if email in current_unsubscriptions:
+				email.unsubscriptions.remove(self.object)
+
+		return super(RecipientSubscriptionsUpdateView, self).form_valid(form)
+
+	def get_success_url(self):
+		messages.success(self.request, 'Your subscriptions have been successfully updated.')
+		return reverse('manager-recipient-subscriptions', kwargs={'pk':self.object.pk})
 ##
 # Tracking
 ##

@@ -56,8 +56,8 @@ class Recipient(models.Model):
 		emails = []
 		for group in self.groups.all():
 			group_emails = group.emails.all() if include_deactivated is True else group.emails.filter(active=True)
-			map(lambda e: emails.append(e), group_emails)
-		return set(emails)
+			emails.extend(list(group_emails))
+		return Email.objects.filter(pk__in=[e.pk for e in emails]).distinct()
 
 	def set_groups(self, groups):
 		if groups is not None:

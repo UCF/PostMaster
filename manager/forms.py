@@ -40,3 +40,15 @@ class RecipientAttributeUpdateForm(forms.ModelForm):
 
 class RecipientSearchForm(forms.Form):
 	email_address = forms.CharField(widget=forms.TextInput(attrs={'class':'input-medium search-query'}))
+
+class RecipientSubscriptionsForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(RecipientSubscriptionsForm, self).__init__(*args, **kwargs)
+		self.fields['subscribed_emails'].queryset = self.instance.subscriptions
+
+	subscribed_emails = forms.ModelMultipleChoiceField(queryset=Email.objects.none(), required=False)
+
+	class Meta:
+		model  = Recipient
+		fields = ()

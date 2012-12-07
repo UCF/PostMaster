@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block header %}
+<h1 class="page-header">Manage Subscriptions for {{recipient.email_address}}</h1>
+{% endblock %}
+{% block page-body %}
+{{form.errors}}
+<form action="{% url manager-recipient-subscriptions recipient.pk %}" method="post">
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th scope="col" style="width:10%">Subscribed</th>
+				<th scope="col">Email</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% with unsubscriptions=recipient.unsubscriptions.all %}
+				{% for email in recipient.subscriptions %}
+				<tr>
+					<td style="text-align:center;">
+						<input type="checkbox" name="subscribed_emails" value="{{email.pk}}" {% if email not in unsubscriptions %}checked="checked" {% endif %} />
+					</td>
+					<td>{{email.title}}</td>
+				</tr>
+				{% endfor %}
+			{% endwith %}
+		</tbody>
+	</table>
+	<button type="submit" class="btn btn-primary">Update Subscriptions</button>
+</form>
+{% endblock %}
