@@ -4,7 +4,7 @@
 {% endblock %}
 {% block page-body %}
 {{form.errors}}
-<form action="{% url manager-recipient-subscriptions recipient.pk %}" method="post">
+<form action="{{recipient.unsubscribe_url}}" method="post">
 	<table class="table table-bordered table-striped">
 		<thead>
 			<tr>

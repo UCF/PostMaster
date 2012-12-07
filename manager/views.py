@@ -12,6 +12,7 @@ from django.http                 import HttpResponse, HttpResponseRedirect
 from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.conf                 import settings
 from django.views.generic.simple import direct_to_template
+from django.core.exceptions      import PermissionDenied
 import urllib
 import logging
 
@@ -300,6 +301,14 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 	template_name = 'manager/recipient-subscriptions.html'
 	form_class    = RecipientSubscriptionsForm
 
+	def get_object(self, *args, **kwargs):
+		recipient         = super(RecipientSubscriptionsUpdateView, self).get_object()
+		# Validate MAC
+		self.incoming_mac = self.request.GET.get('mac', None)
+		if self.incoming_mac is None or self.incoming_mac != calc_unsubscribe_mac(recipient.pk):
+			raise PermissionDenied
+		return recipient
+
 	def form_valid(self, form):
 		current_subscriptions   = self.object.subscriptions
 		current_unsubscriptions = self.object.unsubscriptions.all()
@@ -318,7 +327,7 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 
 	def get_success_url(self):
 		messages.success(self.request, 'Your subscriptions have been successfully updated.')
-		return reverse('manager-recipient-subscriptions', kwargs={'pk':self.object.pk})
+		return self.object.unsubscribe_url
 ##
 # Tracking
 ##

@@ -72,7 +72,7 @@ class Recipient(models.Model):
 	@property
 	def unsubscribe_url(self):
 		return '?'.join([
-			settings.PROJECT_URL + reverse('manager-email-unsubscribe', kwargs={'pk':self.pk}),
+			settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}),
 			urllib.urlencode({
 				'mac'      :calc_unsubscribe_mac(self.pk)
 			})
