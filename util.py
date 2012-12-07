@@ -12,8 +12,8 @@ def calc_open_mac(recipient, instance_id):
 	mash = ''.join([str(recipient), str(instance_id)])
 	return hmac.new(settings.SECRET_KEY, mash).hexdigest()
 
-def calc_unsubscribe_mac(recipient_id, email_id):
-	mash = ''.join([str(recipient_id), str(email_id)])
+def calc_unsubscribe_mac(recipient_id):
+	mash = ''.join([str(recipient_id)])
 	return hmac.new(settings.SECRET_KEY, mash).hexdigest()
 
 class LDAPHelper(object):

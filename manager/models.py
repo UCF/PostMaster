@@ -69,6 +69,16 @@ class Recipient(models.Model):
 			self.groups.remove(*remove_groups)
 			self.groups.add(*groups)
 
+	@property
+	def unsubscribe_url(self):
+		return '?'.join([
+			settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
+			urllib.urlencode({
+				'recipient':self.pk,
+				'mac'      :calc_unsubscribe_mac(self.pk)
+			})
+		])
+
 	def __str__(self):
 		return self.email_address
 
@@ -425,15 +435,7 @@ class Email(models.Model):
 						# Unsubscribe link
 						customized_html = re.sub(
 							re.escape(delimiter) + 'UNSUBSCRIBE' + re.escape(delimiter),
-							'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' %
-								'?'.join([
-									settings.PROJECT_URL + reverse('manager-email-unsubscribe'),
-									urllib.urlencode({
-										'recipient':recipient_details.recipient.pk,
-										'email'    :recipient_details.instance.email.pk,
-										'mac'      :calc_unsubscribe_mac(recipient_details.recipient.pk, recipient_details.instance.email.pk)
-									})
-								]),
+							'<a href="%s" style="color:blue;text-decoration:none;">unsubscribe</a>' % recipient_details.recipient.unsubscribe_url,
 							customized_html)
 
 						# Construct the message
