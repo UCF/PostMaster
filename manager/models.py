@@ -414,7 +414,7 @@ class Email(models.Model):
 								)
 						# Open Tracking
 						if recipient_details.instance.opens_tracked:
-							customized_html += '?'.join([
+							customized_html += '<img src="%s" />' % '?'.join([
 								settings.PROJECT_URL + reverse('manager-email-open'),
 								urllib.urlencode({
 									'recipient':recipient_details.recipient.pk,
