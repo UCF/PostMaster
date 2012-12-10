@@ -409,19 +409,21 @@ class Email(models.Model):
 						# URL Tracking
 						if recipient_details.instance.urls_tracked:
 							for url in tracking_urls:
+								tracking_url = '?'.join([
+									settings.PROJECT_URL + reverse('manager-email-redirect'),
+									urllib.urlencode({
+										'instance'  :recipient_details.instance.pk,
+										'recipient' :recipient_details.recipient.pk,
+										'url'       :urllib.quote(url.name),
+										'position'  :url.position,
+										# The mac uniquely identifies the recipient and acts as a secure integrity check
+										'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
+									})
+								])
+
 								customized_html = customized_html.replace(
-									url.name,
-									'?'.join([
-										settings.PROJECT_URL + reverse('manager-email-redirect'),
-										urllib.urlencode({
-											'instance'  :recipient_details.instance.pk,
-											'recipient' :recipient_details.recipient.pk,
-											'url'       :urllib.quote(url.name),
-											'position'  :url.position,
-											# The mac uniquely identifies the recipient and acts as a secure integrity check
-											'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
-										})
-									]),
+									'href="' + url.name + '"',
+									'href="' + tracking_url + '"',
 									1
 								)
 						# Open Tracking
