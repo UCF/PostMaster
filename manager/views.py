@@ -9,7 +9,7 @@ from manager.forms               import EmailCreateUpdateForm, RecipientGroupCre
 	RecipientCreateUpdateForm, RecipientAttributeUpdateForm, RecipientAttributeCreateForm, RecipientSearchForm, RecipientSubscriptionsForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
-from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, calc_unsubscribe_old
+from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, calc_unsubscribe_mac_old
 from django.conf                 import settings
 from django.views.generic.simple import direct_to_template
 from django.core.exceptions      import PermissionDenied
