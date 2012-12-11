@@ -302,10 +302,10 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 	form_class    = RecipientSubscriptionsForm
 
 	def get_object(self, *args, **kwargs):
-		mac = self.request.GET.get('mac', None)
+		mac          = self.request.GET.get('mac', None)
 
-		recipient_id = request.GET.get('recipient', None)
-		email_id     = request.GET.get('email_id', None)
+		recipient_id = self.request.GET.get('recipient', None)
+		email_id     = self.request.GET.get('email_id', None)
 
 		# Old style unsubscribe
 		if recipient_id is not None and email_id is not None:
