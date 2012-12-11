@@ -305,7 +305,7 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 		mac          = self.request.GET.get('mac', None)
 
 		recipient_id = self.request.GET.get('recipient', None)
-		email_id     = self.request.GET.get('email_id', None)
+		email_id     = self.request.GET.get('email',     None)
 
 		# Old style unsubscribe
 		if recipient_id is not None and email_id is not None:
