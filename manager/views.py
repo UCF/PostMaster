@@ -9,7 +9,7 @@ from manager.forms               import EmailCreateUpdateForm, RecipientGroupCre
 	RecipientCreateUpdateForm, RecipientAttributeUpdateForm, RecipientAttributeCreateForm, RecipientSearchForm, RecipientSubscriptionsForm
 from django.contrib              import messages
 from django.http                 import HttpResponse, HttpResponseRedirect
-from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
+from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, calc_unsubscribe_old
 from django.conf                 import settings
 from django.views.generic.simple import direct_to_template
 from django.core.exceptions      import PermissionDenied
@@ -302,11 +302,24 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 	form_class    = RecipientSubscriptionsForm
 
 	def get_object(self, *args, **kwargs):
-		recipient         = super(RecipientSubscriptionsUpdateView, self).get_object()
-		# Validate MAC
 		mac = self.request.GET.get('mac', None)
-		if mac is None or mac != calc_unsubscribe_mac(recipient.pk):
-			raise PermissionDenied
+
+		recipient_id = request.GET.get('recipient', None)
+		email_id     = request.GET.get('email_id', None)
+
+		# Old style unsubscribe
+		if recipient_id is not None and email_id is not None:
+			try:
+				recipient = Recipient.objects.get(pk=recipient_id)
+			except Recipient.DoesNotExist:
+				raise PermissionDenied
+			if mac is None or mac != calc_unsubscribe_mac_old(recipient_id, email_id):
+				raise PermissionDenied
+		else:
+			recipient         = super(RecipientSubscriptionsUpdateView, self).get_object()
+			# Validate MAC
+			if mac is None or mac != calc_unsubscribe_mac(recipient.pk):
+				raise PermissionDenied
 		return recipient
 
 	def form_valid(self, form):

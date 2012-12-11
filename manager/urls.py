@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 urlpatterns = patterns('manager.views',
 
 	# Emails
+	url(r'^email/unsubscribe/?$',                RecipientSubscriptionsUpdateView.as_view(),             name='manager-email-unsubscribe-old'),
 	url(r'^email/open/?$',                       view='instance_open',                                   name='manager-email-open'),
 	url(r'^email/redirect/?$',                   view='redirect',                                        name='manager-email-redirect'),
 	url(r'^email/create/$',                      login_required(EmailCreateView.as_view()),              name='manager-email-create'),

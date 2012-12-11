@@ -16,6 +16,10 @@ def calc_unsubscribe_mac(recipient_id):
 	mash = ''.join([str(recipient_id)])
 	return hmac.new(settings.SECRET_KEY, mash).hexdigest()
 
+def calc_unsubscribe_mac_old(recipient_id, email_id):
+	mash = ''.join([str(recipient_id), str(email_id)])
+	return hmac.new(settings.SECRET_KEY, mash).hexdigest()
+
 class LDAPHelper(object):
 		
 	class LDAPHelperException(Exception):
