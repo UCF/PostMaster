@@ -116,10 +116,12 @@ class GMUCFImporter(Importer):
 						recipient.id
 					FROM
 						%s.manager_recipient recipient
+					LEFT JOIN 
+						%s.smca_gmucf ikm
+					ON
+						recipient.email_address = LOWER(ikm.email)
 					WHERE
-						recipient.email_address NOT IN (
-							SELECT LOWER(email) FROM %s.smca_gmucf
-						)
+						ikm.email IS NULL
 				)''' % (
 			self.postmaster_db_name,
 			self.gmucf_recipient_group.id,
@@ -176,30 +178,30 @@ class GMUCFImporter(Importer):
 			INSERT INTO 
 				%s.manager_recipientgroup_recipients(recipientgroup_id, recipient_id)
 			(
-				SELECT 
-					%s AS recipientgroup_id,
+				SELECT
+					%d AS recipientgroup_id,
 					recipient.id
 				FROM
 					%s.manager_recipient recipient
+				JOIN
+					%s.manager_recipientgroup_recipients groups
+				ON
+					recipient.id = groups.recipient_id
+				RIGHT JOIN
+					%s.smca_gmucf ikm
+				ON
+					recipient.email_address = LOWER(ikm.email)
 				WHERE
-					recipient.email_address IN (
-						SELECT LOWER(email) FROM %s.smca_gmucf
-					) AND
-					recipient.id NOT IN (
-						SELECT
-							recipient_id
-						FROM
-							%s.manager_recipientgroup_recipients
-						WHERE
-							recipientgroup_id = %d
-					)
+					groups.recipientgroup_id = %d
+					AND
+					recipient.email_address IS NULL
 			)
 		''' % (
 			self.postmaster_db_name,
 			self.gmucf_recipient_group.id,
 			self.postmaster_db_name,
-			self.rds_wharehouse_db_name,
 			self.postmaster_db_name,
+			self.rds_wharehouse_db_name,
 			self.gmucf_recipient_group.id
 		))
 		transaction.commit_unless_managed()
