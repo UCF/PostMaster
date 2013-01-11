@@ -71,6 +71,7 @@ class GMUCFImporter(Importer):
 		if 'rds_wharehouse' not in settings.DATABASES:
 			raise self.ImporterException('The rds_wharehouse database is configured.')
 
+		self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
 		self.postmaster_db_name     = settings.DATABASES['default']['NAME']
 		self.rds_wharehouse_db_name = settings.DATABASES['rds_wharehouse']['NAME']
@@ -103,7 +104,8 @@ class GMUCFImporter(Importer):
 		(rds_count,) = self.postmaster_cursor.fetchone()
 		log.info('RDS Warehouse row count: %d' % rds_count)
 		if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
-			raise self.ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d).' % rds_count)
+			log.error('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
+			raise self.ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
 			
 	def do_import(self):
 		'''
