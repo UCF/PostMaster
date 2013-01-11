@@ -85,6 +85,7 @@ class GMUCFImporter(Importer):
 		# Make sure there is an index on the smca_gmucf.email column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.smca_gmucf WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
 		results = self.postmaster_cursor.fetchall()
+		log.info('RDS Wharehouse index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.smca_gmucf ADD INDEX `email` (`email`)' % self.rds_wharehouse_db_name)
 			transaction.commit_unless_managed()
@@ -92,9 +93,17 @@ class GMUCFImporter(Importer):
 		# Make sure there is an index on the manager_recipient.email_address column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.manager_recipient WHERE Key_name=\'email_address\'' % self.postmaster_db_name)
 		results = self.postmaster_cursor.fetchall()
+		log.info('Postmaster index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.manager_recipient ADD INDEX `email_address` (`email_address`)' % self.postmaster_db_name)
 			transaction.commit_unless_managed()
+
+		# Make sure there is a significant number of emails in the RDS warehouse before proceeding
+		self.postmaster_cursor.execute('SELECT COUNT(email) FROM %s.smca_gmucf' % self.rds_wharehouse_db_name)
+		(rds_count,) = self.postmaster_cursor.fetchone()
+		log.info('RDS Warehouse row count: %d' % rds_count)
+		if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
+			raise self.ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d).' % rds_count)
 			
 	def do_import(self):
 		'''
@@ -105,6 +114,18 @@ class GMUCFImporter(Importer):
 			3. Update any Recipient attributes
 			4. Add any newly created recipients to the Good Morning UCF group
 		'''
+
+		self.postmaster_cursor.execute('''
+			UPDATE
+				%s.smca_gmucf
+			SET 
+				%s.smca_gmucf.email = LOWER(%s.smca_gmucf.email)
+			''' % (
+				self.rds_wharehouse_db_name,
+				self.rds_wharehouse_db_name,
+				self.rds_wharehouse_db_name
+		))
+		transaction.commit_unless_managed()
 		
 		self.postmaster_cursor.execute('''
 			DELETE FROM
@@ -119,7 +140,7 @@ class GMUCFImporter(Importer):
 					LEFT JOIN 
 						%s.smca_gmucf ikm
 					ON
-						recipient.email_address = LOWER(ikm.email)
+						recipient.email_address = ikm.email
 					WHERE
 						ikm.email IS NULL
 				)''' % (
@@ -135,11 +156,11 @@ class GMUCFImporter(Importer):
 				%s.manager_recipient(email_address)
 			(
 				SELECT
-					LOWER(email)
+					email
 				FROM
 					%s.smca_gmucf
 				WHERE
-					LOWER(email) NOT IN (
+					email NOT IN (
 						SELECT email_address FROM %s.manager_recipient
 					)
 			)
@@ -164,7 +185,7 @@ class GMUCFImporter(Importer):
 				JOIN
 					%s.smca_gmucf AS gmucf
 				ON
-					recipient.email_address = LOWER(gmucf.email)
+					recipient.email_address = gmucf.email
 			)
 			ON DUPLICATE KEY UPDATE value=value
 		''' % (
@@ -190,7 +211,7 @@ class GMUCFImporter(Importer):
 				RIGHT JOIN
 					%s.smca_gmucf ikm
 				ON
-					recipient.email_address = LOWER(ikm.email)
+					recipient.email_address = ikm.email
 				WHERE
 					groups.recipientgroup_id = %d
 					AND
