@@ -83,6 +83,9 @@ PROCESSING_INTERVAL_DURATION = (60 * 14) + 59 # 14:59 seconds - 15 minutes becau
 # How long before an email is sent with the previews be sent?
 PREVIEW_LEAD_TIME  = 60 * 60 # 1 hour
 
+# Determines the minimum number of emails that should exist before importing them
+MINIMUM_IMPORT_EMAIL_COUNT = 1000
+
 # Email address that test emails will be sent to. See manager/tests.py
 TEST_EMAIL_RECIPIENT = ''
 
