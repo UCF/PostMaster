@@ -203,7 +203,7 @@ class RecipientCreateView(RecipientsMixin, CreateView):
 	form_class          = RecipientCreateUpdateForm
 
 	def form_valid(self, form):
-		messages.success(self.request, 'Recipient sucessefully created.')
+		messages.success(self.request, 'Recipient successfully created.')
 		response = super(RecipientCreateView, self).form_valid(form)
 		self.object.set_groups(form.cleaned_data['groups'])
 		return response
