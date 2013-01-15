@@ -7,6 +7,8 @@ Requirements
 - Python 2.7+
 - Django 1.4+
 - MySQL Python
+- Python LDAP
+- Python Requests
 
 Configuration
 ----------
