@@ -54,7 +54,7 @@ class EmailCreateView(EmailsMixin, CreateView):
 	form_class    = EmailCreateUpdateForm
 
 	def form_valid(self, form):
-		messages.success(self.request, 'Email sucessefully created.')
+		messages.success(self.request, 'Email successfully created.')
 		return super(EmailCreateView, self).form_valid(form)
 
 	def get_success_url(self):
@@ -66,7 +66,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
 	form_class    = EmailCreateUpdateForm
 
 	def form_valid(self, form):
-		messages.success(self.request, 'Email sucessefully updated.')
+		messages.success(self.request, 'Email successfully updated.')
 		return super(EmailUpdateView, self).form_valid(form)
 
 	def get_success_url(self):
@@ -78,7 +78,7 @@ class EmailDeleteView(EmailsMixin, DeleteView):
 	template_name_suffix = '-delete-confirm'
 
 	def get_success_url(self):
-		messages.success(self.request, 'Email sucessefully deleted.')
+		messages.success(self.request, 'Email successfully deleted.')
 		return reverse('manager-emails')
 
 class EmailUnsubscriptionsListView(EmailsMixin, ListView):
@@ -137,7 +137,7 @@ class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
 	form_class    = RecipientGroupCreateUpdateForm
 
 	def form_valid(self, form):
-		messages.success(self.request, 'Recipient group sucessefully created.')
+		messages.success(self.request, 'Recipient group successfully created.')
 		return super(RecipientGroupCreateView, self).form_valid(form)
 
 	def get_success_url(self):
@@ -149,7 +149,7 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
 	form_class    = RecipientGroupCreateUpdateForm
 
 	def form_valid(self, form):
-		messages.success(self.request, 'Recipient group sucessefully updated.')
+		messages.success(self.request, 'Recipient group successfully updated.')
 		return super(RecipientGroupUpdateView, self).form_valid(form)
 
 	def get_success_url(self):
@@ -217,7 +217,7 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
 	form_class    = RecipientCreateUpdateForm
 
 	def form_valid(self, form):
-		messages.success(self.request, 'Recipient sucessefully updated.')
+		messages.success(self.request, 'Recipient successfully updated.')
 		self.object.set_groups(form.cleaned_data['groups'])
 		return super(RecipientUpdateView, self).form_valid(form)
 
@@ -293,7 +293,7 @@ class RecipientAttributeDeleteView(RecipientsMixin, DeleteView):
 	context_object_name  = 'attribute'
 
 	def get_success_url(self):
-		messages.success(self.request, 'Attribute sucessefully deleted.')
+		messages.success(self.request, 'Attribute successfully deleted.')
 		return reverse('manager-recipient-recipientattributes', args=(), kwargs={'pk':self.object.recipient.pk})
 
 class RecipientSubscriptionsUpdateView(UpdateView):
