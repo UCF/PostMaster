@@ -207,24 +207,23 @@ class GMUCFImporter(Importer):
 				FROM
 					%s.manager_recipient recipient
 				JOIN
-					%s.manager_recipientgroup_recipients groups
-				ON
-					recipient.id = groups.recipient_id
-				RIGHT JOIN
 					%s.smca_gmucf ikm
 				ON
-					recipient.email_address = ikm.email
+					ikm.email = recipient.email_address
+				LEFT JOIN
+					%s.manager_recipientgroup_recipients group_recipient
+				ON
+					group_recipient.recipient_id = recipient.id AND
+					group_recipient.recipientgroup_id = %d
 				WHERE
-					groups.recipientgroup_id = %d
-					AND
-					recipient.email_address IS NULL
+					group_recipient.recipientgroup_id IS NULL
 			)
 		''' % (
 			self.postmaster_db_name,
 			self.gmucf_recipient_group.id,
 			self.postmaster_db_name,
-			self.postmaster_db_name,
 			self.rds_wharehouse_db_name,
+			self.postmaster_db_name,
 			self.gmucf_recipient_group.id
 		))
 		transaction.commit_unless_managed()
