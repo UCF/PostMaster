@@ -19,6 +19,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
 		super(RecipientCreateUpdateForm, self).__init__(*args, **kwargs)
 		if self.instance.pk is not None:
 			self.fields['groups'].initial = self.instance.groups.all()
+		self.fields['disable'].label = 'Email Undeliverable to this Address'
 
 	groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(), )
 
