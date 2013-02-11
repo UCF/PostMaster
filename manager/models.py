@@ -27,6 +27,7 @@ class Recipient(models.Model):
 	'''
 
 	email_address   = models.CharField(max_length=255, unique=True)
+	disable         = models.BooleanField(default=False)
 
 	def save(self, *args, **kwargs):
 		if self.pk is None:
@@ -498,7 +499,8 @@ class Email(models.Model):
 
 		recipients = Recipient.objects.filter(
 			groups__in = self.recipient_groups.all()).exclude(
-				pk__in=self.unsubscriptions.all()).distinct()
+				pk__in=self.unsubscriptions.all()).distinct().exclude(
+				disable=True)
 
 		# The interval between ticks is one second. This is used to make
 		# sure that the threads don't exceed the sending limit
