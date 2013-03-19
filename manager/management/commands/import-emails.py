@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from optparse                    import make_option
 from util                        import LDAPHelper 
 from django.conf                 import settings
-from manager.models               import Recipient, RecipientGroup
+from manager.models               import Recipient, RecipientAttribute, RecipientGroup
 import csv
 
 class Command(BaseCommand):
@@ -35,7 +35,7 @@ class Command(BaseCommand):
 			print '\tWill add recipients to the specified recipient group.'
 			print '\tThe group will be created if it does not exist.'
 			print '\tIf not specified, recipients will not be added to any group.'
-			print '--column-rrder [columns]'
+			print '--column-order [columns]'
 			print '\tDefault: first_name,last_name,preferred_name'
 			print '\tThe column order of the CSV. The first_name, last_name, and email'
 			print '\tcolumn names must be present.'
@@ -69,7 +69,7 @@ class Command(BaseCommand):
 				except ValueError:
 					first_name_index = None
 				try:
-					last_name_index = columns.index('last_name_index')
+					last_name_index = columns.index('last_name')
 				except ValueError:
 					last_name_index = None
 				try:
@@ -109,23 +109,67 @@ class Command(BaseCommand):
 									recipient = Recipient.objects.get(email_address=email_address)
 								except Recipient.DoesNotExist:
 									recipient = Recipient(
-										first_name     = first_name,
-										last_name      = last_name,
-										email_address  = email_address,
-										preferred_name = preferred_name
+										email_address  = email_address
 									)
+
 									created = True
-								else:
-									# Update the values
-									recipient.first_name     = first_name
-									recipient.last_name      = last_name
-									recipient.preferred_name = preferred_name
 								try:
 									recipient.save()
 								except Exception, e:
 									print 'Error saving recipient at line %d: %s' % (row_num, str(e))
 								else:
 									print 'Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')
+
+								if first_name is not None:
+									try:
+										attribute_first_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='First Name')
+									except RecipientAttribute.DoesNotExist:
+										attribute_first_name = RecipientAttribute(
+											recipient = recipient,
+											name      = 'First Name',
+											value     = first_name
+											)
+									else:
+										attribute_first_name.value = first_name
+
+									try:
+										attribute_first_name.save()
+									except Exception, e:
+										print 'Error saving recipient attribute First Name at line %d: %s' % (row_num, str(e))
+
+								if last_name is not None:
+									try:
+										attribute_last_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Last Name')
+									except RecipientAttribute.DoesNotExist:
+										attribute_last_name = RecipientAttribute(
+											recipient = recipient,
+											name      = 'Last Name',
+											value     = last_name
+											)
+									else:
+										attribute_last_name.value = last_name
+
+									try:
+										attribute_last_name.save()
+									except Exception, e:
+										print 'Error saving recipient attribute Last Name at line %d: %s' % (row_num, str(e))
+
+								if preferred_name is not None:
+									try:
+										attribute_preferred_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Preferred Name')
+									except RecipientAttribute.DoesNotExist:
+										attribute_preferred_name = RecipientAttribute(
+											recipient = recipient,
+											name      = 'Preferred Name',
+											value     = preferred_name
+											)
+									else:
+										attribute_preferred_name.value = preferred_name
+
+									try:
+										attribute_preferred_name.save()
+									except Exception, e:
+										print 'Error saving recipient attribute Preferred Name at line %d: %s' % (row_num, str(e))
 
 								if group is not None:
 									try:
