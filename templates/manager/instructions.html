@@ -1,6 +1,64 @@
 {% extends 'base.html' %}
 {% block page-body %}
-	<p class="lead">Welcome to the Postmast Emailer.</p>
+	<p class="lead">Today's email overview.</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Email Name</th>
+                <th scope="col">Requested Send Time</th>
+                <th scope="col">~ Preview Time</th>
+                <th scope="col">Preview Sent</th>
+                <th scope="col">~ Live Time</th>
+                <th scope="col">Live Sent</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+            <tr data-link-url="{% url manager-email-update email.pk %}">
+                <td>{{email.title}}</td>
+                <td>{{ email.send_time }}</td>
+                <td>
+                    {% if not email.preview %}
+                        NA
+                    {% else %}
+                        {{email.preview_est_time|date:'g:i a'}}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not email.preview %}
+                        NA
+                    {% elif email.previews.count %}
+                        {% for pre_email in today_pre_emails %}
+                            {% if pre_email.email ==  email %}
+                                True
+                            {% else %}
+                                False
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        False
+                    {% endif %}
+                </td>
+                <td>{{email.live_est_time|date:'g:i a'}}</td>
+                <td>
+                    {% if email.instance.count %}
+                        {% for live_email in today_live_emails %}
+                            {% if live_email.email ==  email %}
+                                True
+                            {% else %}
+                                False
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        False
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="lead">Welcome to the Postmast Emailer.</p>
 	<p>
 		The purpose of this system is gather content
 		from external sources and then email that content

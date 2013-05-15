@@ -31,5 +31,5 @@ urlpatterns = patterns('manager.views',
 	url(r'^recipient/(?P<pk>\d+)/update/$',           login_required(RecipientUpdateView.as_view()),             name='manager-recipient-update'),
 	url(r'^recipient/(?P<pk>\d+)/subscriptions/$',    RecipientSubscriptionsUpdateView.as_view(),                name='manager-recipient-subscriptions'),
 
-	url(r'^$', login_required(direct_to_template), kwargs={'template':'manager/instructions.html'}, name='manager-home'),
+	url(r'^$', login_required(OverviewListView.as_view()), name='manager-home'),
 )
