@@ -2,4 +2,4 @@
 *.pyc
 settings_local.py
 *.db
-logs/application.log
+*.log
