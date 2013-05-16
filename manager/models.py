@@ -157,7 +157,7 @@ class EmailManager(models.Manager):
                 Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
             ),
             preview=True,
-            # preview_est_time=None,
+            preview_est_time=None,
             active=True
         )
 
@@ -178,7 +178,7 @@ class EmailManager(models.Manager):
                 # Monthly
                 Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
             ),
-            # live_est_time=None,
+            live_est_time=None,
             active=True
         )
 
@@ -255,7 +255,6 @@ class EmailManager(models.Manager):
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
 
-
     def previewing_now(self, now=None):
         if now is None:
             now = datetime.now()
@@ -268,8 +267,10 @@ class EmailManager(models.Manager):
         # or are in progress (end=None)
         email_pks = []
         for candidate in Email.objects.sending_today(now=now).filter(preview=True):
-            if candidate.send_time >= preview_interval_start and candidate.send_time <= preview_interval_end:
-                requested_start = datetime.combine(now.date(), candidate.send_time)
+            requested_start = datetime.combine(now.date(), candidate.send_time)
+            if not PreviewInstance.objects.filter(email=candidate,
+                                                  requested_start=requested_start).exists() and \
+                    candidate.send_time <= preview_interval_end:
                 if candidate.previews.filter(requested_start=requested_start).count() == 0:
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
@@ -407,13 +408,13 @@ class Email(models.Model):
         # Prepend a message to the content explaining that this is a preview
         html_explanation = '''
             <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
-                This is a preview of an email that will go out in one (1) hour.
+                This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
                 <br /><br />
                 The content of the email when it is sent will be re-requested from
                 the source for the real delivery.
             </div>
         '''
-        text_explanation = 'This is a preview of an email that will go out in one (1) hour.\n\nThe content of the email when it is sent will be re-requested from the source for the real delivery.'
+        text_explanation = 'This is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of the email when it is sent will be re-requested from the source for the real delivery.'
 
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])

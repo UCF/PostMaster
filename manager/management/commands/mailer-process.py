@@ -22,10 +22,10 @@ class Command(BaseCommand):
         previews = Email.objects.previewing_now(now=now)
         instances = Email.objects.sending_now(now=now)
 
-        # log.info('There is/are %d preview(s) to send.' % len(previews))
-        # for email in previews:
-        #     log.info('Previewing the following email now: %s ' % email.title)
-        #     email.send_preview()
+        log.info('There is/are %d preview(s) to send.' % len(previews))
+        for email in previews:
+            log.info('Previewing the following email now: %s ' % email.title)
+            email.send_preview()
         #
         # log.info('There is/are %d instance(s) to send.' % len(instances))
         # for email in instances:
@@ -88,7 +88,11 @@ class Command(BaseCommand):
         if no_live_est.exists():
             for email in no_live_est:
                 for next_datetime in time_range(start_datetime, end_datetime, time_interval):
-                    if email.live_est_time is None and email.send_time < (next_datetime + live_time_offset).time():
+                    # (Last if condition) Live will not send at the same time as the Preview.
+                    # It will be sent at the next interval
+                    if email.live_est_time is None and \
+                            email.send_time < (next_datetime + live_time_offset).time() and \
+                            email.preview_est_time != next_datetime:
                         email.live_est_time = next_datetime
                         email.save()
 

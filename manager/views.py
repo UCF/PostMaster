@@ -13,6 +13,7 @@ from util                        import calc_url_mac, calc_open_mac, calc_unsubs
 from django.conf                 import settings
 from django.views.generic.simple import direct_to_template
 from django.core.exceptions      import PermissionDenied
+from datetime import date
 import urllib
 import logging
 
@@ -42,13 +43,17 @@ class RecipientsMixin(object):
 
 class TodayEmailMixin(object):
     def get_context_data(self, **kwargs):
-        context = super(RecipientsMixin, self).get_context_data(**kwargs)
-        context['today_pre_emails'] = PreviewInstance.objects.filter(email__in=context['emails'])
+        context = super(TodayEmailMixin, self).get_context_data(**kwargs)
+        now = date.today()
+        context['today_pre_emails'] = PreviewInstance.objects.filter(email__in=context['emails'],
+                                                                     requested_start__day=now.day,
+                                                                     requested_start__month=now.month,
+                                                                     requested_start__year=now.year)
         context['today_live_emails'] = Instance.objects.filter(email__in=context['emails'])
         return context
 
 
-class OverviewListView(ListView):
+class OverviewListView(TodayEmailMixin, ListView):
     queryset = Email.objects.sending_today().order_by('-send_time')
     template_name = 'manager/instructions.html'
     context_object_name = 'emails'
@@ -80,6 +85,9 @@ class EmailUpdateView(EmailsMixin, UpdateView):
     form_class    = EmailCreateUpdateForm
 
     def form_valid(self, form):
+        email = form.instance
+        email.preview_est_time = None
+        email.live_est_time = None
         messages.success(self.request, 'Email successfully updated.')
         return super(EmailUpdateView, self).form_valid(form)
 
