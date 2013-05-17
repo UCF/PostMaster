@@ -5,7 +5,7 @@ class EmailCreateUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model   = Email
-		exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', )
+		exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', )
 
 class RecipientGroupCreateUpdateForm(forms.ModelForm):
 

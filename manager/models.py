@@ -317,7 +317,7 @@ class Email(models.Model):
     preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
     preview_est_time = models.DateTimeField(null=True)
     live_est_time = models.DateTimeField(null=True)
-    send_override = models.BooleanField(default=True)
+    send_override = models.BooleanField(null=False, blank=False, default=True)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
 
     def is_sending_today(self, now=datetime.now()):
@@ -331,7 +331,7 @@ class Email(models.Model):
             return True
         if self.recurrence == self.Recurs.daily and self.start_date <= now.date():
             return True
-        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == (now.date().isoweekday() % 7 + 1):
+        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == now.date().weekday():
             return True
         if self.recurrence == self.Recurs.monthly and self.start_date.day == now.day:
             return True
@@ -346,7 +346,7 @@ class Email(models.Model):
         """
         requested_start = datetime.combine(date.today(), self.send_time)
         preview_set = self.previews.filter(requested_start=requested_start)
-        if preview_set.count():
+        if preview_set.exists():
             return True
         return False
 
@@ -358,7 +358,7 @@ class Email(models.Model):
         """
         requested_start = datetime.combine(date.today(), self.send_time)
         instance_set = self.instances.filter(requested_start=requested_start)
-        if instance_set.count():
+        if instance_set.exists():
             return True
         return False
 

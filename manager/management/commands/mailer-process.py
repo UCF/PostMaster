@@ -46,7 +46,9 @@ class Command(BaseCommand):
         if no_preview_est.exists():
             for email in no_preview_est:
                 for next_datetime in time_range(start_datetime, end_datetime, time_interval):
-                    if email.preview_est_time is None and email.send_time < (next_datetime + pre_time_offset).time():
+                    if email.preview_est_time is None and \
+                            email.send_time <= (next_datetime + pre_time_offset).time() and \
+                            (next_datetime.time() <= email.send_time or email.send_override):
                         email.preview_est_time = next_datetime
                         email.save()
 
@@ -63,7 +65,8 @@ class Command(BaseCommand):
                     # (Last if condition) Live will not send at the same time as the Preview.
                     # It will be sent at the next interval
                     if email.live_est_time is None and \
-                            email.send_time < (next_datetime + live_time_offset).time() and \
+                            next_datetime.time() <= email.send_time <= (next_datetime + live_time_offset).time()  and \
+                            (next_datetime.time() <= email.send_time or email.send_override) and \
                             email.preview_est_time != next_datetime:
                         email.live_est_time = next_datetime
                         email.save()

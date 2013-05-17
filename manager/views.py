@@ -55,12 +55,22 @@ class EmailListView(EmailsMixin, ListView):
     context_object_name = 'emails'
     paginate_by         = 20
 
+
 class EmailCreateView(EmailsMixin, CreateView):
-    model         = Email
+    model = Email
     template_name = 'manager/email-create.html'
-    form_class    = EmailCreateUpdateForm
+    form_class = EmailCreateUpdateForm
 
     def form_valid(self, form):
+        email = form.instance
+
+        # Enable override send in case the service interval misses the email
+        now = datetime.now()
+        if email.is_sending_today(now) and email.send_time >= now.time():
+            email.send_override = True
+        else:
+            email.send_override = False
+
         messages.success(self.request, 'Email successfully created.')
         return super(EmailCreateView, self).form_valid(form)
 
