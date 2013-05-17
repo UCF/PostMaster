@@ -130,7 +130,7 @@ class EmailManager(models.Manager):
                 # One-time
                 Q(Q(recurrence=self.model.Recurs.never) & Q(start_date=today)) |
                 # Daily
-                Q(recurrence=self.model.Recurs.daily) |
+                Q(Q(recurrence=self.model.Recurs.daily) & Q(start_date__lte=today)) |
                 # Weekly
                 Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) |
                 # Monthly
@@ -139,48 +139,24 @@ class EmailManager(models.Manager):
             active=True
         )
 
-    def sending_today_no_pre_est(self, today=date.today()):
+    def sending_today_no_pre_est(self, now=datetime.now()):
         """Returns all the emails that are sending today with no preview estimate
 
-        :param today: The date to check if the email is being sent.
+        :param now: The datetime to check if the email is being sent.
         :return: Array of email objects
         """
-        return Email.objects.filter(
-            Q(
-                # One-time
-                Q(Q(recurrence=self.model.Recurs.never) & Q(start_date=today)) |
-                # Daily
-                Q(recurrence=self.model.Recurs.daily) |
-                # Weekly
-                Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) |
-                # Monthly
-                Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
-            ),
+        return self.sending_today(now).filter(
             preview=True,
-            preview_est_time=None,
-            active=True
+            preview_est_time=None
         )
 
-    def sending_today_no_live_est(self, today=date.today()):
+    def sending_today_no_live_est(self, now=datetime.now()):
         """Returns all the emails that are sending today with no live estimate
 
-        :param today: The date to check if the email is being sent.
+        :param now: The datetime to check if the email is being sent.
         :return: Array of email objects
         """
-        return Email.objects.filter(
-            Q(
-                # One-time
-                Q(Q(recurrence=self.model.Recurs.never) & Q(start_date=today)) |
-                # Daily
-                Q(recurrence=self.model.Recurs.daily) |
-                # Weekly
-                Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) |
-                # Monthly
-                Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
-            ),
-            live_est_time=None,
-            active=True
-        )
+        return self.sending_today(now).filter(live_est_time=None)
 
     def not_sending_today(self, today=date.today()):
         """Returns all the emails that aren't sending today
@@ -193,7 +169,7 @@ class EmailManager(models.Manager):
                 # One-time
                 ~Q(Q(recurrence=self.model.Recurs.never) & Q(start_date=today)) &
                 # Daily
-                ~Q(recurrence=self.model.Recurs.daily) &
+                ~Q(Q(recurrence=self.model.Recurs.daily) & Q(start_date__lte=today)) &
                 # Weekly
                 ~Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) &
                 # Monthly
@@ -201,38 +177,28 @@ class EmailManager(models.Manager):
             )
         )
 
-    def sending_today_old_est(self, today=date.today()):
+    def sending_today_old_est(self, now=datetime.now()):
         """Returns all the emails that are sending today but have old estimates
 
-        :param today: The date to check if the email is being sent
+        :param now: The datetime to check if the email is being sent
         :return: Array of email objects
         """
-        return Email.objects.filter(
-            Q(
-                # One-time
-                Q(Q(recurrence=self.model.Recurs.never) & Q(start_date=today)) |
-                # Daily
-                Q(recurrence=self.model.Recurs.daily) |
-                # Weekly
-                Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) |
-                # Monthly
-                Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
-            ) &
+        return self.sending_today(now).filter(
             Q(
                 Q(
                     ~Q(preview_est_time=None) &
                     ~Q(
-                        Q(preview_est_time__day=today.day) &
-                        Q(preview_est_time__month=today.month) &
-                        Q(preview_est_time__year=today.year)
+                        Q(preview_est_time__day=now.day) &
+                        Q(preview_est_time__month=now.month) &
+                        Q(preview_est_time__year=now.year)
                     )
                 ) |
                 Q(
                     ~Q(live_est_time=None) &
                     ~Q(
-                        Q(live_est_time__day=today.day) &
-                        Q(live_est_time__month=today.month) &
-                        Q(live_est_time__year=today.year)
+                        Q(live_est_time__day=now.day) &
+                        Q(live_est_time__month=now.month) &
+                        Q(live_est_time__year=now.year)
                     )
                 )
             )
@@ -249,8 +215,15 @@ class EmailManager(models.Manager):
         # or are in progress (end=None)
         email_pks = []
         for candidate in Email.objects.sending_today(now=now):
-            if candidate.send_time >= send_interval_start and candidate.send_time <= send_interval_end:
-                requested_start = datetime.combine(now.date(), candidate.send_time)
+            requested_start = datetime.combine(now.date(), candidate.send_time)
+            # check if preview has been sent (or no preview requested) and if a send override is set
+            if ((send_interval_start <= candidate.send_time <= send_interval_end) or
+                    (candidate.send_time <= send_interval_end and candidate.send_override)) and \
+                    (not candidate.preview or candidate.previews.filter(requested_start=requested_start).count()):
+
+                # Email is queued to be sent so no need override the send functionality anymore
+                candidate.send_override = False
+                candidate.save()
                 if candidate.instances.filter(requested_start=requested_start).count() == 0:
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
@@ -267,10 +240,9 @@ class EmailManager(models.Manager):
         # or are in progress (end=None)
         email_pks = []
         for candidate in Email.objects.sending_today(now=now).filter(preview=True):
-            requested_start = datetime.combine(now.date(), candidate.send_time)
-            if not PreviewInstance.objects.filter(email=candidate,
-                                                  requested_start=requested_start).exists() and \
-                    candidate.send_time <= preview_interval_end:
+            if (preview_interval_start <= candidate.send_time <= preview_interval_end) or \
+                    (candidate.send_time <= preview_interval_end and candidate.send_override):
+                requested_start = datetime.combine(now.date(), candidate.send_time)
                 if candidate.previews.filter(requested_start=requested_start).count() == 0:
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
@@ -323,7 +295,7 @@ class Email(models.Model):
         'from_friendly_name': 'A display name associated with the from email address',
         'track_urls': 'Rewrites all URLs in the email content to be recorded',
         'track_opens': 'Adds a tracking image to email content to track if and when an email is opened.',
-        'preview': 'Send a preview to a specific set of individuals allowing them to proof the content.',
+        'preview': 'BE CAREFUL! This could cause a live email to be sent on the next send cycle.\nSend a preview to a specific set of individuals allowing them to proof the content.',
         'preview_recipients': 'A comma-separated list of preview recipient email addresses'
     }
 
@@ -345,7 +317,50 @@ class Email(models.Model):
     preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
     preview_est_time = models.DateTimeField(null=True)
     live_est_time = models.DateTimeField(null=True)
+    send_override = models.BooleanField(default=True)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
+
+    def is_sending_today(self, now=datetime.now()):
+        """
+        Determines if the email is meant to be sent today
+
+        :param now: The date to check against the email send date
+        :return: True if sending on specified date, otherwise False
+        """
+        if self.recurrence == self.Recurs.never and self.start_date == now.date():
+            return True
+        if self.recurrence == self.Recurs.daily and self.start_date <= now.date():
+            return True
+        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == (now.date().isoweekday() % 7 + 1):
+            return True
+        if self.recurrence == self.Recurs.monthly and self.start_date.day == now.day:
+            return True
+
+        return False
+
+    @property
+    def preview_exists(self):
+        """
+        Determines if a preview email exists based on the requested time (today + send time)
+        :return: True if preview exists, otherwise false
+        """
+        requested_start = datetime.combine(date.today(), self.send_time)
+        preview_set = self.previews.filter(requested_start=requested_start)
+        if preview_set.count():
+            return True
+        return False
+
+    @property
+    def instance_exists(self):
+        """
+        Determines if a instance email exists based on the requested time (today + send time)
+        :return: True if instance exists, otherwise false
+        """
+        requested_start = datetime.combine(date.today(), self.send_time)
+        instance_set = self.instances.filter(requested_start=requested_start)
+        if instance_set.count():
+            return True
+        return False
 
     @property
     def smtp_from_address(self):

@@ -13,7 +13,7 @@ from util                        import calc_url_mac, calc_open_mac, calc_unsubs
 from django.conf                 import settings
 from django.views.generic.simple import direct_to_template
 from django.core.exceptions      import PermissionDenied
-from datetime import date
+from datetime import date, datetime
 import urllib
 import logging
 
@@ -41,20 +41,8 @@ class RecipientsMixin(object):
         return context
 
 
-class TodayEmailMixin(object):
-    def get_context_data(self, **kwargs):
-        context = super(TodayEmailMixin, self).get_context_data(**kwargs)
-        now = date.today()
-        context['today_pre_emails'] = PreviewInstance.objects.filter(email__in=context['emails'],
-                                                                     requested_start__day=now.day,
-                                                                     requested_start__month=now.month,
-                                                                     requested_start__year=now.year)
-        context['today_live_emails'] = Instance.objects.filter(email__in=context['emails'])
-        return context
-
-
-class OverviewListView(TodayEmailMixin, ListView):
-    queryset = Email.objects.sending_today().order_by('-send_time')
+class OverviewListView(ListView):
+    queryset = Email.objects.sending_today().order_by('send_time')
     template_name = 'manager/instructions.html'
     context_object_name = 'emails'
 
@@ -79,20 +67,34 @@ class EmailCreateView(EmailsMixin, CreateView):
     def get_success_url(self):
         return reverse('manager-email-update', args=(), kwargs={'pk':self.object.pk})
 
+
 class EmailUpdateView(EmailsMixin, UpdateView):
-    model         = Email
+    model = Email
     template_name = 'manager/email-update.html'
-    form_class    = EmailCreateUpdateForm
+    form_class = EmailCreateUpdateForm
 
     def form_valid(self, form):
         email = form.instance
-        email.preview_est_time = None
-        email.live_est_time = None
+
+        # Enable override send in case the service interval misses the email
+        now = datetime.now()
+        if 'start_date' in form.changed_data or 'send_time' in form.changed_data:
+            if email.is_sending_today(now) and email.send_time >= now.time():
+                email.send_override = True
+            else:
+                email.send_override = False
+
+        # Clear the estimated times if the date or time has been modified
+        if 'start_date' in form.changed_data or 'send_time' in form.changed_data:
+            email.preview_est_time = None
+            email.live_est_time = None
+
         messages.success(self.request, 'Email successfully updated.')
         return super(EmailUpdateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('manager-email-update', args=(), kwargs={'pk':self.object.pk})
+
 
 class EmailDeleteView(EmailsMixin, DeleteView):
     model                = Email

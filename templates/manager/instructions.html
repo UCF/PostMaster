@@ -20,36 +20,24 @@
                 <td>{{ email.send_time }}</td>
                 <td>
                     {% if not email.preview %}
-                        NA
+                        NO Preview
                     {% else %}
                         {{email.preview_est_time|date:'g:i a'}}
                     {% endif %}
                 </td>
                 <td>
                     {% if not email.preview %}
-                        NA
-                    {% elif email.previews.count %}
-                        {% for pre_email in today_pre_emails %}
-                            {% if pre_email.email ==  email %}
-                                True
-                            {% else %}
-                                False
-                            {% endif %}
-                        {% endfor %}
+                        NO Preview
+                    {% elif email.preview_exists %}
+                        True
                     {% else %}
                         False
                     {% endif %}
                 </td>
                 <td>{{email.live_est_time|date:'g:i a'}}</td>
                 <td>
-                    {% if email.instance.count %}
-                        {% for live_email in today_live_emails %}
-                            {% if live_email.email ==  email %}
-                                True
-                            {% else %}
-                                False
-                            {% endif %}
-                        {% endfor %}
+                    {% if email.instance_exists %}
+                        True
                     {% else %}
                         False
                     {% endif %}
