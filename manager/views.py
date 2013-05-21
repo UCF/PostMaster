@@ -88,14 +88,15 @@ class EmailUpdateView(EmailsMixin, UpdateView):
 
         # Enable override send in case the service interval misses the email
         now = datetime.now()
-        if 'start_date' in form.changed_data or 'send_time' in form.changed_data:
+        if 'start_date' in form.changed_data or \
+                'send_time' in form.changed_data or \
+                'recurrence' in form.changed_data:
             if email.is_sending_today(now) and email.send_time >= now.time():
                 email.send_override = True
             else:
                 email.send_override = False
 
-        # Clear the estimated times if the date or time has been modified
-        if 'start_date' in form.changed_data or 'send_time' in form.changed_data:
+            # Clear the estimated times
             email.preview_est_time = None
             email.live_est_time = None
 
