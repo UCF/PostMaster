@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block page-body %}
 	<p class="lead">Today's email overview.</p>
+    {% if emails %}
     <table class="table">
         <thead>
             <tr>
@@ -46,6 +47,9 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <p><strong>No emails are scheduled to send today</strong></p>
+    {% endif %}
     <p class="lead">Welcome to the Postmast Emailer.</p>
 	<p>
 		The purpose of this system is gather content
