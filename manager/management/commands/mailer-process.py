@@ -20,7 +20,7 @@ class Command(BaseCommand):
         now = datetime.now()
         # Makes sure the time is at the start of the minute since the
         # cron job execution and the time this code executes could be different
-        now.replace(seconds=0, microsecond=0)
+        now.replace(second=0, microsecond=0)
 
         self.calculate_estimates(start_datetime=now)
         previews = Email.objects.previewing_now(now=now)
