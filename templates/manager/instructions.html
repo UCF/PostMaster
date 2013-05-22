@@ -54,17 +54,17 @@
                     {% if not email.preview %}
                         NO Preview
                     {% elif email.preview_exists %}
-                        True
+                        Yes
                     {% else %}
-                        False
+                        No
                     {% endif %}
                 </td>
                 <td>{{email.live_est_time|date:'g:i a'}}</td>
                 <td>
                     {% if email.instance_exists %}
-                        True
+                        Yes
                     {% else %}
-                        False
+                        No
                     {% endif %}
                 </td>
             </tr>
