@@ -1,6 +1,30 @@
 {% extends 'base.html' %}
 {% block page-body %}
-	<p class="lead">Today's email overview.</p>
+    <p class="lead">Welcome to the Postmast Emailer.</p>
+	<p>
+		The purpose of this system is gather content
+		from external sources and then email that content
+		to a set of recipients.
+	</p>
+	<p>
+		This page contains a general overview of how the system is built and 
+		operates. You can always get back to this page by clicking the Postmaster 
+		Emailer logo located in the top left corner of every page.
+	</p>
+	<div class="well">
+		<p>
+			<strong>
+				If you have any questions or problems, 
+				please contact the Web Communications Team:
+			</strong>
+		</p>
+		<ul>
+			<li>Regular Business Hours (8:30am - 5pm): <a href="mailto:webcom@ucf.edu">webcom@ucf.edu</a> or 407-823-0973</li>
+			<li>After Hours or Emergency: 407-925-8102 (Patrick Burt) or 954-258-8274 (Christopher Conover)</li>
+		</ul>
+	</div>
+    <hr />
+    <p class="lead">Today's email overview.</p>
     {% if emails %}
     <table class="table">
         <thead>
@@ -50,29 +74,6 @@
     {% else %}
     <p><strong>No emails are scheduled to send today</strong></p>
     {% endif %}
-    <p class="lead">Welcome to the Postmast Emailer.</p>
-	<p>
-		The purpose of this system is gather content
-		from external sources and then email that content
-		to a set of recipients.
-	</p>
-	<p>
-		This page contains a general overview of how the system is built and 
-		operates. You can always get back to this page by clicking the Postmaster 
-		Emailer logo located in the top left corner of every page.
-	</p>
-	<div class="well">
-		<p>
-			<strong>
-				If you have any questions or problems, 
-				please contact the Web Communications Team:
-			</strong>
-		</p>
-		<ul>
-			<li>Regular Business Hours (8:30am - 5pm): <a href="mailto:webcom@ucf.edu">webcom@ucf.edu</a> or 407-823-0973</li>
-			<li>After Hours or Emergency: 407-925-8102 (Patrick Burt) or 954-258-8274 (Christopher Conover)</li>
-		</ul>
-	</div>
 	<hr />
 	<p>
 		The Postmaster Emailer has two parts: <strong>recipients</strong> and <strong>emails</strong>.
