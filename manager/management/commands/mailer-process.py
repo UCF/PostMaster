@@ -18,6 +18,10 @@ class Command(BaseCommand):
         log.info('The mailer-process command is starting...')
 
         now = datetime.now()
+        # Makes sure the time is at the start of the minute since the
+        # cron job execution and the time this code executes could be different
+        now.replace(seconds=0, microsecond=0)
+
         self.calculate_estimates(start_datetime=now)
         previews = Email.objects.previewing_now(now=now)
         instances = Email.objects.sending_now(now=now)
@@ -49,12 +53,13 @@ class Command(BaseCommand):
                     if email.preview_est_time is None and \
                             email.send_time <= (next_datetime + pre_time_offset).time() and \
                             (next_datetime.time() <= email.send_time or email.send_override):
-                        email.preview_est_time = next_datetime
-                        email.save()
+                        cursor = connection.cursor()
+                        cursor.execute('UPDATE manager_email SET preview_est_time = %s WHERE id = %s',
+                                       [next_datetime, email.id])
+                        transaction.commit_unless_managed()
 
                         # Updated time so go to next email
                         break
-
 
         # set estimated live sending time
         live_time_offset = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
@@ -65,11 +70,13 @@ class Command(BaseCommand):
                     # (Last if condition) Live will not send at the same time as the Preview.
                     # It will be sent at the next interval
                     if email.live_est_time is None and \
-                            next_datetime.time() <= email.send_time <= (next_datetime + live_time_offset).time()  and \
+                            email.send_time <= (next_datetime + live_time_offset).time() and \
                             (next_datetime.time() <= email.send_time or email.send_override) and \
                             email.preview_est_time != next_datetime:
-                        email.live_est_time = next_datetime
-                        email.save()
+                        cursor = connection.cursor()
+                        cursor.execute('UPDATE manager_email SET live_est_time = %s WHERE id = %s',
+                                       [next_datetime, email.id])
+                        transaction.commit_unless_managed()
 
                         # Updated time so go to next email
                         break
