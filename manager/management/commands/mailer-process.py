@@ -20,7 +20,7 @@ class Command(BaseCommand):
         now = datetime.now()
         # Makes sure the time is at the start of the minute since the
         # cron job execution and the time this code executes could be different
-        now.replace(second=0, microsecond=0)
+        now = now.replace(second=0, microsecond=0)
 
         self.calculate_estimates(start_datetime=now)
         previews = Email.objects.previewing_now(now=now)
@@ -50,6 +50,7 @@ class Command(BaseCommand):
         if no_preview_est.exists():
             for email in no_preview_est:
                 for next_datetime in time_range(start_datetime, end_datetime, time_interval):
+                    next_datetime = next_datetime.replace(second=0, microsecond=0)
                     if email.preview_est_time is None and \
                             email.send_time <= (next_datetime + pre_time_offset).time() and \
                             (next_datetime.time() <= email.send_time or email.send_override):
@@ -67,6 +68,7 @@ class Command(BaseCommand):
         if no_live_est.exists():
             for email in no_live_est:
                 for next_datetime in time_range(start_datetime, end_datetime, time_interval):
+                    next_datetime = next_datetime.replace(second=0, microsecond=0)
                     # (Last if condition) Live will not send at the same time as the Preview.
                     # It will be sent at the next interval
                     if email.live_est_time is None and \
