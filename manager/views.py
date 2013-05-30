@@ -42,9 +42,11 @@ class RecipientsMixin(object):
 
 
 class OverviewListView(ListView):
-    queryset = Email.objects.sending_today().order_by('send_time')
     template_name = 'manager/instructions.html'
     context_object_name = 'emails'
+
+    def get_queryset(self):
+        return Email.objects.sending_today().order_by('send_time')
 
 ##
 # Emails
