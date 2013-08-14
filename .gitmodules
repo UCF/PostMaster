@@ -1,3 +1,3 @@
 [submodule "static/bootstrap"]
 	path = static/bootstrap
-	url = git://github.com/twitter/bootstrap.git
+	url = git://github.com/ucf/bootstrap.git
