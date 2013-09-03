@@ -201,7 +201,7 @@ class GMUCFImporter(Importer):
 			INSERT INTO 
 				%s.manager_recipientgroup_recipients(recipientgroup_id, recipient_id)
 			(
-				SELECT
+				SELECT DISTINCT
 					%d AS recipientgroup_id,
 					recipient.id
 				FROM
