@@ -383,6 +383,9 @@ class Email(models.Model):
         else:
             try:
                 request = requests.get(self.source_html_uri)
+                if request.status_code != requests.codes.ok:
+                    log.exception('HTML request returned ' + str(request.status_code))
+                    raise self.EmailException()
                 return request.text.encode('ascii', 'ignore')
             except IOError, e:
                 log.exception('Unable to fetch email html')
