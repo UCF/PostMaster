@@ -428,7 +428,7 @@ class Email(models.Model):
             <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
                 This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
                 <br /><br />
-                The content of this email may be change before the final email is sent. Any changes that are made to the content below will be included on the live email.
+                The content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email.
             </div>
         '''
         text_explanation = 'This is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of this email may be change before the final email is sent. Any changes that are made to the content below will be included on the live email'
