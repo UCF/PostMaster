@@ -383,10 +383,7 @@ class Email(models.Model):
         else:
             try:
                 request = requests.get(self.source_html_uri)
-                if request.status_code != requests.codes.ok:
-                    log.exception('HTML request returned ' + str(request.status_code))
-                    raise self.EmailException()
-                return request.text.encode('ascii', 'ignore')
+                return (request.status_code, request.text.encode('ascii', 'ignore'))
             except IOError, e:
                 log.exception('Unable to fetch email html')
                 raise self.EmailException()
@@ -412,7 +409,32 @@ class Email(models.Model):
         '''
             Send preview emails
         '''
-        html = self.html
+        status_code, html = self.html
+        if status_code != requests.codes.ok:
+            log.info('Preview HTML request returned status code ' + str(status_code))
+
+            # Prepend a message to the content explaining that this is a preview
+            html_explanation = '''
+                <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px; color: #FF0000">
+                    HTML request returned status code ''' + str(status_code) + '''. Live email will NOT be sent if the error continues.
+                </div>
+                <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
+                    This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
+                    <br /><br />
+                    The content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email.
+                </div>
+            '''
+            text_explanation = 'HTML request returned status code ' + str(status_code) + '. Live email will NOT be sent if the error continues.\n\nThis is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email'
+        else:
+            # Prepend a message to the content explaining that this is a preview
+            html_explanation = '''
+                <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
+                    This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
+                    <br /><br />
+                    The content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email.
+                </div>
+            '''
+            text_explanation = 'This is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email'
 
         try:
             text = self.text
@@ -422,16 +444,6 @@ class Email(models.Model):
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
-
-        # Prepend a message to the content explaining that this is a preview
-        html_explanation = '''
-            <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
-                This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
-                <br /><br />
-                The content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email.
-            </div>
-        '''
-        text_explanation = 'This is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of this email may be change before the final email is sent. Any changes that are made to the content below will be included on the live email'
 
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
@@ -609,9 +621,14 @@ class Email(models.Model):
         except self.TextContentMissingException:
             text = None
 
+        status_code, html = self.html
+        if status_code != requests.codes.ok:
+            log.exception('Not sending Live email. HTML request returned status code ' + str(status_code))
+            raise self.EmailException()
+
         instance = Instance.objects.create(
             email           = self,
-            sent_html       = self.html,
+            sent_html       = html,
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
             urls_tracked    = self.track_urls

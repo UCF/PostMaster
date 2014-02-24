@@ -55,7 +55,7 @@ class EmailTestCase(TestCase):
 			recipient=self.recipient,
 			name='First Name',
 			value='Test Recipient')
-		
+
 		self.group     = RecipientGroup.objects.create(name='Test Group')
 		self.group.recipients.add(self.recipient)
 
@@ -76,7 +76,9 @@ class EmailTestCase(TestCase):
 			track_urls         = True,
 			track_opens        = True,
 			preview            = True,
-			preview_recipients = settings.TEST_EMAIL_PREVIEW_RECIPIENTS
+			preview_recipients = settings.TEST_EMAIL_PREVIEW_RECIPIENTS,
+			preview_est_time   = now,
+			live_est_time      = now
 			)
 		self.email.recipient_groups.add(self.group)
 		self.email.recipient_groups.add(self.second_group)
@@ -157,7 +159,7 @@ class EmailTestCase(TestCase):
 			Test sending the email.
 		'''
 		self.email.send(additional_subject=notation)
-		
+
 		self.assertTrue(Instance.objects.count() == 1)
 		return Instance.objects.all()[0]
 
@@ -165,7 +167,7 @@ class EmailTestCase(TestCase):
 		'''
 			Test sending the email, url tracking and open tracking.
 		'''
-		
+
 		instance = self._test_email_send(notation=' **URL Tracking & Open Tracking**')
 		self._test_url_tracking(instance)
 		self._test_open_tracking(instance)
