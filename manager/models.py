@@ -382,6 +382,10 @@ class Email(models.Model):
             raise HTMLContentMissingException()
         else:
             try:
+                # Warm the cache
+                requests.get(self.source_html_uri)
+
+                # Get the email html
                 request = requests.get(self.source_html_uri)
                 return (request.status_code, request.text.encode('ascii', 'ignore'))
             except IOError, e:
@@ -398,6 +402,10 @@ class Email(models.Model):
             raise self.TextContentMissingException()
         else:
             try:
+                # Warm the cache
+                urllib.urlopen(self.source_text_uri)
+
+                # Get the email text
                 page = urllib.urlopen(self.source_text_uri)
                 content = page.read()
                 return content.encode('ascii', 'ignore')
