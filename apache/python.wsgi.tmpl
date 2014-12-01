@@ -1,6 +1,9 @@
 #!/usr/bin/python
 import os
 import sys
+import site
+
+site.addsitedir('/path/to/virtualenv/site-packages/')
 
 def main(project, path_to_parent, settings="settings"):
 	settings_module = '.'.join([project, settings])
