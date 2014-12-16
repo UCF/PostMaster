@@ -25,6 +25,7 @@ Configuration
 	- TEST_EMAIL_RECIPIENT
 	- TEST_EMAIL_SOURCE_HTML_URI
 	- TEST_EMAIL_SOURCE_TEXT_URI
+- Make sure to set the default value for Recipient disable on the DB to False (https://code.djangoproject.com/ticket/470)
 - Schedule the mailer-process management command to run based on the PROCCESSING_INVERVAL DURATION variable (PRODUCTION ONLY)
 - Schedule the recipient-importers to run based on the availabiliy of their external data sources (PRODUCTION ONLY)
 
