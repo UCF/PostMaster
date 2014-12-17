@@ -83,12 +83,12 @@ class GMUCFImporter(Importer):
 		except RecipientGroup.DoesNotExist:
 			raise self.ImporterException('The Good Morning UCF recipient group doesn\'t exist. Please create it.')
 
-		# Make sure there is an index on the smca_gmucf.email column
-		self.postmaster_cursor.execute('SHOW INDEX FROM %s.smca_gmucf WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
+		# Make sure there is an index on the SMCA_GMUCF.email column
+		self.postmaster_cursor.execute('SHOW INDEX FROM %s.SMCA_GMUCF WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
 		results = self.postmaster_cursor.fetchall()
 		log.info('RDS Wharehouse index result count: %d' % len(results))
 		if len(results) == 0:
-			self.postmaster_cursor.execute('ALTER TABLE %s.smca_gmucf ADD INDEX `email` (`email`)' % self.rds_wharehouse_db_name)
+			self.postmaster_cursor.execute('ALTER TABLE %s.SMCA_GMUCF ADD INDEX `email` (`email`)' % self.rds_wharehouse_db_name)
 			transaction.commit_unless_managed()
 
 		# Make sure there is an index on the manager_recipient.email_address column
@@ -100,7 +100,7 @@ class GMUCFImporter(Importer):
 			transaction.commit_unless_managed()
 
 		# Make sure there is a significant number of emails in the RDS warehouse before proceeding
-		self.postmaster_cursor.execute('SELECT COUNT(email) FROM %s.smca_gmucf' % self.rds_wharehouse_db_name)
+		self.postmaster_cursor.execute('SELECT COUNT(email) FROM %s.SMCA_GMUCF' % self.rds_wharehouse_db_name)
 		(rds_count,) = self.postmaster_cursor.fetchone()
 		log.info('RDS Warehouse row count: %d' % rds_count)
 		if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
@@ -119,9 +119,9 @@ class GMUCFImporter(Importer):
 
 		self.postmaster_cursor.execute('''
 			UPDATE
-				%s.smca_gmucf
+				%s.SMCA_GMUCF
 			SET 
-				%s.smca_gmucf.email = LOWER(%s.smca_gmucf.email)
+				%s.SMCA_GMUCF.email = LOWER(%s.SMCA_GMUCF.email)
 			''' % (
 				self.rds_wharehouse_db_name,
 				self.rds_wharehouse_db_name,
@@ -140,7 +140,7 @@ class GMUCFImporter(Importer):
 					FROM
 						%s.manager_recipient recipient
 					LEFT JOIN 
-						%s.smca_gmucf ikm
+						%s.SMCA_GMUCF ikm
 					ON
 						recipient.email_address = ikm.email
 					WHERE
@@ -160,7 +160,7 @@ class GMUCFImporter(Importer):
 				SELECT
 					email
 				FROM
-					%s.smca_gmucf
+					%s.SMCA_GMUCF
 				WHERE
 					email NOT IN (
 						SELECT email_address FROM %s.manager_recipient
@@ -185,7 +185,7 @@ class GMUCFImporter(Importer):
 				FROM
 					%s.manager_recipient recipient
 				JOIN
-					%s.smca_gmucf AS gmucf
+					%s.SMCA_GMUCF AS gmucf
 				ON
 					recipient.email_address = gmucf.email
 			)
@@ -207,7 +207,7 @@ class GMUCFImporter(Importer):
 				FROM
 					%s.manager_recipient recipient
 				JOIN
-					%s.smca_gmucf ikm
+					%s.SMCA_GMUCF ikm
 				ON
 					ikm.email = recipient.email_address
 				LEFT JOIN
