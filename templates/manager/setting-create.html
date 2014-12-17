@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+  {{block.super}}
+  <li><a href="{% url manager-settings %}">Settings</a> <span class="divider">/</span></li>
+  <li class="active">
+    <a href="{% url manager-setting-create %}">Create</a>
+  </li>
+{% endblock %}
+{% block page-body %}
+<form class="form-horizontal" action="{% url manager-setting-create %}" method="post">
+  <fieldset>
+    <legend>Create Setting</legend>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-error">
+        {{error}}
+      </div>
+    {% endfor %}
+    {% for field in form %}
+      {% include 'form-control-group.html' %}
+    {% endfor %}
+    <div class="pull-right">
+      <button type="submit" class="btn btn-primary">Create</button>
+      <a href="{% url manager-home %}" class="btn">Cancel</a>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}

@@ -1,28 +1,28 @@
 {% extends 'base.html' %}
 {% block page-body %}
     <p class="lead">Welcome to the Postmast Emailer.</p>
-	<p>
-		The purpose of this system is gather content
-		from external sources and then email that content
-		to a set of recipients.
-	</p>
-	<p>
-		This page contains a general overview of how the system is built and 
-		operates. You can always get back to this page by clicking the Postmaster 
-		Emailer logo located in the top left corner of every page.
-	</p>
-	<div class="well">
-		<p>
-			<strong>
-				If you have any questions or problems, 
-				please contact the Web Communications Team:
-			</strong>
-		</p>
-		<ul>
-			<li>Regular Business Hours (8:30am - 5pm): <a href="mailto:webcom@ucf.edu">webcom@ucf.edu</a> or 407-823-0973</li>
-			<li>After Hours or Emergency: 407-925-8102 (Patrick Burt) or 954-258-8274 (Christopher Conover)</li>
-		</ul>
-	</div>
+  <p>
+    The purpose of this system is gather content
+    from external sources and then email that content
+    to a set of recipients.
+  </p>
+  <p>
+    This page contains a general overview of how the system is built and
+    operates. You can always get back to this page by clicking the Postmaster
+    Emailer logo located in the top left corner of every page.
+  </p>
+  <div class="well">
+    <p>
+      <strong>
+        If you have any questions or problems,
+        please contact the Web Communications Team:
+      </strong>
+    </p>
+    <ul>
+      <li>Regular Business Hours (8:30am - 5pm): {{ office_hours_contact_info|safe }}</li>
+      <li>After Hours or Emergency: {{ after_hours_contact_info|safe }}</li>
+    </ul>
+  </div>
     <hr />
     <p class="lead">Today's email overview.</p>
     {% if emails %}
@@ -74,40 +74,40 @@
     {% else %}
     <p><strong>No emails are scheduled to send today</strong></p>
     {% endif %}
-	<hr />
-	<p>
-		The Postmaster Emailer has two parts: <strong>recipients</strong> and <strong>emails</strong>.
-	</p>
+  <hr />
+  <p>
+    The Postmaster Emailer has two parts: <strong>recipients</strong> and <strong>emails</strong>.
+  </p>
 
-	<h3>Recipients</h3>
-	<p>
-		The details of a person or entity. Recipients only have a single field: email address (column name: email_address). However when implementing data import scripts, developers may choose to add any number of additional attributes to recipients. Contact the Web Communications Team for more details on this functionality.
-	</p>
-	<p>
-		It is frequently neccessary to include details of a recipient such as name or email address in the content of an email. In the Postmaster Emailer system, this can be accomplished by adding recipient attribute placholders to the email content. These placeholders will then be replaced with the specific recipient's attribute value when the email is sent. The attribute placeholders take the form of <strong>&lt;delimiter&gt;attribute name&lt;delimiter&gt;</strong>. The default delimited is !@! but this can be modified on a per email basis. Also, you must know the column name of the attribute you wish to use. As mentioned above, the column name for the email address attribute is email_address. Consult the developer of your import script for the column names of other attributes.
-	</p>
-	<p>
-		Recipients are aggregated into named groups called <strong>recipient groups</strong>. When creating an email, these groups are how you will define which recipients will recieve your email. Important notes about recipient groups:
-	</p>
-	<ul>
-		<li>A recipient can be part of more than one recipient group.</li>
-		<li>A recipient can only be present in a recipient group once.</li>
-		<li>
-			If an email is assigned to go to multiple recipient groups and a recipient is in more than one of those recipients groups, the recipient will only receive the email <em>once</em>.
-		</li>
-	</ul>
-	<h3>Emails</h3>
-	<p>
-		This details what, when, and how an email will be sent to a set of 
-		recipients.
-	</p>
-	<p>
-		The Postmaster Email system has a preview function which allows for a review of the content of an email before it is sent out to the specified recipient groups. If the preview functionality is activated when an email is created, a preview email will be sent out to the specified list of preview recipients <strong>1 hour</strong> before the real email is sent to the recipient groups.
-	</p>
-	<p>
-		The Postmaster Email system is capabale of tracking when a recipient opens an email and when a recipient clicks on a link in an email.
-	</p>
-	<p>
-		When an email is sent, the details of that particular send (known as an <strong>instance</strong>) are recored.
-	</p>
+  <h3>Recipients</h3>
+  <p>
+    The details of a person or entity. Recipients only have a single field: email address (column name: email_address). However when implementing data import scripts, developers may choose to add any number of additional attributes to recipients. Contact the Web Communications Team for more details on this functionality.
+  </p>
+  <p>
+    It is frequently neccessary to include details of a recipient such as name or email address in the content of an email. In the Postmaster Emailer system, this can be accomplished by adding recipient attribute placholders to the email content. These placeholders will then be replaced with the specific recipient's attribute value when the email is sent. The attribute placeholders take the form of <strong>&lt;delimiter&gt;attribute name&lt;delimiter&gt;</strong>. The default delimited is !@! but this can be modified on a per email basis. Also, you must know the column name of the attribute you wish to use. As mentioned above, the column name for the email address attribute is email_address. Consult the developer of your import script for the column names of other attributes.
+  </p>
+  <p>
+    Recipients are aggregated into named groups called <strong>recipient groups</strong>. When creating an email, these groups are how you will define which recipients will recieve your email. Important notes about recipient groups:
+  </p>
+  <ul>
+    <li>A recipient can be part of more than one recipient group.</li>
+    <li>A recipient can only be present in a recipient group once.</li>
+    <li>
+      If an email is assigned to go to multiple recipient groups and a recipient is in more than one of those recipients groups, the recipient will only receive the email <em>once</em>.
+    </li>
+  </ul>
+  <h3>Emails</h3>
+  <p>
+    This details what, when, and how an email will be sent to a set of
+    recipients.
+  </p>
+  <p>
+    The Postmaster Email system has a preview function which allows for a review of the content of an email before it is sent out to the specified recipient groups. If the preview functionality is activated when an email is created, a preview email will be sent out to the specified list of preview recipients <strong>1 hour</strong> before the real email is sent to the recipient groups.
+  </p>
+  <p>
+    The Postmaster Email system is capabale of tracking when a recipient opens an email and when a recipient clicks on a link in an email.
+  </p>
+  <p>
+    When an email is sent, the details of that particular send (known as an <strong>instance</strong>) are recored.
+  </p>
 {% endblock %}

@@ -86,6 +86,7 @@ class Recipient(models.Model):
     def __str__(self):
         return self.email_address
 
+
 class RecipientAttribute(models.Model):
     '''
         Describes an attribute of a recipient. The purpose of this class is
@@ -102,6 +103,7 @@ class RecipientAttribute(models.Model):
     class Meta:
         unique_together  = (('recipient', 'name'))
 
+
 class RecipientGroup(models.Model):
     '''
         Describes a named group of recipients. Email objects are not associated with
@@ -112,6 +114,7 @@ class RecipientGroup(models.Model):
 
     def __str__(self):
         return self.name + ' (' + str(self.recipients.count()) + ' recipients)'
+
 
 class EmailManager(models.Manager):
     '''
@@ -246,6 +249,7 @@ class EmailManager(models.Manager):
                 if candidate.previews.filter(requested_start=requested_start).count() == 0:
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
+
 
 class Email(models.Model):
     '''
@@ -694,6 +698,7 @@ class Email(models.Model):
     def __str__(self):
         return self.title
 
+
 class Instance(models.Model):
     '''
         Describes what happens when an email is actual sent.
@@ -760,6 +765,7 @@ class Instance(models.Model):
     class Meta:
         ordering = ('-start',)
 
+
 class PreviewInstance(models.Model):
     '''
         Record that a preview was sent
@@ -768,6 +774,7 @@ class PreviewInstance(models.Model):
     recipients      = models.TextField()
     requested_start = models.DateTimeField()
     when            = models.DateTimeField(auto_now_add=True)
+
 
 class InstanceRecipientDetails(models.Model):
     '''
@@ -779,6 +786,7 @@ class InstanceRecipientDetails(models.Model):
     instance       = models.ForeignKey(Instance, related_name='recipient_details')
     when           = models.DateTimeField(null=True)
     exception_msg  = models.TextField(null=True, blank=True)
+
 
 class URL(models.Model):
     '''
@@ -795,6 +803,7 @@ class URL(models.Model):
     # and left to right.
     position = models.PositiveIntegerField(default=0)
 
+
 class URLClick(models.Model):
     '''
         Describes a recipient's clicking of a URL
@@ -803,6 +812,7 @@ class URLClick(models.Model):
     url       = models.ForeignKey(URL, related_name='clicks')
     when      = models.DateTimeField(auto_now_add=True)
 
+
 class InstanceOpen(models.Model):
     '''
         Describes a recipient's opening of an email
@@ -810,3 +820,8 @@ class InstanceOpen(models.Model):
     recipient = models.ForeignKey(Recipient, related_name='instances_opened')
     instance  = models.ForeignKey(Instance, related_name='opens')
     when      = models.DateTimeField(auto_now_add=True)
+
+
+class Setting(models.Model):
+    name = models.CharField(max_length=80)
+    value = models.CharField(max_length=200)
