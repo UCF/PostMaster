@@ -28,6 +28,9 @@ Configuration
 - Make sure to set the default value for Recipient disable on the DB to False (https://code.djangoproject.com/ticket/470)
 - Schedule the mailer-process management command to run based on the PROCCESSING_INVERVAL DURATION variable (PRODUCTION ONLY)
 - Schedule the recipient-importers to run based on the availabiliy of their external data sources (PRODUCTION ONLY)
+- Settings are used for setting global value across the application
+	- office_hours_contact_info: displays next to the office hours section on the home page when logged in
+	- after_hours_contact_info: displays next to the after hours section on the home page when logged in
 
 Testing
 -------
