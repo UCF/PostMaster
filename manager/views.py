@@ -1,43 +1,78 @@
-from django.views.generic.base   import TemplateView
-from django.views.generic.edit   import CreateView, UpdateView, DeleteView
-from django.views.generic.list   import ListView
-from django.views.generic.detail import DetailView
-from django.core.urlresolvers    import reverse
-from django.shortcuts            import get_object_or_404
-from manager.models              import Email, RecipientGroup, Instance, PreviewInstance, Recipient, URL, URLClick, InstanceOpen, RecipientAttribute
-from manager.forms               import EmailCreateUpdateForm, RecipientGroupCreateUpdateForm, \
-    RecipientCreateUpdateForm, RecipientAttributeUpdateForm, RecipientAttributeCreateForm, RecipientSearchForm, RecipientSubscriptionsForm
-from django.contrib              import messages
-from django.http                 import HttpResponse, HttpResponseRedirect
-from util                        import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, calc_unsubscribe_mac_old
-from django.conf                 import settings
-from django.views.generic.simple import direct_to_template
-from django.core.exceptions      import PermissionDenied
-from datetime import date, datetime
-import urllib
+from datetime import date
+from datetime import datetime
 import logging
+from util import calc_open_mac
+from util import calc_unsubscribe_mac
+from util import calc_unsubscribe_mac_old
+from util import calc_url_mac
+import urllib
+
+from django.conf import settings
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import CreateView
+from django.views.generic.edit import DeleteView
+from django.views.generic.list import ListView
+from django.views.generic.edit import UpdateView
+from django.views.generic.detail import DetailView
+from django.views.generic.simple import direct_to_template
+
+from manager.forms import EmailCreateUpdateForm
+from manager.forms import RecipientAttributeCreateForm
+from manager.forms import RecipientAttributeUpdateForm
+from manager.forms import RecipientCreateUpdateForm
+from manager.forms import RecipientGroupCreateUpdateForm
+from manager.forms import RecipientSearchForm
+from manager.forms import RecipientSubscriptionsForm
+from manager.forms import SettingCreateUpdateForm
+from manager.models import Email
+from manager.models import Instance
+from manager.models import InstanceOpen
+from manager.models import PreviewInstance
+from manager.models import RecipientAttribute
+from manager.models import Recipient
+from manager.models import RecipientGroup
+from manager.models import Setting
+from manager.models import URL
+from manager.models import URLClick
+
 
 log = logging.getLogger(__name__)
+
 
 ##
 # Mixins
 ##
 class EmailsMixin(object):
     def get_context_data(self, **kwargs):
-        context            = super(EmailsMixin, self).get_context_data(**kwargs)
+        context = super(EmailsMixin, self).get_context_data(**kwargs)
         context['section'] = 'emails'
         return context
 
+
 class RecipientGroupsMixin(object):
     def get_context_data(self, **kwargs):
-        context            = super(RecipientGroupsMixin, self).get_context_data(**kwargs)
+        context = super(RecipientGroupsMixin, self).get_context_data(**kwargs)
         context['section'] = 'recipientgroups'
         return context
 
+
 class RecipientsMixin(object):
     def get_context_data(self, **kwargs):
-        context            = super(RecipientsMixin, self).get_context_data(**kwargs)
+        context = super(RecipientsMixin, self).get_context_data(**kwargs)
         context['section'] = 'recipients'
+        return context
+
+
+class SettingsMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(SettingsMixin, self).get_context_data(**kwargs)
+        context['section'] = 'settings'
         return context
 
 
@@ -48,14 +83,34 @@ class OverviewListView(ListView):
     def get_queryset(self):
         return Email.objects.sending_today().order_by('send_time')
 
+    def get_context_data(self, **kwargs):
+        context = super(OverviewListView, self).get_context_data(**kwargs)
+
+        try:
+            contact_info = Setting.objects.get(
+                name='office_hours_contact_info')
+            context['office_hours_contact_info'] = contact_info.value
+        except Setting.DoesNotExist:
+            pass
+
+        try:
+            contact_info = Setting.objects.get(
+                name='after_hours_contact_info')
+            context['after_hours_contact_info'] = contact_info.value
+        except Setting.DoesNotExist:
+            pass
+
+        return context
+
+
 ##
 # Emails
 ##
 class EmailListView(EmailsMixin, ListView):
-    model               = Email
-    template_name       = 'manager/emails.html'
+    model = Email
+    template_name = 'manager/emails.html'
     context_object_name = 'emails'
-    paginate_by         = 20
+    paginate_by = 20
 
 
 class EmailCreateView(EmailsMixin, CreateView):
@@ -77,7 +132,9 @@ class EmailCreateView(EmailsMixin, CreateView):
         return super(EmailCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('manager-email-update', args=(), kwargs={'pk':self.object.pk})
+        return reverse('manager-email-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
 
 
 class EmailUpdateView(EmailsMixin, UpdateView):
@@ -106,23 +163,26 @@ class EmailUpdateView(EmailsMixin, UpdateView):
         return super(EmailUpdateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('manager-email-update', args=(), kwargs={'pk':self.object.pk})
+        return reverse('manager-email-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
 
 
 class EmailDeleteView(EmailsMixin, DeleteView):
-    model                = Email
-    template_name        = 'manager/email-delete.html'
+    model = Email
+    template_name = 'manager/email-delete.html'
     template_name_suffix = '-delete-confirm'
 
     def get_success_url(self):
         messages.success(self.request, 'Email successfully deleted.')
         return reverse('manager-emails')
 
+
 class EmailUnsubscriptionsListView(EmailsMixin, ListView):
-    model               = Recipient
-    template_name       = 'manager/email-unsubscriptions.html'
+    model = Recipient
+    template_name = 'manager/email-unsubscriptions.html'
     context_object_name = 'recipients'
-    paginate_by         = 20
+    paginate_by = 20
 
     def dispatch(self, request, *args, **kwargs):
         self._email = get_object_or_404(Email, pk=kwargs['pk'])
@@ -132,14 +192,16 @@ class EmailUnsubscriptionsListView(EmailsMixin, ListView):
         return self._email.unsubscriptions.all()
 
     def get_context_data(self, **kwargs):
-        context          = super(EmailUnsubscriptionsListView, self).get_context_data(**kwargs)
+        context = super(EmailUnsubscriptionsListView,
+                        self).get_context_data(**kwargs)
         context['email'] = self._email
         return context
 
+
 class InstanceListView(EmailsMixin, ListView):
-    model               = Instance
-    template_name       = 'manager/email-instances.html'
-    paginate_by         = 20
+    model = Instance
+    template_name = 'manager/email-instances.html'
+    paginate_by = 20
     context_object_name = 'instances'
 
     def dispatch(self, request, *args, **kwargs):
@@ -150,77 +212,91 @@ class InstanceListView(EmailsMixin, ListView):
         return Instance.objects.filter(email=self._email)
 
     def get_context_data(self, **kwargs):
-        context          = super(InstanceListView, self).get_context_data(**kwargs)
+        context = super(InstanceListView, self).get_context_data(**kwargs)
         context['email'] = self._email
         return context
 
+
 class InstanceDetailView(EmailsMixin, DetailView):
-    model               = Instance
-    template_name       = 'manager/email-instance.html'
+    model = Instance
+    template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
+
 
 ##
 # Recipients Groups
 ##
 class RecipientGroupListView(RecipientGroupsMixin, ListView):
-    model               = RecipientGroup
-    template_name       = 'manager/recipientgroups.html'
+    model = RecipientGroup
+    template_name = 'manager/recipientgroups.html'
     context_object_name = 'groups'
-    paginate_by         = 20
+    paginate_by = 20
+
 
 class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
-    model         = RecipientGroup
+    model = RecipientGroup
     template_name = 'manager/recipientgroup-create.html'
-    form_class    = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupCreateUpdateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient group successfully created.')
         return super(RecipientGroupCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('manager-recipientgroup-update', args=(), kwargs={'pk':self.object.pk})
+        return reverse('manager-recipientgroup-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
 
 class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
-    model         = RecipientGroup
+    model = RecipientGroup
     template_name = 'manager/recipientgroup-update.html'
-    form_class    = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupCreateUpdateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient group successfully updated.')
         return super(RecipientGroupUpdateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('manager-recipientgroup-update', args=(), kwargs={'pk':self.object.pk})
+        return reverse('manager-recipientgroup-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
 
 class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
-    model               = Recipient
-    template_name       = 'manager/recipientgroup-recipients.html'
+    model = Recipient
+    template_name = 'manager/recipientgroup-recipients.html'
     context_object_name = 'recipients'
-    paginate_by         = 20
+    paginate_by = 20
 
     def dispatch(self, request, *args, **kwargs):
-        self._recipient_group = get_object_or_404(RecipientGroup, pk=kwargs['pk'])
-        return super(RecipientGroupRecipientListView, self).dispatch(request, *args, **kwargs)
+        self._recipient_group = get_object_or_404(RecipientGroup,
+                                                  pk=kwargs['pk'])
+        return super(RecipientGroupRecipientListView, self).dispatch(request,
+                                                                     *args,
+                                                                     **kwargs)
 
     def get_queryset(self):
         return Recipient.objects.filter(groups=self._recipient_group)
 
     def get_context_data(self, **kwargs):
-        context                    = super(RecipientGroupRecipientListView, self).get_context_data(**kwargs)
+        context = super(RecipientGroupRecipientListView,
+                        self).get_context_data(**kwargs)
         context['recipientgroup'] = self._recipient_group
         return context
+
 
 ##
 # Recipients
 ##
 class RecipientListView(RecipientsMixin, ListView):
-    model               = Recipient
-    template_name       = 'manager/recipients.html'
+    model = Recipient
+    template_name = 'manager/recipients.html'
     context_object_name = 'recipients'
-    paginate_by         = 20
+    paginate_by = 20
 
     def get_queryset(self):
-        self._search_form  = RecipientSearchForm(self.request.GET)
+        self._search_form = RecipientSearchForm(self.request.GET)
         self._search_valid = self._search_form.is_valid()
         if self._search_valid:
             return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
@@ -228,16 +304,17 @@ class RecipientListView(RecipientsMixin, ListView):
             return Recipient.objects.all()
 
     def get_context_data(self, **kwargs):
-        context                 = super(RecipientListView, self).get_context_data(**kwargs)
-        context['search_form']  = self._search_form
+        context = super(RecipientListView, self).get_context_data(**kwargs)
+        context['search_form'] = self._search_form
         context['search_valid'] = self._search_valid
         return context
 
+
 class RecipientCreateView(RecipientsMixin, CreateView):
-    model               = Recipient
-    template_name       = 'manager/recipient-create.html'
+    model = Recipient
+    template_name = 'manager/recipient-create.html'
     context_object_name = 'recipient'
-    form_class          = RecipientCreateUpdateForm
+    form_class = RecipientCreateUpdateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient successfully created.')
@@ -246,12 +323,15 @@ class RecipientCreateView(RecipientsMixin, CreateView):
         return response
 
     def get_success_url(self):
-        return reverse('manager-recipient-update', args=(), kwargs={'pk':self.object.pk})
+        return reverse('manager-recipient-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
 
 class RecipientUpdateView(RecipientsMixin, UpdateView):
-    model         = Recipient
+    model = Recipient
     template_name = 'manager/recipient-update.html'
-    form_class    = RecipientCreateUpdateForm
+    form_class = RecipientCreateUpdateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient successfully updated.')
@@ -259,47 +339,59 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
         return super(RecipientUpdateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('manager-recipient-update', args=(), kwargs={'pk':self.object.pk})
+        return reverse('manager-recipient-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
 
 class RecipientAttributeListView(RecipientsMixin, ListView):
-    model               = RecipientAttribute
-    template_name       = 'manager/recipient-recipientattributes.html'
+    model = RecipientAttribute
+    template_name = 'manager/recipient-recipientattributes.html'
     context_object_name = 'attributes'
-    pageinate_by        = 20
+    pageinate_by = 20
 
     def dispatch(self, request, *args, **kwargs):
         self._recipient = get_object_or_404(Recipient, pk=kwargs['pk'])
-        return super(RecipientAttributeListView, self).dispatch(request, *args, **kwargs)
+        return super(RecipientAttributeListView, self).dispatch(request,
+                                                                *args,
+                                                                **kwargs)
 
     def get_queryset(self):
         return RecipientAttribute.objects.filter(recipient=self._recipient)
 
     def get_context_data(self, **kwargs):
-        context              = super(RecipientAttributeListView, self).get_context_data(**kwargs)
+        context = super(RecipientAttributeListView,
+                        self).get_context_data(**kwargs)
         context['recipient'] = self._recipient
         return context
 
+
 class RecipientAttributeCreateView(RecipientsMixin, CreateView):
-    model         = RecipientAttribute
+    model = RecipientAttribute
     template_name = 'manager/recipientattribute-create.html'
-    form_class    = RecipientAttributeCreateForm
+    form_class = RecipientAttributeCreateForm
 
     def dispatch(self, request, *args, **kwargs):
         self._recipient = get_object_or_404(Recipient, pk=kwargs['pk'])
-        return super(RecipientAttributeCreateView, self).dispatch(request, *args, **kwargs)
+        return super(RecipientAttributeCreateView, self).dispatch(request,
+                                                                  *args,
+                                                                  **kwargs)
 
     def get_context_data(self, **kwargs):
-        context              = super(RecipientAttributeCreateView, self).get_context_data(**kwargs)
+        context = super(RecipientAttributeCreateView,
+                        self).get_context_data(**kwargs)
         context['recipient'] = self._recipient
         return context
 
     def form_valid(self, form):
         form.instance.recipient = self._recipient
 
-        # Check the unique_together(recipient, name) here. It can't be done in the Form class
+        # Check the unique_together(recipient, name) here. It can't be done in
+        # the Form class
         name = form.cleaned_data['name']
         try:
-            RecipientAttribute.objects.get(name=name, recipient=self._recipient)
+            RecipientAttribute.objects.get(name=name,
+                                           recipient=self._recipient)
         except RecipientAttribute.DoesNotExist:
             pass
         else:
@@ -310,39 +402,50 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
         return super(RecipientAttributeCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        messages.success(self.request, 'Recipient attribute successfully created.')
-        return reverse('manager-recipient-recipientattributes', args=(), kwargs={'pk':self._recipient.pk})
+        messages.success(self.request,
+                         'Recipient attribute successfully created.')
+        return reverse('manager-recipient-recipientattributes',
+                       args=(),
+                       kwargs={'pk': self._recipient.pk})
+
 
 class RecipientAttributeUpdateView(RecipientsMixin, UpdateView):
-    model               = RecipientAttribute
-    template_name       = 'manager/recipientattribute-update.html'
-    form_class          = RecipientAttributeUpdateForm
+    model = RecipientAttribute
+    template_name = 'manager/recipientattribute-update.html'
+    form_class = RecipientAttributeUpdateForm
     context_object_name = 'attribute'
 
     def get_success_url(self):
-        messages.success(self.request, 'Recipient attribute successfully updated.')
-        return reverse('manager-recipientattribute-update', args=(), kwargs={'pk':self.object.pk})
+        messages.success(self.request,
+                         'Recipient attribute successfully updated.')
+        return reverse('manager-recipientattribute-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
 
 class RecipientAttributeDeleteView(RecipientsMixin, DeleteView):
-    model                = RecipientAttribute
-    template_name        = 'manager/recipientattribute-delete.html'
+    model = RecipientAttribute
+    template_name = 'manager/recipientattribute-delete.html'
     template_name_suffix = '-delete-confirm'
-    context_object_name  = 'attribute'
+    context_object_name = 'attribute'
 
     def get_success_url(self):
         messages.success(self.request, 'Attribute successfully deleted.')
-        return reverse('manager-recipient-recipientattributes', args=(), kwargs={'pk':self.object.recipient.pk})
+        return reverse('manager-recipient-recipientattributes',
+                       args=(),
+                       kwargs={'pk': self.object.recipient.pk})
+
 
 class RecipientSubscriptionsUpdateView(UpdateView):
-    model         = Recipient
+    model = Recipient
     template_name = 'manager/recipient-subscriptions.html'
-    form_class    = RecipientSubscriptionsForm
+    form_class = RecipientSubscriptionsForm
 
     def get_object(self, *args, **kwargs):
-        mac          = self.request.GET.get('mac', None)
+        mac = self.request.GET.get('mac', None)
 
         recipient_id = self.request.GET.get('recipient', None)
-        email_id     = self.request.GET.get('email',     None)
+        email_id = self.request.GET.get('email',     None)
 
         # Old style unsubscribe
         if recipient_id is not None and email_id is not None:
@@ -353,14 +456,14 @@ class RecipientSubscriptionsUpdateView(UpdateView):
             if mac is None or mac != calc_unsubscribe_mac_old(recipient_id, email_id):
                 raise PermissionDenied
         else:
-            recipient         = super(RecipientSubscriptionsUpdateView, self).get_object()
+            recipient = super(RecipientSubscriptionsUpdateView, self).get_object()
             # Validate MAC
             if mac is None or mac != calc_unsubscribe_mac(recipient.pk):
                 raise PermissionDenied
         return recipient
 
     def form_valid(self, form):
-        current_subscriptions   = self.object.subscriptions
+        current_subscriptions = self.object.subscriptions
         current_unsubscriptions = self.object.unsubscriptions.all()
 
         # Add new unsubscriptions
@@ -376,8 +479,58 @@ class RecipientSubscriptionsUpdateView(UpdateView):
         return super(RecipientSubscriptionsUpdateView, self).form_valid(form)
 
     def get_success_url(self):
-        messages.success(self.request, 'Your subscriptions have been successfully updated.')
+        messages.success(self.request,
+                         'Your subscriptions have been successfully updated.')
         return self.object.unsubscribe_url
+
+
+class SettingListView(SettingsMixin, ListView):
+    model = Setting
+    template_name = 'manager/settings.html'
+    context_object_name = 'settings'
+    pageinate_by = 20
+
+
+class SettingCreateView(SettingsMixin, CreateView):
+    model = Setting
+    template_name = 'manager/setting-create.html'
+    form_class = SettingCreateUpdateForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Setting successfully created.')
+        return super(SettingCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-setting-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
+
+class SettingUpdateView(SettingsMixin, UpdateView):
+    model = Setting
+    template_name = 'manager/setting-update.html'
+    form_class = SettingCreateUpdateForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Setting successfully updated.')
+        return super(SettingUpdateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-setting-update',
+                       args=(),
+                       kwargs={'pk': self.object.pk})
+
+
+class SettingDeleteView(SettingsMixin, DeleteView):
+    model = Setting
+    template_name = 'manager/setting-delete.html'
+    template_name_suffix = '-delete-confirm'
+
+    def get_success_url(self):
+        messages.success(self.request, 'Setting successfully deleted.')
+        return reverse('manager-settings')
+
+
 ##
 # Tracking
 ##
@@ -385,11 +538,11 @@ def redirect(request):
     '''
         Redirects based on URL and records URL click
     '''
-    instance_id   = request.GET.get('instance',  None)
-    url_string    = request.GET.get('url',       None)
-    position      = request.GET.get('position',  None)
-    recipient_id  = request.GET.get('recipient', None)
-    mac           = request.GET.get('mac',       None)
+    instance_id = request.GET.get('instance',  None)
+    url_string = request.GET.get('url',       None)
+    position = request.GET.get('position',  None)
+    recipient_id = request.GET.get('recipient', None)
+    mac = request.GET.get('mac',       None)
 
     if not url_string:
         pass # Where do we go?
@@ -399,18 +552,23 @@ def redirect(request):
         try:
             if position and recipient_id and mac and instance_id:
                 try:
-                    position     = int(position)
+                    position = int(position)
                     recipient_id = int(recipient_id)
-                    instance_id  = int(instance_id)
+                    instance_id = int(instance_id)
                 except ValueError:
                     log.error('value error')
                     pass
                 else:
-                    if mac == calc_url_mac(url_string, position, recipient_id, instance_id):
+                    if mac == calc_url_mac(url_string,
+                                           position,
+                                           recipient_id,
+                                           instance_id):
                         try:
                             recipient = Recipient.objects.get(id=recipient_id)
-                            instance  = Instance.objects.get(id=instance_id)
-                            url       = URL.objects.get(name=url_string, position=position, instance=instance)
+                            instance = Instance.objects.get(id=instance_id)
+                            url = URL.objects.get(name=url_string,
+                                                  position=position,
+                                                  instance=instance)
                         except URL.DoesNotExist:
                             # This should have been created
                             # in the mailer-process command
@@ -437,17 +595,18 @@ def redirect(request):
             pass
         return HttpResponseRedirect(url_string)
 
+
 def instance_open(request):
     '''
         Records an email open
     '''
-    instance_id   = request.GET.get('instance',  None)
-    recipient_id  = request.GET.get('recipient', None)
-    mac           = request.GET.get('mac',       None)
+    instance_id = request.GET.get('instance',  None)
+    recipient_id = request.GET.get('recipient', None)
+    mac = request.GET.get('mac',       None)
 
     if recipient_id and mac and instance_id is not None:
         try:
-            instance_id  = int(instance_id)
+            instance_id = int(instance_id)
             recipient_id = int(recipient_id)
         except ValueError:
             # corrupted
@@ -456,8 +615,9 @@ def instance_open(request):
             if mac == calc_open_mac(recipient_id, instance_id):
                 try:
                     recipient = Recipient.objects.get(id=recipient_id)
-                    instance  = Instance.objects.get(id=instance_id)
-                    InstanceOpen.objects.get(recipient=recipient, instance=instance)
+                    instance = Instance.objects.get(id=instance_id)
+                    InstanceOpen.objects.get(recipient=recipient,
+                                             instance=instance)
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
@@ -467,7 +627,8 @@ def instance_open(request):
                     log.error('bad instance')
                     pass
                 except InstanceOpen.DoesNotExist:
-                    instance_open = InstanceOpen(recipient=recipient, instance=instance)
+                    instance_open = InstanceOpen(recipient=recipient,
+                                                 instance=instance)
                     instance_open.save()
                     log.debug('open saved')
     return HttpResponse(settings.DOT, content_type='image/png')

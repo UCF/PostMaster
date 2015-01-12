@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+  {{block.super}}
+  <li><a href="{% url manager-settings %}">Settings</a> <span class="divider">/</span></li>
+  <li class="active">
+    <a href="{% url manager-setting-update form.instance.pk %}">{{form.instance.title}}</a>
+  </li>
+{% endblock %}
+{% block page-body %}
+<form class="form-horizontal" action="{% url manager-setting-update setting.pk %}" method="post">
+  <fieldset>
+    <legend>Update Setting</legend>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-error">
+        {{error}}
+      </div>
+    {% endfor %}
+    {% for field in form %}
+      {% include 'form-control-group.html' %}
+    {% endfor %}
+    <a href="{% url manager-setting-delete setting.pk %}" class="btn btn-danger">Delete</a>
+    <div class="pull-right">
+      <button type="submit" class="btn btn-primary">Update</button>
+      <a href="{% url manager-home %}" class="btn">Cancel</a>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}
