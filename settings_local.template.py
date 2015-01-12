@@ -13,8 +13,8 @@ MEDIA_URL = '/static/'
 # No trailing slash
 PROJECT_URL = 'http://127.0.0.1:8000'
 
-LOGIN_URL  = '/'.join([PROJECT_URL, 'login'])
-LOGOUT_URL = '/'.join([PROJECT_URL, 'logout'])
+LOGIN_URL  = '/login'
+LOGOUT_URL = '/logout'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'whatisthisnonsense?'
