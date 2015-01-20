@@ -48,7 +48,7 @@ class Recipient(models.Model):
 
     @property
     def hmac_hash(self):
-        return hmac.new(settings.SECRET_KEY, self.email_address).hexdigest()
+        return calc_unsubscribe_mac(self.pk)
 
     @property
     def subscriptions(self, include_deactivated=False):
