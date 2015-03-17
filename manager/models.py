@@ -640,13 +640,17 @@ class Email(models.Model):
             log.exception('Not sending Live email. HTML request returned status code ' + str(status_code))
             raise self.EmailException()
 
-        instance = Instance.objects.create(
-            email           = self,
-            sent_html       = html,
-            requested_start = datetime.combine(datetime.now().today(), self.send_time),
-            opens_tracked   = self.track_opens,
-            urls_tracked    = self.track_urls
-        )
+        ##
+        # if send_time is not set, this is a test send.
+        ##
+        if self.send_time is not None:
+            instance = Instance.objects.create(
+                email           = self,
+                sent_html       = html,
+                requested_start = datetime.combine(datetime.now().today(), self.send_time),
+                opens_tracked   = self.track_opens,
+                urls_tracked    = self.track_urls
+            )
 
         recipients = Recipient.objects.filter(
             groups__in = self.recipient_groups.all()).exclude(

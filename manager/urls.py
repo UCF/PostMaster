@@ -13,6 +13,7 @@ urlpatterns = patterns('manager.views',
     url(r'^email/(?P<pk>\d+)/update/$',          login_required(EmailUpdateView.as_view()),              name='manager-email-update'),
     url(r'^email/(?P<pk>\d+)/instances/$',       login_required(InstanceListView.as_view()),             name='manager-email-instances'),
     url(r'^email/(?P<pk>\d+)/unsubscriptions/$', login_required(EmailUnsubscriptionsListView.as_view()), name='manager-email-unsubscriptions'),
+    url(r'^email/instant-send/$',                login_required(EmailInstantSendView.as_view()),         name='manager-email-instant-send'),
     url(r'^email/instance/(?P<pk>\d+)/$',        login_required(InstanceDetailView.as_view()),           name='manager-email-instance'),
     url(r'^emails/$',                            login_required(EmailListView.as_view()),                name='manager-emails'),
 

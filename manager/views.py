@@ -19,10 +19,12 @@ from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
+from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.simple import direct_to_template
 
 from manager.forms import EmailCreateUpdateForm
+from manager.forms import EmailInstantSendForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientCreateUpdateForm
@@ -136,7 +138,6 @@ class EmailCreateView(EmailsMixin, CreateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
-
 class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
     template_name = 'manager/email-update.html'
@@ -167,6 +168,33 @@ class EmailUpdateView(EmailsMixin, UpdateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
+class EmailInstantSendView(EmailsMixin, FormView):
+    template_name = 'manager/email-instant-send.html'
+    form_class = EmailInstantSendForm
+
+    def form_valid(self, form):
+        subject = form.cleaned_data['subject']
+        source_html_uri = form.cleaned_data['source_html_uri']
+        from_email_address = form.cleaned_data['from_email_address']
+        from_friendly_name = form.cleaned_data['from_friendly_name']
+        replace_delimiter = form.cleaned_data['replace_delimiter']
+        recipient_groups = form.cleaned_data['recipient_groups']
+
+        email = Email()
+        email.active = True
+        email.subject = subject
+        email.source_html_uri = source_html_uri
+        email.from_email_address = from_email_address
+        email.from_friendly_name = from_friendly_name
+        email.replace_delimiter = replace_delimiter
+        email.recipients = recipient_groups
+        email.preview = False
+
+        email.send()
+
+    def get_success_url(self):
+        messages.success(self.request, 'Email sent')
+        return reverse('manager-emails')
 
 class EmailDeleteView(EmailsMixin, DeleteView):
     model = Email
