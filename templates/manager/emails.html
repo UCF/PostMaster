@@ -4,16 +4,8 @@
 	<li class="active"><a href="{% url manager-emails %}">Emails</a></li>
 {% endblock %}
 {% block page-body %}
-<ul class="nav nav-pills pull-right" style="margin-bottom:0;">
-	<li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-			Actions <b class="caret"></b>
-		</a>
-		<ul class="dropdown-menu">
-			<li><a href="{% url manager-email-create %}">Create New Email</a></li>
-		</ul>
-	</li>
-</ul>
+
+	<a href="{% url manager-email-create %}" class="btn btn-primary pull-right">Create New Email</a>
 <h2>Emails</h2>
 {% if is_paginated %}
 <div class="pagination">

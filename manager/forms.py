@@ -51,7 +51,7 @@ class RecipientAttributeUpdateForm(forms.ModelForm):
 
 
 class RecipientSearchForm(forms.Form):
-    email_address = forms.CharField(widget=forms.TextInput(attrs={'class': 'input-medium search-query'}))
+    email_address = forms.CharField(widget=forms.TextInput())
 
 
 class RecipientSubscriptionsForm(forms.ModelForm):

@@ -290,7 +290,7 @@ class Email(models.Model):
         'subject': 'Subject of the email',
         'source_html_uri': 'Source URI of the email HTML',
         'source_text_uri': 'Source URI of the email text',
-        'start_date': 'Date that the email will first be sent.',
+        'start_date': 'Date that the email will first be sent. Format: YYYY-MM-DD',
         'send_time': 'Format: %H:%M or %H:%M:%S. Time of day when the email will be sent. Times will be rounded to the nearest quarter hour.',
         'recurrence': 'If and how often the email will be resent.',
         'replace_delimiter': 'Character(s) that replacement labels are wrapped in.',

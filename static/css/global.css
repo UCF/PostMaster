@@ -1,7 +1,13 @@
-table tr.active td {
-  background-color:#F9F9F9;cursor:pointer;
+body {
+  margin: 15px 0;
 }
 
-.navbar .brand {
-  padding: 8px 10px 12px;
+table tr.active td {
+  cursor: pointer;
+}
+
+.form-group .alert-danger {
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  margin-top: 5px;
 }

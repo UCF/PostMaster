@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
-	{{block.super}}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipient-update recipient.pk %}">Update</a></li>
+    {{block.super}}
+    <li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
+    <li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
+    <li class="active"><a href="{% url manager-recipient-update recipient.pk %}">Update</a></li>
 {% endblock %}
 {% block page-body %}
 <form class="form-horizontal" action="{% url manager-recipient-update recipient.pk %}" method="post">
-	<fieldset>
-		<legend>Update Recipient</legend>
-		{% for error in form.non_field_errors %}
-			<div class="alert alert-error">
-				{{error}}
-			</div>
-		{% endfor %}
-		{% for field in form %}
-			{% include 'form-control-group.html' %}
-		{% endfor %}
-		<div class="pull-right">
-			<button type="submit" class="btn btn-primary">Update</button>
-			<a href="{% url manager-home %}" class="btn">Cancel</a>
-		</div>
-	</fieldset>
+    <fieldset>
+        <legend>Update Recipient</legend>
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{error}}
+            </div>
+        {% endfor %}
+        {% for field in form %}
+            {% include 'form-control-group.html' %}
+        {% endfor %}
+        <div class="pull-right">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{% url manager-home %}" class="btn">Cancel</a>
+        </div>
+    </fieldset>
 </form>
 {% endblock %}
