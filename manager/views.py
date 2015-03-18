@@ -22,7 +22,6 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.simple import direct_to_template
-from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import RecipientAttributeCreateForm
@@ -647,7 +646,7 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
         if form.is_valid():
             existing_group_name = None
 
-            if form.cleaned_data['existing_group_name']:
+            if existing_group_name:
                 existing_group_name = form.cleaned_data['existing_group_name'].name
 
             new_group_name = form.cleaned_data['new_group_name']
@@ -662,12 +661,8 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
             else:
                 group = new_group_name
 
-            try:
-                importer = CSVImport(csv_file, group, skip_first_row, column_order)
-                importer.import_emails()
-            except Exception, e:
-                form._errors['__all__'] = ErrorList([str(e)])
-                return super(RecipientCSVImportView, self).form_invalid(form)
+            importer = CSVImport(csv_file, group, skip_first_row, column_order)
+            importer.import_emails()
 
             messages.success(self.request, 'Emails successfully imported.')
             return super(RecipientCSVImportView, self).form_valid(form)
