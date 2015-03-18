@@ -8,7 +8,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
-import hmac
 import logging
 import smtplib
 import re

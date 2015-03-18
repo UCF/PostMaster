@@ -7,7 +7,8 @@
 	<li class="active"><a href="{% url manager-email-instance instance.pk %}">{{instance.start}}</a></li>
 {% endblock %}
 {% block page-body %}
-	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
+	<h2>{{instance.email.title}} Instance
+    <a href="{% url manager-email-instance-saved instance.pk %}" class="btn btn-info">View Email</a><br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
 	{% if instance.in_progress %}
 	<div class="alert alert-info">This instance is still in progress.</div>
 	{% endif %}
