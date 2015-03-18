@@ -18,12 +18,12 @@ class CSVImport:
 			self.csv_file = csv_file
 		else:
 			print 'csv_file is null or empty string'
-			return
+			raise Exception('csv_file must not be null')
 
 		if recipient_group_name:
 			self.recipient_group_name = recipient_group_name
 		else:
-			print 'recipient_group_name is null or empty string'
+			raise Exception('Receipient Group Name is null or empty string')
 			return
 
 		if skip_first_row:
@@ -86,6 +86,8 @@ class CSVImport:
 						preferred_name = row[preferred_name_index]
 				except IndexError:
 					print 'Malformed row at line %d' % row_num
+					self.revert()
+					raise Exception('There is a malformed row at line %d' % row_num)
 				else:
 					if email_address == '':
 						print 'Empty email address at line %d' % row_num
@@ -164,3 +166,11 @@ class CSVImport:
 							except Exception, e:
 								print 'Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
 			row_num += 1
+
+	def revert(self):
+		try:
+			recipient_group = RecipientAttribute.objects.get(name=self.recipient_group_name)
+		except:
+			return
+		else:
+			recipient_group.delete()
