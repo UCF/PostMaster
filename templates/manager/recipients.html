@@ -10,7 +10,10 @@
 	{% endif %}
 {% endblock %}
 {% block page-body %}
-<a href="{% url manager-recipient-create %}" class="btn btn-primary pull-right">Create New Recipient</a>
+<div class="btn-group pull-right" role="group" aria-label="Form Actions">
+	<a href="{% url manager-recipient-create %}" class="btn btn-success">Create New Recipient</a>
+	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">Import Recipients</a>
+</div>
 <h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
 <div class="pagination">
 	{% if is_paginated %}
