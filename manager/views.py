@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
@@ -30,6 +31,7 @@ from manager.forms import RecipientGroupCreateUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
+from manager.forms import RecipientCSVImportForm
 from manager.models import Email
 from manager.models import Instance
 from manager.models import InstanceOpen
@@ -40,6 +42,7 @@ from manager.models import RecipientGroup
 from manager.models import Setting
 from manager.models import URL
 from manager.models import URLClick
+from manager.utils import CSVImport
 
 
 log = logging.getLogger(__name__)
@@ -395,7 +398,6 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
         except RecipientAttribute.DoesNotExist:
             pass
         else:
-            from django.forms.util import ErrorList
             form._errors['name'] = ErrorList([u'A attribute with that name already exists for this recipient.'])
             return super(RecipientAttributeCreateView, self).form_invalid(form)
 
@@ -632,3 +634,38 @@ def instance_open(request):
                     instance_open.save()
                     log.debug('open saved')
     return HttpResponse(settings.DOT, content_type='image/png')
+
+##
+# Utility Views
+##
+class RecipientCSVImportView(RecipientsMixin, FormView):
+    template_name = 'manager/recipient-csv-import.html'
+    form_class = RecipientCSVImportForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            existing_group_name = None
+
+            if existing_group_name:
+                existing_group_name = form.cleaned_data['existing_group_name'].name
+
+            new_group_name = form.cleaned_data['new_group_name']
+            column_order = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
+            print column_order
+            skip_first_row = form.cleaned_data['skip_first_row']
+            csv_file = form.cleaned_data['csv_file']
+
+            group = ""
+            if existing_group_name is not None:
+                group = existing_group_name
+            else:
+                group = new_group_name
+
+            importer = CSVImport(csv_file, group, skip_first_row, column_order)
+            importer.import_emails()
+
+            messages.success(self.request, 'Emails successfully imported.')
+            return super(RecipientCSVImportView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-recipientgroups')

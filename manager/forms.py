@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.models import inlineformset_factory
 
 from manager.models import Email
 from manager.models import Recipient
@@ -18,7 +19,7 @@ class RecipientGroupCreateUpdateForm(forms.ModelForm):
 
     class Meta:
         model = RecipientGroup
-        exclude = ('recipients',)
+        exclude = ('recipients', )
 
 
 class RecipientCreateUpdateForm(forms.ModelForm):
@@ -35,6 +36,30 @@ class RecipientCreateUpdateForm(forms.ModelForm):
         model = Recipient
         exclude = ('recipients',)
 
+class RecipientCSVImportForm(forms.Form):
+    existing_group_name = forms.ModelChoiceField(queryset=RecipientGroup.objects.all(), 
+        required=False,
+        help_text='If adding recipients to an existing recipient group, choose the group name.',
+        to_field_name='name')
+    new_group_name = forms.CharField(help_text='If creating a new recipient group, enter the name.',
+        required=False)
+    column_order = forms.CharField(help_text='Enter, seperated by commas, the name of the columns in your CSV (i.e. first_name,last_name,email,preferred_name).')
+    skip_first_row = forms.BooleanField(help_text='Check if you have column names in your first row.', required=False)
+    csv_file = forms.FileField()
+
+    def clean(self):
+        if any(self.errors):
+            return
+        else:
+            cleaned_data = super(RecipientCSVImportForm, self).clean()
+            existing_group_name = cleaned_data.get('existing_group_name')
+            new_group_name = cleaned_data.get('new_group_name')
+
+            if existing_group_name and new_group_name:
+                raise forms.ValidationError('Please specify either a new or existing group name.')
+            elif not existing_group_name and not new_group_name:
+                raise forms.ValidationError('Please specify either a new or existing group name.')
+            return cleaned_data
 
 class RecipientAttributeCreateForm(forms.ModelForm):
 
