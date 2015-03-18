@@ -1,4 +1,7 @@
-DEBUG  = True
+import os
+
+
+DEBUG = True
 ADMINS = (
 	#('Your Name', 'your_email@domain.com'),
 )
@@ -9,9 +12,10 @@ ADMINS = (
 MEDIA_URL = '/static/'
 
 # Base URL of the project. Needed in places where build_absolute_uri
-# can't be used because there is no request object (e.g. management commands)	
+# can't be used because there is no request object (e.g. management commands)
 # No trailing slash
 PROJECT_URL = 'http://127.0.0.1:8000'
+PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 LOGIN_URL  = '/login'
 LOGOUT_URL = '/logout'

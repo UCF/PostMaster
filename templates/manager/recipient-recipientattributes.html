@@ -6,16 +6,7 @@
 	<li class="active"><a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a></li>
 {% endblock %}
 {% block page-body %}
-<ul class="nav nav-pills pull-right" style="margin-bottom:0;">
-	<li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-			Actions <b class="caret"></b>
-		</a>
-		<ul class="dropdown-menu">
-			<li><a href="{% url manager-recipientattribute-create recipient.pk %}">Create New Attribute</a></li>
-		</ul>
-	</li>
-</ul>
+<a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-primary pull-right">Create New Attribute</a>
 <h2>Recipient Attributes for {{recipient.email_address}}</h2>
 {% if is_paginated %}
 <div class="pagination">
