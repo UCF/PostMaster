@@ -14,7 +14,6 @@ class EmailCreateUpdateForm(forms.ModelForm):
         model = Email
         exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', )
 
-
 class RecipientGroupCreateUpdateForm(forms.ModelForm):
 
     class Meta:

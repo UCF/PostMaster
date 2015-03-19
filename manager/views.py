@@ -6,6 +6,7 @@ from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
 from util import calc_url_mac
 import urllib
+import json
 
 from django.conf import settings
 from django.contrib import messages
@@ -279,6 +280,24 @@ class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
         return super(RecipientGroupRecipientListView, self).dispatch(request,
                                                                      *args,
                                                                      **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        recipient_group_id = request.POST.get('recipient-group-id')
+        recipient_email = request.POST.get('recipient-email')
+        try:
+            recipient_group = RecipientGroup.objects.get(pk=int(recipient_group_id))
+            recipient = Recipient.objects.get(email_address=recipient_email.lower())
+            if recipient not in recipient_group.recipients.all():
+                recipient_group.recipients.add(recipient)
+                messages.success(self.request, 'Recipient added to group.')
+            else:
+                messages.success(self.request, 'Recipient already a member of group.')
+        except Exception, e:
+            messages.success(self.request, str(e))
+        
+        return super(RecipientGroupRecipientListView, self).get(request,
+                                                                *args,
+                                                                **kwargs)
 
     def get_queryset(self):
         return Recipient.objects.filter(groups=self._recipient_group)
@@ -674,3 +693,36 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
 
     def get_success_url(self):
         return reverse('manager-recipientgroups')
+
+def recipient_json_feed(request):
+    search_term = ''
+
+    if request.GET.get('search'):
+        search_term = request.GET.get('search')
+
+    recipients = []
+
+    if search_term:
+        recipient_fks = RecipientAttribute.objects.filter(name__in=['First Name','Last Name','Preferred Name'], value__contains=search_term).values_list('recipient', flat=True).distinct()
+        for r in recipient_fks:
+            recipients.append(Recipient.objects.get(pk=r))
+    else:
+        recipients = Recipient.objects.all()
+
+    retval = []
+
+    for recipient in recipients:
+        first_name = RecipientAttribute.objects.filter(recipient=recipient, name='First Name')[0].value if RecipientAttribute.objects.filter(recipient=recipient, name='First Name') else ''
+        last_name = RecipientAttribute.objects.filter(recipient=recipient, name='Last Name')[0].value if RecipientAttribute.objects.filter(recipient=recipient, name='Last Name') else ''
+        preferred_name = RecipientAttribute.objects.filter(recipient=recipient, name='Preferred Name')[0].value if RecipientAttribute.objects.filter(recipient=recipient, name='Preferred Name') else ''
+
+        r = {}
+        r['pk'] = recipient.pk
+        r['email_address'] = recipient.email_address
+        r['first_name'] = first_name
+        r['last_name'] = last_name
+        r['preferred_name'] = preferred_name
+
+        retval.append(r)
+
+    return HttpResponse(json.dumps(retval), content_type='application/json')
