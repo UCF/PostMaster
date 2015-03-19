@@ -4,7 +4,8 @@
 	<li class="active"><a href="{% url manager-recipientgroups %}">Recipient Groups</a></li>
 {% endblock %}
 {% block page-body %}
-<a href="{% url manager-recipientgroup-create %}" class="btn btn-primary pull-right">Create New Recipient Group</a>
+<a href="{% url manager-recipientgroup-create %}" class="btn btn-primary pull-right">
+  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient Group</a>
 <h2>Recipient Groups</h2>
 {% if is_paginated %}
 <div class="pagination pull-right">
@@ -25,7 +26,7 @@
 	</ul>
 </div>
 {% endif %}
-<table class="table">
+<table class="table table-striped table-hover">
 	<thead>
 		<tr>
 			<th scope="col">Name</th>

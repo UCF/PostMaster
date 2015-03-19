@@ -10,10 +10,14 @@
 	{% endif %}
 {% endblock %}
 {% block page-body %}
+
 <div class="btn-group pull-right" role="group" aria-label="Form Actions">
-	<a href="{% url manager-recipient-create %}" class="btn btn-success">Create New Recipient</a>
-	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">Import Recipients</a>
+	<a href="{% url manager-recipient-create %}" class="btn btn-success">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient</a>
+	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">
+    <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import Recipients</a>
 </div>
+
 <h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
 <div class="pagination">
 	{% if is_paginated %}
@@ -33,14 +37,20 @@
 		</li>
 	</ul>
 	{% endif %}
+
 	<form class="form-inline form-search pull-right" action="{% url manager-recipients %}" method="get">
     <div class="form-group">
-		  {{search_form.email_address|add_class:"form-control search-query col-md-6"}}
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
+      <div class="input-group">
+        {{search_form.email_address|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
+        <span class="input-group-btn">
+          <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+        </span>
+      </div><!-- /input-group -->
+    </div><!-- /form-group -->
 	</form>
+
 </div>
-<table class="table">
+<table class="table table-striped table-hover">
 	<thead>
 		<tr>
 			<th scope="col">Email Address</th>
