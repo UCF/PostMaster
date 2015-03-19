@@ -71,7 +71,7 @@ class CSVImport:
 				continue
 			else:
 				try:
-					email_address = row[email_adress_index]
+					email_address = row[email_adress_index].lower()
 					if first_name_index is None:
 						first_name = None
 					else:
@@ -94,10 +94,10 @@ class CSVImport:
 					else:
 						created = False
 						try:
-							recipient = Recipient.objects.get(email_address=email_address)
+							recipient = Recipient.objects.get(email_address=email_address.lower())
 						except:
 							recipient = Recipient(
-									email_address=email_address
+									email_address=email_address.lower()
 							)
 
 							created	= True
