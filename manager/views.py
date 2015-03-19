@@ -699,13 +699,21 @@ def recipient_json_feed(request):
 
     if request.GET.get('search'):
         search_term = request.GET.get('search')
+        print search_term
 
     recipients = []
 
     if search_term:
-        recipient_fks = RecipientAttribute.objects.filter(name__in=['First Name','Last Name','Preferred Name'], value__contains=search_term).values_list('recipient', flat=True).distinct()
+        recipient_fks = list(RecipientAttribute.objects.filter(name__in=['First Name','Last Name','Preferred Name'], value__contains=search_term).values_list('recipient', flat=True).distinct())
+        recipient_emails = list(Recipient.objects.filter(email_address__contains=search_term).values_list('pk', flat=True))
+
+        for r in recipient_emails:
+            if r not in recipient_fks:
+                recipient_fks.append(r)
+
         for r in recipient_fks:
             recipients.append(Recipient.objects.get(pk=r))
+
     else:
         recipients = Recipient.objects.all()
 

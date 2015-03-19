@@ -62,7 +62,7 @@
     var recipients = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('email_address'),
         queryTokenizer: Bloodhound.tokenizers.whitespace,
-        prefetch: '/recipients/json/'
+        remote: '/recipients/json/?search=%QUERY'
     });
 
     recipients.clearPrefetchCache();
