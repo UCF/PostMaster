@@ -7,9 +7,10 @@
 {% endblock %}
 {% block page-body %}
 <h2>{{recipient_group.name}} Recipients</h2>
+
 {% if is_paginated %}
-<div class="pagination">
-	<ul>
+<div>
+	<ul class="pagination">
 		{% if page_obj.has_previous %}
 		<li>
 			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
@@ -20,12 +21,13 @@
 			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
 		</li>
 		{% endif %}
-		<li class="active">
+		<li class="disabled">
 			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
 		</li>
 	</ul>
 </div>
 {% endif %}
+
 <table class="table table-striped table-hover">
 	<thead>
 		<tr>

@@ -4,12 +4,13 @@
 	<li class="active"><a href="{% url manager-recipientgroups %}">Recipient Groups</a></li>
 {% endblock %}
 {% block page-body %}
-<a href="{% url manager-recipientgroup-create %}" class="btn btn-primary pull-right">
+<a href="{% url manager-recipientgroup-create %}" class="btn btn-success pull-right">
   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient Group</a>
 <h2>Recipient Groups</h2>
+
 {% if is_paginated %}
-<div class="pagination pull-right">
-	<ul>
+<div>
+	<ul class="pagination">
 		{% if page_obj.has_previous %}
 		<li>
 			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
@@ -20,12 +21,13 @@
 			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
 		</li>
 		{% endif %}
-		<li class="active">
+		<li class="disabled">
 			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
 		</li>
 	</ul>
 </div>
 {% endif %}
+
 <table class="table table-striped table-hover">
 	<thead>
 		<tr>
