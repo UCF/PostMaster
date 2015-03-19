@@ -1,62 +1,89 @@
 {% extends 'base.html' %}
+
 {% block breadcrumbs %}
 	{{block.super}}
 	<li class="active"><a href="{% url manager-emails %}">Emails</a></li>
 {% endblock %}
+
 {% block page-body %}
 
-<a href="{% url manager-email-create %}" class="btn btn-success pull-right">
-  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Email</a>
+  <a href="{% url manager-email-create %}" class="btn btn-success pull-right">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Email</a>
 
-<h2>Emails</h2>
-{% if is_paginated %}
-<div>
-	<ul class="pagination">
-		{% if page_obj.has_previous %}
-		<li>
-			<a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">Prev</a>
-		</li>
-		{% endif %}
-    {% if page_obj.has_next %}
-    <li>
-      <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">Next</a>
-    </li>
-    {% endif %}
-    <li class="disabled">
-      <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-    </li>
-	</ul>
-</div>
-{% endif %}
+  <h2>Emails</h2>
+  {% if is_paginated %}
+    <div>
+    	<ul class="pagination">
+    		{% if page_obj.has_previous %}
+    		<li>
+    			<a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
+            <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+    		</li>
+    		{% endif %}
+        {% if page_obj.has_next %}
+        <li>
+          <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
+            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+        </li>
+        {% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
+    	</ul>
+    </div>
+  {% endif %}
 
-<table class="table table-striped table-hover">
-	<thead>
-		<tr>
-			<th scope="col">Name</th>
-			<th scope="col">Number of Instances</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for email in emails %}
-		<tr data-link-url="{% url manager-email-update email.pk %}">
-			<td>{{email.title}}</td>
-			<td>{{email.instances.count}}</td>
-			<td style="padding-top:0;padding-bottom:0;">
-				<ul class="nav nav-pills pull-right" style="margin-bottom:0;">
-					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							Details <b class="caret"></b>
-						</a>
-						<ul class="dropdown-menu">
-							<li><a href="{% url manager-email-instances email.pk %}">Instances</a></li>
-							<li><a href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a></li>
-						</ul>
-					</li>
-				</ul>
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
+  <table class="table table-striped table-hover">
+  	<thead>
+  		<tr>
+  			<th scope="col">Name</th>
+  			<th scope="col">Number of Instances</th>
+  			<th></th>
+  		</tr>
+  	</thead>
+  	<tbody>
+  		{% for email in emails %}
+  		<tr data-link-url="{% url manager-email-update email.pk %}">
+  			<td>{{email.title}}</td>
+  			<td>{{email.instances.count}}</td>
+  			<td style="padding-top:0;padding-bottom:0;">
+  				<ul class="nav nav-pills pull-right" style="margin-bottom:0;">
+  					<li class="dropdown">
+  						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+  							Details <b class="caret"></b>
+  						</a>
+  						<ul class="dropdown-menu">
+  							<li><a href="{% url manager-email-instances email.pk %}">Instances</a></li>
+  							<li><a href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a></li>
+  						</ul>
+  					</li>
+  				</ul>
+  			</td>
+  		</tr>
+  		{% endfor %}
+  	</tbody>
+  </table>
+
+  {% if is_paginated %}
+    <div>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
+            <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+        </li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li>
+          <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
+            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+        </li>
+        {% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+
 {% endblock %}

@@ -1,49 +1,77 @@
 {% extends 'base.html' %}
+
 {% block breadcrumbs %}
 	{{block.super}}
 	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
 	<li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
 	<li class="active"><a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a></li>
 {% endblock %}
+
 {% block page-body %}
+
 <a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-success pull-right">
   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Attribute</a>
 <h2>Recipient Attributes for {{recipient.email_address}}</h2>
 
 {% if is_paginated %}
-<div>
-	<ul class="pagination">
-		{% if page_obj.has_previous %}
-		<li>
-			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
-		</li>
-		{% endif %}
-		{% if page_obj.has_next %}
-		<li>
-			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
-		</li>
-		{% endif %}
-		<li class="disabled">
-			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-		</li>
-	</ul>
-</div>
-{% endif %}
+  <div>
+  	<ul class="pagination">
+  		{% if page_obj.has_previous %}
+  		<li>
+  			<a href="?page={{page_obj.previous_page_number}}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+  		</li>
+  		{% endif %}
+  		{% if page_obj.has_next %}
+  		<li>
+  			<a href="?page={{page_obj.next_page_number}}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+  		</li>
+  		{% endif %}
+  		<li class="disabled">
+  			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+  		</li>
+  	</ul>
+  </div>
+  {% endif %}
 
-<table class="table table-striped table-hover">
-	<thead>
-		<tr>
-			<th scope="col">Name</th>
-			<th scope="col">Value</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for attribute in attributes %}
-		<tr data-link-url="{% url manager-recipientattribute-update attribute.pk %}">
-			<td>{{attribute.name}}</td>
-			<td>{{attribute.value}}</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
+  <table class="table table-striped table-hover">
+  	<thead>
+  		<tr>
+  			<th scope="col">Name</th>
+  			<th scope="col">Value</th>
+  		</tr>
+  	</thead>
+  	<tbody>
+  		{% for attribute in attributes %}
+  		<tr data-link-url="{% url manager-recipientattribute-update attribute.pk %}">
+  			<td>{{attribute.name}}</td>
+  			<td>{{attribute.value}}</td>
+  		</tr>
+  		{% endfor %}
+  	</tbody>
+  </table>
+
+  {% if is_paginated %}
+  <div>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{page_obj.previous_page_number}}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{page_obj.next_page_number}}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
 {% endblock %}

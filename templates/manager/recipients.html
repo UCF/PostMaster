@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block breadcrumbs %}
 	{{block.super}}
 	{% if search_valid %}
@@ -9,88 +10,95 @@
 	<li class="active"><a href="{% url manager-recipients %}">Recipients</a></li>
 	{% endif %}
 {% endblock %}
+
 {% block page-body %}
 
-<div class="btn-group pull-right" role="group" aria-label="Form Actions">
-	<a href="{% url manager-recipient-create %}" class="btn btn-success">
-    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient</a>
-	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">
-    <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import Recipients</a>
-</div>
+  <div class="btn-group pull-right" role="group" aria-label="Form Actions">
+  	<a href="{% url manager-recipient-create %}" class="btn btn-success">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient</a>
+  	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">
+      <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import Recipients</a>
+  </div>
 
-<h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
+  <h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
 
-<div class="row">
+  <div class="row">
 
-  <div class="col-sm-6">
-  	{% if is_paginated %}
-  	<ul class="pagination">
-  		{% if page_obj.has_previous %}
-  		<li>
-  			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">Prev</a>
-  		</li>
-  		{% endif %}
-  		{% if page_obj.has_next %}
-  		<li>
-  			<a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">Next</a>
-  		</li>
-  		{% endif %}
+    <div class="col-sm-6">
+    	{% if is_paginated %}
+    	<ul class="pagination">
+    		{% if page_obj.has_previous %}
+    		<li>
+    			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
+            <span class="glyphicon glyphicon-chevron-left">Prev</a>
+    		</li>
+    		{% endif %}
+    		{% if page_obj.has_next %}
+    		<li>
+    			<a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">
+            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+    		</li>
+    		{% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
+    	</ul>
+    	{% endif %}
+    </div>
+
+    <div class="col-sm-6">
+    	<form class="form-inline form-search pull-right" action="{% url manager-recipients %}" method="get">
+        <div class="form-group">
+          <div class="input-group">
+            {{search_form.email_address|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+            </span>
+          </div><!-- /input-group -->
+        </div><!-- /form-group -->
+    	</form>
+    </div>
+
+  </div>
+
+  <table class="table table-striped table-hover" id="email-list">
+  	<thead>
+  		<tr>
+  			<th scope="col">Email Address</th>
+  			<th></th>
+  		</tr>
+  	</thead>
+  	<tbody>
+  		{% for recipient in recipients %}
+  		<tr data-link-url="{% url manager-recipient-update recipient.pk %}">
+  			<td>{{recipient.email_address}}</td>
+  			<td>
+  				<a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a>
+  			</td>
+  		</tr>
+  		{% endfor %}
+  	</tbody>
+  </table>
+
+  {% if is_paginated %}
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
       <li class="disabled">
         <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
       </li>
-  	</ul>
-  	{% endif %}
-  </div>
+    </ul>
+  {% endif %}
 
-  <div class="col-sm-6">
-  	<form class="form-inline form-search pull-right" action="{% url manager-recipients %}" method="get">
-      <div class="form-group">
-        <div class="input-group">
-          {{search_form.email_address|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
-          <span class="input-group-btn">
-            <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-          </span>
-        </div><!-- /input-group -->
-      </div><!-- /form-group -->
-  	</form>
-  </div>
-
-</div>
-
-<table class="table table-striped table-hover">
-	<thead>
-		<tr>
-			<th scope="col">Email Address</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for recipient in recipients %}
-		<tr data-link-url="{% url manager-recipient-update recipient.pk %}">
-			<td>{{recipient.email_address}}</td>
-			<td>
-				<a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a>
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
 {% endblock %}
 
-{% if is_paginated %}
-  <ul class="pagination">
-    {% if page_obj.has_previous %}
-    <li>
-      <a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">Prev</a>
-    </li>
-    {% endif %}
-    <li class="disabled">
-      <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-    </li>
-    {% if page_obj.has_next %}
-    <li>
-      <a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">Next</a>
-    </li>
-    {% endif %}
-  </ul>
-{% endif %}
