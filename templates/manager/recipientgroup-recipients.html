@@ -7,6 +7,18 @@
 {% endblock %}
 {% block page-body %}
 <h2>{{recipient_group.name}} Recipients</h2>
+<form class="form-horizontal" action=""  method="post">
+	<div class="form-group">
+	    <label class="col-sm-2 control-label" for="tb_recipient_search">Add Recipients</label>
+	    <div class="col-sm-9">
+	        <input id="tb_recipient_search" type="text" class="form-control" name="recipient-email" />
+	        <input type="hidden" name="recipient-group-id" value="{{recipientgroup.id}}" />
+	    </div>
+	    <div class="col-sm-1">
+	    	<button type="submit" class="btn btn-success" ><i class="glyphicon glyphicon-plus"></i></button>
+	    </div>
+	</div>
+</form>
 {% if is_paginated %}
 <div class="pagination">
 	<ul>
@@ -44,4 +56,27 @@
 		{% endfor %}
 	</tbody>
 </table>
+<script type="text/javascript">
+
+
+    var recipients = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('email_address'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        prefetch: '/recipients/json/'
+    });
+
+    recipients.clearPrefetchCache();
+
+    recipients.initialize();
+
+    jQuery('#tb_recipient_search').typeahead({
+    	hint: false,
+    	minLength: 3,
+    	limit: 10,
+        highlight: true
+    },{
+    	displayKey: 'email_address',
+    	source: recipients.ttAdapter()
+    });
+</script>
 {% endblock %}
