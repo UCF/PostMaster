@@ -18,10 +18,17 @@
     {% for field in form %}
       {% include 'form-control-group.html' %}
     {% endfor %}
-    <a href="{% url manager-setting-delete setting.pk %}" class="btn btn-danger">Delete</a>
-    <div class="pull-right">
-      <button type="submit" class="btn btn-primary">Update</button>
-      <a href="{% url manager-home %}" class="btn">Cancel</a>
+
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Update
+        </button>
+        <a href="{% url manager-settings %}" class="btn btn-default">
+          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+        <a href="{% url manager-setting-delete setting.pk %}" class="btn btn-danger">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</a>
+      </div>
     </div>
   </fieldset>
 </form>

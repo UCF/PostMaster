@@ -2,7 +2,7 @@ body {
   margin: 15px 0;
 }
 
-table tr.active td {
+table tr {
   cursor: pointer;
 }
 

@@ -1,14 +1,23 @@
 {% load widget_tweaks %}
 
-<div class="form-group">
-    <label for="{{field.id}}" class="col-sm-3 control-label">{{field.label}}</label>
+<div class="form-group {% if field.errors %}has-error has-feedback{% endif %}">
+    <label for="{{field.id}}" class="col-sm-3 control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
     <div class="col-sm-9">
+      {% if field.field.required %}
+        {{field|add_class:"form-control"|attr:"required"}}
+      {% else %}
         {{field|add_class:"form-control"}}
-        {% if field.errors %}
-            {% for error in field.errors %}
-            <p class="alert alert-danger">{{error}}</p>
-            {% endfor %}
-        {% endif %}
-        <p class="help-block">{{field.help_text}}</p>
+      {% endif %}
+      {% if field.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+        <span id="inputError2Status" class="sr-only">(error)</span>
+      {% endif %}
+
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <p class="alert alert-danger">{{error}}</p>
+        {% endfor %}
+      {% endif %}
+      <p class="help-block">{{field.help_text}}</p>
     </div>
 </div>

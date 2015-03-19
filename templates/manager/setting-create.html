@@ -18,9 +18,14 @@
     {% for field in form %}
       {% include 'form-control-group.html' %}
     {% endfor %}
-    <div class="pull-right">
-      <button type="submit" class="btn btn-primary">Create</button>
-      <a href="{% url manager-home %}" class="btn">Cancel</a>
+
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</button>
+        <a href="{% url manager-settings %}" class="btn btn-default">
+          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+      </div>
     </div>
   </fieldset>
 </form>
