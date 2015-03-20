@@ -10,6 +10,12 @@
 	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
 	{% if instance.in_progress %}
 	<div class="alert alert-info">This instance is still in progress.</div>
+	{% else %}
+	<form class="form-horizontal" action="" method="post">
+		<input type="hidden" name="email-instance-id" value={{ instance.pk }} />
+		<button type="submit" class="btn btn-primary">Create Recipient Group</button>
+		<p class="help-block">Creates a Recipient Group based on recipients who opened this email</p>
+	</form>
 	{% endif %}
 	<p>This instance was scheduled to go to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients. <big><strong>{{instance.sent_count}}</strong></big> were actually sent.</p>
 	<section>

@@ -227,6 +227,26 @@ class InstanceDetailView(EmailsMixin, DetailView):
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
 
+    def post(self, request, *args, **kwargs):
+        email_instance_id = request.POST.get('email-instance-id')
+        email_instance = Instance.objects.get(pk=email_instance_id)
+        recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
+
+        recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group')
+        recipient_group.save()
+
+        for recipient in recipients:
+            recipient_group.recipients.add(recipient[0])
+
+        recipient_group.save()
+
+        messages.success(self.request, 'Recipient group successfully created.')
+        return HttpResponseRedirect(
+            reverse('mamager-recipientgroups-recipient',
+                       args=(),
+                       kwargs={'pk': recipient_group.pk})
+        );
+
 
 ##
 # Recipients Groups
