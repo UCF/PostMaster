@@ -295,9 +295,9 @@ class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
                 recipient_group.recipients.add(recipient)
                 messages.success(self.request, 'Recipient added to group.')
             else:
-                messages.success(self.request, 'Recipient already a member of group.')
+                messages.warning(self.request, 'Recipient already a member of group.')
         except Exception, e:
-            messages.success(self.request, str(e))
+            messages.error(self.request, str(e))
         
         return super(RecipientGroupRecipientListView, self).get(request,
                                                                 *args,
