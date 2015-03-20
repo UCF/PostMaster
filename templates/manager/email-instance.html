@@ -11,7 +11,7 @@
 	{% if instance.in_progress %}
 	<div class="alert alert-info">This instance is still in progress.</div>
 	{% else %}
-	<form class="form-horizontal" action="" method="post">
+	<form class="form-horizontal" action="{% url manager-recipientgroup-create-email-opens %}" method="post">
 		<input type="hidden" name="email-instance-id" value={{ instance.pk }} />
 		<button type="submit" class="btn btn-primary">Create Recipient Group</button>
 		<p class="help-block">Creates a Recipient Group based on recipients who opened this email</p>
@@ -38,6 +38,7 @@
 					<th scope="col">URL</th>
 					<th scope="col">Position</th>
 					<th scope="col">Clicks</th>
+					<th scope="col">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -46,6 +47,12 @@
 					<td>{{url.name}}</td>
 					<td>{{url.position}}</td>
 					<td>{{url.clicks.count}}</td>
+					<td>
+						<form class="form-horizontal" action="{% url manager-recipientgroup-create-url-clicks %}" method="post">
+							<input type="hidden" name="url-pk" value="{{url.pk}}" />
+							<button type="submit" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+						</form>
+					</td>
 				</tr>
 				{% endfor %}
 			</tbody>

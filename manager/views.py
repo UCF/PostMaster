@@ -222,31 +222,15 @@ class InstanceListView(EmailsMixin, ListView):
         return context
 
 
+##
+# Using the post method in this detail view as it is the fastest way
+# to get the functionality in without having to completely rewrite
+# the view.
+##
 class InstanceDetailView(EmailsMixin, DetailView):
     model = Instance
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
-
-    def post(self, request, *args, **kwargs):
-        email_instance_id = request.POST.get('email-instance-id')
-        email_instance = Instance.objects.get(pk=email_instance_id)
-        recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
-
-        recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group')
-        recipient_group.save()
-
-        for recipient in recipients:
-            recipient_group.recipients.add(recipient[0])
-
-        recipient_group.save()
-
-        messages.success(self.request, 'Recipient group successfully created.')
-        return HttpResponseRedirect(
-            reverse('mamager-recipientgroups-recipient',
-                       args=(),
-                       kwargs={'pk': recipient_group.pk})
-        );
-
 
 ##
 # Recipients Groups
@@ -754,3 +738,53 @@ def recipient_json_feed(request):
         retval.append(r)
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
+
+##
+# Creates a recipient group based on email opens.
+# POST only
+##
+def create_recipient_group_email_opens(request):
+    email_instance_id = request.POST.get('email-instance-id')
+    email_instance = Instance.objects.get(pk=email_instance_id)
+    recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
+
+    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group')
+    recipient_group.save()
+
+    for recipient in recipients:
+        recipient_group.recipients.add(recipient[0])
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-recipients', 
+            args=(), 
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+##
+# Creates a recipient group based on url clicks.
+# POST only
+##
+def create_recipient_group_url_clicks(request):
+    url_id = request.POST.get('url-pk')
+    url_clicks = URLClick.objects.filter(url=url_id)
+    recipient_group = RecipientGroup(name='URL Click Recipient Group')
+    recipient_group.save()
+
+    for click in url_clicks:
+        recipient_group.recipients.add(click.recipient)
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-recipients',
+            args=(),
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+
