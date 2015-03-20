@@ -47,6 +47,7 @@ from manager.models import Setting
 from manager.models import URL
 from manager.models import URLClick
 from manager.utils import CSVImport
+from manager.utils import EmailSender
 
 
 log = logging.getLogger(__name__)
@@ -186,16 +187,28 @@ class EmailInstantSendView(EmailsMixin, FormView):
         recipient_groups = form.cleaned_data['recipient_groups']
 
         email = Email()
-        email.active = True
         email.subject = subject
         email.source_html_uri = source_html_uri
         email.from_email_address = from_email_address
         email.from_friendly_name = from_friendly_name
         email.replace_delimiter = replace_delimiter
-        email.recipients = recipient_groups
         email.preview = False
 
-        email.send()
+        recipients = []
+        for recipient_group in recipient_groups.all():
+            for recipient in recipient_group.recipients.all():
+                recipients.append(recipient)
+
+        sender = EmailSender(email, recipients)
+
+        try:
+            sender.send()
+        except Exception, e:
+            form._errors['__all__'] = ErrorList([str(e)])
+            return super(EmailInstantSendView, self).form_invalid(form)
+        else:
+            messages.success(self.request, 'Emails successfully sent.')
+            return super(EmailInstantSendView, self).form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, 'Email sent')
