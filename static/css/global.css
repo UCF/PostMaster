@@ -1,7 +1,28 @@
-table tr.active td {
-  background-color:#F9F9F9;cursor:pointer;
+body {
+  margin: 15px 0;
 }
 
-.navbar .brand {
-  padding: 8px 10px 12px;
+table tr {
+  cursor: pointer;
+}
+
+.form-group .alert-danger {
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.pagination {
+  margin: 0;
+}
+
+.twitter-typeahead {
+	display: block !important;
+}
+
+.tt-dropdown-menu {
+	width: 100%;
+	background: rgba(230, 230, 230, .75);
+	padding: 8px 4px 4px 4px;
+	border-radius: 0 0 4px 4px;
 }

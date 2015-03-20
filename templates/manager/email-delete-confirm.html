@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {% block page-body %}
 	<p><big>Are you sure you want to delete {{email.title}}?</big></p>
-	<form action="{% url manager-email-delete email.pk %}" method="post" class="pull-right">
-		<button type="submit" class="btn btn-danger">Delete</button>
-		<a href="{% url manager-emails %}" class="btn">Cancel</a>
+	<form action="{% url manager-email-delete email.pk %}" method="post">
+    <button type="submit" class="btn btn-danger">
+      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete
+    </button>
+		<a href="{% url manager-emails %}" class="btn btn-default">
+              <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
 	</form>
 {% endblock %}

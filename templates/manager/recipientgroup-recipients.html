@@ -1,47 +1,111 @@
 {% extends 'base.html' %}
+
 {% block breadcrumbs %}
 	{{block.super}}
 	<li><a href="{% url manager-recipientgroups %}">Recipient Groups</a> <span class="divider">/</span></li>
 	<li><a href="{% url manager-recipientgroup-update recipientgroup.pk %}">{{recipientgroup.name}}</a> <span class="divider">/</span></li>
 	<li class="active"><a href="{% url manager-recipientgroup-recipients recipientgroup.pk %}">Recipients</a></li>
 {% endblock %}
+
 {% block page-body %}
-<h2>{{recipient_group.name}} Recipients</h2>
-{% if is_paginated %}
-<div class="pagination">
-	<ul>
-		{% if page_obj.has_previous %}
-		<li>
-			<a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
-		</li>
-		{% endif %}
-		{% if page_obj.has_next %}
-		<li>
-			<a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
-		</li>
-		{% endif %}
-		<li class="active">
-			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-		</li>
-	</ul>
-</div>
-{% endif %}
-<table class="table">
-	<thead>
-		<tr>
-			<th scope="col">Email Address</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for recipient in recipients %}
-		<tr data-link-url="{% url manager-recipient-update recipient.pk %}">
-			<td>{{recipient.email_address}}</td>
-			<td>
-				<a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a>
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
+
+  <h2>{{recipient_group.name}} Recipients</h2>
+  <form class="form-horizontal" action=""  method="post">
+	<div class="form-group">
+	    <label class="col-sm-2 control-label" for="tb_recipient_search">Add Recipients</label>
+	    <div class="col-sm-9">
+	        <input id="tb_recipient_search" type="text" class="form-control" name="recipient-email" />
+	        <input type="hidden" name="recipient-group-id" value="{{recipientgroup.id}}" />
+	    </div>
+	    <div class="col-sm-1">
+	    	<button type="submit" class="btn btn-success" ><i class="glyphicon glyphicon-plus"></i></button>
+	    </div>
+	</div>
+</form>
+
+  {% if is_paginated %}
+  <div>
+  	<ul class="pagination">
+  		{% if page_obj.has_previous %}
+  		<li>
+  			<a href="?page={{page_obj.previous_page_number}}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+  		</li>
+  		{% endif %}
+  		{% if page_obj.has_next %}
+  		<li>
+  			<a href="?page={{page_obj.next_page_number}}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+  		</li>
+  		{% endif %}
+  		<li class="disabled">
+  			<a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+  		</li>
+  	</ul>
+  </div>
+  {% endif %}
+
+  <table class="table table-striped table-hover">
+  	<thead>
+  		<tr>
+  			<th scope="col">Email Address</th>
+  			<th></th>
+  		</tr>
+  	</thead>
+  	<tbody>
+  		{% for recipient in recipients %}
+  		<tr data-link-url="{% url manager-recipient-update recipient.pk %}">
+  			<td>{{recipient.email_address}}</td>
+  			<td>
+  				<a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a>
+  			</td>
+  		</tr>
+  		{% endfor %}
+  	</tbody>
+  </table>
+
+  {% if is_paginated %}
+  <div>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{page_obj.previous_page_number}}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{page_obj.next_page_number}}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+<script type="text/javascript">
+
+
+    var recipients = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('email_address'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: '/recipients/json/?search=%QUERY'
+    });
+
+    recipients.clearPrefetchCache();
+
+    recipients.initialize();
+
+    jQuery('#tb_recipient_search').typeahead({
+    	hint: false,
+    	minLength: 3,
+    	limit: 10,
+        highlight: true
+    },{
+    	displayKey: 'email_address',
+    	source: recipients.ttAdapter()
+    });
+</script>
 {% endblock %}
