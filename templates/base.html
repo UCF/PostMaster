@@ -2,70 +2,85 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Postmaster Emailer</title>
-
+    <title>Postmaster</title>
     <!-- Styles -->
     <link rel="stylesheet" href="{{MEDIA_URL}}/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{{MEDIA_URL}}/css/global.css" />
 
     <!-- JavaScript -->
-    <script src="{{MEDIA_URL}}/js/jquery.js"></script>
+    <script src="{{MEDIA_URL}}/js/jquery-1.11.2.min.js"></script>
     <script src="{{MEDIA_URL}}/js/bootstrap.min.js"></script>
     <script src="{{MEDIA_URL}}/js/global.js"></script>
+    <script src="{{MEDIA_URL}}/js/typeahead.js"></script>
+
   </head>
   <body>
     <div class="container">
-      <header class="span8 offset2">
-        {% block header %}
-        <div class="navbar">
-          <div class="navbar-inner">
-            <div class="container">
-              <a class="brand" href="{% url manager-home %}">Postmaster Emailer</a>
-              {% if user.is_authenticated %}
-              <ul class="nav pull-left">
-                <li{% if section == 'emails' %} class="active"{% endif %}>
-                  <a href="{% url manager-emails %}">Emails</a>
-                </li>
-                <li{% if section == 'recipients' %} class="active"{% endif %}>
-                  <a href="{% url manager-recipients %}">Recipients</a>
-                </li>
-                <li{% if section == 'recipientgroups' %} class="active"{% endif %}>
-                  <a href="{% url manager-recipientgroups %}">Recipient Groups</a>
-                </li>
-                <li{% if section == 'settings' %} class="active"{% endif %}>
-                  <a href="{% url manager-settings %}">Settings</a>
-                </li>
-              </ul>
-              <ul class="nav pull-right">
-                <li>
-                  <a href="{% url logout %}">Logout</a>
-                </li>
-              </ul>
-              {% endif %}
+      <div class="row">
+        <header class="col-sm-12 col-lg-8 col-lg-offset-2">
+          {% block header %}
+          <nav class="navbar navbar-default">
+              <div class="container-fluid">
+
+                <!-- Mobile -->
+                <div class="navbar-header">
+                  {% if user.is_authenticated %}
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                    </button>
+                  {% endif %}
+                  <a class="navbar-brand" href="{% url manager-home %}">
+                    <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Postmaster</a>
+                </div>
+
+                {% if user.is_authenticated %}
+                <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+                  <ul class="nav navbar-nav">
+                      <li{% if section == 'emails' %} class="active"{% endif %}>
+                        <a href="{% url manager-emails %}">Emails</a>
+                      </li>
+                      <li{% if section == 'recipients' %} class="active"{% endif %}>
+                        <a href="{% url manager-recipients %}">Recipients</a>
+                      </li>
+                      <li{% if section == 'recipientgroups' %} class="active"{% endif %}>
+                        <a href="{% url manager-recipientgroups %}">Recipient Groups</a>
+                      </li>
+                      <li{% if section == 'settings' %} class="active"{% endif %}>
+                        <a href="{% url manager-settings %}">Settings</a>
+                      </li>
+                  </ul>
+                  <ul class="nav navbar-nav navbar-right">
+                      <li>
+                        <a href="{% url logout %}">Logout</a>
+                      </li>
+                  </ul>
+                </div> <!-- /.navbar-collapse -->
+                {% endif %}
+              </div> <!-- /.container -->
+          </nav>
+          {% endblock %}
+        </header>
+        <section class="col-sm-12 col-lg-8 col-lg-offset-2">
+          {% block messages-breadcrumbs %}
+          {% if messages %}
+            {% for message in messages %}
+            <div class="alert{% if message.tags %} {{message.tags}}{% endif %}">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              {{message}}
             </div>
-          </div>
-        </div>
-        {% endblock %}
-      </header>
-      <section class="span8 offset2">
-        {% block messages-breadcrumbs %}
-        {% if user.is_authenticated %}
-        <ul class="breadcrumb">
-          <li><a href="{% url manager-home %}">Home</a> <span class="divider">/</span></li>
-          {% block breadcrumbs %}{% endblock %}
-        </ul>
-        {% endif %}
-        {% if messages %}
-          {% for message in messages %}
-          <div class="alert{% if message.tags %} {{message.tags}}{% endif %}">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{message}}
-          </div>
-          {% endfor %}
-        {% endif %}
-        {% endblock %}
-        {% block page-body %}{% endblock %}
-      </section>
+            {% endfor %}
+          {% endif %}
+          {% endblock %}
+          {% block page-body %}{% endblock %}
+        </section>
+      </div>
     </div>
+    <!-- JavaScript -->
+    <script src="{{MEDIA_URL}}/js/jquery-1.11.2.min.js"></script>
+    <script src="{{MEDIA_URL}}/js/bootstrap.min.js"></script>
+    <script src="{{MEDIA_URL}}/js/global.js"></script>
   </body>
 </html>

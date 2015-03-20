@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block breadcrumbs %}
 	{{block.super}}
 	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
@@ -6,6 +7,7 @@
 	<li><a href="{% url manager-email-instances instance.email.pk %}">Instances</a> <span class="divider">/</span></li>
 	<li class="active"><a href="{% url manager-email-instance instance.pk %}">{{instance.start}}</a></li>
 {% endblock %}
+
 {% block page-body %}
 	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
 	{% if instance.in_progress %}
@@ -26,7 +28,7 @@
 		<p>URls were not tracked for this instance.</p>
 		{% else %}
 		<p>URLs are tracked top to bottom, left to right. If there is more than one of the same URL in an email, each additional URL will have an increasing position number.</p>
-		<table class="table">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th scope="col">URL</th>
