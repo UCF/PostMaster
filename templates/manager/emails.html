@@ -7,8 +7,12 @@
 
 {% block page-body %}
 
-  <a href="{% url manager-email-create %}" class="btn btn-success pull-right">
-    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Email</a>
+  <div class="btn-group pull-right">
+    <a href="{% url manager-email-create %}" class="btn btn-success">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Email</a>
+    <a href="{% url manager-email-instant-send %}" class="btn btn-info">
+      <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Send Instant Test Email</a>
+  </div>
 
   <h2>Emails</h2>
   {% if is_paginated %}
