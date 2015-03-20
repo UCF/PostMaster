@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+	{{block.super}}
+	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+	<li class="active">
+		<a href="{% url manager-email-design %}">Design</a>
+	</li>
+{% endblock %}
+{% block page-body %}
+
+<style>
+#editor-window-outer {
+  height: 700px;
+  width: 320px;
+  min-width: 320px;
+  max-width: 750px;
+  resize: horizontal;
+  overflow: auto;
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 0;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#editor-window {
+  width: 100%;
+  height: calc(100% - 20px); /* allow room for resize tab */
+  border: 0 solid transparent;
+  padding: 0;
+  margin: 0;
+}
+
+#editor-content-wrapper {
+  display: block;
+  width: 100%;
+}
+
+#generated-markup {
+  width: 100%;
+  height: 500px;
+  background: #fafafa;
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}
+</style>
+
+
+<!-- The template editor window -->
+<div id="editor-window-outer">
+  <iframe id="editor-window"></iframe>
+</div>
+
+
+<div id="editor-content-wrapper">
+
+  <!--
+  Contains the markup to be loaded into the editor.
+
+  TODO: dynamically load via dropdown or something
+  -->
+  <textarea id="editor-contents">
+    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+    <html lang="en">
+      <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="initial-scale=1.0"><!-- So that mobile webkit will display zoomed in -->
+        <title>@!@TITLE@!@</title>
+        <style type="text/css">
+          <!--
+          html, body { margin:0; padding:0; background-color:#FFF; color:#333; }
+          -->
+          /* CSS Resets */
+          .ReadMsgBody { width: 100%; background-color: #ffffff;}
+          .ExternalClass {width: 100%; background-color: #ffffff;}
+          .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
+          body {-webkit-text-size-adjust:none; -ms-text-size-adjust:none;}
+          body {margin:0; padding:0;}
+          table {border-spacing:0;}
+          table td {border-collapse:collapse;}
+
+          * {zoom:1;}
+          a {color:#006699;}
+          div, p, a, li, td { -webkit-text-size-adjust:none; } /* ios likes to enforce a minimum font size of 13px; kill it with this */
+
+          @media all and (max-width: 640px) {
+            /* The outermost wrapper table */
+            table[class="t640"] {
+              width: 100% !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+              margin: 0 !important;
+            }
+
+            /* The firstmost inner tables, which should be padded at mobile sizes */
+            table[class="t524"] {
+              width: 100% !important;
+              padding-left: 15px;
+              padding-right: 15px;
+              padding-top: 15px !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+              margin: 0 !important;
+            }
+
+            /* Generic class for a table column that should collapse to 100% width at mobile sizes (with bottom padding) */
+            td[class="ccollapse100pb"] {
+              display: block !important;
+              overflow: hidden;
+              width: 100% !important;
+              float: left;
+              clear: both;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              padding-bottom: 20px !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+            }
+
+            /* Generic class for a table column that should collapse to 100% width at mobile sizes (with top padding) */
+            td[class="ccollapse100pt"] {
+              display: block !important;
+              overflow: hidden;
+              width: 100% !important;
+              float: left;
+              clear: both;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              padding-top: 20px !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+            }
+
+            /* Generic class for a table column that should collapse to 50% width at mobile sizes (with bottom padding) */
+            td[class="ccollapse50pb"] {
+              display: block !important;
+              overflow: hidden;
+              width: 50% !important;
+              float: left;
+              clear: both;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              padding-bottom: 20px !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+            }
+
+            /* Generic class for a table column that should collapse to 100% width at mobile sizes */
+            td[class="ccollapse100"] {
+              display: block !important;
+              overflow: hidden;
+              clear: both;
+              width: 100% !important;
+              float: left !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+            }
+
+            /* Generic class for a table within a column that should be forced to 100% width at mobile sizes */
+            table[class="tcollapse100"] {
+              width: 100% !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              border-left: 0px solid transparent !important;
+              border-right: 0px solid transparent !important;
+            }
+
+            /* Forces an image to fit 100% width of its parent */
+            img[class="responsiveimg"] {
+              max-width: none !important;
+              width: 100% !important;
+            }
+
+            /* remove padding since 100% width */
+            img[class="responsiveimgpb"] {
+              width: 100% !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              padding-bottom: 20px !important;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <table class="t640" width="640">
+          <tr>
+            <td><img src="http://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/pro-banner.png" alt="UCF banner" class="responsiveimg" /></td>
+          </tr>
+          <tr>
+            <td>
+              <table class="t524" width="524" align="center">
+                <tr>
+                  <td style="padding-bottom: 20px;">
+                    <table class="tcollapse100" width="524" border="0" align="center">
+                      <tr>
+                        <td class="ccollapse100pb" style="font-family: Georgia, serif; padding-bottom: 26px;font-size: 52px; font-weight: normal; line-height: 52px;">
+                          <div class="pm-template-editable-container pm-template-editable-single">Your Title Here</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="ccollapse100pb" style="padding-bottom: 12px; width: 100%;">
+                          <table class="tcollapse100" align="center" style="width: 100%;">
+                            <tr>
+                              <td class="ccollapse100" style="font-family:Georgia, serif; font-size: 15px; line-height: 24px; padding-bottom: 12px">
+                                <div class="pm-template-editable-container pm-template-editable-paragraph">
+                                  <p>
+                                    Click to start adding content!
+                                  </p>
+                                  <p>
+                                    This template lets you add photos.  Click the placeholder below to try it out.
+                                  <p>
+                                    <img class="responsiveimg" src="http://placehold.it/606x350" />
+                                  </p>
+                                  <p>
+                                    Images can be resized, but due to lack of support in several email clients, images cannot be floated (have text wrapped around them).  Images will always consume an entire row.
+                                  </p>
+                                </div>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="ccollapse100pb" style="padding-bottom: 10px;">
+                          <div class="pm-template-editable-container pm-template-editable-multiline">
+                            <img src="http://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/Dale-signature.gif" alt="Provost Dale Whittaker, Ph.D" align="left" />
+                            <img src="http://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/pro-provost.jpg" alt="Provost Dale Whittaker, Ph.D" align="right" />
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="ccollapse100pb" style="padding-bottom: 40px;">
+                          <div class="pm-template-editable-container pm-template-editable-multiline">
+                            <span style="font-weight: bold;">Dale Whittaker, Ph.D.</span><br />
+                            Provost and Vice President
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="ccollapse100">
+                          <table style="font-size: 13px;">
+                            <tr>
+                              <td style="padding-bottom: 5px;">
+                                <div class="pm-template-editable-container pm-template-editable-single">
+                                  University of Central Florida • 4000 Central Florida Blvd.
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding-bottom: 5px;">
+                                <div class="pm-template-editable-container pm-template-editable-single">
+                                  Orlando, FL 32816-0065 • <a style="color: #006699;" href="http://www.provost.ucf.edu">http://www.provost.ucf.edu</a>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding-bottom: 5px;">
+                                @!@UNSUBSCRIBE@!@ from this email.
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <div id="pm-editor-scripts"></div>
+      </body>
+    </html>
+  </textarea>
+
+
+  <!--
+  Contains css, script references necessary for the wysiwyg editor.
+  These are injected into the email template markup when loadEditor() is called.
+
+  TODO: move somewhere else?
+  -->
+  <textarea id="editor-template-scripts">
+    <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/font-awesome-4.3.0/css/font-awesome.min.css" />
+    <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/css/froala_editor.min.css" />
+    <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/css/froala_style.min.css" />
+    <style class="pm-editor-script">
+      /*
+       * Unset Froala editor css applied within editable areas, which might
+       * not emulate the final html email accuately enough
+       */
+      .pm-template-editable-paragraph p,
+      .pm-template-editable-paragraph p.fr-tag {
+        margin: initial !important;
+      }
+      .froala-wrapper,
+      .froala-element {
+        overflow: hidden !important;
+      }
+      .froala-element {
+        line-height: inherit;
+        min-height: 0;
+      }
+      .pm-template-editable-paragraph .froala-wrapper,
+      .pm-template-editable-paragraph .froala-element {
+        width: 100% !important;
+      }
+    </style>
+    <script class="pm-editor-script" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script class="pm-editor-script" src="{{MEDIA_URL}}/js/froala.min.js"></script>
+    <script class="pm-editor-script">
+      // Enables all editing functionality.
+      function pmDesignerEnable() {
+        $('.pm-template-editable-single').editable({
+          inlineMode: true,
+          paragraphy: false,
+          buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
+          imageMove: false,
+          plainPaste: true
+        });
+
+        $('.pm-template-editable-paragraph').editable({
+          inlineMode: true,
+          alwaysVisible: true,
+          paragraphy: true,
+          buttons: ['bold', 'italic', 'underline', 'createLink', 'align', 'insertImage', 'html'],
+          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+          imageMove: false,
+          defaultImageAlignment: 'left',
+          defaultImageWidth: 0,
+          plainPaste: true
+        })
+          .on('editable.imageInserted', function(e, editor, img) {
+              img.addClass('responsiveimg');
+          });
+
+        $('.pm-template-editable-multiline').editable({
+          inlineMode: true,
+          alwaysVisible: true,
+          paragraphy: false,
+          buttons: ['bold', 'italic', 'underline', 'createLink', 'align', 'insertImage', 'html'],
+          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+          imageMove: false,
+          defaultImageAlignment: 'left',
+          defaultImageWidth: 0,
+          plainPaste: true
+        }).on('editable.imageInserted', function(e, editor, img) {
+          img.addClass('responsiveimg');
+        });
+      }
+
+
+      // Destroys all editing functionality.
+      function pmDesignerDestroy() {
+        $('.pm-template-editable-container').each(function() {
+          var markup = $(this).editable('getHTML', false, false);
+          $(this)
+            .html(markup)
+            .editable('destroy');
+        });
+      }
+
+
+      // Fixes .froala-box responsiveness on .pm-template-editable-paragraph.
+      function pmDesignerResponsiveParagraphs() {
+        $('.pm-template-editable-paragraph.froala-box').each(function() {
+          var $elem = $(this);
+          $elem.width('1px');
+          var newWidth = $elem.parent().innerWidth();
+          $elem.width(newWidth);
+        });
+      }
+
+
+      // .froala-box requires a fixed width inherited from its parent to keep
+      // its children from stretching it (and the screen) out
+      $(window).on('load', pmDesignerEnable);
+      $(window).on('load resize', pmDesignerResponsiveParagraphs);
+
+    </script>
+  </textarea>
+</div>
+
+
+<br>
+
+<!-- Form that returns clean markup from the editor -->
+<button class="btn btn-primary" id="generate-markup">Generate Markup</button>
+<textarea id="generated-markup"></textarea>
+
+
+<!-- Notes (temporary) -->
+<hr>
+<div class="well">
+  <strong>BROWSER REQUIREMENTS (still need to do browser testing):</strong>
+  <ul>
+    <li>IE9+</li>
+    <li>Safari (latest version)</li>
+    <li>Firefox (latest version)</li>
+    <li>Chrome (latest verison)</li>
+  </ul>
+
+  <p>Currently this editor doesn't support mobile browsers (viewport widths less than 768px wide).</p>
+
+  <strong>QUIRKS:</strong>
+  <ul>
+    <li>
+      Editor window wrapper (#editor-window-outer) must have an initial width of 320px to allow editor width resizing in Chrome (even with min-width set, the window cannot resize below the width value set.)  Firefox does not have this issue.
+    </li>
+  </ul>
+
+  <strong>MISC:</strong>
+  <ul>
+    <li>
+      The wysiwyg editor used is free for personal and non-profit projects (see the project on Github for license info:  https://github.com/froala/wysiwyg-editor).  We may need to update the project license and/or make an attribution note in our readme.
+    </li>
+  </ul>
+</div>
+
+
+
+<script>
+  // Loads the editor window (appends template markup and editor scripts to the
+  // iframe source.)
+  function loadEditor() {
+    var template = $('#editor-contents').val();
+    var templateScripts = $('#editor-template-scripts').val();
+
+    // Plain-jane string replacement to append editor scripts to the template
+    template = template.replace('<div id="pm-editor-scripts"></div>', '<div id="pm-editor-scripts">' + templateScripts + '</div>');
+
+    // Add the combined template html + editor markup to the editor iframe
+    var doc = document.getElementById('editor-window').contentWindow.document;
+    doc.open();
+    doc.write(template);
+    doc.close();
+
+    // Remove the placeholder textareas (TODO: temporary)
+    $('#editor-content-wrapper').remove();
+  }
+
+
+  // Returns a string containing cleaned markup suitable for sending in an email.
+  // Assumes markupString does NOT contain a doctype declaration.
+  function getCleanedMarkupString(markupString) {
+    var parser = new DOMParser();
+    var domDoc = parser.parseFromString(markupString, 'text/html');
+    var $domDoc = $(domDoc);
+
+    // Find the editor scripts we injected previously and remove them.
+    $domDoc.find('#pm-editor-scripts').remove();
+
+    // Replace all .pm-template-editable-paragraph p tags with tables
+    $domDoc.find('.pm-template-editable-paragraph p').wrap('<table><tr><td></td></tr></table>').contents().unwrap();
+
+    // Unwrap remaining .pm-template-editable-container's
+    // (.pm-template-editable-paragraph's are removed above)
+    $domDoc.find('.pm-template-editable-container').contents().unwrap();
+
+    // Replace domDoc with the jquery object's reference of the element
+    domDoc = $domDoc[0];
+
+    // We can't access the iframe's doctype when we grab its contents, so re-add it here:
+    var docType = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+    var docMarkupClean = docType + domDoc.documentElement.outerHTML;
+
+    return docMarkupClean;
+  }
+
+
+  // Generate markup from iframe contents and paste it into #generated-markup
+  function generateMarkup() {
+    var $markupContainer = $('#generated-markup');
+    var editorWindow = document.getElementById('editor-window').contentWindow;
+
+    // Empty the markup container
+    $markupContainer.text('');
+
+    // Destroy all active Froala editors in the iframe to remove Froala markup
+    editorWindow.pmDesignerDestroy();
+
+    // Grab the editor's markup as a string and clean it
+    var docMarkup = editorWindow.document.documentElement.outerHTML;
+    var docMarkupClean = getCleanedMarkupString(docMarkup);
+
+    // Add the cleaned markup to $markupContainer
+    $markupContainer.text(docMarkupClean);
+
+    // Reload the editor
+    editorWindow.pmDesignerEnable();
+  }
+
+
+  $(window).on('load', loadEditor());
+  $('#generate-markup').on('click', generateMarkup);
+</script>
+
+{% endblock %}

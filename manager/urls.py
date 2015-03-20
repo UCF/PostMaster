@@ -14,6 +14,7 @@ urlpatterns = patterns('manager.views',
     url(r'^email/(?P<pk>\d+)/instances/$',       login_required(InstanceListView.as_view()),             name='manager-email-instances'),
     url(r'^email/(?P<pk>\d+)/unsubscriptions/$', login_required(EmailUnsubscriptionsListView.as_view()), name='manager-email-unsubscriptions'),
     url(r'^email/instance/(?P<pk>\d+)/$',        login_required(InstanceDetailView.as_view()),           name='manager-email-instance'),
+    url(r'^email/design/$',                      login_required(EmailDesignView.as_view()),              name='manager-email-design'),
     url(r'^emails/$',                            login_required(EmailListView.as_view()),                name='manager-emails'),
 
     # Recipients

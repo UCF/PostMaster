@@ -223,6 +223,10 @@ class InstanceDetailView(EmailsMixin, DetailView):
     context_object_name = 'instance'
 
 
+class EmailDesignView(TemplateView):
+    template_name = 'manager/email-design.html'
+
+
 ##
 # Recipients Groups
 ##
