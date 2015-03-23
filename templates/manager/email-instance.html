@@ -25,14 +25,18 @@
     <h3>Previews</h3>
     {% if instance.litmus_id %}
     <div class="row">
+      {% if desktop_thumbnail_image %}
       <div class="col-md-2">
         <h4>Desktop</h4>
         <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
       </div>
+      {% endif %}
+      {% if mobile_thumbnail_image %}
       <div class="col-md-2">
         <h4>Mobile</h4>
         <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
       </div>
+      {% endif %}
     </div>
     <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
     {% else %}

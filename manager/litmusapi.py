@@ -1,6 +1,7 @@
 import httplib
 import logging
 from xml.etree import ElementTree as ET
+from xml.etree.ElementTree import Element
 
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
@@ -44,24 +45,30 @@ class LitmusApi(object):
         """
         Creates an email test with all the available email clients.
         """
-        xml = '<?xml version="1.0" encoding="UTF-8"?>' + \
-              '<test_set><applications type="array">'
+        text_xml = None
 
         # Get all the clients and add them to the request
         clients_xml = self.get_clients()
-        client_list = clients_xml.getElementsByTagName('application_code')
+        element_type = type(Element(None))
+        if clients_xml and isinstance(clients_xml, element_type):
+            xml = '<?xml version="1.0" encoding="UTF-8"?>' + \
+                  '<test_set><applications type="array">'
 
-        # Get all the client ids and add them to the test
-        for client_node in client_list:
-            client = client_node.childNodes[0].nodeValue
-            xml = xml + '<application><code>' + client + \
-                        '</code></application>'
+            client_list = clients_xml.findall('./testing_application/application_code')
 
-        xml = xml + '</applications><save_defaults>false</save_defaults>' + \
-                    '<use_defaults>false</use_defaults></test_set>'
+            # Get all the client ids and add them to the test
+            for client_node in client_list:
+                client = client_node.text
+                xml = xml + '<application><code>' + client + \
+                            '</code></application>'
 
-        return self.post_request(self.base_url + LitmusApi.EMAILS,
-                                 xml)
+            xml = xml + '</applications><save_defaults>false</save_defaults>' + \
+                        '<use_defaults>false</use_defaults></test_set>'
+
+            text_xml = self.post_request(self.base_url + LitmusApi.EMAILS,
+                                         xml)
+
+        return text_xml
 
     def get_test(self, test_id):
         """
@@ -71,6 +78,36 @@ class LitmusApi(object):
         """
         return self.get_request(self.base_url + LitmusApi.TESTS +
                                 str(test_id) + '.xml')
+
+    def get_test_id(self, xml):
+        """
+        Returns the email test id
+
+        :param xml: Test email xml document
+        """
+        test_id = None
+        element_type = type(Element(None))
+        if xml and isinstance(xml, element_type):
+            test_id_xml = xml.find('./id')
+            if test_id_xml is not None:
+                test_id = test_id_xml.text
+
+        return test_id
+
+    def get_email_address(self, xml):
+        """
+        Returns the email address for the litmus test
+
+        :param xml: Litmus test xml document
+        """
+        email = None
+        element_type = type(Element(None))
+        if xml and isinstance(xml, element_type):
+            email_xml = xml.findall('./test_set_versions/test_set_version/url_or_guid')
+            if email_xml is not None:
+                email = email_xml[0].text
+
+        return email
 
     def get_image_urls(self, client_code, test_id=None, xml=None):
         """
@@ -87,19 +124,25 @@ class LitmusApi(object):
             if not xml and test_id:
                 xml = self.get_test(test_id)
 
-            client_tests = xml.findall('./test_set_versions/test_set_version/results/result')
+            element_type = type(Element(None))
+            if xml is not None and isinstance(xml, element_type):
+                client_tests = xml.findall('./test_set_versions/test_set_version/results/result')
 
-            # loop through the clients and get the client specified
-            for client_test in client_tests:
-                xml_test_code = client_test.find('test_code').text
-                if client_code == xml_test_code:
-                    xml_images = client_test.findall('result_images/result_image')
-                    xml_image = self.get_full_on(xml_images)
-                    if xml_image is not None:
-                        thumbnail_url = xml_image.find('thumbnail_image').text
-                        full_image = xml_image.find('full_image').text
-                        urls = {'thumbnail_url': thumbnail_url,
-                                'full_url': full_image}
+                # loop through the clients and get the client specified
+                for client_test in client_tests:
+                    xml_test_code = client_test.find('test_code')
+                    if isinstance(xml_test_code, element_type) and client_code == xml_test_code.text:
+                        xml_images = client_test.findall('result_images/result_image')
+                        xml_image = self.get_full_on(xml_images)
+                        if xml_image is not None:
+                            thumbnail_url = xml_image.find('thumbnail_image')
+                            full_image = xml_image.find('full_image')
+
+                            if isinstance(thumbnail_url, element_type) and isinstance(full_image, element_type):
+                                thumbnail_url = thumbnail_url.text
+                                full_image = full_image.text
+                                urls = {'thumbnail_url': thumbnail_url,
+                                        'full_url': full_image}
         else:
             log.warning('Could not retrieve the thumbnail url because' +
                         ' the xml or client code is empty.')
@@ -113,11 +156,14 @@ class LitmusApi(object):
         :param xml_images: xml document
         """
         result_image = None
-        for xml_image in xml_images:
-            image_type = xml_image.find('image_type').text
-            if 'full_on' == image_type:
-                result_image = xml_image
-                break
+
+        if xml_images is not None and isinstance(xml_images, list):
+            for xml_image in xml_images:
+                image_type = xml_image.find('image_type')
+                element_type = type(Element(None))
+                if isinstance(image_type, element_type) and 'full_on' == image_type.text:
+                    result_image = xml_image
+                    break
 
         return result_image
 
@@ -142,6 +188,7 @@ class LitmusApi(object):
                 return None
         except RequestException as e:
             log.error('Could not connect to Litmus', e)
+            return None
 
         return ET.fromstring(response.text)
 
@@ -154,17 +201,20 @@ class LitmusApi(object):
         :return: Response location
         :rtype: xml
         """
+        try:
+            response = requests.post(url=url,
+                                     auth=self.auth,
+                                     data=data,
+                                     headers=self.headers,
+                                     timeout=self.timeout,
+                                     verify=self.verify)
 
-        response = requests.post(url=url,
-                                 auth=self.auth,
-                                 data=data,
-                                 headers=self.headers,
-                                 timeout=self.timeout,
-                                 verify=self.verify)
-
-        if response.status_code != httplib.CREATED:
-            logging.error('Could not make POST request using url ' + url +
-                          ' Response header: ' + str(response.headers))
+            if response.status_code != httplib.CREATED:
+                logging.error('Could not make POST request using url ' + url +
+                              ' Response header: ' + str(response.headers))
+                return None
+        except RequestException as e:
+            log.error('Could not connect to Litmus', e)
             return None
 
         return ET.fromstring(response.text)

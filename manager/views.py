@@ -148,6 +148,7 @@ class EmailCreateView(EmailsMixin, CreateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
+
 class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
     template_name = 'manager/email-update.html'
@@ -177,6 +178,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
         return reverse('manager-email-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
+
 
 class EmailInstantSendView(EmailsMixin, FormView):
     template_name = 'manager/email-instant-send.html'
@@ -217,6 +219,7 @@ class EmailInstantSendView(EmailsMixin, FormView):
     def get_success_url(self):
         messages.success(self.request, 'Email sent')
         return reverse('manager-emails')
+
 
 class EmailDeleteView(EmailsMixin, DeleteView):
     model = Email
@@ -288,10 +291,14 @@ class InstanceDetailView(EmailsMixin, DetailView):
                                                    xml=xml_test)
             mobile_images = litmus.get_image_urls('iphone6',
                                                   xml=xml_test)
-            context['desktop_thumbnail_image'] = desktop_images['thumbnail_url']
-            context['desktop_full_image'] = desktop_images['full_url']
-            context['mobile_thumbnail_image'] = mobile_images['thumbnail_url']
-            context['mobile_full_image'] = mobile_images['full_url']
+            if desktop_images is not None:
+                context['desktop_thumbnail_image'] = desktop_images['thumbnail_url']
+                context['desktop_full_image'] = desktop_images['full_url']
+
+            if mobile_images is not None:
+                context['mobile_thumbnail_image'] = mobile_images['thumbnail_url']
+                context['mobile_full_image'] = mobile_images['full_url']
+
             context['litmus_url'] = settings.LITMUS_BASE_URL + \
                 LitmusApi.TESTS + self.object.litmus_id
 
