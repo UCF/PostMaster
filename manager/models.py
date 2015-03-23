@@ -276,7 +276,7 @@ class Email(models.Model):
         pass
 
     class Recurs:
-        never, daily, weekly, biweekly, monthly = range(0,5)
+        never, daily, weekly, biweekly, monthly = range(0, 5)
         choices = (
             (never, 'Never'),
             (daily, 'Daily'),
@@ -291,7 +291,7 @@ class Email(models.Model):
         'subject': 'Subject of the email',
         'source_html_uri': 'Source URI of the email HTML',
         'source_text_uri': 'Source URI of the email text',
-        'start_date': 'Date that the email will first be sent. Format: YYYY-MM-DD',
+        'start_date': 'Format: %Y-%m-%d, %m/%d/%Y or %m/%d/%y. Date that the email will first be sent.',
         'send_time': 'Format: %H:%M or %H:%M:%S. Time of day when the email will be sent. Times will be rounded to the nearest quarter hour.',
         'recurrence': 'If and how often the email will be resent.',
         'replace_delimiter': 'Character(s) that replacement labels are wrapped in.',
@@ -305,12 +305,12 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
-    title = models.CharField(max_length=100, help_text=_HELP_TEXT['title'])
+    title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
     source_text_uri = models.URLField(null=True, blank=True, help_text=_HELP_TEXT['source_text_uri'])
-    start_date = models.DateField(help_text=_HELP_TEXT['start_date'])
-    send_time = models.TimeField(help_text=_HELP_TEXT['send_time'])
+    start_date = models.DateField(help_text=_HELP_TEXT['start_date'], default=datetime.now().today())
+    send_time = models.TimeField(help_text=_HELP_TEXT['send_time'], default=datetime.now().time)
     recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices, help_text=_HELP_TEXT['recurrence'])
     from_email_address = models.CharField(max_length=256, help_text=_HELP_TEXT['from_email_address'])
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])

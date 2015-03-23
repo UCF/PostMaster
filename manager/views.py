@@ -6,10 +6,14 @@ from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
 from util import calc_url_mac
 import urllib
+import json
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import EmptyPage
+from django.core.paginator import PageNotAnInteger
+from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -17,15 +21,18 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.simple import direct_to_template
+from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientCreateUpdateForm
+from manager.forms import RecipientCSVImportForm
 from manager.forms import RecipientGroupCreateUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
@@ -40,6 +47,7 @@ from manager.models import RecipientGroup
 from manager.models import Setting
 from manager.models import URL
 from manager.models import URLClick
+from manager.utils import CSVImport
 
 
 log = logging.getLogger(__name__)
@@ -275,7 +283,38 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
     template_name = 'manager/recipientgroup-update.html'
     form_class = RecipientGroupCreateUpdateForm
 
+    def get_context_data(self, **kwargs):
+        context = super(RecipientGroupUpdateView, self).get_context_data(**kwargs)
+        recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
+        recipients = recipient_group.recipients.all()
+        paginator = Paginator(recipients, 20)
+
+        page = self.request.GET.get('page')
+        try:
+            context['recipients'] = paginator.page(page)
+        except PageNotAnInteger:
+            context['recipients'] = paginator.page(1)
+        except EmptyPage:
+            context['recipients'] = paginator.page(paginator.num_pages)
+
+        return context
+
     def form_valid(self, form):
+        recipient_email = self.request.POST.get('recipient-email')
+
+        if recipient_email:
+            recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
+            recipient = Recipient.objects.get(email_address=recipient_email)
+            if recipient:
+                if recipient not in recipient_group.recipients.all():
+                    recipient_group.recipients.add(recipient)
+                    recipient_group.save()
+                else:
+                    messages.warning(self.request, 'Recipient %s already in %s.' % (recipient_email, recipient_group.name))
+            else:
+                messages.error(self.request, 'Recipient with email address %s does not exist.' % recipient_email)
+                return super(RecipientGroupUpdateView, self).form_invalid(form)
+
         messages.success(self.request, 'Recipient group successfully updated.')
         return super(RecipientGroupUpdateView, self).form_valid(form)
 
@@ -283,29 +322,6 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
         return reverse('manager-recipientgroup-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
-
-
-class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
-    model = Recipient
-    template_name = 'manager/recipientgroup-recipients.html'
-    context_object_name = 'recipients'
-    paginate_by = 20
-
-    def dispatch(self, request, *args, **kwargs):
-        self._recipient_group = get_object_or_404(RecipientGroup,
-                                                  pk=kwargs['pk'])
-        return super(RecipientGroupRecipientListView, self).dispatch(request,
-                                                                     *args,
-                                                                     **kwargs)
-
-    def get_queryset(self):
-        return Recipient.objects.filter(groups=self._recipient_group)
-
-    def get_context_data(self, **kwargs):
-        context = super(RecipientGroupRecipientListView,
-                        self).get_context_data(**kwargs)
-        context['recipientgroup'] = self._recipient_group
-        return context
 
 
 ##
@@ -417,7 +433,6 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
         except RecipientAttribute.DoesNotExist:
             pass
         else:
-            from django.forms.util import ErrorList
             form._errors['name'] = ErrorList([u'A attribute with that name already exists for this recipient.'])
             return super(RecipientAttributeCreateView, self).form_invalid(form)
 
@@ -654,3 +669,139 @@ def instance_open(request):
                     instance_open.save()
                     log.debug('open saved')
     return HttpResponse(settings.DOT, content_type='image/png')
+
+##
+# Utility Views
+##
+class RecipientCSVImportView(RecipientsMixin, FormView):
+    template_name = 'manager/recipient-csv-import.html'
+    form_class = RecipientCSVImportForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            existing_group_name = None
+
+            if form.cleaned_data['existing_group_name']:
+                existing_group_name = form.cleaned_data['existing_group_name'].name
+
+            new_group_name = form.cleaned_data['new_group_name']
+            column_order = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
+            print column_order
+            skip_first_row = form.cleaned_data['skip_first_row']
+            csv_file = form.cleaned_data['csv_file']
+
+            group = ""
+            if existing_group_name is not None:
+                group = existing_group_name
+            else:
+                group = new_group_name
+
+            try:
+                importer = CSVImport(csv_file, group, skip_first_row, column_order)
+                importer.import_emails()
+            except Exception, e:
+                form._errors['__all__'] = ErrorList([str(e)])
+                return super(RecipientCSVImportView, self).form_invalid(form)
+
+            messages.success(self.request, 'Emails successfully imported.')
+            return super(RecipientCSVImportView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-recipientgroups')
+
+def recipient_json_feed(request):
+    search_term = ''
+
+    if request.GET.get('search'):
+        search_term = request.GET.get('search')
+
+    recipients = []
+
+    if search_term:
+        recipient_fks = list(RecipientAttribute.objects.filter(name__in=['First Name','Last Name','Preferred Name'], value__contains=search_term).values_list('recipient', flat=True).distinct())
+        recipient_emails = list(Recipient.objects.filter(email_address__contains=search_term).values_list('pk', flat=True))
+
+        for r in recipient_emails:
+            if r not in recipient_fks:
+                recipient_fks.append(r)
+
+        for r in recipient_fks:
+            recipients.append(Recipient.objects.get(pk=r))
+
+    else:
+        recipients = Recipient.objects.all()
+
+    retval = []
+
+    for recipient in recipients:
+        first_name = RecipientAttribute.objects.filter(recipient=recipient, name='First Name')[0].value if RecipientAttribute.objects.filter(recipient=recipient, name='First Name') else ''
+        last_name = RecipientAttribute.objects.filter(recipient=recipient, name='Last Name')[0].value if RecipientAttribute.objects.filter(recipient=recipient, name='Last Name') else ''
+        preferred_name = RecipientAttribute.objects.filter(recipient=recipient, name='Preferred Name')[0].value if RecipientAttribute.objects.filter(recipient=recipient, name='Preferred Name') else ''
+
+        r = {}
+        r['pk'] = recipient.pk
+        r['email_address'] = recipient.email_address
+        r['first_name'] = first_name
+        r['last_name'] = last_name
+        r['preferred_name'] = preferred_name
+
+        retval.append(r)
+
+    return HttpResponse(json.dumps(retval), content_type='application/json')
+
+##
+# Creates a recipient group based on email opens.
+# POST only
+##
+def create_recipient_group_email_opens(request):
+    '''
+    Creates a recipient group based on email opens.
+    POST only
+    '''
+    email_instance_id = request.POST.get('email-instance-id')
+    email_instance = Instance.objects.get(pk=email_instance_id)
+    recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
+
+    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
+        recipient_group.name = recipient_group.name + ' - 1'
+
+    recipient_group.save()
+
+    for recipient in recipients:
+        recipient_group.recipients.add(recipient[0])
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-update',
+            args=(),
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+def create_recipient_group_url_clicks(request):
+    '''
+        Creates a recipient group based on url clicks.
+        POST only
+    '''
+    url_id = request.POST.get('url-pk')
+    url_clicks = URLClick.objects.filter(url=url_id)
+    recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    recipient_group.save()
+
+    for click in url_clicks:
+        recipient_group.recipients.add(click.recipient)
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-update',
+            args=(),
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+

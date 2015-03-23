@@ -1,44 +1,75 @@
 {% extends 'base.html' %}
+
 {% block breadcrumbs %}
   {{block.super}}
   <li class="active"><a href="{% url manager-settings %}">Settings</a></li>
 {% endblock %}
+
 {% block page-body %}
-<a href="{% url manager-setting-create %}" class="btn btn-primary pull-right">Create New Setting</a>
-<h2>Settings</h2>
-{% if is_paginated %}
-<div class="pagination">
-  <ul>
-    {% if page_obj.has_previous %}
-    <li>
-      <a href="?page={{page_obj.previous_page_number}}" class="prev">Prev</a>
-    </li>
-    {% endif %}
-    {% if page_obj.has_next %}
-    <li>
-      <a href="?page={{page_obj.next_page_number}}" class="next">Next</a>
-    </li>
-    {% endif %}
-    <li class="active">
-      <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-    </li>
-  </ul>
-</div>
-{% endif %}
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for setting in settings %}
-    <tr data-link-url="{% url manager-setting-update setting.pk %}">
-      <td>{{setting.name}}</td>
-      <td>{{setting.value}}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+
+  <a href="{% url manager-setting-create %}" class="btn btn-success pull-right">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Setting</a>
+  <h2>Settings</h2>
+
+  {% if is_paginated %}
+  <div>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{page_obj.previous_page_number}}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{page_obj.next_page_number}}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for setting in settings %}
+      <tr data-link-url="{% url manager-setting-update setting.pk %}">
+        <td>{{setting.name}}</td>
+        <td>{{setting.value}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+  <div>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{page_obj.previous_page_number}}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{page_obj.next_page_number}}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
 {% endblock %}

@@ -9,6 +9,11 @@
     {% endfor %}
     <input type="hidden" name="next" value="{{next}}" />
     {% csrf_token %}
-    <button type="submit" class="btn-primary">Login</button>
+
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+    </div>
 </form>
 {% endblock %}
