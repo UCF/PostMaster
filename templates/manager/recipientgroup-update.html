@@ -17,7 +17,13 @@
         {% for field in form %}
             {% include 'form-control-group.html' %}
         {% endfor %}
-
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="tb_recipient_search">Add Recipient</label>
+            <div class="col-sm-9">
+                <input type="email" id="tb_recipient_search" name="recipient-email" class="form-control" />
+                <p class="help-block">Enter email address and press enter.</p>
+            </div>
+        </div>
         <div class="form-group">
           <div class="col-sm-offset-3 col-sm-9">
             <button type="submit" class="btn btn-primary">
@@ -28,4 +34,80 @@
         </div>
     </fieldset>
 </form>
+<nav>
+    <ul class="pagination">
+        {% if recipients.has_previous %}
+        <li>
+            <a href="?page={{recipients.previous_page_number}}" class="prev">Prev</a>
+        </li>
+        {% endif %}
+        {% if recipients.has_next %}
+        <li>
+            <a href="?page={{recipients.next_page_number}}" class="next">Next</a>
+        </li>
+        {% endif %}
+        <li class="active">
+            <a href="#">Page {{recipients.number}} of {{recipients.paginator.num_pages}}</a>
+        </li>
+    </ul>
+</nav>
+<form>
+    <fieldset>
+        <legend>Recipients</legend>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Email Address</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recipients %}
+                    {% for recipient in recipients %}
+                    <tr data-link-url="{% url manager-recipient-update recipient.pk %}">
+                        <td>{{recipient.email_address}}</td>
+                        <td>
+                            <a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </fieldset>
+</form>
+<script type="text/javascript">
+    window.onload = function() {
+
+        $(function() {
+            $('#tb_recipient_search').focus();
+        });
+
+        var recipients = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('email_address'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: '/recipients/json/?search=%QUERY'
+        });
+
+        recipients.clearPrefetchCache();
+
+        recipients.initialize();
+
+        $('#tb_recipient_search').typeahead({
+            hint: false,
+            minLength: 3,
+            limit: 10,
+            highlight: true
+        },{
+            displayKey: 'email_address',
+            source: recipients.ttAdapter()
+        });
+
+        $('#tb_recipient_search').bind('typeahead:selected', function(obj, datum, name) {
+            $('#tb_recipient_search').val(datum.email_address);
+        });
+
+    }
+
+</script>
 {% endblock %}

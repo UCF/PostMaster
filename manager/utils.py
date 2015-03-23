@@ -3,6 +3,7 @@ from manager.models import Instance
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
+
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.conf import settings
@@ -11,6 +12,11 @@ import csv
 import logging
 import smtplib
 import re
+
+
+import csv
+import logging
+
 
 log = logging.getLogger(__name__)
 
@@ -249,4 +255,3 @@ class EmailSender:
                 except smtplib.SMTPException, e:
                     log.exception('Unable to send email.')
             amazon.quit()
-

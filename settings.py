@@ -60,7 +60,7 @@ MESSAGE_TAGS = {
     message_constants.DEBUG   : '',
     message_constants.INFO    : 'alert-info',
     message_constants.SUCCESS : 'alert-success',
-    message_constants.WARNING : 'alert-danger',
+    message_constants.WARNING : 'alert-warning',
     message_constants.ERROR   : 'alert-danger',
 }
 
