@@ -222,6 +222,28 @@ class InstanceDetailView(EmailsMixin, DetailView):
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
 
+    def context_data(self, **kwargs):
+        """
+        Add the thumbnail preview to the context data
+        """
+        context = super(SingleObjectMixin, self).get_context_data(**context)
+        if self.instance.litmus_id:
+            litmus = LitmusApi(settings.LITMUS_BASE_URL,
+                               settings.LITMUS_USER,
+                               settings.LITMUS_PASS,
+                               settings.LITMUS_TIMEOUT,
+                               settings.LITMUS_VERIFY)
+            xml_test = litmus.get_test(litmus_id)
+            desktop_images = litmus.get_image_urls('ol2015',
+                                                   xml=get_test)
+            mobile_images = litmus.get_image_urls('iphone6',
+                                                  xml=get_test)
+            context['desktop_thumbnail_image'] = desktop_images['thumbnail_url']
+            context['desktop_full_image'] = desktop_images['full_url']
+            context['mobile_thumbnail_image'] = mobile_images['thumbnail_url']
+            context['mobile_full_image'] = mobile_images['full_url']
+        return context
+
 
 ##
 # Recipients Groups

@@ -1,6 +1,6 @@
 import httplib
 import logging
-from xml.dom import minidom
+from xml.etree import ElementTree as ET
 
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
@@ -72,6 +72,55 @@ class LitmusApi(object):
         return self.get_request(self.base_url + LitmusApi.TESTS +
                                 str(test_id) + '.xml')
 
+    def get_image_urls(self, client_code, test_id=None, xml=None):
+        """
+        Returns the thumbnail url for the specificed client
+
+        :param client_code: Email client code
+        :param test_id: ID of the email test
+        :param xml: test email xml document
+        """
+        urls = None
+
+        if client_code and (xml or test_id):
+            # prefer the xml document over the test ID if both are given
+            if not xml and test_id:
+                xml = self.get_test(test_id)
+
+            client_tests = xml.findall('./test_set_versions/test_set_version/results/result')
+
+            # loop through the clients and get the client specified
+            for client_test in client_tests:
+                xml_test_code = client_test.find('test_code').text
+                if client_code == xml_test_code:
+                    xml_images = client_test.findall('result_images/result_image')
+                    xml_image = self.get_full_on(xml_images)
+                    if xml_image is not None:
+                        thumbnail_url = xml_image.find('thumbnail_image').text
+                        full_image = xml_image.find('full_image').text
+                        urls = {'thumbnail_url': thumbnail_url,
+                                'full_url': full_image}
+        else:
+            log.warning('Could not retrieve the thumbnail url because' +
+                        ' the xml or client code is empty.')
+
+        return urls
+
+    def get_full_on(self, xml_images):
+        """
+        Get the full on image type
+
+        :param xml_images: xml document
+        """
+        result_image = None
+        for xml_image in xml_images:
+            image_type = xml_image.find('image_type').text
+            if 'full_on' == image_type:
+                result_image = xml_image
+                break
+
+        return result_image
+
     def get_request(self, url):
         """
         Performs a GET request with the given url
@@ -94,7 +143,7 @@ class LitmusApi(object):
         except RequestException as e:
             log.error('Could not connect to Litmus', e)
 
-        return minidom.parseString(response.text)
+        return ET.fromstring(response.text)
 
     def post_request(self, url, data):
         """
@@ -118,4 +167,4 @@ class LitmusApi(object):
                           ' Response header: ' + str(response.headers))
             return None
 
-        return minidom.parseString(response.text)
+        return ET.fromstring(response.text)
