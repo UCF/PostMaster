@@ -30,7 +30,6 @@
 		<tr>
 			<th scope="col">Name</th>
 			<th scope="col">Number of Recipients</th>
-			<th></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -38,7 +37,6 @@
 		<tr data-link-url="{% url manager-recipientgroup-update group.pk %}">
 			<td>{{group.name}}</td>
 			<td>{{group.recipients.count}}</td>
-			<td><a href="{% url manager-recipientgroup-recipients group.pk %}">Recipients</a></td>
 		</tr>
 		{% endfor %}
 	</tbody>

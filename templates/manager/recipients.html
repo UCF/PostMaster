@@ -15,9 +15,9 @@
 	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">Import Recipients</a>
 </div>
 <h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
-<div class="pagination">
+<nav>
 	{% if is_paginated %}
-	<ul>
+	<ul class="pagination">
 		{% if page_obj.has_previous %}
 		<li>
 			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev">Prev</a>
@@ -39,7 +39,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Search</button>
 	</form>
-</div>
+</nav>
 <table class="table">
 	<thead>
 		<tr>
