@@ -341,23 +341,27 @@
       // Enables all editing functionality.
       function pmDesignerEnable() {
         $('.pm-template-editable-single').editable({
-          inlineMode: true,
-          paragraphy: false,
+          allowedTags: ['a', 'b', 'i', 's', 'span', 'u'],
           buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
           imageMove: false,
-          plainPaste: true
+          inlineMode: true,
+          paragraphy: false,
+          plainPaste: true,
+          useClasses: false
         });
 
         $('.pm-template-editable-paragraph').editable({
-          inlineMode: true,
+          allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 'p', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
           alwaysVisible: true,
-          paragraphy: true,
-          buttons: ['bold', 'italic', 'underline', 'fontSize', 'createLink', 'align', 'insertImage', 'html'],
-          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
-          imageMove: false,
+          buttons: ['bold', 'italic', 'underline', 'fontSize', 'createLink', 'align', 'insertImage', 'html', 'customUnderline'],
           defaultImageAlignment: 'left',
           defaultImageWidth: 0,
-          plainPaste: true
+          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+          imageMove: false,
+          inlineMode: true,
+          paragraphy: true,
+          plainPaste: true,
+          useClasses: false
         })
           .on('editable.imageInserted', function(e, editor, img) {
               img.addClass('responsiveimg');
@@ -367,15 +371,17 @@
           });
 
         $('.pm-template-editable-multiline').editable({
-          inlineMode: true,
+          allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
           alwaysVisible: true,
-          paragraphy: false,
           buttons: ['bold', 'italic', 'underline', 'createLink', 'align', 'insertImage', 'html'],
-          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
-          imageMove: false,
           defaultImageAlignment: 'left',
           defaultImageWidth: 0,
-          plainPaste: true
+          inlineMode: true,
+          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+          imageMove: false,
+          paragraphy: false,
+          plainPaste: true,
+          useClasses: false
         }).on('editable.imageInserted', function(e, editor, img) {
           img.addClass('responsiveimg');
         });
