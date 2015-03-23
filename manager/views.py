@@ -24,11 +24,13 @@ from django.views.generic.edit import DeleteView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
+from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.simple import direct_to_template
 from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
+from manager.forms import EmailInstantSendForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientCreateUpdateForm
@@ -47,8 +49,9 @@ from manager.models import RecipientGroup
 from manager.models import Setting
 from manager.models import URL
 from manager.models import URLClick
-from manager.utils import CSVImport
 from manager.litmusapi import LitmusApi
+from manager.utils import CSVImport
+from manager.utils import EmailSender
 
 
 log = logging.getLogger(__name__)
@@ -145,7 +148,6 @@ class EmailCreateView(EmailsMixin, CreateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
-
 class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
     template_name = 'manager/email-update.html'
@@ -176,6 +178,45 @@ class EmailUpdateView(EmailsMixin, UpdateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
+class EmailInstantSendView(EmailsMixin, FormView):
+    template_name = 'manager/email-instant-send.html'
+    form_class = EmailInstantSendForm
+
+    def form_valid(self, form):
+        subject = form.cleaned_data['subject']
+        source_html_uri = form.cleaned_data['source_html_uri']
+        from_email_address = form.cleaned_data['from_email_address']
+        from_friendly_name = form.cleaned_data['from_friendly_name']
+        replace_delimiter = form.cleaned_data['replace_delimiter']
+        recipient_groups = form.cleaned_data['recipient_groups']
+
+        email = Email()
+        email.subject = subject
+        email.source_html_uri = source_html_uri
+        email.from_email_address = from_email_address
+        email.from_friendly_name = from_friendly_name
+        email.replace_delimiter = replace_delimiter
+        email.preview = False
+
+        recipients = []
+        for recipient_group in recipient_groups.all():
+            for recipient in recipient_group.recipients.all():
+                recipients.append(recipient)
+
+        sender = EmailSender(email, recipients)
+
+        try:
+            sender.send()
+        except Exception, e:
+            form._errors['__all__'] = ErrorList([str(e)])
+            return super(EmailInstantSendView, self).form_invalid(form)
+        else:
+            messages.success(self.request, 'Emails successfully sent.')
+            return super(EmailInstantSendView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Email sent')
+        return reverse('manager-emails')
 
 class EmailDeleteView(EmailsMixin, DeleteView):
     model = Email
@@ -807,5 +848,3 @@ def create_recipient_group_url_clicks(request):
             kwargs={'pk': recipient_group.pk}
         )
     )
-
-
