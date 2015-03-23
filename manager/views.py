@@ -225,11 +225,6 @@ class InstanceListView(EmailsMixin, ListView):
         return context
 
 
-##
-# Using the post method in this detail view as it is the fastest way
-# to get the functionality in without having to completely rewrite
-# the view.
-##
 class InstanceDetailView(EmailsMixin, DetailView):
     model = Instance
     template_name = 'manager/email-instance.html'
@@ -736,11 +731,18 @@ def recipient_json_feed(request):
 # POST only
 ##
 def create_recipient_group_email_opens(request):
+    '''
+    Creates a recipient group based on email opens.
+    POST only
+    '''
     email_instance_id = request.POST.get('email-instance-id')
     email_instance = Instance.objects.get(pk=email_instance_id)
     recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
 
-    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group')
+    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
+        recipient_group.name = recipient_group.name + ' - 1'
+        
     recipient_group.save()
 
     for recipient in recipients:
@@ -748,22 +750,22 @@ def create_recipient_group_email_opens(request):
 
     recipient_group.save()
 
-    messages.success(request, 'Recipient group successfully created.')
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(
-        reverse('manager-recipientgroup-recipients', 
+        reverse('manager-recipientgroup-update', 
             args=(), 
             kwargs={'pk': recipient_group.pk}
         )
     )
 
-##
-# Creates a recipient group based on url clicks.
-# POST only
-##
 def create_recipient_group_url_clicks(request):
+    '''
+        Creates a recipient group based on url clicks.
+        POST only
+    '''
     url_id = request.POST.get('url-pk')
     url_clicks = URLClick.objects.filter(url=url_id)
-    recipient_group = RecipientGroup(name='URL Click Recipient Group')
+    recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     recipient_group.save()
 
     for click in url_clicks:
@@ -771,9 +773,9 @@ def create_recipient_group_url_clicks(request):
 
     recipient_group.save()
 
-    messages.success(request, 'Recipient group successfully created.')
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(
-        reverse('manager-recipientgroup-recipients',
+        reverse('manager-recipientgroup-update',
             args=(),
             kwargs={'pk': recipient_group.pk}
         )
