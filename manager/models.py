@@ -18,6 +18,8 @@ import threading
 import requests
 import random
 
+from manager.litmusapi import LitmusApi
+
 log = logging.getLogger(__name__)
 
 
@@ -639,12 +641,19 @@ class Email(models.Model):
             log.exception('Not sending Live email. HTML request returned status code ' + str(status_code))
             raise self.EmailException()
 
+        litmus = LitmusApi(settings.LITMUS_BASE_URL,
+                           settings.LITMUS_USER,
+                           settings.LITMUS_PASS,
+                           settings.LITMUS_TIMEOUT,
+                           settings.LITMUS_VERIFY)
+        litmus_test = litmus.create_test()
+
         instance = Instance.objects.create(
             email           = self,
             sent_html       = html,
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
-            urls_tracked    = self.track_urls
+            urls_tracked    = self.track_urls,
         )
 
         recipients = Recipient.objects.filter(
@@ -704,6 +713,7 @@ class Instance(models.Model):
     '''
     email           = models.ForeignKey(Email, related_name='instances')
     sent_html       = models.TextField()
+    litmus_id = models.CharField(max_length=100, null=True, blank=True)
     requested_start = models.DateTimeField()
     start           = models.DateTimeField(auto_now_add=True)
     end             = models.DateTimeField(null=True)
@@ -760,6 +770,18 @@ class Instance(models.Model):
                     name     = href,
                     position = URL.objects.filter(instance=self, name=href).count())[0])
         return urls
+
+        def get_litmus_email(self):
+            """
+            Returns the Litmus information for the given email instance.
+            """
+            info = None
+
+            # if self.litmus_id:
+            #     requests.get()
+
+            return info
+
 
     class Meta:
         ordering = ('-start',)
