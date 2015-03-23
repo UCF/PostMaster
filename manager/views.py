@@ -48,6 +48,7 @@ from manager.models import Setting
 from manager.models import URL
 from manager.models import URLClick
 from manager.utils import CSVImport
+from manager.litmusapi import LitmusApi
 
 
 log = logging.getLogger(__name__)
@@ -230,26 +231,29 @@ class InstanceDetailView(EmailsMixin, DetailView):
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
 
-    def context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):
         """
         Add the thumbnail preview to the context data
         """
-        context = super(SingleObjectMixin, self).get_context_data(**context)
-        if self.instance.litmus_id:
+        context = super(InstanceDetailView, self).get_context_data(**kwargs)
+        if self.object.litmus_id:
             litmus = LitmusApi(settings.LITMUS_BASE_URL,
                                settings.LITMUS_USER,
                                settings.LITMUS_PASS,
                                settings.LITMUS_TIMEOUT,
                                settings.LITMUS_VERIFY)
-            xml_test = litmus.get_test(litmus_id)
+            xml_test = litmus.get_test(self.object.litmus_id)
             desktop_images = litmus.get_image_urls('ol2015',
-                                                   xml=get_test)
+                                                   xml=xml_test)
             mobile_images = litmus.get_image_urls('iphone6',
-                                                  xml=get_test)
+                                                  xml=xml_test)
             context['desktop_thumbnail_image'] = desktop_images['thumbnail_url']
             context['desktop_full_image'] = desktop_images['full_url']
             context['mobile_thumbnail_image'] = mobile_images['thumbnail_url']
             context['mobile_full_image'] = mobile_images['full_url']
+            context['litmus_url'] = settings.LITMUS_BASE_URL + \
+                LitmusApi.TESTS + self.object.litmus_id
+
         return context
 
 

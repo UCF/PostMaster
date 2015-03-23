@@ -159,7 +159,7 @@ LOGGING = {
 
 LITMUS_USER = 'user'
 LITMUS_PASS = 'pass'
-LITMUS_URL_PREFIX = 'https://ucf.litmus.com/'
+LITMUS_BASE_URL = 'https://ucf.litmus.com/'
 # SNI is not native to python 2.6.6. The link below indicates options that
 # don't seem to work. Python 2.6.6 with pyOpenSSL causes a
 # "data must be a byte string" error. Sugget using python 2.7.9 or later
