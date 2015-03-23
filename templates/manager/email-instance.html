@@ -12,7 +12,7 @@
 	<div class="alert alert-info">This instance is still in progress.</div>
 	{% else %}
 	<form class="form-horizontal" action="{% url manager-recipientgroup-create-email-opens %}" method="post">
-		<input type="hidden" name="email-instance-id" value={{ instance.pk }} />
+		<input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
 		<button type="submit" class="btn btn-primary">Create Recipient Group</button>
 		<p class="help-block">Creates a Recipient Group based on recipients who opened this email</p>
 	</form>
