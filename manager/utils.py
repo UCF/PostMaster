@@ -187,6 +187,10 @@ class CSVImport:
             recipient_group.delete()
 
 class EmailSender:
+    '''
+    This helper class will send an email without creating
+    an Email Instance
+    '''
     email = None
     recipients = None
     html = None
