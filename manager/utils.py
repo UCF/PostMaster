@@ -1,7 +1,11 @@
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
+
 import csv
+import logging
+
+log = logging.getLogger(__name__)
 
 class CSVImport:
 	'''
@@ -17,12 +21,13 @@ class CSVImport:
 		if csv_file:
 			self.csv_file = csv_file
 		else:
-			print 'csv_file is null or empty string'
+			log.error('csv_file must not be null')
 			raise Exception('csv_file must not be null')
 
 		if recipient_group_name:
 			self.recipient_group_name = recipient_group_name
 		else:
+			log.error('Receipient Group Name is null or empty string')
 			raise Exception('Receipient Group Name is null or empty string')
 			return
 
@@ -38,14 +43,14 @@ class CSVImport:
 		columns = self.column_order
 
 		if 'email' not in columns:
-			print 'email is a required column for import'
+			raise Exception('Email required for import')
 			return
 
 		group = None
 		try:
 			group = RecipientGroup.objects.get(name=self.recipient_group_name)
 		except RecipientGroup.DoesNotExist:
-			print 'Recipient group does not exist. Creating...'
+			log.debug('Recipient group does not exist. Creating...')
 			group = RecipientGroup(name=self.recipient_group_name)
 			group.save()
 
@@ -85,12 +90,12 @@ class CSVImport:
 					else:
 						preferred_name = row[preferred_name_index]
 				except IndexError:
-					print 'Malformed row at line %d' % row_num
 					self.revert()
+					log.error('There is a malformed row at line %d' % row_num)
 					raise Exception('There is a malformed row at line %d' % row_num)
 				else:
 					if email_address == '':
-						print 'Empty email address at line %d' % row_num
+						log.debug('Empty email address at line %d' % row_num)
 					else:
 						created = False
 						try:
@@ -104,9 +109,10 @@ class CSVImport:
 						try:
 							recipient.save()
 						except Exception, e:
-							print 'Error saving recipient at line %d: %s' % (row_num, str(e))
+							log.error('Error saving recipient at line %d: %s' % (row_num, str(e)))
+							raise Exception('Error saving recipient at line %d: %s' % (row_num, str(e)))
 						else:
-							print 'Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')
+							log.debug('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated'))
 
 						if first_name is not None:
 							try:
@@ -123,7 +129,7 @@ class CSVImport:
 							try:
 								attribute_first_name.save()
 							except Exeception, e:
-								print 'Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))
+								log.debug('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e)))
 
 						if last_name is not None:
 							try:
@@ -140,7 +146,7 @@ class CSVImport:
 							try:
 								attribute_last_name.save()
 							except Exception, e:
-								print 'Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))
+								log.debug('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e)))
 
 						if preferred_name is not None:
 							try:
@@ -158,13 +164,14 @@ class CSVImport:
 							try:
 								attribute_preferred_name.save()
 							except Exception, e:
-								print 'Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))
+								log.debug('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e)))
 
 						if group is not None:
 							try:
 								group.recipients.add(recipient)
 							except Exception, e:
-								print 'Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
+								log.error('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e)))
+								raise Exception('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e)))
 			row_num += 1
 
 	def revert(self):

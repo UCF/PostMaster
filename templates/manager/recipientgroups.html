@@ -6,72 +6,42 @@
 {% endblock %}
 
 {% block page-body %}
-
-  <a href="{% url manager-recipientgroup-create %}" class="btn btn-success pull-right">
+<a href="{% url manager-recipientgroup-create %}" class="btn btn-success pull-right">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient Group</a>
-  <h2>Recipient Groups</h2>
-
-  {% if is_paginated %}
-  <div>
-  	<ul class="pagination">
-  		{% if page_obj.has_previous %}
-  		<li>
-  			<a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
-  		</li>
-  		{% endif %}
-  		{% if page_obj.has_next %}
-  		<li>
-  			<a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
-  		</li>
-  		{% endif %}
-  		<li class="disabled">
-  			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-  		</li>
-  	</ul>
-  </div>
-  {% endif %}
-
-  <table class="table table-striped table-hover">
-  	<thead>
-  		<tr>
-  			<th scope="col">Name</th>
-  			<th scope="col">Number of Recipients</th>
-  			<th></th>
-  		</tr>
-  	</thead>
-  	<tbody>
-  		{% for group in groups %}
-  		<tr data-link-url="{% url manager-recipientgroup-update group.pk %}">
-  			<td>{{group.name}}</td>
-  			<td>{{group.recipients.count}}</td>
-  			<td><a href="{% url manager-recipientgroup-recipients group.pk %}">Recipients</a></td>
-  		</tr>
-  		{% endfor %}
-  	</tbody>
-  </table>
-
-  {% if is_paginated %}
-  <div>
-    <ul class="pagination">
-      {% if page_obj.has_previous %}
-      <li>
-        <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
-      </li>
-      {% endif %}
-      {% if page_obj.has_next %}
-      <li>
-        <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
-      </li>
-      {% endif %}
-      <li class="disabled">
-        <a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-      </li>
-    </ul>
-  </div>
-  {% endif %}
-
+<h2>Recipient Groups</h2>
+{% if is_paginated %}
+<div class="pagination pull-right">
+	<ul>
+		{% if page_obj.has_previous %}
+		<li>
+			<a href="?page={{page_obj.previous_page_number}}" class="prev"><span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+		</li>
+		{% endif %}
+		{% if page_obj.has_next %}
+		<li>
+			<a href="?page={{page_obj.next_page_number}}" class="next">Next<span class="glyphicon glyphicon-chevron-right"></a>
+		</li>
+		{% endif %}
+		<li class="disabled">
+			<a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+		</li>
+	</ul>
+</div>
+{% endif %}
+<table class="table table-striped table-hover">
+	<thead>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Number of Recipients</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for group in groups %}
+		<tr data-link-url="{% url manager-recipientgroup-update group.pk %}">
+			<td>{{group.name}}</td>
+			<td>{{group.recipients.count}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
 {% endblock %}

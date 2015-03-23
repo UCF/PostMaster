@@ -11,6 +11,9 @@ import json
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import EmptyPage
+from django.core.paginator import PageNotAnInteger
+from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -29,11 +32,11 @@ from manager.forms import EmailCreateUpdateForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientCreateUpdateForm
+from manager.forms import RecipientCSVImportForm
 from manager.forms import RecipientGroupCreateUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
-from manager.forms import RecipientCSVImportForm
 from manager.models import Email
 from manager.models import Instance
 from manager.models import InstanceOpen
@@ -227,7 +230,6 @@ class InstanceDetailView(EmailsMixin, DetailView):
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
 
-
 ##
 # Recipients Groups
 ##
@@ -258,7 +260,38 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
     template_name = 'manager/recipientgroup-update.html'
     form_class = RecipientGroupCreateUpdateForm
 
+    def get_context_data(self, **kwargs):
+        context = super(RecipientGroupUpdateView, self).get_context_data(**kwargs)
+        recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
+        recipients = recipient_group.recipients.all()
+        paginator = Paginator(recipients, 20)
+
+        page = self.request.GET.get('page')
+        try:
+            context['recipients'] = paginator.page(page)
+        except PageNotAnInteger:
+            context['recipients'] = paginator.page(1)
+        except EmptyPage:
+            context['recipients'] = paginator.page(paginator.num_pages)
+
+        return context
+
     def form_valid(self, form):
+        recipient_email = self.request.POST.get('recipient-email')
+
+        if recipient_email:
+            recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
+            recipient = Recipient.objects.get(email_address=recipient_email)
+            if recipient:
+                if recipient not in recipient_group.recipients.all():
+                    recipient_group.recipients.add(recipient)
+                    recipient_group.save()
+                else:
+                    messages.warning(self.request, 'Recipient %s already in %s.' % (recipient_email, recipient_group.name))
+            else:
+                messages.error(self.request, 'Recipient with email address %s does not exist.' % recipient_email)
+                return super(RecipientGroupUpdateView, self).form_invalid(form)
+
         messages.success(self.request, 'Recipient group successfully updated.')
         return super(RecipientGroupUpdateView, self).form_valid(form)
 
@@ -266,47 +299,6 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
         return reverse('manager-recipientgroup-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
-
-
-class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
-    model = Recipient
-    template_name = 'manager/recipientgroup-recipients.html'
-    context_object_name = 'recipients'
-    paginate_by = 20
-
-    def dispatch(self, request, *args, **kwargs):
-        self._recipient_group = get_object_or_404(RecipientGroup,
-                                                  pk=kwargs['pk'])
-        return super(RecipientGroupRecipientListView, self).dispatch(request,
-                                                                     *args,
-                                                                     **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        recipient_group_id = request.POST.get('recipient-group-id')
-        recipient_email = request.POST.get('recipient-email')
-        try:
-            recipient_group = RecipientGroup.objects.get(pk=int(recipient_group_id))
-            recipient = Recipient.objects.get(email_address=recipient_email.lower())
-            if recipient not in recipient_group.recipients.all():
-                recipient_group.recipients.add(recipient)
-                messages.success(self.request, 'Recipient added to group.')
-            else:
-                messages.success(self.request, 'Recipient already a member of group.')
-        except Exception, e:
-            messages.success(self.request, str(e))
-        
-        return super(RecipientGroupRecipientListView, self).get(request,
-                                                                *args,
-                                                                **kwargs)
-
-    def get_queryset(self):
-        return Recipient.objects.filter(groups=self._recipient_group)
-
-    def get_context_data(self, **kwargs):
-        context = super(RecipientGroupRecipientListView,
-                        self).get_context_data(**kwargs)
-        context['recipientgroup'] = self._recipient_group
-        return context
 
 
 ##
@@ -699,7 +691,6 @@ def recipient_json_feed(request):
 
     if request.GET.get('search'):
         search_term = request.GET.get('search')
-        print search_term
 
     recipients = []
 
@@ -734,3 +725,60 @@ def recipient_json_feed(request):
         retval.append(r)
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
+
+##
+# Creates a recipient group based on email opens.
+# POST only
+##
+def create_recipient_group_email_opens(request):
+    '''
+    Creates a recipient group based on email opens.
+    POST only
+    '''
+    email_instance_id = request.POST.get('email-instance-id')
+    email_instance = Instance.objects.get(pk=email_instance_id)
+    recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
+
+    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
+        recipient_group.name = recipient_group.name + ' - 1'
+        
+    recipient_group.save()
+
+    for recipient in recipients:
+        recipient_group.recipients.add(recipient[0])
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-update', 
+            args=(), 
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+def create_recipient_group_url_clicks(request):
+    '''
+        Creates a recipient group based on url clicks.
+        POST only
+    '''
+    url_id = request.POST.get('url-pk')
+    url_clicks = URLClick.objects.filter(url=url_id)
+    recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    recipient_group.save()
+
+    for click in url_clicks:
+        recipient_group.recipients.add(click.recipient)
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-update',
+            args=(),
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+
