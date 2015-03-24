@@ -15,3 +15,11 @@ table tr {
 .pagination {
   margin: 0;
 }
+
+#id_groups, #id_recipient_groups {
+  height: 300px;
+}
+
+.form-group.attribute-container {
+  margin-bottom: 0;
+}

@@ -1,31 +1,67 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
 {% block breadcrumbs %}
 	{{block.super}}
 	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
 	<li class="active"><a href="{% url manager-recipient-create %}">Create</a></li>
 {% endblock %}
-{% block page-body %}
-<form class="form-horizontal" action="{% url manager-recipient-create %}" method="post">
-	<fieldset>
-		<legend>Create Recipient</legend>
-		{% for error in form.non_field_errors %}
-			<div class="alert alert-danger">
-				{{error}}
-			</div>
-		{% endfor %}
-		{% for field in form %}
-			{% include 'form-control-group.html' %}
-		{% endfor %}
 
-    <div class="form-group">
-      <div class="col-sm-offset-3 col-sm-9">
-  			<button type="submit" class="btn btn-primary">
-          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
-        </button>
-  			<a href="{% url manager-recipients %}" class="btn btn-default">
-          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+{% block page-body %}
+  <form class="form-horizontal" action="{% url manager-recipient-create %}" method="post">
+  	<fieldset>
+  		<legend>Create Recipient</legend>
+
+  		{% for error in form.non_field_errors %}
+  			<div class="alert alert-danger">
+  				{{error}}
+  			</div>
+  		{% endfor %}
+
+  		{% for field in form %}
+  			{% include 'form-control-group.html' %}
+  		{% endfor %}
+
+      <legend>Recipient Attributes</legend>
+
+      {{ recipient_attributes_formset.management_form }}
+
+      {% for attr_form in recipient_attributes_formset %}
+        <div class="form-group attribute-container">
+          <div class="col-sm-offset-3 col-sm-9">
+            <div class="form-group row">
+                <label class="col-md-1 control-label">Name</label>
+                <div class="col-md-3">
+                  {{ attr_form.name|add_class:"form-control" }}
+                </div>
+                <label class="col-md-1 control-label">Value</label>
+                <div class="col-md-3">
+                  {{ attr_form.value|add_class:"form-control" }}
+                </div>
+            </div>
+            <hr>
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+        <a href="#" class="btn btn-success">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Attribute</a>
+          </div>
       </div>
-		</div>
-	</fieldset>
-</form>
+
+      <hr>
+
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+    			<button type="submit" class="btn btn-success">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
+          </button>
+    			<a href="{% url manager-recipients %}" class="btn btn-default">
+            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+        </div>
+  		</div>
+  	</fieldset>
+  </form>
 {% endblock %}

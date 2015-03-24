@@ -3,11 +3,13 @@
 <div class="form-group {% if field.errors %}has-error has-feedback{% endif %}">
     <label for="{{field.id}}" class="col-sm-3 control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
     <div class="col-sm-9">
+
       {% if field.field.required %}
         {{field|add_class:"form-control"|attr:"required"}}
       {% else %}
         {{field|add_class:"form-control"}}
       {% endif %}
+
       {% if field.errors %}
         <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
         <span id="inputError2Status" class="sr-only">(error)</span>

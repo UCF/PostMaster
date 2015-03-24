@@ -28,7 +28,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
         super(RecipientCreateUpdateForm, self).__init__(*args, **kwargs)
         if self.instance.pk is not None:
             self.fields['groups'].initial = self.instance.groups.all()
-        self.fields['disable'].label = 'Email Undeliverable to this Address'
+        self.fields['disable'].label = 'Email Undeliverable'
 
     groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(), )
 
@@ -36,14 +36,18 @@ class RecipientCreateUpdateForm(forms.ModelForm):
         model = Recipient
         exclude = ('recipients',)
 
+
 class RecipientCSVImportForm(forms.Form):
-    existing_group_name = forms.ModelChoiceField(queryset=RecipientGroup.objects.all(), 
+    existing_group_name = forms.ModelChoiceField(
+        queryset=RecipientGroup.objects.all(),
         required=False,
         help_text='If adding recipients to an existing recipient group, choose the group name.',
         to_field_name='name')
-    new_group_name = forms.CharField(help_text='If creating a new recipient group, enter the name.',
+    new_group_name = forms.CharField(
+        help_text='If creating a new recipient group, enter the name.',
         required=False)
-    column_order = forms.CharField(help_text='Enter, seperated by commas, the name of the columns in your CSV (i.e. first_name,last_name,email,preferred_name).')
+    column_order = forms.CharField(
+        help_text='Enter, seperated by commas, the name of the columns in your CSV (i.e. first_name,last_name,email,preferred_name).')
     skip_first_row = forms.BooleanField(help_text='Check if you have column names in your first row.', required=False)
     csv_file = forms.FileField()
 
@@ -61,11 +65,12 @@ class RecipientCSVImportForm(forms.Form):
                 raise forms.ValidationError('Please specify either a new or existing group name.')
             return cleaned_data
 
+
 class RecipientAttributeCreateForm(forms.ModelForm):
 
     class Meta:
         model = RecipientAttribute
-        exclude = ('recipient',)
+        fields = ('name', 'value')
 
 
 class RecipientAttributeUpdateForm(forms.ModelForm):
@@ -73,6 +78,9 @@ class RecipientAttributeUpdateForm(forms.ModelForm):
     class Meta:
         model = RecipientAttribute
         exclude = ('recipient', 'name',)
+
+
+RecipientAttributeFormSet = inlineformset_factory(Recipient, RecipientAttribute, form=RecipientAttributeCreateForm, extra=1, can_delete=True)
 
 
 class RecipientSearchForm(forms.Form):
