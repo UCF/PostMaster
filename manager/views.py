@@ -49,6 +49,7 @@ from manager.models import RecipientGroup
 from manager.models import Setting
 from manager.models import URL
 from manager.models import URLClick
+from manager.litmusapi import LitmusApi
 from manager.utils import CSVImport
 from manager.utils import EmailSender
 
@@ -147,6 +148,7 @@ class EmailCreateView(EmailsMixin, CreateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
+
 class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
     template_name = 'manager/email-update.html'
@@ -176,6 +178,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
         return reverse('manager-email-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
+
 
 class EmailInstantSendView(EmailsMixin, FormView):
     template_name = 'manager/email-instant-send.html'
@@ -216,6 +219,7 @@ class EmailInstantSendView(EmailsMixin, FormView):
     def get_success_url(self):
         messages.success(self.request, 'Email sent')
         return reverse('manager-emails')
+
 
 class EmailDeleteView(EmailsMixin, DeleteView):
     model = Email
@@ -270,6 +274,36 @@ class InstanceDetailView(EmailsMixin, DetailView):
     model = Instance
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
+
+    def get_context_data(self, **kwargs):
+        """
+        Add the thumbnail preview to the context data
+        """
+        context = super(InstanceDetailView, self).get_context_data(**kwargs)
+        if self.object.litmus_id:
+            litmus = LitmusApi(settings.LITMUS_BASE_URL,
+                               settings.LITMUS_USER,
+                               settings.LITMUS_PASS,
+                               settings.LITMUS_TIMEOUT,
+                               settings.LITMUS_VERIFY)
+            xml_test = litmus.get_test(self.object.litmus_id)
+            desktop_images = litmus.get_image_urls('ol2015',
+                                                   xml=xml_test)
+            mobile_images = litmus.get_image_urls('iphone6',
+                                                  xml=xml_test)
+            if desktop_images is not None:
+                context['desktop_thumbnail_image'] = desktop_images['thumbnail_url']
+                context['desktop_full_image'] = desktop_images['full_url']
+
+            if mobile_images is not None:
+                context['mobile_thumbnail_image'] = mobile_images['thumbnail_url']
+                context['mobile_full_image'] = mobile_images['full_url']
+
+            context['litmus_url'] = settings.LITMUS_BASE_URL + \
+                LitmusApi.TESTS + self.object.litmus_id
+
+        return context
+
 
 ##
 # Recipients Groups
@@ -783,7 +817,7 @@ def create_recipient_group_email_opens(request):
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
         recipient_group.name = recipient_group.name + ' - 1'
-        
+
     recipient_group.save()
 
     for recipient in recipients:
@@ -793,8 +827,8 @@ def create_recipient_group_email_opens(request):
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(
-        reverse('manager-recipientgroup-update', 
-            args=(), 
+        reverse('manager-recipientgroup-update',
+            args=(),
             kwargs={'pk': recipient_group.pk}
         )
     )

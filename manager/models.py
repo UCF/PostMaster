@@ -8,7 +8,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
-import hmac
 import logging
 import smtplib
 import re
@@ -18,6 +17,8 @@ import Queue
 import threading
 import requests
 import random
+
+from manager.litmusapi import LitmusApi
 
 log = logging.getLogger(__name__)
 
@@ -640,12 +641,27 @@ class Email(models.Model):
             log.exception('Not sending Live email. HTML request returned status code ' + str(status_code))
             raise self.EmailException()
 
+        # send email to litmus for email instance previews
+        litmus = LitmusApi(settings.LITMUS_BASE_URL,
+                           settings.LITMUS_USER,
+                           settings.LITMUS_PASS,
+                           settings.LITMUS_TIMEOUT,
+                           settings.LITMUS_VERIFY)
+        litmus_test = litmus.create_test()
+        litmus_id = litmus.get_test_id(litmus_test)
+        litmus_email_address = litmus.get_email_address(litmus_test)
+        print litmus_test
+        print litmus_id
+        print litmus_email_address
+
+
         instance = Instance.objects.create(
             email           = self,
             sent_html       = html,
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
-            urls_tracked    = self.track_urls
+            urls_tracked    = self.track_urls,
+            litmus_id = litmus_id
         )
 
         recipients = Recipient.objects.filter(
@@ -663,6 +679,26 @@ class Email(models.Model):
         recipient_attributes    = {}
         placeholders            = instance.placeholders
         tracking_urls           = instance.tracking_urls
+
+        # Send litmus email test if the email adress exists
+        if litmus_email_address:
+            try:
+                amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+                amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+
+                msg = MIMEMultipart('alternative')
+                msg['subject'] = subject
+                msg['From'] = display_from
+                msg['To'] = litmus_email_address
+                msg.attach(MIMEText(html, 'html', _charset='us-ascii'))
+
+                amazon.sendmail(self.from_email_address, litmus_email_address, msg.as_string())
+            except:
+                log.error('Unable to send Litmus email preview')
+        else:
+            log.error('Could not get the litmus test email address.')
+
+
 
         # Create all the instancerecipientdetails before hand so in case sending
         # fails, we know who hasn't been sent too
@@ -705,6 +741,7 @@ class Instance(models.Model):
     '''
     email           = models.ForeignKey(Email, related_name='instances')
     sent_html       = models.TextField()
+    litmus_id = models.CharField(max_length=100, null=True, blank=True)
     requested_start = models.DateTimeField()
     start           = models.DateTimeField(auto_now_add=True)
     end             = models.DateTimeField(null=True)
@@ -761,6 +798,18 @@ class Instance(models.Model):
                     name     = href,
                     position = URL.objects.filter(instance=self, name=href).count())[0])
         return urls
+
+        def get_litmus_email(self):
+            """
+            Returns the Litmus information for the given email instance.
+            """
+            info = None
+
+            # if self.litmus_id:
+            #     requests.get()
+
+            return info
+
 
     class Meta:
         ordering = ('-start',)

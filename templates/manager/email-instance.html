@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block page-body %}
-	<h2>{{instance.email.title}} Instance<br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
+	<h2>{{instance.email.title}} Instance
+  <br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
 	{% if instance.in_progress %}
 	<div class="alert alert-info">This instance is still in progress.</div>
 	{% else %}
@@ -20,6 +21,28 @@
 	</form>
 	{% endif %}
 	<p>This instance was scheduled to go to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients. <big><strong>{{instance.sent_count}}</strong></big> were actually sent.</p>
+  <section>
+    <h3>Previews</h3>
+    {% if instance.litmus_id %}
+    <div class="row">
+      {% if desktop_thumbnail_image %}
+      <div class="col-md-2">
+        <h4>Desktop</h4>
+        <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
+      </div>
+      {% endif %}
+      {% if mobile_thumbnail_image %}
+      <div class="col-md-2">
+        <h4>Mobile</h4>
+        <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
+      </div>
+      {% endif %}
+    </div>
+    <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
+    {% else %}
+    <h4>No Previews available</h4>
+    {% endif %}
+  </section>
 	<section>
 		<h3>Opens</h3>
 		{% if instance.opens_tracked %}
