@@ -66,6 +66,12 @@
   </div>
 </div>
 
+<noscript>
+  <div class="alert alert-danger" role="alert">
+    This page requires Javascript to be enabled in order to function properly.  Please enable Javascript on this page and reload.
+  </div>
+</noscript>
+
 <p>
   Select a template from the dropdown above to start editing.
 </p>
@@ -264,10 +270,13 @@ These are injected into the email template markup when loadEditor() is called.
     }
 
 
-    // .froala-box requires a fixed width inherited from its parent to keep
-    // its children from stretching it (and the screen) out
-    $(window).on('load', pmDesignerEnable);
-    $(window).on('load resize', pmDesignerResponsiveParagraphs);
+    function pmDesignerInit() {
+      $(window).on('load', pmDesignerEnable);
+      $(window).on('load resize', pmDesignerResponsiveParagraphs);
+    }
+
+
+    pmDesignerInit();
 
   </script>
 </textarea>
@@ -315,11 +324,11 @@ These are injected into the email template markup when loadEditor() is called.
 
 
 <script>
-  // Loads a template, either from an external url or from a pasted source.
+  // Loads a template via ajax (stored in static media dir).
   function loadTemplate(templateSrc) {
     var template = '';
 
-    if (templateSrc.length < 1) {
+    if (templateSrc === '') {
       loadEditor(template);
       return;
     }
@@ -391,9 +400,10 @@ These are injected into the email template markup when loadEditor() is called.
         .contents()
         .unwrap();
 
-    // Unwrap remaining .pm-template-editable-container's
+    // Unwrap/remove remaining .pm-template-editable-container's
     // (.pm-template-editable-paragraph's are removed above)
     $domDoc.find('.pm-template-editable-container').contents().unwrap();
+    $domDoc.find('.pm-template-editable-container:empty').remove();
 
     // Replace domDoc with the jquery object's reference of the element
     domDoc = $domDoc[0];
