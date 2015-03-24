@@ -650,9 +650,6 @@ class Email(models.Model):
         litmus_test = litmus.create_test()
         litmus_id = litmus.get_test_id(litmus_test)
         litmus_email_address = litmus.get_email_address(litmus_test)
-        print litmus_test
-        print litmus_id
-        print litmus_email_address
 
 
         instance = Instance.objects.create(
@@ -798,18 +795,6 @@ class Instance(models.Model):
                     name     = href,
                     position = URL.objects.filter(instance=self, name=href).count())[0])
         return urls
-
-        def get_litmus_email(self):
-            """
-            Returns the Litmus information for the given email instance.
-            """
-            info = None
-
-            # if self.litmus_id:
-            #     requests.get()
-
-            return info
-
 
     class Meta:
         ordering = ('-start',)
