@@ -358,6 +358,7 @@
           defaultImageWidth: 0,
           imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
           imageMove: false,
+          imageUpload: false,
           inlineMode: true,
           paragraphy: true,
           plainPaste: true,
@@ -379,6 +380,7 @@
           inlineMode: true,
           imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
           imageMove: false,
+          imageUpload: false,
           paragraphy: false,
           plainPaste: true,
           useClasses: false
@@ -433,8 +435,9 @@
         var lineHeightUnitless = 1.35; // default
 
         // jquery's .css() will (almost always) return values in
-        // px format, despite what the actual set value is.  Assume we will always
-        // get either unitless values or px values.
+        // px format, despite what the actual set value is.  Assume we will
+        // always get either unitless values (incorrectly, from an old
+        // browser) or px values.
         var lineHeight = $p.css('line-height');
         var fontSize = $p.css('font-size');
 
@@ -501,13 +504,20 @@
     </li>
   </ul>
 
+  <strong>KNOWN ISSUES:</strong>
+  <ul>
+    <li>
+      Outlook.com does not render line heights properly on span's that have been wrapped in other modifying elements, like strong, em, and u.  For now, this can be fixed by removing all modifications to the highlighted area, applying strong/em/u first, and <em>then</em> applying the font size adjustment.
+    </li>
+  </ul>
+
   <strong>MISC:</strong>
   <ul>
     <li>
       The wysiwyg editor used is free for personal and non-profit projects (see the project on Github for license info:  https://github.com/froala/wysiwyg-editor).  We may need to update the project license and/or make an attribution note in our readme.
     </li>
     <li>
-      The editor uses paragraphs to separate new rows of content within .pm-template-editable-paragraph sections.  These paragraphs must have a <strong>line-height</strong> and <strong>padding</strong> css value set in the template (either inherited, as a class, or global '< p >' selector) for the html generator to create email-friendly markup from each paragraph.
+      The editor uses paragraphs to separate new rows of content within .pm-template-editable-paragraph sections.  These paragraphs must have a <strong>line-height</strong> and <strong>padding</strong> css value set in the template (either inherited, as a class, or global p selector) for the html generator to create email-friendly markup from each paragraph.
     </li>
   </ul>
 </div>
