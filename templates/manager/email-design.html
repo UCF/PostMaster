@@ -10,478 +10,268 @@
 
 <style>
 #editor-window-outer {
-  height: 700px;
-  width: 320px;
-  min-width: 320px;
-  max-width: 750px;
-  resize: horizontal;
-  overflow: auto;
+  background-color: #fafafa;
   border: 1px solid #eee;
-  margin: 0;
-  padding: 0;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  height: 650px;
+  margin: 0;
+  max-width: 750px;
+  min-height: 320px;
+  min-width: 320px;
+  overflow: auto;
+  padding: 0;
+  resize: both;
+  width: 320px;
 }
 
 #editor-window {
-  width: 100%;
-  height: calc(100% - 20px); /* allow room for resize tab */
   border: 0 solid transparent;
-  padding: 0;
+  height: calc(100% - 20px); /* allow room for resize tab */
   margin: 0;
-}
-
-#editor-content-wrapper {
-  display: block;
+  padding: 0;
+  resize: none; /* prevent double resize tabs in safari */
   width: 100%;
 }
 
-#generated-markup {
-  width: 100%;
-  height: 500px;
+.html-textarea {
   background: #fafafa;
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
   font-size: 12px;
+  height: 300px;
+  width: 100%;
+}
+
+#generate-markup {
+  margin-top: 20px;
 }
 </style>
 
+
+<div class="row">
+  <div class="col-md-5 col-sm-5">
+    <h2>Email Designer</h2>
+  </div>
+  <div class="col-md-7 col-sm-7">
+    <div class="form-inline pull-right">
+      <div class="form-group">
+        <select class="form-control" id="template-select">
+          <option value="">Select a Template</option>
+          {% for template in email_templates %}
+            <option value="{{ email_templates_url }}{{ template }}">{{ template }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>
+  Select a template from the dropdown above to start editing.
+</p>
+
+<hr>
 
 <!-- The template editor window -->
 <div id="editor-window-outer">
   <iframe id="editor-window"></iframe>
 </div>
 
+<!-- Form that returns clean markup from the editor -->
+<button class="btn btn-lg btn-primary" id="generate-markup" data-toggle="modal" data-target="#generate-markup-modal">
+  <span class="glyphicon glyphicon-download"></span> Generate Markup
+</button>
 
-<div id="editor-content-wrapper">
-
-  <!--
-  Contains the markup to be loaded into the editor.
-
-  TODO: dynamically load via dropdown or something
-  -->
-  <textarea id="editor-contents">
-    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-    <html lang="en">
-      <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="initial-scale=1.0"><!-- So that mobile webkit will display zoomed in -->
-        <title>@!@TITLE@!@</title>
-        <style type="text/css">
-          <!--
-          html, body { margin:0; padding:0; background-color:#FFF; color:#333; }
-          -->
-          /* CSS Resets */
-          .ReadMsgBody { width: 100%; background-color: #ffffff;}
-          .ExternalClass {width: 100%; background-color: #ffffff;}
-          .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
-          body {-webkit-text-size-adjust:none; -ms-text-size-adjust:none;}
-          body {margin:0; padding:0;}
-          table {border-spacing:0;}
-          table td {border-collapse:collapse;}
-
-          * {zoom:1;}
-          a {color:#006699;}
-          div, p, a, li, td { -webkit-text-size-adjust:none; } /* ios likes to enforce a minimum font size of 13px; kill it with this */
-
-          /*
-           * General styles for the editor to maintain consistency btwn it and
-           * generated email markup
-           */
-          p {
-            display: block;
-            width: 100%;
-            padding-bottom: 20px;
-          }
-          p span {
-            line-height: inherit;
-          }
-
-          @media all and (max-width: 640px) {
-            /* The outermost wrapper table */
-            table.t640 {
-              width: 100% !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-              margin: 0 !important;
-            }
-
-            /* The firstmost inner tables, which should be padded at mobile sizes */
-            table.t524 {
-              width: 100% !important;
-              padding-left: 15px;
-              padding-right: 15px;
-              padding-top: 15px !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-              margin: 0 !important;
-            }
-
-            /* Generic class for a table column that should collapse to 100% width at mobile sizes (with bottom padding) */
-            td.ccollapse100pb {
-              display: block !important;
-              overflow: hidden;
-              width: 100% !important;
-              float: left;
-              clear: both;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              padding-bottom: 20px !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-            }
-
-            /* Generic class for a table column that should collapse to 100% width at mobile sizes (with top padding) */
-            td.ccollapse100pt {
-              display: block !important;
-              overflow: hidden;
-              width: 100% !important;
-              float: left;
-              clear: both;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              padding-top: 20px !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-            }
-
-            /* Generic class for a table column that should collapse to 50% width at mobile sizes (with bottom padding) */
-            td.ccollapse50pb {
-              display: block !important;
-              overflow: hidden;
-              width: 50% !important;
-              float: left;
-              clear: both;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              padding-bottom: 20px !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-            }
-
-            /* Generic class for a table column that should collapse to 100% width at mobile sizes */
-            td.ccollapse100 {
-              display: block !important;
-              overflow: hidden;
-              clear: both;
-              width: 100% !important;
-              float: left !important;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-            }
-
-            /* Generic class for a table within a column that should be forced to 100% width at mobile sizes */
-            table.tcollapse100 {
-              width: 100% !important;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              border-left: 0px solid transparent !important;
-              border-right: 0px solid transparent !important;
-            }
-
-            /* Forces an image to fit 100% width of its parent */
-            img.responsiveimg {
-              max-width: none !important;
-              width: 100% !important;
-            }
-
-            /* remove padding since 100% width */
-            img.responsiveimgpb {
-              width: 100% !important;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              padding-bottom: 20px !important;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <table class="t640" width="640">
-          <tr>
-            <td><img src="http://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/pro-banner.png" alt="UCF banner" class="responsiveimg" /></td>
-          </tr>
-          <tr>
-            <td>
-              <table class="t524" width="524" align="center">
-                <tr>
-                  <td style="padding-bottom: 20px;">
-                    <table class="tcollapse100" width="524" border="0" align="center">
-                      <tr>
-                        <td class="ccollapse100pb" style="padding-bottom: 26px; font-family: Georgia, serif; font-size: 52px; font-weight: normal; line-height: 52px;">
-                          <div class="pm-template-editable-container pm-template-editable-single">Your Title Here</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="ccollapse100pb" style="padding-bottom: 12px; width: 100%;">
-                          <table class="tcollapse100" align="center" style="width: 100%;">
-                            <tr>
-                              <td class="ccollapse100" style="padding-bottom: 12px; font-family: Georgia, serif; font-size: 15px; line-height: 1.5;">
-                                <div class="pm-template-editable-container pm-template-editable-paragraph">
-                                  <p>
-                                    Click to start adding content!
-                                  </p>
-                                  <p>
-                                    This template lets you add photos.  Click the placeholder below to try it out.
-                                  <p>
-                                    <img class="responsiveimg" src="http://placehold.it/606x350" />
-                                  </p>
-                                  <p>
-                                    Images can be resized, but due to lack of support in several email clients, images cannot be floated (have text wrapped around them).  Images will always consume an entire row.
-                                  </p>
-                                </div>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="ccollapse100pb" style="padding-bottom: 10px;">
-                          <div class="pm-template-editable-container pm-template-editable-multiline">
-                            <img src="http://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/Dale-signature.gif" alt="Provost Dale Whittaker, Ph.D" align="left" />
-                            <img src="http://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/pro-provost.jpg" alt="Provost Dale Whittaker, Ph.D" align="right" />
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="ccollapse100pb" style="padding-bottom: 40px; font-family: Georgia, serif; font-size: 15px; line-height: 1.4em;">
-                          <div class="pm-template-editable-container pm-template-editable-multiline">
-                            <span style="font-weight: bold;">Dale Whittaker, Ph.D.</span><br />
-                            Provost and Vice President
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="ccollapse100">
-                          <table style="font-family: Georgia, serif; font-size: 13px; line-height: 1.4em;">
-                            <tr>
-                              <td style="padding-bottom: 5px;">
-                                <div class="pm-template-editable-container pm-template-editable-single">
-                                  University of Central Florida • 4000 Central Florida Blvd.
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="padding-bottom: 5px;">
-                                <div class="pm-template-editable-container pm-template-editable-single">
-                                  Orlando, FL 32816-0065 • <a style="color: #006699;" href="http://www.provost.ucf.edu">http://www.provost.ucf.edu</a>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="padding-bottom: 5px;">
-                                @!@UNSUBSCRIBE@!@ from this email.
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
-        <div id="pm-editor-scripts"></div>
-      </body>
-    </html>
-  </textarea>
-
-
-  <!--
-  Contains css, script references necessary for the wysiwyg editor.
-  These are injected into the email template markup when loadEditor() is called.
-
-  TODO: move somewhere else?
-  -->
-  <textarea id="editor-template-scripts">
-    <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/fonts/font-awesome-4.3.0/css/font-awesome.min.css" />
-    <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/css/froala_editor.min.css" />
-    <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/css/froala_style.min.css" />
-    <style class="pm-editor-script">
-      /*
-       * Unset Froala editor css applied within editable areas, which might
-       * not emulate the final html email accuately enough
-       */
-      .pm-template-editable-paragraph p,
-      .pm-template-editable-paragraph p.fr-tag {
-        margin: initial !important;
-      }
-      .froala-wrapper,
-      .froala-element {
-        overflow: hidden !important;
-      }
-      .froala-element {
-        line-height: inherit;
-        min-height: 0;
-      }
-      .pm-template-editable-paragraph .froala-wrapper,
-      .pm-template-editable-paragraph .froala-element {
-        width: 100% !important;
-      }
-    </style>
-    <script class="pm-editor-script" src="{{MEDIA_URL}}/js/jquery-1.11.2.min.js"></script>
-    <script class="pm-editor-script" src="{{MEDIA_URL}}/js/froala.min.js"></script>
-    <script class="pm-editor-script" src="{{MEDIA_URL}}/js/froala-font_size.min.js"></script>
-    <script class="pm-editor-script">
-      // Enables all editing functionality.
-      function pmDesignerEnable() {
-        $('.pm-template-editable-single').editable({
-          allowedTags: ['a', 'b', 'i', 's', 'span', 'u'],
-          buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
-          imageMove: false,
-          inlineMode: true,
-          paragraphy: false,
-          plainPaste: true,
-          useClasses: false
-        });
-
-        $('.pm-template-editable-paragraph').editable({
-          allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 'p', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
-          alwaysVisible: true,
-          buttons: ['bold', 'italic', 'underline', 'fontSize', 'createLink', 'align', 'insertImage', 'html', 'customUnderline'],
-          defaultImageAlignment: 'left',
-          defaultImageWidth: 0,
-          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
-          imageMove: false,
-          imageUpload: false,
-          inlineMode: true,
-          paragraphy: true,
-          plainPaste: true,
-          useClasses: false
-        })
-          .on('editable.imageInserted', function(e, editor, img) {
-              img.addClass('responsiveimg');
-          })
-          .on('editable.onPaste', function(e, editor, html) {
-            // TODO: clean markup on paste (? necessary?)
-          });
-
-        $('.pm-template-editable-multiline').editable({
-          allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
-          alwaysVisible: true,
-          buttons: ['bold', 'italic', 'underline', 'createLink', 'align', 'insertImage', 'html'],
-          defaultImageAlignment: 'left',
-          defaultImageWidth: 0,
-          inlineMode: true,
-          imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
-          imageMove: false,
-          imageUpload: false,
-          paragraphy: false,
-          plainPaste: true,
-          useClasses: false
-        }).on('editable.imageInserted', function(e, editor, img) {
-          img.addClass('responsiveimg');
-        });
-      }
-
-
-      // Destroys all editing functionality.
-      function pmDesignerDestroy() {
-        $('.pm-template-editable-container').each(function() {
-          var markup = $(this).editable('getHTML', false, false);
-          $(this)
-            .html(markup)
-            .editable('destroy');
-        });
-      }
-
-
-      // Fixes .froala-box responsiveness on .pm-template-editable-paragraph.
-      function pmDesignerResponsiveParagraphs() {
-        $('.pm-template-editable-paragraph.froala-box').each(function() {
-          var $elem = $(this);
-          $elem.width('1px');
-          var newWidth = $elem.parent().innerWidth();
-          $elem.width(newWidth);
-        });
-      }
-
-
-      // Returns padding css styling for paragraphs within
-      // .pm-template-editable-paragraph
-      function pmDesignerParagraphPadding() {
-        var $p = $('.pm-template-editable-paragraph').first().find('p');
-
-        // Shorthand 'padding' is not supported by jquery, so get each value
-        // separately + combine
-        var top = $p.css('padding-top') || '0';
-        var right = $p.css('padding-right') || '0';
-        var bottom = $p.css('padding-bottom') || '0';
-        var left = $p.css('padding-left') || '0';
-
-        return top + ' ' + right + ' ' + bottom + ' ' + left;
-      }
-
-
-      // Returns calculated unitless line-height value for paragraphs within
-      // .pm-template-editable-paragraph
-      function pmDesignerParagraphLineHeight() {
-        var $p = $('.pm-template-editable-paragraph').first().find('p');
-        var lineHeightUnitless = 1.35; // default
-
-        // jquery's .css() will (almost always) return values in
-        // px format, despite what the actual set value is.  Assume we will
-        // always get either unitless values (incorrectly, from an old
-        // browser) or px values.
-        var lineHeight = $p.css('line-height');
-        var fontSize = $p.css('font-size');
-
-        if (parseInt(lineHeight, 10) !== 0 && !lineHeight.match(/[a-z]/i)) {
-          // unitless value returned (probably ie9 not calculating a unitless value to px)
-          lineHeightUnitless = lineHeight;
-        }
-        else {
-          lineHeightUnit = lineHeight.substring(lineHeight.length - 2, lineHeight.length);
-          fontSizeUnit = fontSize.substring(fontSize.length - 2, fontSize.length);
-
-          if (lineHeightUnit == 'px' && fontSizeUnit == 'px' && lineHeight !== '0px' && fontSize !== '0px') {
-            lineHeightUnitless = parseInt(lineHeight, 10) / parseInt(fontSize, 10);
-          }
-          // give up and use fallback otherwise; we don't want to divide by 0
-        }
-
-        // Always return value rounded to 2 decimal places
-        return lineHeightUnitless.toFixed(2);
-      }
-
-
-      // Returns font family for paragraphs within
-      // .pm-template-editable-paragraph
-      function pmDesignerParagraphFontFamily() {
-        return $('.pm-template-editable-paragraph').first().find('p').css('font-family') || 'serif;';
-      }
-
-
-      // .froala-box requires a fixed width inherited from its parent to keep
-      // its children from stretching it (and the screen) out
-      $(window).on('load', pmDesignerEnable);
-      $(window).on('load resize', pmDesignerResponsiveParagraphs);
-
-    </script>
-  </textarea>
+<!-- Modal for generating email markup -->
+<div class="modal fade" id="generate-markup-modal" role="dialog" tabindex="-1" aria-labelledby="generate-markup-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="generate-markup-modal-label">Get Email Markup</h4>
+      </div>
+      <div class="modal-body">
+        <p>The markup below should be email-ready, but <strong>make sure to test it in Litmus before sending</strong>.</p>
+        <textarea class="html-textarea" id="generated-markup" autocomplete="off"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 
+<!--
+Contains css, script references necessary for the wysiwyg editor.
+These are injected into the email template markup when loadEditor() is called.
+-->
+<textarea id="editor-template-scripts" class="hidden">
+  <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/fonts/font-awesome-4.3.0/css/font-awesome.min.css" />
+  <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/css/froala_editor.min.css" />
+  <link class="pm-editor-script" rel="stylesheet" href="{{MEDIA_URL}}/css/froala_style.min.css" />
+  <style class="pm-editor-script">
+    /*
+     * Unset Froala editor css applied within editable areas, which might
+     * not emulate the final html email accuately enough
+     */
+    .pm-template-editable-paragraph p,
+    .pm-template-editable-paragraph p.fr-tag {
+      margin: initial !important;
+    }
+    .froala-wrapper,
+    .froala-element {
+      overflow: hidden !important;
+    }
+    .froala-element {
+      line-height: inherit;
+      min-height: 0;
+    }
+    .pm-template-editable-paragraph .froala-wrapper,
+    .pm-template-editable-paragraph .froala-element {
+      width: 100% !important;
+    }
+  </style>
+  <script class="pm-editor-script" src="{{MEDIA_URL}}/js/jquery-1.11.2.min.js"></script>
+  <script class="pm-editor-script" src="{{MEDIA_URL}}/js/froala.min.js"></script>
+  <script class="pm-editor-script" src="{{MEDIA_URL}}/js/froala-font_size.min.js"></script>
+  <script class="pm-editor-script">
+    // Enables all editing functionality.
+    function pmDesignerEnable() {
+      $('.pm-template-editable-single').editable({
+        allowedTags: ['a', 'b', 'em', 'i', 's', 'strong', 'span', 'u'],
+        buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
+        imageMove: false,
+        inlineMode: true,
+        paragraphy: false,
+        plainPaste: true,
+        useClasses: false
+      });
 
-<br>
+      $('.pm-template-editable-paragraph').editable({
+        allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 'p', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
+        alwaysVisible: true,
+        buttons: ['bold', 'italic', 'underline', 'fontSize', 'createLink', 'align', 'insertImage', 'html', 'customUnderline'],
+        defaultImageAlignment: 'left',
+        defaultImageWidth: 0,
+        imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+        imageMove: false,
+        imageUpload: false,
+        inlineMode: true,
+        paragraphy: true,
+        plainPaste: true,
+        useClasses: false
+      })
+        .on('editable.imageInserted', function(e, editor, img) {
+            img.addClass('responsiveimg');
+        })
+        .on('editable.onPaste', function(e, editor, html) {
+          // TODO: clean markup on paste (? necessary?)
+        });
 
-<!-- Form that returns clean markup from the editor -->
-<button class="btn btn-primary" id="generate-markup">Generate Markup</button>
-<textarea id="generated-markup"></textarea>
+      $('.pm-template-editable-multiline').editable({
+        allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
+        alwaysVisible: true,
+        buttons: ['bold', 'italic', 'underline', 'createLink', 'align', 'insertImage', 'html'],
+        defaultImageAlignment: 'left',
+        defaultImageWidth: 0,
+        inlineMode: true,
+        imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+        imageMove: false,
+        imageUpload: false,
+        paragraphy: false,
+        plainPaste: true,
+        useClasses: false
+      }).on('editable.imageInserted', function(e, editor, img) {
+        img.addClass('responsiveimg');
+      });
+    }
+
+
+    // Destroys all editing functionality.
+    function pmDesignerDestroy() {
+      $('.pm-template-editable-container').each(function() {
+        var markup = $(this).editable('getHTML', false, false);
+        $(this)
+          .html(markup)
+          .editable('destroy');
+      });
+    }
+
+
+    // Fixes .froala-box responsiveness on .pm-template-editable-paragraph.
+    function pmDesignerResponsiveParagraphs() {
+      $('.pm-template-editable-paragraph.froala-box').each(function() {
+        var $elem = $(this);
+        $elem.width('1px');
+        var newWidth = $elem.parent().innerWidth();
+        $elem.width(newWidth);
+      });
+    }
+
+
+    // Returns padding css styling for paragraphs within
+    // .pm-template-editable-paragraph
+    function pmDesignerParagraphPadding() {
+      var $p = $('.pm-template-editable-paragraph').first().find('p');
+
+      // Shorthand 'padding' is not supported by jquery, so get each value
+      // separately + combine
+      var top = $p.css('padding-top') || '0';
+      var right = $p.css('padding-right') || '0';
+      var bottom = $p.css('padding-bottom') || '0';
+      var left = $p.css('padding-left') || '0';
+
+      return top + ' ' + right + ' ' + bottom + ' ' + left;
+    }
+
+
+    // Returns calculated unitless line-height value for paragraphs within
+    // .pm-template-editable-paragraph
+    function pmDesignerParagraphLineHeight() {
+      var $p = $('.pm-template-editable-paragraph').first().find('p');
+      var lineHeightUnitless = 1.35; // default
+
+      // jquery's .css() will (almost always) return values in
+      // px format, despite what the actual set value is.  Assume we will
+      // always get either unitless values (incorrectly, from an old
+      // browser) or px values.
+      var lineHeight = $p.css('line-height');
+      var fontSize = $p.css('font-size');
+
+      if (parseInt(lineHeight, 10) !== 0 && !lineHeight.match(/[a-z]/i)) {
+        // unitless value returned (probably ie9 not calculating a unitless value to px)
+        lineHeightUnitless = lineHeight;
+      }
+      else {
+        lineHeightUnit = lineHeight.substring(lineHeight.length - 2, lineHeight.length);
+        fontSizeUnit = fontSize.substring(fontSize.length - 2, fontSize.length);
+
+        if (lineHeightUnit == 'px' && fontSizeUnit == 'px' && lineHeight !== '0px' && fontSize !== '0px') {
+          lineHeightUnitless = parseInt(lineHeight, 10) / parseInt(fontSize, 10);
+        }
+        // give up and use fallback otherwise; we don't want to divide by 0
+      }
+
+      // Always return value rounded to 2 decimal places
+      return lineHeightUnitless.toFixed(2);
+    }
+
+
+    // Returns font family for paragraphs within
+    // .pm-template-editable-paragraph
+    function pmDesignerParagraphFontFamily() {
+      return $('.pm-template-editable-paragraph').first().find('p').css('font-family') || 'serif;';
+    }
+
+
+    // .froala-box requires a fixed width inherited from its parent to keep
+    // its children from stretching it (and the screen) out
+    $(window).on('load', pmDesignerEnable);
+    $(window).on('load resize', pmDesignerResponsiveParagraphs);
+
+  </script>
+</textarea>
+
 
 
 <!-- Notes (temporary) -->
@@ -517,7 +307,7 @@
       The wysiwyg editor used is free for personal and non-profit projects (see the project on Github for license info:  https://github.com/froala/wysiwyg-editor).  We may need to update the project license and/or make an attribution note in our readme.
     </li>
     <li>
-      The editor uses paragraphs to separate new rows of content within .pm-template-editable-paragraph sections.  These paragraphs must have a <strong>line-height</strong> and <strong>padding</strong> css value set in the template (either inherited, as a class, or global p selector) for the html generator to create email-friendly markup from each paragraph.
+    The editor uses paragraphs to separate new rows of content within .pm-template-editable-paragraph sections.  These paragraphs must have a <strong>line-height</strong>, <strong>font-family</strong> and <strong>padding</strong> css value set in the template (either inherited, as a class, or global p selector) for the html generator to create email-friendly markup from each paragraph.
     </li>
   </ul>
 </div>
@@ -525,23 +315,52 @@
 
 
 <script>
+  // Loads a template, either from an external url or from a pasted source.
+  function loadTemplate(templateSrc) {
+    var template = '';
+
+    if (templateSrc.length < 1) {
+      loadEditor(template);
+      return;
+    }
+
+    $.ajax({
+      cache: false,
+      dataType: 'html',
+      method: 'GET',
+      url: templateSrc
+    }).done(function(data) {
+      template = data;
+      loadEditor(template);
+    });
+    return;
+  }
+
+
   // Loads the editor window (appends template markup and editor scripts to the
   // iframe source.)
-  function loadEditor() {
-    var template = $('#editor-contents').val();
+  function loadEditor(template) {
     var templateScripts = $('#editor-template-scripts').val();
 
     // Plain-jane string replacement to append editor scripts to the template
-    template = template.replace('<div id="pm-editor-scripts"></div>', '<div id="pm-editor-scripts">' + templateScripts + '</div>');
+    if (template !== '') {
+      template = template.replace('<div id="pm-editor-scripts"></div>', '<div id="pm-editor-scripts">' + templateScripts + '</div>');
+    }
 
     // Add the combined template html + editor markup to the editor iframe
     var doc = document.getElementById('editor-window').contentWindow.document;
     doc.open();
+    doc.write(''); // clear existing contents
     doc.write(template);
     doc.close();
 
-    // Remove the placeholder textareas (TODO: temporary)
-    $('#editor-content-wrapper').remove();
+    if (template === '') {
+      // Disable markup generator if editor window is empty
+      $('#generate-markup').attr('disabled', 'disabled');
+    }
+    else {
+      $('#generate-markup').removeAttr('disabled');
+    }
   }
 
 
@@ -554,6 +373,10 @@
 
     // Find the editor scripts we injected previously and remove them.
     $domDoc.find('#pm-editor-scripts').remove();
+
+    // Find editable field that corresponds to the email's title; fill in <title> value
+    var title = $domDoc.find('#pm-template-doctitle').text() || '';
+    $domDoc.find('title').text(title);
 
     // Add inline line-height:inherit declaration to span's inside
     // .pm-template-editable-paragraph.
@@ -588,6 +411,11 @@
     var $markupContainer = $('#generated-markup');
     var editorWindow = document.getElementById('editor-window').contentWindow;
 
+    // Stop here if the editor window doesn't exist
+    if (!editorWindow) {
+      return;
+    }
+
     // Empty the markup container
     $markupContainer.text('');
 
@@ -607,13 +435,48 @@
     // Add the cleaned markup to $markupContainer
     $markupContainer.text(docMarkupClean);
 
-    // Reload the editor
+    // Reload the editors
     editorWindow.pmDesignerEnable();
   }
 
 
-  $(window).on('load', loadEditor);
-  $('#generate-markup').on('click', generateMarkup);
+  function init() {
+    var $templateSelect = $('#template-select');
+    var currentTemplate = '';
+    var currentTemplateVal = '';
+
+    $(window).on('load', function() {
+      currentTemplate = $templateSelect.find('option:selected').text();
+      currentTemplateVal = $templateSelect.val();
+      loadTemplate(currentTemplateVal, true);
+    });
+
+    $templateSelect.on('change', function() {
+      var newTemplateVal = $(this).val();
+
+      if (currentTemplateVal !== '') {
+        if (window.confirm('Are you sure you want to switch templates? You will lose all changes made in the editor.')) {
+          currentTemplateVal = newTemplateVal;
+          currentTemplate = $(this).find('option:selected').text();
+          loadTemplate(newTemplateVal, true);
+        }
+        else {
+          $(this).val(currentTemplateVal);
+        }
+      }
+      else {
+        currentTemplateVal = newTemplateVal;
+        currentTemplate = $(this).find('option:selected').text();
+        loadTemplate(newTemplateVal, true);
+      }
+    });
+
+    $('#generate-markup').on('click', generateMarkup);
+  }
+
+
+  init();
+
 </script>
 
 {% endblock %}

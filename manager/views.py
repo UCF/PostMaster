@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import datetime
 import logging
+import os
 from util import calc_open_mac
 from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
@@ -231,6 +232,13 @@ class InstanceDetailView(EmailsMixin, DetailView):
 class EmailDesignView(TemplateView):
     template_name = 'manager/email-design.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(EmailDesignView, self).get_context_data(**kwargs)
+        templates_path = 'email-templates/'
+        context['email_templates_url'] = settings.PROJECT_URL + settings.MEDIA_URL + templates_path
+        context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
+        return context
+
 
 ##
 # Recipients Groups
@@ -298,7 +306,7 @@ class RecipientGroupRecipientListView(RecipientGroupsMixin, ListView):
                 messages.success(self.request, 'Recipient already a member of group.')
         except Exception, e:
             messages.success(self.request, str(e))
-        
+
         return super(RecipientGroupRecipientListView, self).get(request,
                                                                 *args,
                                                                 **kwargs)
