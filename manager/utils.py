@@ -20,6 +20,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class CSVImport:
     '''
         Provides functionality for importing csv files of emails/attributes
@@ -48,7 +49,6 @@ class CSVImport:
 
         if column_order:
             self.column_order = column_order
-
 
     def import_emails(self):
 
@@ -192,6 +192,7 @@ class CSVImport:
         else:
             recipient_group.delete()
 
+
 class EmailSender:
     '''
     This helper class will send an email without creating
@@ -209,7 +210,7 @@ class EmailSender:
 
     @property
     def placeholders(self):
-        delimiter    = self.email.replace_delimiter
+        delimiter = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.html)
         return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
 
@@ -222,7 +223,7 @@ class EmailSender:
         return attributes
 
     def send(self):
-        
+
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
             amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
