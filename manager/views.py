@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import datetime
 import logging
+import os
 from util import calc_open_mac
 from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
