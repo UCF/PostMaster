@@ -72,10 +72,12 @@
         </section>
       </div>
     </div>
-    <!-- JavaScript -->
-    <script src="{{MEDIA_URL}}/js/jquery-1.11.2.min.js"></script>
-    <script src="{{MEDIA_URL}}/js/bootstrap.min.js"></script>
-    <script src="{{MEDIA_URL}}/js/global.js"></script>
-    <script src="{{MEDIA_URL}}/js/typeahead.js"></script>
+    {% block javascript-footer %}
+      <!-- JavaScript -->
+      <script src="{{MEDIA_URL}}/js/jquery-1.11.2.min.js"></script>
+      <script src="{{MEDIA_URL}}/js/bootstrap.min.js"></script>
+      <script src="{{MEDIA_URL}}/js/global.js"></script>
+      <script src="{{MEDIA_URL}}/js/typeahead.js"></script>
+    {% endblock %}
   </body>
 </html>

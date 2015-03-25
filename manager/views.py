@@ -19,18 +19,19 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
+from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
 from django.views.generic.edit import FormView
-from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
-from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.simple import direct_to_template
 from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
+from manager.forms import PreivewInstanceLockForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientCreateUpdateForm
@@ -249,6 +250,43 @@ class EmailUnsubscriptionsListView(EmailsMixin, ListView):
                         self).get_context_data(**kwargs)
         context['email'] = self._email
         return context
+
+
+class PreviewInstanceListView(EmailsMixin, ListView):
+    model = PreviewInstance
+    template_name = 'manager/email-preview-instances.html'
+    paginate_by = 20
+    context_object_name = 'preview_instances'
+
+    def dispatch(self, request, *args, **kwargs):
+        self._email = get_object_or_404(Email, pk=kwargs['pk'])
+        return super(PreviewInstanceListView, self).dispatch(request,
+                                                             *args,
+                                                             **kwargs)
+
+    def get_queryset(self):
+        return PreviewInstance.objects.filter(email=self._email)
+
+    def get_context_data(self, **kwargs):
+        context = super(PreviewInstanceListView, self). \
+            get_context_data(**kwargs)
+        context['email'] = self._email
+        return context
+
+
+class LockContentView(UpdateView):
+    model = PreviewInstance
+    form_class = PreivewInstanceLockForm
+
+    def get_success_url(self):
+        """
+        Return the user to the preview instances list for the parent email
+        """
+        # theobject = self.object.lock_content
+        # blah = self.object.pk
+        # raise Exception
+        return reverse('manager-email-preview-instances',
+                       args=(self.object.email.pk,))
 
 
 class InstanceListView(EmailsMixin, ListView):
