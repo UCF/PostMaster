@@ -1,6 +1,17 @@
 {% load widget_tweaks %}
+{% load filters %}
 
 <div class="form-group {% if field.errors %}has-error has-feedback{% endif %}">
+  {% if field|is_checkbox %}
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          {{ field }} {{field.label}}
+        </label>
+      </div>
+      <p class="help-block">{{field.help_text}}</p>
+    </div>
+  {% else %}
     <label for="{{field.id}}" class="col-sm-3 control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
     <div class="col-sm-9">
       {% if field.field.required %}
@@ -8,6 +19,7 @@
       {% else %}
         {{field|add_class:"form-control"}}
       {% endif %}
+
       {% if field.errors %}
         <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
         <span id="inputError2Status" class="sr-only">(error)</span>
@@ -20,4 +32,5 @@
       {% endif %}
       <p class="help-block">{{field.help_text}}</p>
     </div>
+  {% endif %}
 </div>
