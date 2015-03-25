@@ -131,9 +131,6 @@ These are injected into the email template markup when loadEditor() is called.
       })
         .on('editable.imageInserted', function(e, editor, img) {
             img.addClass('responsiveimg');
-        })
-        .on('editable.onPaste', function(e, editor, html) {
-          // TODO: clean markup on paste (? necessary?)
         });
 
       $('.pm-template-editable-multiline').editable({
