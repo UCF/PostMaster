@@ -316,6 +316,7 @@ class EmailDesignView(TemplateView):
         project_url_agnostic = project_url.replace('http://', '//')
         context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
         context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
+        context['froala_license'] = settings.FROALA_EDITOR_LICENSE
         return context
 
 

@@ -167,3 +167,6 @@ LITMUS_BASE_URL = 'https://ucf.litmus.com/'
 # http://stackoverflow.com/questions/29134512/insecureplatformwarning-a-true-sslcontext-object-is-not-available-this-prevent
 LITMUS_VERIFY = False
 LITMUS_TIMEOUT = 5
+
+# License for Froala editor.  Can leave blank for local development
+FROALA_EDITOR_LICENSE = ''
