@@ -243,7 +243,10 @@ These are injected into the email template markup when loadEditor() is called.
   </script>
 </textarea>
 
+{% endblock %}
 
+
+{% block scripts %}
 <script>
   // Loads a template via ajax (stored in static media dir).
   function loadTemplate(templateSrc) {
@@ -422,5 +425,4 @@ These are injected into the email template markup when loadEditor() is called.
   init();
 
 </script>
-
 {% endblock %}
