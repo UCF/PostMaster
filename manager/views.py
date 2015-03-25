@@ -312,7 +312,9 @@ class EmailDesignView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(EmailDesignView, self).get_context_data(**kwargs)
         templates_path = 'email-templates/'
-        context['email_templates_url'] = settings.PROJECT_URL + settings.MEDIA_URL + templates_path
+        project_url = settings.PROJECT_URL
+        project_url_agnostic = project_url.replace('http://', '//')
+        context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
         context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
         return context
 
