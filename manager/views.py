@@ -340,15 +340,13 @@ class RecipientCreateView(RecipientsMixin, CreateView):
         recipient_attributes_formset.instance = self.object
         recipient_attributes_formset.save()
         messages.success(self.request, 'Recipient successfully created.')
-        response = super(RecipientCreateView, self).form_valid(form)
         self.object.set_groups(form.cleaned_data['groups'])
-        return response
+        return super(RecipientCreateView, self).form_valid(form)
 
     def form_invalid(self, form, recipient_attributes_formset):
         messages.error(self.request, 'Please review the errors below and try again.')
         return self.render_to_response(
-            self.get_context_data(form=form,
-                                  recipient_attributes_formset=recipient_attributes_formset))
+            self.get_context_data(form=form, recipient_attributes_formset=recipient_attributes_formset))
 
     def get_success_url(self):
         return reverse('manager-recipient-update',
@@ -391,8 +389,7 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
     def form_invalid(self, form, recipient_attributes_formset):
         messages.error(self.request, 'Please review the errors below and try again.')
         return self.render_to_response(
-            self.get_context_data(form=form,
-                                  recipient_attributes_formset=recipient_attributes_formset))
+            self.get_context_data(form=form, recipient_attributes_formset=recipient_attributes_formset))
 
     def get_success_url(self):
         return reverse('manager-recipient-update',

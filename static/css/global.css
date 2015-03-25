@@ -23,3 +23,7 @@ table tr {
 .form-group.attribute-container {
   margin-bottom: 0;
 }
+
+button.attr-delete:nth-of-type(1) {
+  color: black;
+}

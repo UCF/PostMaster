@@ -26,27 +26,31 @@
 
       {{ recipient_attributes_formset.management_form }}
 
-      {% for attr_form in recipient_attributes_formset %}
-        <div class="form-group attribute-container">
-          <div class="col-sm-offset-3 col-sm-9">
+      <div class="form-group attribute-container">
+        {% for attr_form in recipient_attributes_formset %}
+          <div class="col-sm-offset-3 col-sm-9 attribute">
             <div class="form-group row">
-                <label class="col-md-1 control-label">Name</label>
-                <div class="col-md-3">
-                  {{ attr_form.name|add_class:"form-control" }}
-                </div>
-                <label class="col-md-1 control-label">Value</label>
-                <div class="col-md-3">
-                  {{ attr_form.value|add_class:"form-control" }}
-                </div>
+              <label class="col-md-1 control-label">Name</label>
+              <div class="col-md-3">
+                {{ attr_form.name|add_class:"form-control" }}
+              </div>
+              <label class="col-md-1 control-label">Value</label>
+              <div class="col-md-3">
+                {{ attr_form.value|add_class:"form-control" }}
+              </div>
+              <div class="col-sm-3">
+                <button class="btn btn-danger delete-attr">Delete Attribute</button>
+                {{ attr_form.DELETE|add_class:"hide" }}
+              </div>
             </div>
             <hr>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
 
       <div class="form-group">
         <div class="col-sm-offset-3 col-sm-9">
-        <a href="#" class="btn btn-success">
+        <a href="#" class="btn btn-success add-attr-btn">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Attribute</a>
           </div>
       </div>
