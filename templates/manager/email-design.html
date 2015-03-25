@@ -1,53 +1,13 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
-	{{block.super}}
+	{{ block.super }}
 	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
 	<li class="active">
 		<a href="{% url manager-email-design %}">Design</a>
 	</li>
 {% endblock %}
+
 {% block page-body %}
-
-<style>
-#editor-window-outer {
-  background-color: #fafafa;
-  border: 1px solid #eee;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  height: 650px;
-  margin: 0;
-  max-width: 750px;
-  min-height: 320px;
-  min-width: 320px;
-  overflow: auto;
-  padding: 0;
-  resize: both;
-  width: 320px;
-}
-
-#editor-window {
-  border: 0 solid transparent;
-  height: calc(100% - 20px); /* allow room for resize tab */
-  margin: 0;
-  padding: 0;
-  resize: none; /* prevent double resize tabs in safari */
-  width: 100%;
-}
-
-.html-textarea {
-  background: #fafafa;
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
-  font-size: 12px;
-  height: 300px;
-  width: 100%;
-}
-
-#generate-markup {
-  margin-top: 20px;
-}
-</style>
-
-
 <div class="row">
   <div class="col-md-5 col-sm-5">
     <h2>Email Designer</h2>
@@ -73,7 +33,8 @@
 </noscript>
 
 <p>
-  Select a template from the dropdown above to start editing.
+  Select a template from the dropdown above to start editing.<br>
+  Current browser compatibility: Firefox, Chrome, Safari (latest versions).
 </p>
 
 <hr>
@@ -97,7 +58,8 @@
         <h4 class="modal-title" id="generate-markup-modal-label">Get Email Markup</h4>
       </div>
       <div class="modal-body">
-        <p>The markup below should be email-ready, but <strong>make sure to test it in Litmus before sending</strong>.</p>
+        <p>Copy and paste the markup below into a new .html file, then upload the file somewhere that Postmaster can access it via url.</p>
+        <p><strong>Make sure to test this markup in Litmus before sending a live email.</strong></p>
         <textarea class="html-textarea" id="generated-markup" autocomplete="off"></textarea>
       </div>
       <div class="modal-footer">
@@ -282,47 +244,6 @@ These are injected into the email template markup when loadEditor() is called.
 </textarea>
 
 
-
-<!-- Notes (temporary) -->
-<hr>
-<div class="well">
-  <strong>BROWSER REQUIREMENTS (still need to do browser testing):</strong>
-  <ul>
-    <li>IE9+</li>
-    <li>Safari (latest version)</li>
-    <li>Firefox (latest version)</li>
-    <li>Chrome (latest verison)</li>
-  </ul>
-
-  <p>Currently this editor doesn't support mobile browsers (viewport widths less than 768px wide).</p>
-
-  <strong>QUIRKS:</strong>
-  <ul>
-    <li>
-      Editor window wrapper (#editor-window-outer) must have an initial width of 320px to allow editor width resizing in Chrome (even with min-width set, the window cannot resize below the width value set.)  Firefox does not have this issue.
-    </li>
-  </ul>
-
-  <strong>KNOWN ISSUES:</strong>
-  <ul>
-    <li>
-      Outlook.com does not render line heights properly on span's that have been wrapped in other modifying elements, like strong, em, and u.  For now, this can be fixed by removing all modifications to the highlighted area, applying strong/em/u first, and <em>then</em> applying the font size adjustment.
-    </li>
-  </ul>
-
-  <strong>MISC:</strong>
-  <ul>
-    <li>
-      The wysiwyg editor used is free for personal and non-profit projects (see the project on Github for license info:  https://github.com/froala/wysiwyg-editor).  We may need to update the project license and/or make an attribution note in our readme.
-    </li>
-    <li>
-    The editor uses paragraphs to separate new rows of content within .pm-template-editable-paragraph sections.  These paragraphs must have a <strong>line-height</strong>, <strong>font-family</strong> and <strong>padding</strong> css value set in the template (either inherited, as a class, or global p selector) for the html generator to create email-friendly markup from each paragraph.
-    </li>
-  </ul>
-</div>
-
-
-
 <script>
   // Loads a template via ajax (stored in static media dir).
   function loadTemplate(templateSrc) {
@@ -381,7 +302,14 @@ These are injected into the email template markup when loadEditor() is called.
     var $domDoc = $(domDoc);
 
     // Find the editor scripts we injected previously and remove them.
-    $domDoc.find('#pm-editor-scripts').remove();
+    // Make sure any potential leftover scripts/markup from Froala are removed
+    // too.  (This requires #pm-editor-scripts to be the last element in the
+    // template before the closing body tag.)
+    $domDoc
+      .find('#pm-editor-scripts')
+        .nextAll()
+        .addBack()
+          .remove();
 
     // Find editable field that corresponds to the email's title; fill in <title> value
     var title = $domDoc.find('#pm-template-doctitle').text() || '';
@@ -421,7 +349,8 @@ These are injected into the email template markup when loadEditor() is called.
     var $markupContainer = $('#generated-markup');
     var editorWindow = document.getElementById('editor-window').contentWindow;
 
-    // Stop here if the editor window doesn't exist
+    // Stop here if the editor window doesn't exist (should never reach this
+    // point, but just in case)
     if (!editorWindow) {
       return;
     }
@@ -455,12 +384,16 @@ These are injected into the email template markup when loadEditor() is called.
     var currentTemplate = '';
     var currentTemplateVal = '';
 
+    // Load the current template (if the browser has cached a selection)
     $(window).on('load', function() {
       currentTemplate = $templateSelect.find('option:selected').text();
       currentTemplateVal = $templateSelect.val();
       loadTemplate(currentTemplateVal, true);
     });
 
+    // Change the template when an option from the dropdown is selected.
+    // Prompt the user if they're okay with losing any changes before
+    // switching from a non-empty template.
     $templateSelect.on('change', function() {
       var newTemplateVal = $(this).val();
 
@@ -481,6 +414,7 @@ These are injected into the email template markup when loadEditor() is called.
       }
     });
 
+    // Generate email markup from editor when Generate Markup btn is clicked
     $('#generate-markup').on('click', generateMarkup);
   }
 
