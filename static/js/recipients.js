@@ -26,7 +26,7 @@
         $(this).attr('name', incrementNumberInString($(this).attr('name')));
       });
     }
-    $newAttribute.appendTo($attributeContainer);
+    $newAttribute.appendTo($attributeContainer).fadeIn();
     // For recipient create
     if(recipientCreatePage) {
       reorderAttributes();
@@ -41,8 +41,16 @@
     } else {
       $(e.target)
         .next().prop( "checked", true )
-        .closest('.attribute').slideUp();
+        .closest('.attribute').fadeOut();
     }
+  }
+
+  function highlightRowMouseOver(e) {
+    $(e.target).closest('.form-group').parent().find('.row').addClass('alert-' + $(e.target).attr('data-color'));
+  }
+
+  function highlightRowMouseOut(e) {
+    $(e.target).closest('.form-group').parent().find('.row').removeClass('alert-' + $(e.target).attr('data-color'));
   }
 
   function init() {
@@ -53,7 +61,11 @@
     // Add attribute button
     $('.add-attr-btn').on('click', addAttribute);
     // Delete attribute button
-    $attributeContainer.on('click', '.delete-attr', deleteAttribute);
+    $attributeContainer.on('click', '.delete-attr-btn', deleteAttribute);
+    // mouse over event
+    $attributeContainer.on('mouseover', '.delete-attr-btn, .add-attr-btn', highlightRowMouseOver);
+    // mouse out event
+    $attributeContainer.on('mouseout', '.delete-attr-btn, .add-attr-btn', highlightRowMouseOut);
   }
 
   $(init);

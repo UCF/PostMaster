@@ -27,32 +27,32 @@
 
         <div class="form-group attribute-container">
           {% for attr_form in recipient_attributes_formset %}
-            <div class="col-sm-offset-3 col-sm-9 attribute">
+            <div class="col-sm-offset-3 col-sm-8 attribute">
               {{ attr_form.id }}
               <div class="form-group row">
-                <label class="col-md-1 control-label">Name</label>
-                <div class="col-md-3">
+                <label class="col-sm-1 control-label">Name</label>
+                <div class="col-sm-5">
                   {{ attr_form.name|add_class:"form-control" }}
                 </div>
-                <label class="col-md-1 control-label">Value</label>
-                <div class="col-md-3">
+                <label class="col-sm-1 control-label">Value</label>
+                <div class="col-sm-5">
                   {{ attr_form.value|add_class:"form-control" }}
                 </div>
-                <div class="col-sm-3">
-                  <button class="btn btn-danger delete-attr">Delete Attribute</button>
-                  {{ attr_form.DELETE|add_class:"hide" }}
-                </div>
+                <button class="btn btn-danger delete-attr-btn" data-color="danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                {{ attr_form.DELETE|add_class:"hide" }}
               </div>
-              <hr>
             </div>
           {% endfor %}
         </div>
 
         <div class="form-group">
-          <div class="col-sm-offset-3 col-sm-9">
-          <a href="#" class="btn btn-success add-attr-btn">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Attribute</a>
+          <div class="col-sm-offset-3 col-sm-8 add-container">
+            <div class="form-group row">
+              <label class="col-sm-6 control-label">Add another recipient attribute...</label>
+              <button class="btn btn-success add-attr-btn" data-color="success">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
             </div>
+          </div>
         </div>
 
         <hr>

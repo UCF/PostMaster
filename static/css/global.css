@@ -8,15 +8,14 @@ table tr {
 
 .form-group .alert-danger {
   padding: 5px 10px;
-  margin-bottom: 5px;
-  margin-top: 5px;
 }
 
 .pagination {
   margin: 0;
 }
 
-#id_groups, #id_recipient_groups {
+#id_groups,
+#id_recipient_groups {
   height: 300px;
 }
 
@@ -26,4 +25,46 @@ table tr {
 
 button.attr-delete:nth-of-type(1) {
   color: black;
+}
+
+.attribute .row {
+  border: 1px solid #ccc;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  padding: 5px 0;
+  margin-bottom: 8px;
+}
+
+.attribute .row.alert-danger {
+  margin-top: 0;
+}
+
+.attribute button,
+.add-container button {
+  position: absolute;
+  right: -39px;
+  top: 0px;
+}
+
+.add-container button {
+  top: -1px;
+}
+
+.attribute button,
+.add-container button {
+  height: 46px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.add-container .row {
+  margin-bottom: 11px;
+}
+
+.add-container .control-label {
+  padding-top: 12px;
+}
+
+.add-container {
+  border: 1px dashed #ccc;
 }
