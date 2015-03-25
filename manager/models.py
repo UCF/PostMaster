@@ -349,11 +349,22 @@ class Email(models.Model):
         Determines if a preview email exists based on the requested time (today + send time)
         :return: True if preview exists, otherwise false
         """
+        if self.todays_preview:
+            return True
+        return False
+
+    @property
+    def todays_preview(self):
+        """
+        Determines the wether an email instance exists for today with the
+        proper send time.
+        :return: Preview instance otherwise None
+        """
         requested_start = datetime.combine(date.today(), self.send_time)
         preview_set = self.previews.filter(requested_start=requested_start)
         if preview_set.exists():
-            return True
-        return False
+            return preview_set[0]
+        return None
 
     @property
     def instance_exists(self):
@@ -644,7 +655,7 @@ class Email(models.Model):
 
         # Check to see if there is a content lock on the preview email
         # otherwise grab the new content
-        preview_email = self.preview_email()
+        preview_email = self.todays_preview
         if preview_email is not None and \
            preview_email.lock_content and \
            preview_email.sent_html:
