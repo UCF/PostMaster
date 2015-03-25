@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import datetime
 import logging
+import os
 from util import calc_open_mac
 from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
@@ -340,6 +341,20 @@ class InstanceDetailView(EmailsMixin, DetailView):
             context['litmus_url'] = settings.LITMUS_BASE_URL + \
                 LitmusApi.TESTS + self.object.litmus_id
 
+        return context
+
+
+class EmailDesignView(TemplateView):
+    template_name = 'manager/email-design.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailDesignView, self).get_context_data(**kwargs)
+        templates_path = 'email-templates/'
+        project_url = settings.PROJECT_URL
+        project_url_agnostic = project_url.replace('http://', '//')
+        context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
+        context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
+        context['froala_license'] = settings.FROALA_EDITOR_LICENSE
         return context
 
 

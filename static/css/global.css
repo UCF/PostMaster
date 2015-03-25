@@ -26,3 +26,42 @@ table tr {
 	padding: 8px 4px 4px 4px;
 	border-radius: 0 0 4px 4px;
 }
+
+
+/* Email Designer */
+#editor-window-outer {
+  background-color: #fafafa;
+  border: 1px solid #eee;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 650px;
+  margin: 0;
+  max-width: 750px;
+  min-height: 320px;
+  min-width: 320px;
+  overflow: auto;
+  padding: 0;
+  resize: both;
+  width: 320px;
+}
+
+#editor-window {
+  border: 0 solid transparent;
+  height: calc(100% - 20px); /* allow room for resize tab */
+  margin: 0;
+  padding: 0;
+  resize: none; /* prevent double resize tabs in safari */
+  width: 100%;
+}
+
+.html-textarea {
+  background: #fafafa;
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+  font-size: 12px;
+  height: 300px;
+  width: 100%;
+}
+
+#generate-markup {
+  margin-top: 20px;
+}
