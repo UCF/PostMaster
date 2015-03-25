@@ -668,12 +668,10 @@ class Email(models.Model):
                            settings.LITMUS_TIMEOUT,
                            settings.LITMUS_VERIFY)
         litmus_test = litmus.create_test()
-        if litmus_test is not None:
-            litmus_id = litmus.get_test_id(litmus_test)
-            litmus_email_address = litmus.get_email_address(litmus_test)
-        else:
+        litmus_id = litmus.get_test_id(litmus_test)
+        litmus_email_address = litmus.get_email_address(litmus_test)
+        if litmus_test is None:
             log.error('Could not create Litmus test to preview the email')
-
 
         instance = Instance.objects.create(
             email           = self,
@@ -701,7 +699,7 @@ class Email(models.Model):
         tracking_urls           = instance.tracking_urls
 
         # Send litmus email test if the email adress exists
-        if litmus_test is not None and litmus_email_address:
+        if litmus_email_address:
             try:
                 amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
                 amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
