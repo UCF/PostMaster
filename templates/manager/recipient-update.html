@@ -69,3 +69,8 @@
     </fieldset>
   </form>
 {% endblock %}
+
+{% block javascript-footer %}
+  {{ block.super }}
+  <script src="{{MEDIA_URL}}/js/recipients.js"></script>
+{% endblock %}
