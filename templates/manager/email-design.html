@@ -334,6 +334,17 @@ These are injected into the email template markup when loadEditor() is called.
     $domDoc.find('.pm-template-editable-container').contents().unwrap();
     $domDoc.find('.pm-template-editable-container:empty').remove();
 
+    // Make sure all image urls are absolute (http)
+    $domDoc.find('body img').attr('src', function(index, val) {
+      if (val.substring(0, 2) == '//') {
+        val = val.replace('//', 'http://');
+      }
+      if (val.substring(0, 5) == 'https') {
+        val = val.replace('https', 'http');
+      }
+      return val;
+    });
+
     // Replace domDoc with the jquery object's reference of the element
     domDoc = $domDoc[0];
 
