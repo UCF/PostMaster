@@ -33,15 +33,15 @@
             <span class="glyphicon glyphicon-chevron-left">Prev</a>
     		</li>
     		{% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
     		{% if page_obj.has_next %}
     		<li>
     			<a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">
             Next<span class="glyphicon glyphicon-chevron-right"></span></a>
     		</li>
     		{% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
     	</ul>
     	{% endif %}
     </div>
@@ -84,15 +84,15 @@
           <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
       </li>
       {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
       {% if page_obj.has_next %}
       <li>
         <a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">
           Next<span class="glyphicon glyphicon-chevron-right"></span></a>
       </li>
       {% endif %}
-      <li class="disabled">
-        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-      </li>
     </ul>
   {% endif %}
 

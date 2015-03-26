@@ -27,10 +27,14 @@ button.attr-delete:nth-of-type(1) {
   color: black;
 }
 
+.add-container,
 .attribute .row {
-  border: 1px solid #ccc;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
+}
+
+.attribute .row {
+  border: 1px solid #ccc;
   padding: 5px 0;
   margin-bottom: 8px;
 }
@@ -52,16 +56,22 @@ button.attr-delete:nth-of-type(1) {
 
 .attribute button,
 .add-container button {
-  height: 46px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+  padding: 0;
 }
 
-.add-container .row {
-  margin-bottom: 11px;
+.attribute button span,
+.add-container button span {
+  padding: 15px 12px;
 }
 
-.add-container .control-label {
+.add-attr-container .row {
+  padding-bottom: 11px;
+  margin-bottom: 0;
+}
+
+.add-attr-container .control-label {
   padding-top: 12px;
 }
 

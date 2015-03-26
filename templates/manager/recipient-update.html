@@ -38,19 +38,23 @@
                 <div class="col-sm-5">
                   {{ attr_form.value|add_class:"form-control" }}
                 </div>
-                <button class="btn btn-danger delete-attr-btn" data-color="danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-                {{ attr_form.DELETE|add_class:"hide" }}
+                <button class="btn btn-danger delete-attr-btn">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true" data-color="danger"></span>
+                  {{ attr_form.DELETE|add_class:"hide" }}
+                </button>
               </div>
             </div>
           {% endfor %}
         </div>
 
-        <div class="form-group">
-          <div class="col-sm-offset-3 col-sm-8 add-container">
-            <div class="form-group row">
-              <label class="col-sm-6 control-label">Add another recipient attribute...</label>
-              <button class="btn btn-success add-attr-btn" data-color="success">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+        <div class="add-attr-container">
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8 add-container">
+              <div class="form-group row">
+                <label class="col-sm-6 control-label">Add another recipient attribute...</label>
+                <button class="btn btn-success add-attr-btn">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true" data-color="success"></span></button>
+              </div>
             </div>
           </div>
         </div>
