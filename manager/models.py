@@ -863,7 +863,7 @@ class PreviewInstance(models.Model):
         Determines if the requested start has passed.
         :return: Boolean True request time is in the past else False
         """
-        if self.requtested_start < date.now():
+        if self.requested_start < date.now():
             return True
         else:
             return False
