@@ -884,7 +884,15 @@ def upload_file_to_s3(request):
     k = Key(bucket)
     k.key = settings.S3_BASE_KEY_PATH + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
     k.set_contents_from_string('This is a test of S3')
+    #k.set_contents_from_file(fp=file, policy='public-read')
     k.set_acl('public-read')
 
-    raise Exception
-    return
+    url = k.generate_url(0, query_auth=False, force_http=True)
+
+    response_data = {}
+    if url:
+        response_data['url'] = url
+    else:
+        response_data['url'] = False
+
+    return HttpResponse(json.dumps(response_data), mimetype='application/json')
