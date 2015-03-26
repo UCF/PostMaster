@@ -38,7 +38,7 @@
         <th scope="col">Sent</th>
         <th scope="col">Requested Start</th>
         <th scope="col">Live Sent</th>
-        <th scope="col">Locked Content</th>
+        <th scope="col">Locked Content <i class="fa fa-question" data-toggle="tooltip" data-placement="top" title="The lock indicates whether the live email will get fresh content from the uri or use the existing content from the preview email. True: use preview email content. False: get fresh content from uri."></i></th>
         <th scope="col">Action</th>
       </tr>
     </thead>
@@ -77,6 +77,11 @@
   </div>
   {% endif %}
 
+  {% comment %}
+    Manual for is being used here because it is so small. If this changes to be
+    anything bigger/larger it is advised to change the ListView to contain a
+    form.
+  {% endcomment %}
   <div class="modal fade" id="lockContentModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -98,7 +103,6 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 {% endblock %}
-
 
 {% block scripts %}
   <script src="{{MEDIA_URL}}/js/lockcontent.js"></script>
