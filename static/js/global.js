@@ -2,7 +2,10 @@
   'use strict';
 
   function tableClickHandler(e) {
-    window.location = $(e.target).parent().attr('data-link-url');
+    var location = $(e.target).parent().attr('data-link-url');
+    if (location) {
+      window.location = location;
+    }
   }
 
   function init() {
@@ -10,6 +13,8 @@
     $('table').on('click', 'td:not(:has(a))', tableClickHandler);
     // Select the first form input
     $('form:first *:input[type!=hidden]:input[type!=checkbox]:first').focus();
+    // initiate tooltip
+    $('[data-toggle="tooltip"]').tooltip();
   }
 
   $(init);

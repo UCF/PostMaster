@@ -349,11 +349,22 @@ class Email(models.Model):
         Determines if a preview email exists based on the requested time (today + send time)
         :return: True if preview exists, otherwise false
         """
+        if self.todays_preview:
+            return True
+        return False
+
+    @property
+    def todays_preview(self):
+        """
+        Determines the wether an email instance exists for today with the
+        proper send time.
+        :return: Preview instance otherwise None
+        """
         requested_start = datetime.combine(date.today(), self.send_time)
         preview_set = self.previews.filter(requested_start=requested_start)
         if preview_set.exists():
-            return True
-        return False
+            return preview_set[0]
+        return None
 
     @property
     def instance_exists(self):
@@ -461,33 +472,43 @@ class Email(models.Model):
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
 
         try:
-            amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
-            amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+            amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'],
+                                      settings.AMAZON_SMTP['port'])
+            amazon.login(settings.AMAZON_SMTP['username'],
+                         settings.AMAZON_SMTP['password'])
         except smtplib.SMTPException, e:
             log.exception('Unable to connect to Amazon')
             raise self.AmazonConnectionException()
         else:
             preview_instance = PreviewInstance.objects.create(
-                email           = self,
-                recipients      = self.preview_recipients,
-                requested_start = datetime.combine(datetime.now().today(), self.send_time)
+                email=self,
+                sent_html=html,
+                recipients=self.preview_recipients,
+                requested_start=datetime.combine(datetime.now().today(),
+                                                 self.send_time)
             )
 
             for recipient in recipients:
                 # Use alterantive subclass here so that both HTML and plain
                 # versions can be attached
-                msg            = MIMEMultipart('alternative')
+                msg = MIMEMultipart('alternative')
                 msg['subject'] = self.subject + ' **PREVIEW**'
-                msg['From']    = self.smtp_from_address
-                msg['To']      = recipient
+                msg['From'] = self.smtp_from_address
+                msg['To'] = recipient
 
-                msg.attach(MIMEText(html_explanation + html, 'html', _charset='us-ascii'))
+                msg.attach(MIMEText(html_explanation + html,
+                                    'html',
+                                    _charset='us-ascii'))
 
                 if text is not None:
-                    msg.attach(MIMEText(text_explanation + text, 'plain', _charset='us-ascii' ))
+                    msg.attach(MIMEText(text_explanation + text,
+                                        'plain',
+                                        _charset='us-ascii'))
 
                 try:
-                    amazon.sendmail(self.from_email_address, recipient, msg.as_string())
+                    amazon.sendmail(self.from_email_address,
+                                    recipient,
+                                    msg.as_string())
                 except smtplib.SMTPException, e:
                     log.exception('Unable to send email.')
             amazon.quit()
@@ -631,15 +652,25 @@ class Email(models.Model):
 
                     recipient_details_queue.task_done()
 
-        try:
-            text = self.text
-        except self.TextContentMissingException:
-            text = None
 
-        status_code, html = self.html
-        if status_code != requests.codes.ok:
-            log.exception('Not sending Live email. HTML request returned status code ' + str(status_code))
-            raise self.EmailException()
+        # Check to see if there is a content lock on the preview email
+        # otherwise grab the new content
+        preview_email = self.todays_preview
+        if preview_email is not None and \
+           preview_email.lock_content and \
+           preview_email.sent_html:
+            html = preview_email.sent_html
+            text = None
+        else:
+            try:
+                text = self.text
+            except self.TextContentMissingException:
+                text = None
+
+            status_code, html = self.html
+            if status_code != requests.codes.ok:
+                log.exception('Not sending Live email. HTML request returned status code ' + str(status_code))
+                raise self.EmailException()
 
         # send email to litmus for email instance previews
         litmus = LitmusApi(settings.LITMUS_BASE_URL,
@@ -648,12 +679,10 @@ class Email(models.Model):
                            settings.LITMUS_TIMEOUT,
                            settings.LITMUS_VERIFY)
         litmus_test = litmus.create_test()
-        if litmus_test is not None:
-            litmus_id = litmus.get_test_id(litmus_test)
-            litmus_email_address = litmus.get_email_address(litmus_test)
-        else:
+        litmus_id = litmus.get_test_id(litmus_test)
+        litmus_email_address = litmus.get_email_address(litmus_test)
+        if litmus_test is None:
             log.error('Could not create Litmus test to preview the email')
-
 
         instance = Instance.objects.create(
             email           = self,
@@ -681,7 +710,7 @@ class Email(models.Model):
         tracking_urls           = instance.tracking_urls
 
         # Send litmus email test if the email adress exists
-        if litmus_test is not None and litmus_email_address:
+        if litmus_email_address:
             try:
                 amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
                 amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
@@ -739,16 +768,17 @@ class Instance(models.Model):
     '''
         Describes what happens when an email is actual sent.
     '''
-    email           = models.ForeignKey(Email, related_name='instances')
-    sent_html       = models.TextField()
+    email = models.ForeignKey(Email, related_name='instances')
+    sent_html = models.TextField()
     litmus_id = models.CharField(max_length=100, null=True, blank=True)
     requested_start = models.DateTimeField()
-    start           = models.DateTimeField(auto_now_add=True)
-    end             = models.DateTimeField(null=True)
-    success         = models.NullBooleanField(default=None)
-    recipients      = models.ManyToManyField(Recipient, through='InstanceRecipientDetails')
-    opens_tracked   = models.BooleanField(default=False)
-    urls_tracked    = models.BooleanField(default=False)
+    start = models.DateTimeField(auto_now_add=True)
+    end = models.DateTimeField(null=True)
+    success = models.NullBooleanField(default=None)
+    recipients = models.ManyToManyField(Recipient,
+                                        through='InstanceRecipientDetails')
+    opens_tracked = models.BooleanField(default=False)
+    urls_tracked = models.BooleanField(default=False)
 
     @property
     def in_progress(self):
@@ -807,10 +837,39 @@ class PreviewInstance(models.Model):
     '''
         Record that a preview was sent
     '''
-    email           = models.ForeignKey(Email, related_name='previews')
-    recipients      = models.TextField()
+    email = models.ForeignKey(Email, related_name='previews')
+    sent_html = models.TextField()
+    recipients = models.TextField()
     requested_start = models.DateTimeField()
-    when            = models.DateTimeField(auto_now_add=True)
+    when = models.DateTimeField(auto_now_add=True)
+    lock_content = models.BooleanField(default=False)
+
+    @property
+    def instance(self):
+        """
+        Returns the accociated instance email based on the requested start
+        :return: email instance
+        """
+        instance_set = self.email.instances. \
+            filter(requested_start=self.requested_start). \
+            order_by('-start')
+        if instance_set.exists():
+            return instance_set[0]
+        return None
+
+    @property
+    def past(self):
+        """
+        Determines if the requested start has passed.
+        :return: Boolean True request time is in the past else False
+        """
+        if self.requested_start < datetime.now():
+            return True
+        else:
+            return False
+
+    class Meta:
+        ordering = ('-when',)
 
 
 class InstanceRecipientDetails(models.Model):

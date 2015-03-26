@@ -57,31 +57,31 @@
 		<p>URls were not tracked for this instance.</p>
 		{% else %}
 		<p>URLs are tracked top to bottom, left to right. If there is more than one of the same URL in an email, each additional URL will have an increasing position number.</p>
-		<table class="table table-striped table-hover">
-			<thead>
-				<tr>
-					<th scope="col">URL</th>
-					<th scope="col">Position</th>
-					<th scope="col">Clicks</th>
-					<th scope="col">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for url in instance.urls.all %}
-				<tr>
-					<td>{{url.name}}</td>
-					<td>{{url.position}}</td>
-					<td>{{url.clicks.count}}</td>
-					<td>
-						<form class="form-horizontal" action="{% url manager-recipientgroup-create-url-clicks %}" method="post">
-							<input type="hidden" name="url-pk" value="{{url.pk}}" />
-							<button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span></button>
-						</form>
-					</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
+		<form id="url-clicks" action="{% url manager-recipientgroup-create-url-clicks %}" method="post">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">URL</th>
+						<th scope="col">Position</th>
+						<th scope="col">Clicks</th>
+						<th scope="col">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for url in instance.urls.all %}
+					<tr>
+						<td>{{url.name}}</td>
+						<td>{{url.position}}</td>
+						<td>{{url.clicks.count}}</td>
+						<td>
+							<input class="checkbox" type="checkbox" name="url-pks[]" value="{{ url.pk }}" />
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<button type="submit" class="btn btn-primary btn-lg pull-right">Create Recipient Group from Clicks</button>
+		</form>
 		{% endif %}
 	</section>
 {% endblock %}

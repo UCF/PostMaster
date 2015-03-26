@@ -171,7 +171,9 @@ LITMUS_BASE_URL = 'https://ucf.litmus.com/'
 # which has native SNI.
 # http://stackoverflow.com/questions/29134512/insecureplatformwarning-a-true-sslcontext-object-is-not-available-this-prevent
 LITMUS_VERIFY = False
-LITMUS_TIMEOUT = 5
+# Litmus takes a long time to respond. Giving it a solid 10secs.
+# 5secs was not enough.
+LITMUS_TIMEOUT = 10
 
 # License for Froala editor.  Can leave blank for local development
 FROALA_EDITOR_LICENSE = ''

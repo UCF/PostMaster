@@ -23,18 +23,19 @@ from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
+from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
 from django.views.generic.edit import FormView
-from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
-from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.simple import direct_to_template
 from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
+from manager.forms import PreivewInstanceLockForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientCreateUpdateForm
@@ -253,6 +254,43 @@ class EmailUnsubscriptionsListView(EmailsMixin, ListView):
                         self).get_context_data(**kwargs)
         context['email'] = self._email
         return context
+
+
+class PreviewInstanceListView(EmailsMixin, ListView):
+    model = PreviewInstance
+    template_name = 'manager/email-preview-instances.html'
+    paginate_by = 20
+    context_object_name = 'preview_instances'
+
+    def dispatch(self, request, *args, **kwargs):
+        self._email = get_object_or_404(Email, pk=kwargs['pk'])
+        return super(PreviewInstanceListView, self).dispatch(request,
+                                                             *args,
+                                                             **kwargs)
+
+    def get_queryset(self):
+        return PreviewInstance.objects.filter(email=self._email)
+
+    def get_context_data(self, **kwargs):
+        context = super(PreviewInstanceListView, self). \
+            get_context_data(**kwargs)
+        context['email'] = self._email
+        return context
+
+
+class LockContentView(UpdateView):
+    model = PreviewInstance
+    form_class = PreivewInstanceLockForm
+
+    def get_success_url(self):
+        """
+        Return the user to the preview instances list for the parent email
+        """
+        # theobject = self.object.lock_content
+        # blah = self.object.pk
+        # raise Exception
+        return reverse('manager-email-preview-instances',
+                       args=(self.object.email.pk,))
 
 
 class InstanceListView(EmailsMixin, ListView):
@@ -856,15 +894,20 @@ def create_recipient_group_url_clicks(request):
         Creates a recipient group based on url clicks.
         POST only
     '''
-    url_id = request.POST.get('url-pk')
-    url_clicks = URLClick.objects.filter(url=url_id)
+    url_ids = request.POST.getlist('url-pks[]')
+    url_clicks = []
+    for url_id in url_ids:
+        url_clicks.append(URLClick.objects.filter(url=url_id))
+
     recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     recipient_group.save()
 
-    for click in url_clicks:
-        recipient_group.recipients.add(click.recipient)
+    for url_click in url_clicks:
+        for click in url_click:
+            if click.recipient not in recipient_group.recipients.all():
+                recipient_group.recipients.add(click.recipient)
 
-    recipient_group.save()
+    #recipient_group.save()
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(
