@@ -1,3 +1,5 @@
+import boto
+from boto.s3.key import Key
 from datetime import date
 from datetime import datetime
 import logging
@@ -870,3 +872,19 @@ def create_recipient_group_url_clicks(request):
             kwargs={'pk': recipient_group.pk}
         )
     )
+
+
+def upload_file_to_s3(request):
+    #if request.method == 'POST':
+    # Connect and find the bucket
+    conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+    bucket = conn.get_bucket(settings.S3_BUCKET)
+
+    keys = bucket.list(settings.S3_BASE_KEY_PATH)
+
+    # Create a new key for the new object we're uploading
+    #k = Key(bucket)
+    #k.key = settings.S3_BASE_KEY_PATH + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
+
+    raise Exception
+    return

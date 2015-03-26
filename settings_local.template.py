@@ -65,6 +65,11 @@ AMAZON_SMTP = {
     'rate'    : 70 # per second
 }
 
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
+S3_BUCKET = ''  # this bucket must have CORS enabled
+S3_BASE_KEY_PATH = ''  # optional; use if you want to prefix keys with some directory
+
 # NET Domain LDAP CONFIG
 LDAP_NET_HOST        = 'ldaps://net.ucf.edu'
 LDAP_NET_BASE_DN     = 'ou=People,dc=net,dc=ucf,dc=edu'
