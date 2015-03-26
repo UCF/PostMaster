@@ -125,10 +125,7 @@ function pmDesignerParagraphFontFamily() {
 
 
 function pmDesignerInit() {
-  $.Editable.DEFAULTS.key = '{{ froala_license }}';
   $(window).on('load', pmDesignerEnable);
   $(window).on('load resize', pmDesignerResponsiveParagraphs);
 }
 
-
-pmDesignerInit();

@@ -8,8 +8,6 @@ table tr {
 
 .form-group .alert-danger {
   padding: 5px 10px;
-  margin-bottom: 5px;
-  margin-top: 5px;
 }
 
 .pagination {
@@ -17,16 +15,15 @@ table tr {
 }
 
 .twitter-typeahead {
-	display: block !important;
+  display: block !important;
 }
 
 .tt-dropdown-menu {
-	width: 100%;
-	background: rgba(230, 230, 230, .95);
-	padding: 8px 4px 4px 4px;
-	border-radius: 0 0 4px 4px;
+  width: 100%;
+  background: rgba(230, 230, 230, 0.95);
+  padding: 8px 4px 4px 4px;
+  border-radius: 0 0 4px 4px;
 }
-
 
 /* Email Designer */
 #editor-window-outer {
@@ -47,10 +44,12 @@ table tr {
 
 #editor-window {
   border: 0 solid transparent;
-  height: calc(100% - 20px); /* allow room for resize tab */
+  height: calc(100% - 20px);
+  /* allow room for resize tab */
   margin: 0;
   padding: 0;
-  resize: none; /* prevent double resize tabs in safari */
+  resize: none;
+  /* prevent double resize tabs in safari */
   width: 100%;
 }
 
@@ -64,4 +63,69 @@ table tr {
 
 #generate-markup {
   margin-top: 20px;
+}
+
+#id_groups,
+#id_recipient_groups {
+  height: 300px;
+}
+
+.form-group.attribute-container {
+  margin-bottom: 0;
+}
+
+button.attr-delete:nth-of-type(1) {
+  color: black;
+}
+
+.add-container,
+.attribute .row {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.attribute .row {
+  border: 1px solid #ccc;
+  padding: 5px 0;
+  margin-bottom: 8px;
+}
+
+.attribute .row.alert-danger {
+  margin-top: 0;
+}
+
+.attribute button,
+.add-container button {
+  position: absolute;
+  right: -39px;
+  top: 0px;
+}
+
+.add-container button {
+  top: -1px;
+}
+
+.attribute button,
+.add-container button {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 0;
+}
+
+.attribute button span,
+.add-container button span {
+  padding: 15px 12px;
+}
+
+.add-attr-container .row {
+  padding-bottom: 11px;
+  margin-bottom: 0;
+}
+
+.add-attr-container .control-label {
+  padding-top: 12px;
+}
+
+.add-container {
+  border: 1px dashed #ccc;
 }

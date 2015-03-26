@@ -1,22 +1,66 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
 {% block breadcrumbs %}
     {{block.super}}
     <li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
     <li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
     <li class="active"><a href="{% url manager-recipient-update recipient.pk %}">Update</a></li>
 {% endblock %}
+
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-recipient-update recipient.pk %}" method="post">
+  <form class="form-horizontal" action="{% url manager-recipient-update recipient.pk %}" method="post">
     <fieldset>
         <legend>Update Recipient</legend>
         {% for error in form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{error}}
-            </div>
+          <div class="alert alert-danger">
+            {{error}}
+          </div>
         {% endfor %}
         {% for field in form %}
-            {% include 'form-control-group.html' %}
+          {% include 'form-control-group.html' %}
         {% endfor %}
+
+        <legend>Recipient Attributes</legend>
+
+        {{ recipient_attributes_formset.management_form }}
+
+        <div class="form-group attribute-container">
+          {% for attr_form in recipient_attributes_formset %}
+            <div class="col-sm-offset-3 col-sm-8 attribute">
+              {{ attr_form.id }}
+              <div class="form-group row">
+                <label class="col-sm-1 control-label">Name</label>
+                <div class="col-sm-5">
+                  {{ attr_form.name|add_class:"form-control" }}
+                </div>
+                <label class="col-sm-1 control-label">Value</label>
+                <div class="col-sm-5">
+                  {{ attr_form.value|add_class:"form-control" }}
+                </div>
+                <button class="btn btn-danger delete-attr-btn">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true" data-color="danger"></span>
+                  {{ attr_form.DELETE|add_class:"hide" }}
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="add-attr-container">
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8 add-container">
+              <div class="form-group row">
+                <label class="col-sm-6 control-label">Add another recipient attribute...</label>
+                <button class="btn btn-success add-attr-btn">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true" data-color="success"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr>
 
         <div class="form-group">
           <div class="col-sm-offset-3 col-sm-9">
@@ -28,5 +72,10 @@
           </div>
         </div>
     </fieldset>
-</form>
+  </form>
+{% endblock %}
+
+{% block javascript-footer %}
+  {{ block.super }}
+  <script src="{{MEDIA_URL}}/js/recipients.js"></script>
 {% endblock %}

@@ -82,10 +82,15 @@ These are injected into the email template markup when loadEditor() is called.
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/froala.min.js"></script>
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/froala-font_size.min.js"></script>
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/email-designer-editor.js"></script>
+  <script>
+    $.Editable.DEFAULTS.key = '{{ froala_license }}';
+    pmDesignerInit();
+  </script>
 </textarea>
 
 {% endblock %}
 
-{% block scripts %}
-<script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
+{% block javascript-footer %}
+  {{ block.super }}
+  <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
 {% endblock %}
