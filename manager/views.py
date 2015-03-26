@@ -853,15 +853,20 @@ def create_recipient_group_url_clicks(request):
         Creates a recipient group based on url clicks.
         POST only
     '''
-    url_id = request.POST.get('url-pk')
-    url_clicks = URLClick.objects.filter(url=url_id)
+    url_ids = request.POST.getlist('url-pks[]')
+    url_clicks = []
+    for url_id in url_ids:
+        url_clicks.append(URLClick.objects.filter(url=url_id))
+
     recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     recipient_group.save()
 
-    for click in url_clicks:
-        recipient_group.recipients.add(click.recipient)
+    for url_click in url_clicks:
+        for click in url_click:
+            if click.recipient not in recipient_group.recipients.all():
+                recipient_group.recipients.add(click.recipient)
 
-    recipient_group.save()
+    #recipient_group.save()
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(

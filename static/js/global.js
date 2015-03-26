@@ -2,7 +2,10 @@
   'use strict';
 
   function tableClickHandler(e) {
-    window.location = $(e.target).parent().attr('data-link-url');
+    var location = $(e.target).parent().attr('data-link-url');
+    if (location) {
+      window.location = location;
+    }
   }
 
   function init() {
