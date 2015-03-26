@@ -90,6 +90,7 @@ These are injected into the email template markup when loadEditor() is called.
 
 {% endblock %}
 
-{% block scripts %}
-<script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
+{% block javascript-footer %}
+  {{ block.super }}
+  <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
 {% endblock %}

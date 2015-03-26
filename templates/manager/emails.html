@@ -20,6 +20,7 @@
   </div>
 
   <h2>Emails</h2>
+
   {% if is_paginated %}
     <div>
       <ul class="pagination">
@@ -29,15 +30,15 @@
             <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
         </li>
         {% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
             Next<span class="glyphicon glyphicon-chevron-right"></span></a>
         </li>
         {% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
       </ul>
     </div>
   {% endif %}
@@ -76,15 +77,15 @@
             <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
         </li>
         {% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
             Next<span class="glyphicon glyphicon-chevron-right"></span></a>
         </li>
         {% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
       </ul>
     </div>
   {% endif %}
