@@ -19,6 +19,7 @@ from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
@@ -875,24 +876,37 @@ def create_recipient_group_url_clicks(request):
 
 
 def upload_file_to_s3(request):
-    #if request.method == 'POST':
-    # Connect and find the bucket
-    conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    bucket = conn.get_bucket(settings.S3_BUCKET)
+    if request.method == 'POST':
+        response_data = {}
+        file = request.POST.get('file')
 
-    # Create a new key for the new object we're uploading
-    k = Key(bucket)
-    k.key = settings.S3_BASE_KEY_PATH + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
-    k.set_contents_from_string('This is a test of S3')
-    #k.set_contents_from_file(fp=file, policy='public-read')
-    k.set_acl('public-read')
+        if file is None:
+            response_data['error'] = True
+            response_data['message'] = 'File not set.'
+            response_data['url'] = False
+        else:
+            # Connect and find the bucket
+            conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+            bucket = conn.get_bucket(settings.S3_BUCKET)
 
-    url = k.generate_url(0, query_auth=False, force_http=True)
+            # Create a new key for the new object we're uploading
+            k = Key(bucket)
+            k.key = settings.S3_BASE_KEY_PATH + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
+            k.set_contents_from_string('This is a test of S3')
+            #k.set_contents_from_file(fp=file, policy='public-read')
+            k.set_acl('public-read')
 
-    response_data = {}
-    if url:
-        response_data['url'] = url
+            url = k.generate_url(0, query_auth=False, force_http=True)
+
+            if url:
+                response_data['error'] = False
+                response_data['message'] = ''
+                response_data['url'] = url
+            else:
+                response_data['error'] = True
+                response_data['message'] = 'File URL from S3 could not be returned.'
+                response_data['url'] = False
+
+        return HttpResponse(json.dumps(response_data), mimetype='application/json')
     else:
-        response_data['url'] = False
-
-    return HttpResponse(json.dumps(response_data), mimetype='application/json')
+        return HttpResponseForbidden()
