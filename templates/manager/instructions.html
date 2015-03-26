@@ -150,6 +150,7 @@
   </div><!-- /.modal -->
 {% endblock %}
 
-{% block scripts %}
+{% block javascript-footer %}
+  {{ block.super }}
   <script src="{{MEDIA_URL}}/js/lockcontent.js"></script>
 {% endblock %}
