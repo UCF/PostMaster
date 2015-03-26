@@ -880,11 +880,11 @@ def upload_file_to_s3(request):
     conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
     bucket = conn.get_bucket(settings.S3_BUCKET)
 
-    keys = bucket.list(settings.S3_BASE_KEY_PATH)
-
     # Create a new key for the new object we're uploading
-    #k = Key(bucket)
-    #k.key = settings.S3_BASE_KEY_PATH + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
+    k = Key(bucket)
+    k.key = settings.S3_BASE_KEY_PATH + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
+    k.set_contents_from_string('This is a test of S3')
+    k.set_acl('public-read')
 
     raise Exception
     return
