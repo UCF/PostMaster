@@ -2,6 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory
 
 from manager.models import Email
+from manager.models import PreviewInstance
 from manager.models import Recipient
 from manager.models import RecipientAttribute
 from manager.models import RecipientGroup
@@ -15,20 +16,31 @@ class EmailCreateUpdateForm(forms.ModelForm):
         exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', )
 
 class EmailInstantSendForm(forms.Form):
-    subject = forms.CharField(label="Subject", 
+    subject = forms.CharField(label="Subject",
         help_text="Subject of the email")
-    source_html_uri = forms.URLField(label="Source html uri", 
+    source_html_uri = forms.URLField(label="Source html uri",
         help_text="Source URI of the email HTML")
-    from_email_address = forms.EmailField(label="From email address", 
+    from_email_address = forms.EmailField(label="From email address",
         help_text="Email address from where the sent emails will originate")
-    from_friendly_name = forms.CharField(label="From friendly name", 
+    from_friendly_name = forms.CharField(label="From friendly name",
         help_text="A display name associated with the from email address")
-    replace_delimiter = forms.CharField(label="Replace delimiter", 
+    replace_delimiter = forms.CharField(label="Replace delimiter",
         help_text="Character(s) that replacement labels are wrapped in")
-    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(), 
-        label="Recipient groups", 
+    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(),
+        label="Recipient groups",
         help_text='Which group(s) of recipients this email will go to. Hold down "Control", or "Command" on a Mac, to select more than one.')
-    
+
+
+class PreivewInstanceLockForm(forms.ModelForm):
+    """
+    Form for locking the preview instance content
+    """
+
+    class Meta:
+        model = PreviewInstance
+        fields = ('lock_content', )
+
+
 class RecipientGroupCreateUpdateForm(forms.ModelForm):
 
     class Meta:
@@ -51,7 +63,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
         exclude = ('recipients',)
 
 class RecipientCSVImportForm(forms.Form):
-    existing_group_name = forms.ModelChoiceField(queryset=RecipientGroup.objects.all(), 
+    existing_group_name = forms.ModelChoiceField(queryset=RecipientGroup.objects.all(),
         required=False,
         help_text='If adding recipients to an existing recipient group, choose the group name.',
         to_field_name='name')

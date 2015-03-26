@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block breadcrumbs %}
-	{{block.super}}
-	<li class="active"><a href="{% url manager-emails %}">Emails</a></li>
+  {{block.super}}
+  <li class="active"><a href="{% url manager-emails %}">Emails</a></li>
 {% endblock %}
 
 {% block page-body %}
@@ -22,13 +22,13 @@
   <h2>Emails</h2>
   {% if is_paginated %}
     <div>
-    	<ul class="pagination">
-    		{% if page_obj.has_previous %}
-    		<li>
-    			<a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
             <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
-    		</li>
-    		{% endif %}
+        </li>
+        {% endif %}
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
@@ -38,7 +38,7 @@
         <li class="disabled">
           <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
         </li>
-    	</ul>
+      </ul>
     </div>
   {% endif %}
 
@@ -58,6 +58,7 @@
         <td>
           <div class="btn-group pull-right">
             <a class="btn btn-sm btn-info" href="{% url manager-email-instances email.pk %}">Instances</a>
+            <a class="btn btn-sm btn-info" href="{% url manager-email-preview-instances email.pk %}">Previews</a>
             <a class="btn btn-sm btn-danger" href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a>
           </div>
         </td>
