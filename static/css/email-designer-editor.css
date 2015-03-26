@@ -1,0 +1,20 @@
+/*
+ * Unset Froala editor css applied within editable areas, which might
+ * not emulate the final html email accuately enough
+ */
+.pm-template-editable-paragraph p,
+.pm-template-editable-paragraph p.fr-tag {
+  margin: initial !important;
+}
+.froala-wrapper,
+.froala-element {
+  overflow: hidden !important;
+}
+.froala-element {
+  line-height: inherit;
+  min-height: 0;
+}
+.pm-template-editable-paragraph .froala-wrapper,
+.pm-template-editable-paragraph .froala-element {
+  width: 100% !important;
+}
