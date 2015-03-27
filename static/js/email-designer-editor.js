@@ -1,5 +1,5 @@
 // Enables all editing functionality.
-function pmDesignerEnable() {
+function pmDesignerEnable(file_prefix, file_upload_url) {
   $('.pm-template-editable-single').editable({
     allowedTags: ['a', 'b', 'em', 'i', 's', 'strong', 'span', 'u'],
     buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
@@ -18,7 +18,13 @@ function pmDesignerEnable() {
     defaultImageWidth: 0,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
     imageMove: false,
-    imageUpload: false,
+    imageUpload: true,
+    imageUploadParam: 'file',
+    imageUploadParams: {
+      file_prefix: file_prefix,
+      protocol: '//'
+    },
+    imageUploadURL: file_upload_url,
     inlineMode: true,
     paragraphy: true,
     plainPaste: true,
@@ -26,7 +32,10 @@ function pmDesignerEnable() {
   })
     .on('editable.imageInserted', function(e, editor, img) {
         img.addClass('responsiveimg');
-    });
+    })
+    .on('editable.imageError', function(e, editor, error) {
+      alert(error.message);
+    })
 
   $('.pm-template-editable-multiline').editable({
     allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
@@ -37,7 +46,13 @@ function pmDesignerEnable() {
     inlineMode: true,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
     imageMove: false,
-    imageUpload: false,
+    imageUpload: true,
+    imageUploadParam: 'file',
+    imageUploadParams: {
+      file_prefix: file_prefix,
+      protocol: '//'
+    },
+    imageUploadURL: file_upload_url,
     paragraphy: false,
     plainPaste: true,
     useClasses: false
@@ -124,8 +139,10 @@ function pmDesignerParagraphFontFamily() {
 }
 
 
-function pmDesignerInit() {
-  $(window).on('load', pmDesignerEnable);
+function pmDesignerInit(file_prefix, file_upload_url) {
+  $(window).on('load', function() {
+    pmDesignerEnable(file_prefix, file_upload_url);
+  });
   $(window).on('load resize', pmDesignerResponsiveParagraphs);
 }
 

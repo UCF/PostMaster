@@ -84,7 +84,9 @@ These are injected into the email template markup when loadEditor() is called.
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/email-designer-editor.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
-    pmDesignerInit();
+    file_prefix = '{{ request.user.username }}/';
+    file_upload_url = '{% url manager-email-upload-file %}';
+    pmDesignerInit(file_prefix, file_upload_url);
   </script>
 </textarea>
 

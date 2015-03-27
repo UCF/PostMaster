@@ -358,7 +358,6 @@ class EmailDesignView(TemplateView):
         context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
         context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
         context['froala_license'] = settings.FROALA_EDITOR_LICENSE
-        context['user_id'] = self.request.user.id
         return context
 
 
@@ -974,42 +973,56 @@ def create_recipient_group_url_clicks(request):
 
 def upload_file_to_s3(request):
     """
-    Uploads a file to Amazon S3.  Returns JSON containing uploaded file url.
+    Uploads a file to Amazon S3.
+
+    Returns json containing uploaded file url ( {link: '...'} ) or error
+    message ( {error: '...'} ).
+
+    Note: returned json must follow this format to play nicely with the Froala
+    image uploader.
     """
     if request.method == 'POST':
         response_data = {}
-        file = request.POST.get('file')
+        valid_protocols = ['//', 'http://', 'https://']
+        file = request.FILES['file']
         file_prefix = request.POST.get('file_prefix')
+        protocol = request.POST.get('protocol')
 
         if file_prefix is None:
             file_prefix = ''
 
+        if protocol not in valid_protocols:
+            protocol = '//'
+
         if file is None:
-            response_data['error'] = True
-            response_data['message'] = 'File not set.'
-            response_data['url'] = False
+            response_data['error'] = 'File not set.'
         else:
+            # Create a unique filename (so we don't accidentally overwrite an
+            # existing file)
+            filename, file_extension = os.path.splitext(file.name)
+            filename_unique = filename \
+                + '_'  \
+                + str(datetime.now().strftime('%Y%m%d%H%M%S')) \
+                + file_extension
+
             # Connect and find the bucket
             conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
             bucket = conn.get_bucket(settings.S3_BUCKET)
 
-            # Create a new key for the new object we're uploading
+            # Create a new key for the new object and upload it
             k = Key(bucket)
-            k.key = settings.S3_BASE_KEY_PATH + file_prefix + 'foobar'  # key must be unique; eventually this will be something like /NID/<template-name>-<date>.<filetype>
-            k.set_contents_from_string('This is a test of S3')
-            #k.set_contents_from_file(fp=file, policy='public-read')
-            k.set_acl('public-read')
+            k.key = settings.S3_BASE_KEY_PATH + file_prefix + filename_unique
+            k.set_contents_from_file(fp=file, policy='public-read')
 
             url = k.generate_url(0, query_auth=False, force_http=True)
 
             if url:
-                response_data['error'] = False
-                response_data['message'] = ''
-                response_data['url'] = url
+                if protocol != 'http://':
+                    url = url.replace('http://', protocol)
+
+                response_data['link'] = url
             else:
-                response_data['error'] = True
-                response_data['message'] = 'File URL from S3 could not be returned.'
-                response_data['url'] = False
+                response_data['error'] = 'File URL from S3 could not be returned.'
 
         return HttpResponse(json.dumps(response_data), mimetype='application/json')
     else:
