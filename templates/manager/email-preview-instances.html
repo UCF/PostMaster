@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+  <li><a href="{% url manager-email-update email.pk %}">{{ email.title }}</a> <span class="divider">/</span></li>
+  <li class="active"><a href="{% url manager-email-instances email.pk %}">Instances</a></li>
+{% endblock %}
+
+{% block page-body %}
+  <h2>{{ email.title }} Instances</h2>
+
+  {% if is_paginated %}
+  <div>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{ page_obj.previous_page_number }}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{ page_obj.next_page_number }}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Sent</th>
+        <th scope="col">Requested Start</th>
+        <th scope="col">Live Sent</th>
+        <th scope="col">Locked Content <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="The lock indicates whether the live email will get fresh content from the uri or use the existing content from the preview email. True: use preview email content. False: get fresh content from uri."></span></th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for preview in preview_instances %}
+      <tr>
+        <td>{{ preview.when }}</td>
+        <td>{{ preview.requested_start }}</td>
+        <th>{% if preview.instance %}Sent{% else %}Not yet{% endif %}</th>
+        <td>{{ preview.lock_content }}</td>
+        <td>{% if not preview.past and not preview.email.instance_exists %}{% if preview.lock_content %}<button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-form-url="{% url manager-email-lock-content preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock Content</button>{% else %}<button type="button" class="btn btn-warning btn-xs" data-target="#lockContentModal" data-form-url="{% url manager-email-lock-content preview.pk %}" data-toggle="modal" data-lock="true" data-content="Lock">Lock Content</button>{% endif %}{% endif %}{% if preview.instance %}<a href="{% url manager-email-instance preview.instance.pk %}" class="btn btn-primary btn-xs">View Instance</a>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+  <div>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li>
+        <a href="?page={{ page_obj.previous_page_number }}" class="prev">
+          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      </li>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{ page_obj.next_page_number }}" class="next">
+          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      </li>
+      {% endif %}
+      <li class="disabled">
+        <a href="#">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
+  {% comment %}
+    Manual for is being used here because it is so small. If this changes to be
+    anything bigger/larger it is advised to change the ListView to contain a
+    form.
+  {% endcomment %}
+  <div class="modal fade" id="lockContentModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <form action="" method="post">
+          <div class="modal-body">
+              <p>Are you sure you want to <u><strong class="lock-content"></strong></u> the content?</p>
+              <input class="hide" id="id_lock_content" type="checkbox" checked="checked" name="lock_content">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success" value="Sumbit">Save</button>
+          </div>
+        </form>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+{% endblock %}
+
+{% block javascript-footer %}
+  {{ block.super }}
+  <script src="{{MEDIA_URL}}/js/lockcontent.js"></script>
+{% endblock %}

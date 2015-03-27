@@ -1,6 +1,7 @@
 {% load widget_tweaks %}
 {% load filters %}
 
+
 <div class="form-group {% if field.errors %}has-error has-feedback{% endif %}">
   {% if field|is_checkbox %}
     <div class="col-sm-offset-3 col-sm-9">
@@ -14,8 +15,15 @@
   {% else %}
     <label for="{{field.id}}" class="col-sm-3 control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
     <div class="col-sm-9">
+
       {% if field.field.required %}
-        {{field|add_class:"form-control"|attr:"required"}}
+        {% if field|is_file %}
+          {{field|attr:"required"}}
+        {% else %}
+          {{field|add_class:"form-control"|attr:"required"}}
+        {% endif %}
+      {% elif field|is_file %}
+        {{field}}
       {% else %}
         {{field|add_class:"form-control"}}
       {% endif %}

@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block breadcrumbs %}
-	{{block.super}}
-	<li class="active"><a href="{% url manager-emails %}">Emails</a></li>
+  {{block.super}}
+  <li class="active"><a href="{% url manager-emails %}">Emails</a></li>
 {% endblock %}
 
 {% block page-body %}
@@ -20,25 +20,26 @@
   </div>
 
   <h2>Emails</h2>
+
   {% if is_paginated %}
     <div>
-    	<ul class="pagination">
-    		{% if page_obj.has_previous %}
-    		<li>
-    			<a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
             <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
-    		</li>
-    		{% endif %}
+        </li>
+        {% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
             Next<span class="glyphicon glyphicon-chevron-right"></span></a>
         </li>
         {% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
-    	</ul>
+      </ul>
     </div>
   {% endif %}
 
@@ -57,8 +58,9 @@
   			<td>{{email.instances.count}}</td>
         <td>
           <div class="btn-group pull-right">
-            <a class="btn btn-sm btn-info" href="{% url manager-email-instances email.pk %}">Instances</a>
+            <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">Instances</a>
             <a class="btn btn-sm btn-success" href="{% url manager-email-update email.pk %}">Settings</a>
+            <a class="btn btn-sm btn-info" href="{% url manager-email-preview-instances email.pk %}">Previews</a>
           </div>
         </td>
   		</tr>
@@ -75,15 +77,15 @@
             <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
         </li>
         {% endif %}
+        <li class="disabled">
+          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
             Next<span class="glyphicon glyphicon-chevron-right"></span></a>
         </li>
         {% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
       </ul>
     </div>
   {% endif %}

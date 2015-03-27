@@ -1,4 +1,3 @@
-from datetime import date
 from datetime import datetime
 import logging
 import os
@@ -20,20 +19,21 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
+from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
 from django.views.generic.edit import FormView
-from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
-from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.simple import direct_to_template
 from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
+from manager.forms import PreivewInstanceLockForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
+from manager.forms import RecipientAttributeFormSet
 from manager.forms import RecipientCreateUpdateForm
 from manager.forms import RecipientCSVImportForm
 from manager.forms import RecipientGroupCreateUpdateForm
@@ -252,6 +252,43 @@ class EmailUnsubscriptionsListView(EmailsMixin, ListView):
         return context
 
 
+class PreviewInstanceListView(EmailsMixin, ListView):
+    model = PreviewInstance
+    template_name = 'manager/email-preview-instances.html'
+    paginate_by = 20
+    context_object_name = 'preview_instances'
+
+    def dispatch(self, request, *args, **kwargs):
+        self._email = get_object_or_404(Email, pk=kwargs['pk'])
+        return super(PreviewInstanceListView, self).dispatch(request,
+                                                             *args,
+                                                             **kwargs)
+
+    def get_queryset(self):
+        return PreviewInstance.objects.filter(email=self._email)
+
+    def get_context_data(self, **kwargs):
+        context = super(PreviewInstanceListView, self). \
+            get_context_data(**kwargs)
+        context['email'] = self._email
+        return context
+
+
+class LockContentView(UpdateView):
+    model = PreviewInstance
+    form_class = PreivewInstanceLockForm
+
+    def get_success_url(self):
+        """
+        Return the user to the preview instances list for the parent email
+        """
+        # theobject = self.object.lock_content
+        # blah = self.object.pk
+        # raise Exception
+        return reverse('manager-email-preview-instances',
+                       args=(self.object.email.pk,))
+
+
 class InstanceListView(EmailsMixin, ListView):
     model = Instance
     template_name = 'manager/email-instances.html'
@@ -421,11 +458,36 @@ class RecipientCreateView(RecipientsMixin, CreateView):
     context_object_name = 'recipient'
     form_class = RecipientCreateUpdateForm
 
-    def form_valid(self, form):
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        recipient_attributes_formset = RecipientAttributeFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form, recipient_attributes_formset=recipient_attributes_formset))
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        recipient_attributes_formset = RecipientAttributeFormSet(self.request.POST)
+        if (form.is_valid() and recipient_attributes_formset.is_valid()):
+            return self.form_valid(form, recipient_attributes_formset)
+        else:
+            return self.form_invalid(form, recipient_attributes_formset)
+
+    def form_valid(self, form, recipient_attributes_formset):
+        self.object = form.save()
+        recipient_attributes_formset.instance = self.object
+        recipient_attributes_formset.save()
         messages.success(self.request, 'Recipient successfully created.')
-        response = super(RecipientCreateView, self).form_valid(form)
         self.object.set_groups(form.cleaned_data['groups'])
-        return response
+        return super(RecipientCreateView, self).form_valid(form)
+
+    def form_invalid(self, form, recipient_attributes_formset):
+        messages.error(self.request, 'Please review the errors below and try again.')
+        return self.render_to_response(
+            self.get_context_data(form=form, recipient_attributes_formset=recipient_attributes_formset))
 
     def get_success_url(self):
         return reverse('manager-recipient-update',
@@ -437,11 +499,38 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
     model = Recipient
     template_name = 'manager/recipient-update.html'
     form_class = RecipientCreateUpdateForm
+    form_attributes_class = RecipientAttributeCreateForm
 
-    def form_valid(self, form):
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        recipient_attributes_formset = RecipientAttributeFormSet(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=form, recipient_attributes_formset=recipient_attributes_formset))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        recipient_attributes_formset = RecipientAttributeFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and recipient_attributes_formset.is_valid()):
+            return self.form_valid(form, recipient_attributes_formset)
+        else:
+            return self.form_invalid(form, recipient_attributes_formset)
+
+    def form_valid(self, form, recipient_attributes_formset):
+        self.object = form.save()
+        recipient_attributes_formset.instance = self.object
+        recipient_attributes_formset.save()
         messages.success(self.request, 'Recipient successfully updated.')
         self.object.set_groups(form.cleaned_data['groups'])
         return super(RecipientUpdateView, self).form_valid(form)
+
+    def form_invalid(self, form, recipient_attributes_formset):
+        messages.error(self.request, 'Please review the errors below and try again.')
+        return self.render_to_response(
+            self.get_context_data(form=form, recipient_attributes_formset=recipient_attributes_formset))
 
     def get_success_url(self):
         return reverse('manager-recipient-update',
@@ -549,7 +638,7 @@ class RecipientSubscriptionsUpdateView(UpdateView):
         mac = self.request.GET.get('mac', None)
 
         recipient_id = self.request.GET.get('recipient', None)
-        email_id = self.request.GET.get('email',     None)
+        email_id = self.request.GET.get('email', None)
 
         # Old style unsubscribe
         if recipient_id is not None and email_id is not None:
@@ -642,14 +731,14 @@ def redirect(request):
     '''
         Redirects based on URL and records URL click
     '''
-    instance_id = request.GET.get('instance',  None)
-    url_string = request.GET.get('url',       None)
-    position = request.GET.get('position',  None)
+    instance_id = request.GET.get('instance', None)
+    url_string = request.GET.get('url', None)
+    position = request.GET.get('position', None)
     recipient_id = request.GET.get('recipient', None)
-    mac = request.GET.get('mac',       None)
+    mac = request.GET.get('mac', None)
 
     if not url_string:
-        pass # Where do we go?
+        pass  # Where do we go?
     else:
         url_string = urllib.unquote(url_string)
         # No matter what happens, make sure the redirection works
@@ -704,9 +793,9 @@ def instance_open(request):
     '''
         Records an email open
     '''
-    instance_id = request.GET.get('instance',  None)
+    instance_id = request.GET.get('instance', None)
     recipient_id = request.GET.get('recipient', None)
-    mac = request.GET.get('mac',       None)
+    mac = request.GET.get('mac', None)
 
     if recipient_id and mac and instance_id is not None:
         try:
@@ -736,6 +825,7 @@ def instance_open(request):
                     instance_open.save()
                     log.debug('open saved')
     return HttpResponse(settings.DOT, content_type='image/png')
+
 
 ##
 # Utility Views
