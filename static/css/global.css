@@ -6,6 +6,10 @@ table tr {
   cursor: pointer;
 }
 
+input[type=file] {
+  margin-top: 7px;
+}
+
 .form-group .alert-danger {
   padding: 5px 10px;
 }
