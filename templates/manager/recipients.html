@@ -1,32 +1,23 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block breadcrumbs %}
-	{{block.super}}
-	{% if search_valid %}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipients %}?email_address={{search_form.email_address.value}}"> Search Results for <em>{{search_form.email_address.value}}</em></a></li>
-	{% else %}
-	<li class="active"><a href="{% url manager-recipients %}">Recipients</a></li>
-	{% endif %}
-{% endblock %}
-
 {% block page-body %}
 
-  <div class="btn-group pull-right" role="group" aria-label="Form Actions">
-  	<a href="{% url manager-recipient-create %}" class="btn btn-success">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipient</a>
-  	<a href="{% url manager-recipients-csv-import %}" class="btn btn-primary">
-      <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import Recipients</a>
-  </div>
-
-  <h2>{% if search_valid %}Recipient Search Results for <em>{{search_form.email_address.value}}</em>{% else %}Recipients{% endif %}</h2>
+  <h2>
+    {% if search_valid %}
+      Recipient Search Results for <em>{{search_form.email_address.value}}</em>
+    {% else %}
+      Recipients
+      <a href="{% url manager-recipient-create %}" class="btn btn-default">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
+    {% endif %}
+  </h2>
 
   <div class="row">
 
     <div class="col-sm-6">
     	{% if is_paginated %}
-    	<ul class="pagination">
+    	<ul class="pagination pagination-sm pagination-sm">
     		{% if page_obj.has_previous %}
     		<li>
     			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
@@ -79,7 +70,7 @@
   </table>
 
   {% if is_paginated %}
-    <ul class="pagination">
+    <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
