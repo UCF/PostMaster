@@ -52,13 +52,13 @@
   	</thead>
   	<tbody>
   		{% for email in emails %}
-  		<tr data-link-url="{% url manager-email-update email.pk %}">
+  		<tr data-link-url="{% url manager-email-instances email.pk %}">
   			<td>{{email.title}}</td>
   			<td>{{email.instances.count}}</td>
         <td>
           <div class="btn-group pull-right">
             <a class="btn btn-sm btn-info" href="{% url manager-email-instances email.pk %}">Instances</a>
-            <a class="btn btn-sm btn-danger" href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a>
+            <a class="btn btn-sm btn-success" href="{% url manager-email-update email.pk %}">Settings</a>
           </div>
         </td>
   		</tr>
