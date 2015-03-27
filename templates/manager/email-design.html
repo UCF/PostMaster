@@ -81,12 +81,14 @@ These are injected into the email template markup when loadEditor() is called.
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/jquery-1.11.2.min.js"></script>
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/froala.min.js"></script>
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/froala-font_size.min.js"></script>
+  <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/froala-media_manager.min.js"></script>
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/email-designer-editor.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
     file_prefix = '{{ request.user.username }}/';
-    file_upload_url = '{% url manager-email-upload-file %}';
-    pmDesignerInit(file_prefix, file_upload_url);
+    file_upload_url = '{% url manager-upload-file %}';
+    file_get_url = '{% url manager-get-files %}';
+    pmDesignerInit(file_prefix, file_upload_url, file_get_url);
   </script>
 </textarea>
 

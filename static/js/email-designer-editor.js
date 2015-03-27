@@ -1,5 +1,5 @@
 // Enables all editing functionality.
-function pmDesignerEnable(file_prefix, file_upload_url) {
+function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
   $('.pm-template-editable-single').editable({
     allowedTags: ['a', 'b', 'em', 'i', 's', 'strong', 'span', 'u'],
     buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
@@ -17,6 +17,12 @@ function pmDesignerEnable(file_prefix, file_upload_url) {
     defaultImageAlignment: 'left',
     defaultImageWidth: 0,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+    imagesLoadParams: {
+      file_prefix: file_prefix,
+      protocol: '//',
+      valid_extensions: ['.jpg', '.jpeg', '.png', '.gif']
+    },
+    imagesLoadURL: file_get_url,
     imageMove: false,
     imageUpload: true,
     imageUploadParam: 'file',
@@ -26,6 +32,7 @@ function pmDesignerEnable(file_prefix, file_upload_url) {
     },
     imageUploadURL: file_upload_url,
     inlineMode: true,
+    mediaManager: true,
     paragraphy: true,
     plainPaste: true,
     useClasses: false
@@ -45,6 +52,12 @@ function pmDesignerEnable(file_prefix, file_upload_url) {
     defaultImageWidth: 0,
     inlineMode: true,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+    imagesLoadParams: {
+      file_prefix: file_prefix,
+      protocol: '//',
+      valid_extensions: ['.jpg', '.jpeg', '.png', '.gif']
+    },
+    imagesLoadURL: file_get_url,
     imageMove: false,
     imageUpload: true,
     imageUploadParam: 'file',
@@ -53,6 +66,7 @@ function pmDesignerEnable(file_prefix, file_upload_url) {
       protocol: '//'
     },
     imageUploadURL: file_upload_url,
+    mediaManager: true,
     paragraphy: false,
     plainPaste: true,
     useClasses: false
@@ -139,9 +153,9 @@ function pmDesignerParagraphFontFamily() {
 }
 
 
-function pmDesignerInit(file_prefix, file_upload_url) {
+function pmDesignerInit(file_prefix, file_upload_url, file_get_url) {
   $(window).on('load', function() {
-    pmDesignerEnable(file_prefix, file_upload_url);
+    pmDesignerEnable(file_prefix, file_upload_url, file_get_url);
   });
   $(window).on('load resize', pmDesignerResponsiveParagraphs);
 }

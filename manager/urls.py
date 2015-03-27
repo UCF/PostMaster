@@ -10,7 +10,6 @@ urlpatterns = patterns('manager.views',
     url(r'^email/redirect/?$',                   view='redirect',                                        name='manager-email-redirect'),
     url(r'^email/create/$',                      login_required(EmailCreateView.as_view()),              name='manager-email-create'),
     url(r'^email/design/$',                      login_required(EmailDesignView.as_view()),              name='manager-email-design'),
-    url(r'^email/upload-file/$',                 login_required(upload_file_to_s3),                      name='manager-email-upload-file'),
     url(r'^email/(?P<pk>\d+)/delete/$',          login_required(EmailDeleteView.as_view()),              name='manager-email-delete'),
     url(r'^email/(?P<pk>\d+)/update/$',          login_required(EmailUpdateView.as_view()),              name='manager-email-update'),
     url(r'^email/(?P<pk>\d+)/preivewinstances/$', login_required(PreviewInstanceListView.as_view()), name='manager-email-preview-instances'),
@@ -44,6 +43,10 @@ urlpatterns = patterns('manager.views',
     url(r'^setting/(?P<pk>\d+)/delete/$',          login_required(SettingDeleteView.as_view()),      name='manager-setting-delete'),
     url(r'^setting/(?P<pk>\d+)/update/$',          login_required(SettingUpdateView.as_view()),      name='manager-setting-update'),
     url(r'^settings/$',                            login_required(SettingListView.as_view()),        name='manager-settings'),
+
+    # S3 File Handling
+    url(r'^files/upload/$', login_required(upload_file_to_s3), name='manager-upload-file'),
+    url(r'^files/get/$',    login_required(get_s3_files),      name='manager-get-files'),
 
     url(r'^$', login_required(OverviewListView.as_view()), name='manager-home'),
 )

@@ -1027,3 +1027,53 @@ def upload_file_to_s3(request):
         return HttpResponse(json.dumps(response_data), mimetype='application/json')
     else:
         return HttpResponseForbidden()
+
+
+def get_s3_files(request):
+    """
+    Returns json array of files in S3.
+
+    prefix:  specifies a subdirectory in settings.S3_BUCKET.
+    valid_extensions:  array of valid file extensions; passing this in will
+    only return files of those types listed.
+    """
+    if request.method == 'GET':
+        response_data = []
+        valid_protocols = ['//', 'http://', 'https://']
+        file_prefix = request.GET.get('file_prefix')
+        protocol = request.GET.get('protocol')
+        valid_extensions = request.GET.getlist('valid_extensions')
+
+        if file_prefix is None:
+            file_prefix = ''
+
+        if protocol not in valid_protocols:
+            protocol = '//'
+
+        # Connect and find the bucket
+        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+        bucket = conn.get_bucket(settings.S3_BUCKET)
+
+        for k in bucket.list(prefix=settings.S3_BASE_KEY_PATH + file_prefix):
+            filename, file_extension = os.path.splitext(k.name)
+
+            # Determine if the file extension is valid
+            is_valid = False
+            if file_extension != '':
+                if not valid_extensions or valid_extensions == ['']:
+                    is_valid = True
+                elif valid_extensions and file_extension in valid_extensions:
+                    is_valid = True
+
+            if is_valid:
+                url = k.generate_url(0, query_auth=False, force_http=True)
+
+                if url:
+                    if protocol != 'http://':
+                        url = url.replace('http://', protocol)
+
+                    response_data.append(url)
+
+        return HttpResponse(json.dumps(response_data), mimetype='application/json')
+    else:
+        return HttpResponseForbidden()
