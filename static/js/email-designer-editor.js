@@ -17,6 +17,10 @@ function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
     defaultImageAlignment: 'left',
     defaultImageWidth: 0,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+    imageDeleteURL: file_delete_url,
+    imageDeleteParams: {
+      file_prefix: file_prefix
+    },
     imagesLoadParams: {
       file_prefix: file_prefix,
       protocol: '//',
@@ -43,6 +47,16 @@ function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
     .on('editable.imageError', function(e, editor, error) {
       alert(error.message);
     })
+    .on('editable.imageDeleteError', function(e, editor, message) {
+      alert(message);
+    })
+    .on('editable.imageDeleteSuccess', function(e, editor, data) {
+      // json containing 'error' apparently doesn't trigger
+      // imageDeleteError like it's supposed to...
+      if (data.error) {
+        alert(data.error);
+      }
+    });
 
   $('.pm-template-editable-multiline').editable({
     allowedTags: ['a', 'b', 'blockquote', 'br', 'col', 'colgroup', 'dd', 'div', 'dl', 'dt', 'em', 'hr', 'i', 'img', 'li', 'ol', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul'],
@@ -52,6 +66,10 @@ function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
     defaultImageWidth: 0,
     inlineMode: true,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
+    imageDeleteURL: file_delete_url,
+    imageDeleteParams: {
+      file_prefix: file_prefix
+    },
     imagesLoadParams: {
       file_prefix: file_prefix,
       protocol: '//',
@@ -70,9 +88,23 @@ function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
     paragraphy: false,
     plainPaste: true,
     useClasses: false
-  }).on('editable.imageInserted', function(e, editor, img) {
-    img.addClass('responsiveimg');
-  });
+  })
+    .on('editable.imageInserted', function(e, editor, img) {
+      img.addClass('responsiveimg');
+    })
+    .on('editable.imageError', function(e, editor, error) {
+      alert(error.message);
+    })
+    .on('editable.imageDeleteError', function(e, editor, message) {
+      alert(message);
+    })
+    .on('editable.imageDeleteSuccess', function(e, editor, data) {
+      // json containing 'error' apparently doesn't trigger
+      // imageDeleteError like it's supposed to...
+      if (data.error) {
+        alert(data.error);
+      }
+    });
 }
 
 

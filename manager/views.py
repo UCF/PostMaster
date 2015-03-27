@@ -9,6 +9,7 @@ from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
 from util import calc_url_mac
 import urllib
+import urlparse
 import json
 
 from django.conf import settings
@@ -971,7 +972,7 @@ def create_recipient_group_url_clicks(request):
     )
 
 
-def upload_file_to_s3(request):
+def s3_upload_file(request):
     """
     Uploads a file to Amazon S3.
 
@@ -1029,7 +1030,7 @@ def upload_file_to_s3(request):
         return HttpResponseForbidden()
 
 
-def get_s3_files(request):
+def s3_get_files(request):
     """
     Returns json array of files in S3.
 
@@ -1077,3 +1078,41 @@ def get_s3_files(request):
         return HttpResponse(json.dumps(response_data), mimetype='application/json')
     else:
         return HttpResponseForbidden()
+
+
+def s3_delete_file(request):
+    """
+    Deletes a file from Amazon S3.
+
+    Returns json containing success message ( {message: '...'} ) or error
+    message ( {error: '...'} ).
+
+    Note: returned json must follow this format to play nicely with the Froala
+    image uploader.
+    """
+    if request.method == 'POST':
+        response_data = {}
+        file_prefix = request.POST.get('file_prefix')
+        file_src = request.POST.get('src')  # url of file
+
+        if file_src is None:
+            response_data['error'] = 'No file source set.'
+        else:
+            # Connect and find the bucket
+            conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+            bucket = conn.get_bucket(settings.S3_BUCKET)
+
+            # Get the filename from file_src url
+            filename = os.path.basename(urlparse.urlsplit(file_src).path)
+
+            # Find the existing key in the bucket
+            k = bucket.get_key(settings.S3_BASE_KEY_PATH + file_prefix + filename, validate=True)
+            if k is None:
+                response_data['error'] = 'File could not be deleted: file does not exist.'
+            else:
+                k = bucket.delete_key(k)
+                response_data['message'] = 'File successfully deleted.'
+
+        return HttpResponse(json.dumps(response_data), mimetype='application/json')
+    else:
+       return HttpResponseForbidden()

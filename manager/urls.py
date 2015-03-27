@@ -45,8 +45,9 @@ urlpatterns = patterns('manager.views',
     url(r'^settings/$',                            login_required(SettingListView.as_view()),        name='manager-settings'),
 
     # S3 File Handling
-    url(r'^files/upload/$', login_required(upload_file_to_s3), name='manager-upload-file'),
-    url(r'^files/get/$',    login_required(get_s3_files),      name='manager-get-files'),
+    url(r'^files/upload/$', login_required(s3_upload_file), name='manager-upload-file'),
+    url(r'^files/get/$',    login_required(s3_get_files),   name='manager-get-files'),
+    url(r'^files/delete/$', login_required(s3_delete_file), name='manager-delete-file'),
 
     url(r'^$', login_required(OverviewListView.as_view()), name='manager-home'),
 )

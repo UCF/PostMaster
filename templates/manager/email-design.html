@@ -88,6 +88,7 @@ These are injected into the email template markup when loadEditor() is called.
     file_prefix = '{{ request.user.username }}/';
     file_upload_url = '{% url manager-upload-file %}';
     file_get_url = '{% url manager-get-files %}';
+    file_delete_url = '{% url manager-delete-file %}';
     pmDesignerInit(file_prefix, file_upload_url, file_get_url);
   </script>
 </textarea>
