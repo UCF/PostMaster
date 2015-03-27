@@ -17,7 +17,7 @@
 
     <div class="col-sm-6">
     	{% if is_paginated %}
-    	<ul class="pagination pagination-sm pagination-sm">
+    	<ul class="pagination pagination-sm">
     		{% if page_obj.has_previous %}
     		<li>
     			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
