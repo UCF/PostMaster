@@ -85,10 +85,11 @@ These are injected into the email template markup when loadEditor() is called.
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/email-designer-editor.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
-    var file_upload_url = '{% url manager-file-upload %}';
-    var file_get_url = '{% url manager-files-get %}';
-    var file_delete_url = '{% url manager-file-delete %}';
-    var img_extension_groupname = '{{ valid_image_groupname }}';
+    var file_upload_url = '{% url manager-file-upload %}',
+        file_get_url = '{% url manager-files-get %}',
+        file_delete_url = '{% url manager-file-delete %}',
+        img_extension_groupname = '{{ valid_image_groupname }}';
+
     pmDesignerInit(file_upload_url, file_get_url, file_delete_url, img_extension_groupname);
   </script>
 </textarea>
