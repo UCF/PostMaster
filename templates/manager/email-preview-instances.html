@@ -12,7 +12,7 @@
 
   {% if is_paginated %}
   <div>
-    <ul class="pagination">
+    <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{ page_obj.previous_page_number }}" class="prev">
@@ -57,7 +57,7 @@
 
   {% if is_paginated %}
   <div>
-    <ul class="pagination">
+    <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{ page_obj.previous_page_number }}" class="prev">

@@ -9,9 +9,10 @@
 
   function reorderAttributes() {
     $attributeContainer.find('.attribute').each(function( index ) {
-      $(this).find('input').eq(0).attr('id','id_attributes-' + index + '-id').attr('name','attributes-' + index + '-id');
-      $(this).find('input').eq(1).attr('id','id_attributes-' + index + '-name').attr('name','attributes-' + index + '-name');
-      $(this).find('input').eq(2).attr('id','id_attributes-' + index + '-value').attr('name','attributes-' + index + '-value');
+      var $input = $(this).find('input');
+      $input.eq(0).attr('id','id_attributes-' + index + '-id').attr('name','attributes-' + index + '-id');
+      $input.eq(1).attr('id','id_attributes-' + index + '-name').attr('name','attributes-' + index + '-name');
+      $input.eq(2).attr('id','id_attributes-' + index + '-value').attr('name','attributes-' + index + '-value');
     });
   }
 
