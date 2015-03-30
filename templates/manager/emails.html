@@ -1,29 +1,15 @@
 {% extends 'base.html' %}
 
-{% block breadcrumbs %}
-  {{block.super}}
-  <li class="active"><a href="{% url manager-emails %}">Emails</a></li>
-{% endblock %}
-
 {% block page-body %}
 
-  <div class="btn-group pull-right" aria-label="Form Actions" role="group">
-    <a href="{% url manager-email-create %}" class="btn btn-success">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Email
-    </a>
-    <a href="{% url manager-email-design %}" class="btn btn-primary">
-      <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Design New Email
-    </a>
-    <a href="{% url manager-email-instant-send %}" class="btn btn-info">
-      <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Send Instant Test Email
-    </a>
-  </div>
-
-  <h2>Emails</h2>
+  <h2>Emails
+    <a href="{% url manager-email-create %}" class="btn btn-default">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
+  </h2>
 
   {% if is_paginated %}
     <div>
-      <ul class="pagination">
+      <ul class="pagination pagination-sm">
         {% if page_obj.has_previous %}
         <li>
           <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
@@ -53,14 +39,17 @@
   	</thead>
   	<tbody>
   		{% for email in emails %}
-  		<tr data-link-url="{% url manager-email-update email.pk %}">
+  		<tr data-link-url="{% url manager-email-instances email.pk %}">
   			<td>{{email.title}}</td>
   			<td>{{email.instances.count}}</td>
         <td>
           <div class="btn-group pull-right">
-            <a class="btn btn-sm btn-info" href="{% url manager-email-instances email.pk %}">Instances</a>
-            <a class="btn btn-sm btn-info" href="{% url manager-email-preview-instances email.pk %}">Previews</a>
-            <a class="btn btn-sm btn-danger" href="{% url manager-email-unsubscriptions email.pk %}">Unsubscriptions</a>
+            <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">
+              <span class="glyphicon glyphicon-list"></span> Instances</a>
+            <a class="btn btn-sm btn-default" href="{% url manager-email-update email.pk %}">
+              <span class="glyphicon glyphicon-pencil"></span> Edit</a>
+            <a class="btn btn-sm btn-default" href="{% url manager-email-preview-instances email.pk %}">
+              <span class="glyphicon glyphicon-eye-open"></span> Previews</a>
           </div>
         </td>
   		</tr>
@@ -70,7 +59,7 @@
 
   {% if is_paginated %}
     <div>
-      <ul class="pagination">
+      <ul class="pagination pagination-sm">
         {% if page_obj.has_previous %}
         <li>
           <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">

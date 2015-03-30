@@ -1,19 +1,16 @@
 {% extends 'base.html' %}
 
-{% block breadcrumbs %}
-  {{block.super}}
-  <li class="active"><a href="{% url manager-settings %}">Settings</a></li>
-{% endblock %}
-
 {% block page-body %}
 
-  <a href="{% url manager-setting-create %}" class="btn btn-success pull-right">
-    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Setting</a>
-  <h2>Settings</h2>
+  <h2>
+    Settings
+    <a href="{% url manager-setting-create %}" class="btn btn-default">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add New</a>
+  </h2>
 
   {% if is_paginated %}
   <div>
-    <ul class="pagination">
+    <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}" class="prev">
@@ -52,7 +49,7 @@
 
   {% if is_paginated %}
   <div>
-    <ul class="pagination">
+    <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}" class="prev">

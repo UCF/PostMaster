@@ -6,6 +6,10 @@ table tr {
   cursor: pointer;
 }
 
+input[type=file] {
+  margin-top: 7px;
+}
+
 .form-group .alert-danger {
   padding: 5px 10px;
 }
@@ -44,12 +48,12 @@ table tr {
 
 #editor-window {
   border: 0 solid transparent;
-  height: calc(100% - 20px);
   /* allow room for resize tab */
+  height: calc(100% - 20px);
   margin: 0;
   padding: 0;
-  resize: none;
   /* prevent double resize tabs in safari */
+  resize: none;
   width: 100%;
 }
 
