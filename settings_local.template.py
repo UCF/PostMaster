@@ -86,9 +86,6 @@ PREVIEW_LEAD_TIME  = 60 * 60 # 1 hour
 # Determines the minimum number of emails that should exist before importing them
 MINIMUM_IMPORT_EMAIL_COUNT = 1000
 
-# Determines if email is currently being tested against SES Sandbox
-SANDBOX_TESTING = False
-
 # Email address that test emails will be sent to. See manager/tests.py
 TEST_EMAIL_RECIPIENT = ''
 
