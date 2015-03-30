@@ -65,10 +65,18 @@ AMAZON_SMTP = {
     'rate'    : 70 # per second
 }
 
-AWS_ACCESS_KEY_ID = ''
-AWS_SECRET_ACCESS_KEY = ''
-S3_BUCKET = ''  # this bucket must have CORS enabled
-S3_BASE_KEY_PATH = ''  # optional; use if you want to prefix keys with some directory
+AMAZON_S3 = {
+    'aws_access_key_id': '',
+    'aws_secret_access_key': '',
+    'bucket': '',  # this bucket must have CORS enabled
+    'base_key_path': '', # optional; prefixes keys with some directory
+    'valid_extension_groups': {
+        # Defines sets of valid filetypes by name
+        'image': ['.png', '.jpg', '.jpeg', '.gif'],
+        'html': ['.html']
+    }
+}
+
 
 # NET Domain LDAP CONFIG
 LDAP_NET_HOST        = 'ldaps://net.ucf.edu'

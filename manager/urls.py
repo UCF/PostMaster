@@ -44,10 +44,10 @@ urlpatterns = patterns('manager.views',
     url(r'^setting/(?P<pk>\d+)/update/$',          login_required(SettingUpdateView.as_view()),      name='manager-setting-update'),
     url(r'^settings/$',                            login_required(SettingListView.as_view()),        name='manager-settings'),
 
-    # S3 File Handling
-    url(r'^files/upload/$', login_required(s3_upload_file), name='manager-upload-file'),
-    url(r'^files/get/$',    login_required(s3_get_files),   name='manager-get-files'),
-    url(r'^files/delete/$', login_required(s3_delete_file), name='manager-delete-file'),
+    # S3 User File Handling
+    url(r'^files/upload/$', login_required(s3_upload_user_file), name='manager-file-upload'),
+    url(r'^files/get/$',    login_required(s3_get_user_files),   name='manager-files-get'),
+    url(r'^files/delete/$', login_required(s3_delete_user_file), name='manager-file-delete'),
 
     url(r'^$', login_required(OverviewListView.as_view()), name='manager-home'),
 )

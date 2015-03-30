@@ -1,5 +1,3 @@
-import boto
-from boto.s3.key import Key
 from datetime import date
 from datetime import datetime
 import logging
@@ -58,6 +56,7 @@ from manager.models import URLClick
 from manager.litmusapi import LitmusApi
 from manager.utils import CSVImport
 from manager.utils import EmailSender
+from manager.utils import AmazonS3Helper
 
 
 log = logging.getLogger(__name__)
@@ -359,6 +358,7 @@ class EmailDesignView(TemplateView):
         context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
         context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
         context['froala_license'] = settings.FROALA_EDITOR_LICENSE
+        context['valid_extension_groupname'] = 'image'
         return context
 
 
@@ -972,9 +972,10 @@ def create_recipient_group_url_clicks(request):
     )
 
 
-def s3_upload_file(request):
+def s3_upload_user_file(request):
     """
-    Uploads a file to Amazon S3.
+    Uploads a unique file to Amazon S3, using a key prefixed with the current
+    user's username.
 
     Returns json containing uploaded file url ( {link: '...'} ) or error
     message ( {error: '...'} ).
@@ -984,105 +985,91 @@ def s3_upload_file(request):
     """
     if request.method == 'POST':
         response_data = {}
-        valid_protocols = ['//', 'http://', 'https://']
         file = request.FILES['file']
-        file_prefix = request.POST.get('file_prefix')
+        file_prefix = request.user.username + '/'
         protocol = request.POST.get('protocol')
+        extension_groupname = request.POST.get('extension_groupname')
+        s3 = AmazonS3Helper()
 
         if file_prefix is None:
             file_prefix = ''
 
-        if protocol not in valid_protocols:
+        if protocol not in s3.valid_protocols:
             protocol = '//'
 
         if file is None:
             response_data['error'] = 'File not set.'
         else:
-            # Create a unique filename (so we don't accidentally overwrite an
-            # existing file)
-            filename, file_extension = os.path.splitext(file.name)
-            filename_unique = filename \
-                + '_'  \
-                + str(datetime.now().strftime('%Y%m%d%H%M%S')) \
-                + file_extension
+            try:
+                k = s3.upload_file(
+                    file=file,
+                    file_prefix=file_prefix,
+                    unique=True,
+                    extension_groupname=extension_groupname
+                )
+            except AmazonS3Helper.KeyCreateError, e:
+                response_data['error'] = 'Failed to upload file.'
 
-            # Connect and find the bucket
-            conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-            bucket = conn.get_bucket(settings.S3_BUCKET)
-
-            # Create a new key for the new object and upload it
-            k = Key(bucket)
-            k.key = settings.S3_BASE_KEY_PATH + file_prefix + filename_unique
-            k.set_contents_from_file(fp=file, policy='public-read')
-
-            url = k.generate_url(0, query_auth=False, force_http=True)
+            try:
+                url = k.generate_url(0, query_auth=False, force_http=True)
+            except Exception, e:
+                response_data['error'] = 'Failed to generate url for file.'
 
             if url:
                 if protocol != 'http://':
                     url = url.replace('http://', protocol)
-
                 response_data['link'] = url
-            else:
-                response_data['error'] = 'File URL from S3 could not be returned.'
 
-        return HttpResponse(json.dumps(response_data), mimetype='application/json')
+        return HttpResponse(
+            json.dumps(response_data),
+            mimetype='application/json'
+        )
     else:
         return HttpResponseForbidden()
 
 
-def s3_get_files(request):
+def s3_get_user_files(request):
     """
-    Returns json array of files in S3.
-
-    prefix:  specifies a subdirectory in settings.S3_BUCKET.
-    valid_extensions:  array of valid file extensions; passing this in will
-    only return files of those types listed.
+    Returns json array of a user's files' urls in S3 bucket.
     """
     if request.method == 'GET':
-        response_data = []
-        valid_protocols = ['//', 'http://', 'https://']
-        file_prefix = request.GET.get('file_prefix')
+        response_data = {}
         protocol = request.GET.get('protocol')
-        valid_extensions = request.GET.getlist('valid_extensions')
+        file_prefix = request.user.username + '/'
+        extension_groupname = request.GET.get('extension_groupname')
+        s3 = AmazonS3Helper()
 
-        if file_prefix is None:
-            file_prefix = ''
+        if protocol not in s3.valid_protocols:
+            protocol = 'http://'
 
-        if protocol not in valid_protocols:
-            protocol = '//'
+        try:
+            key_list = s3.get_file_list(file_prefix, extension_groupname)
+            url_list = []
 
-        # Connect and find the bucket
-        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-        bucket = conn.get_bucket(settings.S3_BUCKET)
-
-        for k in bucket.list(prefix=settings.S3_BASE_KEY_PATH + file_prefix):
-            filename, file_extension = os.path.splitext(k.name)
-
-            # Determine if the file extension is valid
-            is_valid = False
-            if file_extension != '':
-                if not valid_extensions or valid_extensions == ['']:
-                    is_valid = True
-                elif valid_extensions and file_extension in valid_extensions:
-                    is_valid = True
-
-            if is_valid:
+            for k in key_list:
                 url = k.generate_url(0, query_auth=False, force_http=True)
 
                 if url:
                     if protocol != 'http://':
                         url = url.replace('http://', protocol)
 
-                    response_data.append(url)
+                    url_list.append(url)
 
-        return HttpResponse(json.dumps(response_data), mimetype='application/json')
+            response_data = url_list
+        except AmazonS3Helper.KeylistFetchError, e:
+            response_data['error'] = 'Failed to retrieve user file list.'
+
+        return HttpResponse(
+            json.dumps(response_data),
+            mimetype='application/json'
+        )
     else:
         return HttpResponseForbidden()
 
 
-def s3_delete_file(request):
+def s3_delete_user_file(request):
     """
-    Deletes a file from Amazon S3.
+    Deletes a file from Amazon S3 by its url.
 
     Returns json containing success message ( {message: '...'} ) or error
     message ( {error: '...'} ).
@@ -1092,27 +1079,29 @@ def s3_delete_file(request):
     """
     if request.method == 'POST':
         response_data = {}
-        file_prefix = request.POST.get('file_prefix')
+        file_prefix = request.user.username + '/'
         file_src = request.POST.get('src')  # url of file
+        s3 = AmazonS3Helper()
 
         if file_src is None:
             response_data['error'] = 'No file source set.'
         else:
-            # Connect and find the bucket
-            conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-            bucket = conn.get_bucket(settings.S3_BUCKET)
-
             # Get the filename from file_src url
             filename = os.path.basename(urlparse.urlsplit(file_src).path)
 
-            # Find the existing key in the bucket
-            k = bucket.get_key(settings.S3_BASE_KEY_PATH + file_prefix + filename, validate=True)
-            if k is None:
-                response_data['error'] = 'File could not be deleted: file does not exist.'
-            else:
-                k = bucket.delete_key(k)
-                response_data['message'] = 'File successfully deleted.'
+            keyname = s3.base_key_path + file_prefix + filename
 
-        return HttpResponse(json.dumps(response_data), mimetype='application/json')
+            try:
+                k = s3.delete_file(keyname)
+                response_data['message'] = 'File successfully deleted.'
+            except AmazonS3Helper.InvalidKeyError, e:
+                response_data['error'] = str(e)
+            except AmazonS3Helper.KeyDeleteError, e:
+                response_data['error'] = 'Failed to delete file.'
+
+        return HttpResponse(
+            json.dumps(response_data),
+            mimetype='application/json'
+        )
     else:
-       return HttpResponseForbidden()
+        return HttpResponseForbidden()

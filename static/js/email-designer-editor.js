@@ -1,5 +1,5 @@
 // Enables all editing functionality.
-function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
+function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extension_groupname) {
   $('.pm-template-editable-single').editable({
     allowedTags: ['a', 'b', 'em', 'i', 's', 'strong', 'span', 'u'],
     buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
@@ -18,20 +18,16 @@ function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
     defaultImageWidth: 0,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
     imageDeleteURL: file_delete_url,
-    imageDeleteParams: {
-      file_prefix: file_prefix
-    },
     imagesLoadParams: {
-      file_prefix: file_prefix,
-      protocol: '//',
-      valid_extensions: ['.jpg', '.jpeg', '.png', '.gif']
+      extension_groupname: extension_groupname,
+      protocol: '//'
     },
     imagesLoadURL: file_get_url,
     imageMove: false,
     imageUpload: true,
     imageUploadParam: 'file',
     imageUploadParams: {
-      file_prefix: file_prefix,
+      extension_groupname: extension_groupname,
       protocol: '//'
     },
     imageUploadURL: file_upload_url,
@@ -67,20 +63,16 @@ function pmDesignerEnable(file_prefix, file_upload_url, file_get_url) {
     inlineMode: true,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
     imageDeleteURL: file_delete_url,
-    imageDeleteParams: {
-      file_prefix: file_prefix
-    },
     imagesLoadParams: {
-      file_prefix: file_prefix,
-      protocol: '//',
-      valid_extensions: ['.jpg', '.jpeg', '.png', '.gif']
+      extension_groupname: extension_groupname,
+      protocol: '//'
     },
     imagesLoadURL: file_get_url,
     imageMove: false,
     imageUpload: true,
     imageUploadParam: 'file',
     imageUploadParams: {
-      file_prefix: file_prefix,
+      extension_groupname: extension_groupname,
       protocol: '//'
     },
     imageUploadURL: file_upload_url,
@@ -185,9 +177,9 @@ function pmDesignerParagraphFontFamily() {
 }
 
 
-function pmDesignerInit(file_prefix, file_upload_url, file_get_url) {
+function pmDesignerInit(file_upload_url, file_get_url, file_delete_url, extension_groupname) {
   $(window).on('load', function() {
-    pmDesignerEnable(file_prefix, file_upload_url, file_get_url);
+    pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extension_groupname);
   });
   $(window).on('load resize', pmDesignerResponsiveParagraphs);
 }
