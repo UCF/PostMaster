@@ -332,7 +332,7 @@ class AmazonS3Helper:
 
         return extensions
 
-    def get_file_list(self, file_prefix, return_extension_groupname):
+    def get_file_list(self, file_prefix='', return_extension_groupname=None):
         """
         Returns a list of key objects in self.bucket (optionally prefixed by
         file_prefix arg).
@@ -377,7 +377,7 @@ class AmazonS3Helper:
 
         return file_list
 
-    def upload_file(self, file, file_prefix, unique, extension_groupname):
+    def upload_file(self, file, file_prefix='', unique=True, extension_groupname=None):
         """
         Uploads a file to S3 and returns its key (optionally prefixed by
         file_prefix arg).
