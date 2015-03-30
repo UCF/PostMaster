@@ -603,7 +603,7 @@ class Email(models.Model):
                             if settings.SANDBOX_TESTING:
                                 amazon.sendmail(real_from, 'success@simulator.amazonses.com', msg.as_string())
                             else:
-                                amazon.sendmail(real_from, recipient_details.recipient.email_address), msg.as_string())
+                                amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
                         except smtplib.SMTPResponseException, e:
                             if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
                                 recipient_details_queue.put(recipient_details)
