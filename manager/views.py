@@ -1009,6 +1009,8 @@ def s3_upload_user_file(request):
                 )
             except AmazonS3Helper.KeyCreateError, e:
                 response_data['error'] = 'Failed to upload file.'
+            except PermissionDenied:
+                response_data['error'] = 'Cannot upload this type of file.'
 
             try:
                 url = k.generate_url(0, query_auth=False, force_http=True)
