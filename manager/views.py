@@ -358,7 +358,7 @@ class EmailDesignView(TemplateView):
         context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
         context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
         context['froala_license'] = settings.FROALA_EDITOR_LICENSE
-        context['valid_extension_groupname'] = 'image'
+        context['valid_image_groupname'] = 'image'
         return context
 
 
