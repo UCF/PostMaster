@@ -386,8 +386,8 @@ class AmazonS3Helper:
             raise AmazonS3Helper.KeylistFetchError(e)
 
         if file_list_unfiltered:
-            for k in file_list_unfiltered:
-                filename, file_extension = os.path.splitext(k.name)
+            for keyobj in file_list_unfiltered:
+                filename, file_extension = os.path.splitext(keyobj.name)
 
                 # Determine if the file extension is valid
                 is_valid = False
@@ -398,7 +398,7 @@ class AmazonS3Helper:
                         is_valid = True
 
                 if is_valid:
-                    file_list.append(k)
+                    file_list.append(keyobj)
 
         return file_list
 
@@ -410,7 +410,7 @@ class AmazonS3Helper:
         Setting unique=True appends a timestamp to the filename to prevent
         overwriting existing files.
         """
-        k = None
+        keyobj = None
 
         if file_prefix is None:
             file_prefix = ''
@@ -444,13 +444,13 @@ class AmazonS3Helper:
             try:
                 # Create a new key for the new object and upload it
                 keyname = self.base_key_path + file_prefix + filename
-                k = Key(self.bucket)
-                k.key = keyname
-                k.set_contents_from_file(fp=file, policy='public-read')
+                keyobj = Key(self.bucket)
+                keyobj.key = keyname
+                keyobj.set_contents_from_file(fp=file, policy='public-read')
             except Exception, e:
                 raise AmazonS3Helper.KeyCreateError(e)
 
-        return k
+        return keyobj
 
     def delete_file(self, keyname):
         """
@@ -458,11 +458,11 @@ class AmazonS3Helper:
         """
         # Find the existing key in the bucket
         try:
-            k = self.bucket.get_key(keyname, validate=True)
+            keyobj = self.bucket.get_key(keyname, validate=True)
         except Exception, e:
             raise AmazonS3Helper.KeyFetchError(e)
 
-        if k is None:
+        if keyobj is None:
             raise AmazonS3Helper.InvalidKeyError(
                 'AmazonS3Helper could not be delete file: file does not exist.'
                 ' Keyname: %s',
@@ -470,7 +470,7 @@ class AmazonS3Helper:
             )
         else:
             try:
-                k = self.bucket.delete_key(k)
+                keyobj = self.bucket.delete_key(keyobj)
             except Exception, e:
                 raise AmazonS3Helper.KeyDeleteError(e)
-        return k
+        return keyobj

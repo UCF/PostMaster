@@ -1001,7 +1001,7 @@ def s3_upload_user_file(request):
             response_data['error'] = 'File not set.'
         else:
             try:
-                k = s3.upload_file(
+                keyobj = s3.upload_file(
                     file=file,
                     file_prefix=file_prefix,
                     unique=True,
@@ -1013,7 +1013,7 @@ def s3_upload_user_file(request):
                 response_data['error'] = 'Cannot upload this type of file.'
 
             try:
-                url = k.generate_url(0, query_auth=False, force_http=True)
+                url = keyobj.generate_url(0, query_auth=False, force_http=True)
                 url = s3.convert_key_url_sslsafe(url)
             except Exception, e:
                 response_data['error'] = 'Failed to generate url for file.'
@@ -1049,8 +1049,8 @@ def s3_get_user_files(request):
             key_list = s3.get_file_list(file_prefix, extension_groupname)
             url_list = []
 
-            for k in key_list:
-                url = k.generate_url(0, query_auth=False, force_http=True)
+            for keyobj in key_list:
+                url = keyobj.generate_url(0, query_auth=False, force_http=True)
                 url = s3.convert_key_url_sslsafe(url)
 
                 if url:
@@ -1096,7 +1096,7 @@ def s3_delete_user_file(request):
             keyname = s3.base_key_path + file_prefix + filename
 
             try:
-                k = s3.delete_file(keyname)
+                keyobj = s3.delete_file(keyname)
                 response_data['message'] = 'File successfully deleted.'
             except AmazonS3Helper.InvalidKeyError, e:
                 response_data['error'] = str(e)
