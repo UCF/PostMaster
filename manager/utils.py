@@ -7,6 +7,7 @@ import os
 import re
 import smtplib
 import urllib
+import urlparse
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -341,9 +342,18 @@ class AmazonS3Helper:
         """
         if url:
             bucket_name = settings.AMAZON_S3['bucket']
-            bucket_subdomain = bucket_name + '.'
-            bucket_path = bucket_name + '/' + self.base_key_path
-            url = url.replace(bucket_subdomain, '', 1).replace(self.base_key_path, bucket_path, 1)
+            url_parsed = urlparse.urlsplit(url)
+
+            scheme = url_parsed.scheme
+            hostname = url_parsed.hostname.replace(bucket_name + '.', '', 1)
+            path = bucket_name + url_parsed.path
+            query = url_parsed.query
+            fragment = url_parsed.fragment
+
+            url = urlparse.urlunsplit(
+                (scheme, hostname, path, query, fragment)
+            )
+
         return url
 
 
