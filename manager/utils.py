@@ -332,6 +332,21 @@ class AmazonS3Helper:
 
         return extensions
 
+    def convert_key_url_sslsafe(self, url):
+        """
+        Returns an ssl-friendly url for a key.  Buckets containing periods
+        cause insecure response errors within urls generated via
+        keyobj.generate_url(); see:
+        http://shlomoswidler.com/2009/08/amazon-s3-gotcha-using-virtual-host.html
+        """
+        if url:
+            bucket_name = settings.AMAZON_S3['bucket']
+            bucket_subdomain = bucket_name + '.'
+            bucket_path = bucket_name + '/' + self.base_key_path
+            url = url.replace(bucket_subdomain, '', 1).replace(self.base_key_path, bucket_path, 1)
+        return url
+
+
     def get_file_list(self, file_prefix='', return_extension_groupname=None):
         """
         Returns a list of key objects in self.bucket (optionally prefixed by
