@@ -143,10 +143,77 @@ function generateMarkup() {
 }
 
 
-function init() {
-  var $templateSelect = $('#template-select');
-  var currentTemplate = '';
-  var currentTemplateVal = '';
+// Retrieve existing snapshots
+function getExistingSnapshots(getSnapshotsURL, $snapshotList, $snapshotListItemMarkup) {
+  // Clear existing value
+  $snapshotList.html('');
+
+  $.ajax({
+    cache: false,
+    data: {
+      extension_groupname: 'html',
+      protocol: '//'
+    },
+    dataType: 'json',
+    method: 'GET',
+    url: getSnapshotsURL
+  }).done(function(data) {
+    if (data.length > 0) {
+      count = 0;
+      $.each(data, function(index, snapshotURL) {
+        // Check specifically for snapshots
+        if (snapshotURL.substring(snapshotURL.length - 14) == '.snapshot.html') {
+          $listItem = $snapshotListItemMarkup.clone();
+          $listItem
+            .find('input[type="radio"]')
+              .val(snapshotURL)
+              .end()
+            .find('.snapshot-list-item-name')
+              .text(snapshotURL);
+          $snapshotList.append($listItem);
+          count++;
+        }
+      });
+      if (count === 0) {
+        $snapshotList.html('No snapshots found.');
+      }
+    }
+    else {
+      $snapshotList.html('No snapshots found.');
+    }
+  });
+}
+
+
+// Loads a snapshot from the snapshot select modal form
+function loadSnapshot($snapshotList, $snapshotByURL) {
+  snapshotURL = '';
+  snapshotListVal = $snapshotList.find('input[type="radio"]:checked').val();
+  snapshotByURLVal = $snapshotByURL.val();
+
+  if (snapshotListVal) {
+    snapshotURL = snapshotListVal;
+  }
+  else if (snapshotByURLVal) {
+    snapshotURL = snapshotByURLVal;
+  }
+
+  // Ensure returned url is protocol relative
+  snapshotURL = snapshotURL.replace(/^https?:\/\//, '//');
+
+  loadTemplate(snapshotURL);
+}
+
+
+function init(getSnapshotsURL) {
+  // TODO: clean up
+  var $templateSelect = $('#template-select'),
+      $snapshotModal = $('#load-snapshot-modal'),
+      $snapshotList = $snapshotModal.find('#load-snapshot-list'),
+      $snapshotByURL = $snapshotModal.find('#load-snapshot-urlfield'),
+      $snapshotListItemMarkup = $snapshotList.find('.snapshot-wrapper').detach().first(),
+      currentTemplate = '',
+      currentTemplateVal = '';
 
   // Load the current template (if the browser has cached a selection)
   $(window).on('load', function() {
@@ -180,7 +247,15 @@ function init() {
 
   // Generate email markup from editor when Generate Markup btn is clicked
   $('#generate-markup').on('click', generateMarkup);
+
+  // Fetch and render a list of existing snapshots when Load Snapshot modal is
+  // toggled
+  $('#load-snapshot-modal').on('show.bs.modal', function() {
+    getExistingSnapshots(getSnapshotsURL, $snapshotList, $snapshotListItemMarkup);
+  });
+
+  // Load snapshot when Load Snapshot btn is clicked
+  $('#load-snapshot').on('click', function() {
+    loadSnapshot($snapshotList, $snapshotByURL);
+  });
 }
-
-
-init();

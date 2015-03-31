@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
-	{{ block.super }}
-	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-	<li class="active">
-		<a href="{% url manager-email-design %}">Design</a>
-	</li>
+  {{ block.super }}
+  <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+  <li class="active">
+    <a href="{% url manager-email-design %}">Design</a>
+  </li>
 {% endblock %}
 
 {% block page-body %}
@@ -21,6 +21,7 @@
             <option value="{{ email_templates_url }}{{ template }}">{{ template }}</option>
           {% endfor %}
         </select>
+        <button class="btn btn-default" data-toggle="modal" data-target="#load-snapshot-modal">Load Snapshot</button>
       </div>
     </div>
   </div>
@@ -69,6 +70,39 @@
   </div>
 </div>
 
+<!-- Modal for loading a snapshot -->
+<div class="modal fade" id="load-snapshot-modal" role="dialog" tabindex="-1" aria-labelledby="load-snapshot-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="load-snapshot-modal-label">Load Snapshot</h4>
+      </div>
+      <div class="modal-body">
+        <p>Select an existing snapshot, or paste a URL into the field below.</p>
+        <div id="load-snapshot-list">
+          <div class="snapshot-wrapper">
+            <label>
+              <input type="radio" name="snapshot-list-item" value="">
+              <span class="snapshot-list-item-name"></span>
+            </label>
+          </div>
+        </div>
+        <div class="form-inline">
+          <div class="form-group">
+          <label for="load-snapshot-urlfield">Snapshot by URL:</label>
+            <input class="form-control" type="text" id="load-snapshot-urlfield" placeholder="Enter a snapshot url here..." />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="load-snapshot" data-dismiss="modal">Load Snapshot</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!--
 Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
@@ -85,12 +119,12 @@ These are injected into the email template markup when loadEditor() is called.
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/email-designer-editor.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
-    var file_upload_url = '{% url manager-file-upload %}',
-        file_get_url = '{% url manager-files-get %}',
-        file_delete_url = '{% url manager-file-delete %}',
-        img_extension_groupname = '{{ valid_image_groupname }}';
+    var fileUploadURL = '{% url manager-file-upload %}',
+        fileGetURL = '{% url manager-files-get %}',
+        fileDeleteURL = '{% url manager-file-delete %}',
+        imgExtensionGroupname = '{{ valid_image_groupname }}';
 
-    pmDesignerInit(file_upload_url, file_get_url, file_delete_url, img_extension_groupname);
+    pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL, imgExtensionGroupname);
   </script>
 </textarea>
 
@@ -99,4 +133,10 @@ These are injected into the email template markup when loadEditor() is called.
 {% block javascript-footer %}
   {{ block.super }}
   <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
+  <script>
+    // TODO cleanup
+    var getSnapshotsURL = '{% url manager-files-get %}';
+
+    init(getSnapshotsURL);
+  </script>
 {% endblock %}
