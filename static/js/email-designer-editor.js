@@ -20,7 +20,7 @@ function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extens
     imageDeleteURL: file_delete_url,
     imagesLoadParams: {
       extension_groupname: extension_groupname,
-      protocol: 'https://'
+      protocol: '//'
     },
     imagesLoadURL: file_get_url,
     imageMove: false,
@@ -28,7 +28,7 @@ function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extens
     imageUploadParam: 'file',
     imageUploadParams: {
       extension_groupname: extension_groupname,
-      protocol: 'https://'
+      protocol: '//'
     },
     imageUploadURL: file_upload_url,
     inlineMode: true,
@@ -65,7 +65,7 @@ function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extens
     imageDeleteURL: file_delete_url,
     imagesLoadParams: {
       extension_groupname: extension_groupname,
-      protocol: 'https://'
+      protocol: '//'
     },
     imagesLoadURL: file_get_url,
     imageMove: false,
@@ -73,7 +73,7 @@ function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extens
     imageUploadParam: 'file',
     imageUploadParams: {
       extension_groupname: extension_groupname,
-      protocol: 'https://'
+      protocol: '//'
     },
     imageUploadURL: file_upload_url,
     mediaManager: true,
