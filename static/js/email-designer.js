@@ -121,7 +121,9 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
 
 
 // Retrieve existing snapshots
-function getExistingSnapshots(getSnapshotsURL, $snapshotList, $snapshotListItemMarkup) {
+function getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup) {
+  var $snapshotList = $('#load-snapshot-list');
+
   // Clear existing value
   $snapshotList.html('');
 
@@ -134,39 +136,44 @@ function getExistingSnapshots(getSnapshotsURL, $snapshotList, $snapshotListItemM
     dataType: 'json',
     method: 'GET',
     url: getSnapshotsURL
-  }).done(function(data) {
-    if (data.length > 0) {
-      count = 0;
-      $.each(data, function(index, snapshotURL) {
-        // Check specifically for snapshots
-        if (snapshotURL.substring(snapshotURL.length - 14) == '.snapshot.html') {
-          $listItem = $snapshotListItemMarkup.clone();
-          $listItem
-            .find('input[type="radio"]')
-              .val(snapshotURL)
-              .end()
-            .find('.snapshot-list-item-name')
-              .text(snapshotURL);
-          $snapshotList.append($listItem);
-          count++;
+  })
+    .done(function(data) {
+      if (data.length > 0) {
+        count = 0;
+        $.each(data, function(index, snapshotURL) {
+          // Check specifically for snapshots
+          if (snapshotURL.substring(snapshotURL.length - 14) == '.snapshot.html') {
+            $listItem = $snapshotListItemMarkup.clone();
+            $listItem
+              .find('input[type="radio"]')
+                .val(snapshotURL)
+                .end()
+              .find('.snapshot-list-item-name')
+                .text(snapshotURL);
+            $snapshotList.append($listItem);
+            count++;
+          }
+        });
+        if (count === 0) {
+          $snapshotList.html('No snapshots found.');
         }
-      });
-      if (count === 0) {
+      }
+      else {
         $snapshotList.html('No snapshots found.');
       }
-    }
-    else {
-      $snapshotList.html('No snapshots found.');
-    }
-  });
+    })
+    .fail(function() {
+      $snapshotList.html('Could not load snapshot list.  Please try again later.');
+    });
 }
 
 
 // Loads a snapshot from the snapshot select modal form
-function loadSnapshot($snapshotList, $snapshotByURL) {
-  snapshotURL = '';
-  snapshotListVal = $snapshotList.find('input[type="radio"]:checked').val();
-  snapshotByURLVal = $snapshotByURL.val();
+function loadSnapshot() {
+  var snapshotURL = '',
+      $snapshotByURL = $('#load-snapshot-urlfield'),
+      snapshotListVal = $('#load-snapshot-list').find('input[type="radio"]:checked').val(),
+      snapshotByURLVal = $snapshotByURL.val();
 
   if (snapshotListVal) {
     snapshotURL = snapshotListVal;
@@ -310,12 +317,8 @@ function saveSnapshot(saveSnapshotURL) {
 
 
 function init(getSnapshotsURL, saveSnapshotURL) {
-  // TODO: clean up
   var $templateSelect = $('#template-select'),
-      $snapshotModal = $('#load-snapshot-modal'),
-      $snapshotList = $snapshotModal.find('#load-snapshot-list'),
-      $snapshotByURL = $snapshotModal.find('#load-snapshot-urlfield'),
-      $snapshotListItemMarkup = $snapshotList.find('.snapshot-wrapper').detach().first(),
+      $snapshotListItemMarkup = $('#load-snapshot-list').find('.snapshot-wrapper').detach().first(),
       currentTemplate = '',
       currentTemplateVal = '';
 
@@ -341,7 +344,6 @@ function init(getSnapshotsURL, saveSnapshotURL) {
   $templateSelect.on('change', function() {
     var newTemplateVal = $(this).val();
 
-    // if (currentTemplateVal !== '') {
     if (window.confirm('Are you sure you want to switch templates? You will lose all changes made in the editor.')) {
       currentTemplateVal = newTemplateVal;
       currentTemplate = $(this).find('option:selected').text();
@@ -355,13 +357,11 @@ function init(getSnapshotsURL, saveSnapshotURL) {
   // Fetch and render a list of existing snapshots when Load Snapshot modal is
   // toggled
   $('#load-snapshot-modal').on('show.bs.modal', function() {
-    getExistingSnapshots(getSnapshotsURL, $snapshotList, $snapshotListItemMarkup);
+    getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup);
   });
 
   // Load snapshot when Load Snapshot btn is clicked
-  $('#load-snapshot').on('click', function() {
-    loadSnapshot($snapshotList, $snapshotByURL);
-  });
+  $('#load-snapshot').on('click', loadSnapshot);
 
   $('#save-changes').on('click', function() {
     saveSnapshot(saveSnapshotURL);
