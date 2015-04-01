@@ -202,7 +202,6 @@ These are injected into the email template markup when loadEditor() is called.
   {{ block.super }}
   <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
   <script>
-    // TODO cleanup
     var getSnapshotsURL = '{% url manager-files-get %}';
     var saveSnapshotURL = '{% url manager-file-upload %}';
 
