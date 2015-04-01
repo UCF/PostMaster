@@ -46,8 +46,8 @@
 </div>
 
 <!-- Button that saves markup and its snapshot -->
-<button class="btn btn-lg btn-primary" id="save-changes" data-toggle="modal" data-target="#save-changes-modal">
-  <span class="glyphicon glyphicon-download"></span> Save Changes
+<button class="btn btn-lg btn-primary" id="pre-save-changes" data-toggle="modal" data-target="#pre-save-changes-modal">
+  <span class="glyphicon glyphicon-floppy-save"></span> Save Changes
 </button>
 
 <!-- Modal for generating email markup -->
@@ -80,6 +80,7 @@
       </div>
       <div class="modal-body">
         <p>Select an existing snapshot, or paste a URL into the field below.</p>
+        <p class="text-warning">You will lose any unsaved changes after clicking the "Load Snapshot" button.</p>
         <div id="load-snapshot-list">
           <div class="snapshot-wrapper">
             <label>
@@ -103,18 +104,65 @@
   </div>
 </div>
 
-<!-- Modal for save changes -->
+<!-- Modal for pre-save changes -->
+<div class="modal fade" id="pre-save-changes-modal" role="dialog" tabindex="-1" aria-labelledby="pre-save-changes-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="pre-save-changes-modal-label">Save Your Changes</h4>
+      </div>
+      <div class="modal-body">
+        <p>Pick a name for your generated markup files.  File names should contain <strong>letters, numbers, dashes and/or underscores</strong>, and should be no more than 100 characters long.</p>
+        <p>Note that, if a file with the name you pick already exists, it will be overwritten.</p>
+        <div class="form-inline">
+          <div class="form-group">
+            <label class="sr-only" for="save-email-name">File name</label>
+            <input type="text" class="form-control" id="save-email-name" value="my-custom-email" />
+            <div class="form-control-static text-muted">.html</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="save-changes" data-dismiss="modal" data-toggle="modal" data-target="#save-changes-modal">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for post-save changes -->
 <div class="modal fade" id="save-changes-modal" role="dialog" tabindex="-1" aria-labelledby="save-changes-modal-label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="save-changes-modal-label">Changes Saved</h4>
+        <h4 class="modal-title save-changes-inprogress" id="save-changes-modal-label">Saving...</h4>
+        <h4 class="modal-title save-changes-success hidden" id="save-changes-modal-label">Changes Saved</h4>
+        <h4 class="modal-title save-changes-failure hidden" id="save-changes-modal-label">Failed to Save Changes</h4>
       </div>
-      <div class="modal-body">
-        <p>Your changes have been saved.  The public URL below contains markup for your email, which can be used in a live send.  The snapshot URL can be sent to others to allow them to make their own changes.  Their changes will not overwrite anything you've done so far.</p>
+      <div class="modal-body save-changes-inprogress">
+        <img class="ajax-loader center-block" src="{{ MEDIA_URL }}/img/ajax-loader.gif" />
+        <div class="alert alert-info" role="alert">
+          <p>Saving your changes...</p>
+        </div>
+      </div>
+      <div class="modal-body save-changes-success hidden">
+        <div class="alert alert-success" role="alert">
+          <p>Your changes have been saved.</p>
+        </div>
+        <p>
+          The live URL below contains markup for your email, which can be used in a live send.  The snapshot URL can be sent to others to allow them to make their own changes.  Their changes will not overwrite anything you've done so far.
+        </p>
+        <strong>Live URL:</strong>
         <p id="saved-live-url"></p>
+        <strong>Snapshot URL:</strong>
         <p id="saved-snapshot-url"></p>
+      </div>
+      <div class="modal-body save-changes-failure hidden">
+        <div class="alert alert-danger" role="alert">
+          <p>Something went wrong when trying to save changes.  Please try again later.</p>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

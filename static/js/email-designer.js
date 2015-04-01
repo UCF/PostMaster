@@ -38,11 +38,11 @@ function loadEditor(template) {
   doc.close();
 
   if (template === '') {
-    // Disable markup generator if editor window is empty
-    $('#generate-markup').attr('disabled', 'disabled');
+    // Disable save changes btn if editor window is empty
+    $('#pre-save-changes').attr('disabled', 'disabled');
   }
   else {
-    $('#generate-markup').removeAttr('disabled');
+    $('#pre-save-changes').removeAttr('disabled');
   }
 }
 
@@ -174,6 +174,9 @@ function loadSnapshot($snapshotList, $snapshotByURL) {
   snapshotURL = snapshotURL.replace(/^https?:\/\//, '//');
 
   loadTemplate(snapshotURL);
+
+  // Reset template dropdown
+  $('#template-select').val('');
 }
 
 
@@ -233,48 +236,71 @@ function getLiveHTMLMarkup() {
 }
 
 
+// Cleans a string suitable for use as a filename
+function cleanFilename(filename) {
+  return $.trim(filename).replace(/[^a-z0-9-_]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
+}
+
+
 // Saves a snapshot to s3.  NOTE: FormData not compatible with IE<10
-// (TODO: set filename and contents from editor)
 function saveSnapshot(saveSnapshotURL) {
-  var liveHTMLFormData = new FormData(),
+  var filename = cleanFilename($('#save-email-name').val()),
+      liveHTMLFormData = new FormData(),
       snapshotFormData = new FormData(),
       liveHTML = getLiveHTMLMarkup(),
       snapshot = getSnapshotMarkup(),
       liveHTMLBlob = new Blob([liveHTML], {type: 'text/html'}),
       snapshotBlob = new Blob([snapshot], {type: 'text/html'});
   // TODO can this be cleaned up?
-  liveHTMLFormData.append('file', liveHTMLBlob, 'myfilename.html');
+  liveHTMLFormData.append('file', liveHTMLBlob, filename + '.html');
   liveHTMLFormData.append('extension_groupname', 'html');
   liveHTMLFormData.append('protocol', 'http://');
-  snapshotFormData.append('file', snapshotBlob, 'myfilename.snapshot.html');
+  snapshotFormData.append('file', snapshotBlob, filename + '.snapshot.html');
   snapshotFormData.append('extension_groupname', 'html');
   snapshotFormData.append('protocol', 'http://');
 
   // Could probably combine these ajax calls into a single request,
   // but it'd require a new view to handle multiple files
-  $.ajax({
-    cache: false,
-    contentType: false,
-    data: liveHTMLFormData,
-    dataType: 'json',
-    method: 'POST',
-    processData: false,
-    url: saveSnapshotURL
-  }).done(function(data) {
-    $('#saved-live-url').text(data.link);
-  });
-
-  $.ajax({
-    cache: false,
-    contentType: false,
-    data: snapshotFormData,
-    dataType: 'json',
-    method: 'POST',
-    processData: false,
-    url: saveSnapshotURL
-  }).done(function(data) {
-    $('#saved-snapshot-url').text(data.link);
-  });
+  $.when(
+    $.ajax({
+      cache: false,
+      contentType: false,
+      data: liveHTMLFormData,
+      dataType: 'json',
+      method: 'POST',
+      processData: false,
+      url: saveSnapshotURL
+    }),
+    $.ajax({
+      cache: false,
+      contentType: false,
+      data: snapshotFormData,
+      dataType: 'json',
+      method: 'POST',
+      processData: false,
+      url: saveSnapshotURL
+    })
+  )
+    .done(function(liveArgs, snapshotArgs) {
+      var liveLink = liveArgs[0].link,
+          snapshotLink = snapshotArgs[0].link;
+      $('#saved-live-url').text(liveLink);
+      $('#saved-snapshot-url').text(snapshotLink);
+      $('#save-changes-modal')
+        .find('.save-changes-inprogress')
+          .addClass('hidden')
+          .end()
+        .find('.save-changes-success')
+          .removeClass('hidden');
+    })
+    .fail(function() {
+      $('#save-changes-modal')
+        .find('.save-changes-inprogress')
+          .addClass('hidden')
+          .end()
+        .find('.save-changes-failure')
+          .removeClass('hidden');
+    });
 }
 
 
@@ -288,10 +314,19 @@ function init(getSnapshotsURL, saveSnapshotURL) {
       currentTemplate = '',
       currentTemplateVal = '';
 
-  // Load the current template (if the browser has cached a selection)
+  // Load the current template
   $(window).on('load', function() {
+    // Catch a cached value from the browser
     currentTemplate = $templateSelect.find('option:selected').text();
     currentTemplateVal = $templateSelect.val();
+
+    // Force default to be whatever the 2nd option is
+    if (currentTemplateVal === '') {
+      currentTemplate = $templateSelect.find('option:nth-child(2)').text();
+      currentTemplateVal = $templateSelect.find('option:nth-child(2)').val();
+      $templateSelect.val(currentTemplateVal);
+    }
+
     loadTemplate(currentTemplateVal, true);
   });
 
@@ -301,20 +336,14 @@ function init(getSnapshotsURL, saveSnapshotURL) {
   $templateSelect.on('change', function() {
     var newTemplateVal = $(this).val();
 
-    if (currentTemplateVal !== '') {
-      if (window.confirm('Are you sure you want to switch templates? You will lose all changes made in the editor.')) {
-        currentTemplateVal = newTemplateVal;
-        currentTemplate = $(this).find('option:selected').text();
-        loadTemplate(newTemplateVal, true);
-      }
-      else {
-        $(this).val(currentTemplateVal);
-      }
-    }
-    else {
+    // if (currentTemplateVal !== '') {
+    if (window.confirm('Are you sure you want to switch templates? You will lose all changes made in the editor.')) {
       currentTemplateVal = newTemplateVal;
       currentTemplate = $(this).find('option:selected').text();
       loadTemplate(newTemplateVal, true);
+    }
+    else {
+      $(this).val(currentTemplateVal);
     }
   });
 
