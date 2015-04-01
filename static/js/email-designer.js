@@ -78,6 +78,7 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
 
   // Add inline line-height:inherit declaration to span's inside
   // .pm-template-editable-paragraph.
+  // Make all images within paragraphs responsive; strip out remaining inline css.
   // Replace all .pm-template-editable-paragraph p tags with tables
   // (<p> tags are too inconsistent across email clients.)
   $domDoc
@@ -85,6 +86,10 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
       .css('line-height', 'inherit')
       .end()
     .find('.pm-template-editable-paragraph p')
+      .find('img')
+        .addClass('responsiveimg')
+        .attr('style', '')
+        .end()
       .wrap('<table class="paragraphtable" style="width: 100%;"><tr><td class="paragraphtd" style="width: 100%; font-family: '+ pFontFamily +'; padding: '+ pPadding +'; margin: 0; line-height: '+ pLineHeight +';"></td></tr></table>')
       .contents()
       .unwrap();
