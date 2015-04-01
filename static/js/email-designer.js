@@ -1,4 +1,4 @@
-// Loads a template via ajax (stored in static media dir).
+// Loads a template (or snapshot) via ajax.
 function loadTemplate(templateSrc) {
   var template = '';
 
@@ -12,10 +12,14 @@ function loadTemplate(templateSrc) {
     dataType: 'html',
     method: 'GET',
     url: templateSrc
-  }).done(function(data) {
-    template = data;
-    loadEditor(template);
-  });
+  })
+    .done(function(data) {
+      template = data;
+      loadEditor(template);
+    })
+    .fail(function() {
+      alert('Failed to load template or snapshot.');
+    });
   return;
 }
 
@@ -168,27 +172,62 @@ function getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup) {
 }
 
 
+// Determines if a snapshot URL looks valid (came from our s3 instance).
+// This won't actually check to see if the file exists at the given location,
+// but makes sure we don't attempt to fetch something that doesn't look right
+function snapshotURLIsValid(validKeyPath, snapshotURL) {
+  var is_valid = false;
+
+  if (snapshotURL.length && validKeyPath.length) {
+    snapshotURL = $.trim(snapshotURL);
+    snapshotURL = snapshotURL.replace(/^(https?:)?\/\//, '');
+    validKeyPath = validKeyPath.replace(/^http:\/\//, ''); // http is forced, so expect it
+
+    if (
+      snapshotURL.slice(0, validKeyPath.length) == validKeyPath &&
+      snapshotURL.slice(-14) == '.snapshot.html'
+    ) {
+      is_valid = true;
+    }
+  }
+
+  return is_valid;
+}
+
+
 // Loads a snapshot from the snapshot select modal form
-function loadSnapshot() {
+function loadSnapshot(validKeyPath) {
   var snapshotURL = '',
       $snapshotByURL = $('#load-snapshot-urlfield'),
       snapshotListVal = $('#load-snapshot-list').find('input[type="radio"]:checked').val(),
       snapshotByURLVal = $snapshotByURL.val();
 
-  if (snapshotListVal) {
+  if (snapshotURLIsValid(validKeyPath, snapshotListVal)) {
     snapshotURL = snapshotListVal;
   }
-  else if (snapshotByURLVal) {
+  else if (snapshotURLIsValid(validKeyPath, snapshotByURLVal)) {
     snapshotURL = snapshotByURLVal;
   }
 
-  // Ensure returned url is protocol relative
-  snapshotURL = snapshotURL.replace(/^https?:\/\//, '//');
+  if (snapshotURL) {
+    // Ensure returned url is protocol relative
+    snapshotURL = snapshotURL.replace(/^https?:\/\//, '//');
+    if (snapshotURL.slice(0, 2) !== '//') {
+      snapshotURL = '//' + snapshotURL;
+    }
 
-  loadTemplate(snapshotURL);
+    loadTemplate(snapshotURL);
 
-  // Reset template dropdown
-  $('#template-select').val('');
+    // Manually close modal--the load snapshot submit button does not do this
+    // automatically, since we need to validate first
+    $('#load-snapshot-modal').modal('hide');
+
+    // Reset template dropdown
+    $('#template-select').val('');
+  }
+  else {
+    alert('Could not load snapshot: snapshot is invalid.');
+  }
 }
 
 
@@ -263,7 +302,7 @@ function saveSnapshot(saveSnapshotURL) {
       snapshot = getSnapshotMarkup(),
       liveHTMLBlob = new Blob([liveHTML], {type: 'text/html'}),
       snapshotBlob = new Blob([snapshot], {type: 'text/html'});
-  // TODO can this be cleaned up?
+
   liveHTMLFormData.append('file', liveHTMLBlob, filename + '.html');
   liveHTMLFormData.append('extension_groupname', 'html');
   liveHTMLFormData.append('protocol', 'http://');
@@ -316,7 +355,7 @@ function saveSnapshot(saveSnapshotURL) {
 }
 
 
-function init(getSnapshotsURL, saveSnapshotURL) {
+function init(getSnapshotsURL, saveSnapshotURL, validKeyPath) {
   var $templateSelect = $('#template-select'),
       $snapshotListItemMarkup = $('#load-snapshot-list').find('.snapshot-wrapper').detach().first(),
       currentTemplate = '',
@@ -361,7 +400,9 @@ function init(getSnapshotsURL, saveSnapshotURL) {
   });
 
   // Load snapshot when Load Snapshot btn is clicked
-  $('#load-snapshot').on('click', loadSnapshot);
+  $('#load-snapshot').on('click', function() {
+    loadSnapshot(validKeyPath);
+  });
 
   $('#save-changes').on('click', function() {
     saveSnapshot(saveSnapshotURL);

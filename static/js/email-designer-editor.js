@@ -1,5 +1,5 @@
 // Enables all editing functionality.
-function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGroupname) {
+function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL) {
   $('.pm-template-editable-single').editable({
     allowedTags: ['a', 'b', 'em', 'i', 's', 'strong', 'span', 'u'],
     buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
@@ -19,7 +19,7 @@ function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGro
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
     imageDeleteURL: fileDeleteURL,
     imagesLoadParams: {
-      extension_groupname: extensionGroupname,
+      extension_groupname: 'image',
       protocol: '//'
     },
     imagesLoadURL: fileGetURL,
@@ -28,7 +28,7 @@ function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGro
     imageUploadParam: 'file',
     imageUploadParams: {
       unique: true,
-      extension_groupname: extensionGroupname,
+      extension_groupname: 'image',
       protocol: '//'
     },
     imageUploadURL: fileUploadURL,
@@ -65,7 +65,7 @@ function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGro
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
     imageDeleteURL: fileDeleteURL,
     imagesLoadParams: {
-      extension_groupname: extensionGroupname,
+      extension_groupname: 'image',
       protocol: '//'
     },
     imagesLoadURL: fileGetURL,
@@ -74,7 +74,7 @@ function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGro
     imageUploadParam: 'file',
     imageUploadParams: {
       unique: true,
-      extension_groupname: extensionGroupname,
+      extension_groupname: 'image',
       protocol: '//'
     },
     imageUploadURL: fileUploadURL,
@@ -179,9 +179,9 @@ function pmDesignerParagraphFontFamily() {
 }
 
 
-function pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL, extensionGroupname) {
+function pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL) {
   $(window).on('load', function() {
-    pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGroupname);
+    pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL);
   });
   $(window).on('load resize', pmDesignerResponsiveParagraphs);
 }

@@ -97,7 +97,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="load-snapshot" data-dismiss="modal">Load Snapshot</button>
+        <button type="button" class="btn btn-primary" id="load-snapshot">Load Snapshot</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -189,10 +189,9 @@ These are injected into the email template markup when loadEditor() is called.
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
     var fileUploadURL = '{% url manager-file-upload %}',
         fileGetURL = '{% url manager-files-get %}',
-        fileDeleteURL = '{% url manager-file-delete %}',
-        imgExtensionGroupname = '{{ valid_image_groupname }}';
+        fileDeleteURL = '{% url manager-file-delete %}';
 
-    pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL, imgExtensionGroupname);
+    pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL);
   </script>
 </textarea>
 
@@ -202,9 +201,10 @@ These are injected into the email template markup when loadEditor() is called.
   {{ block.super }}
   <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
   <script>
-    var getSnapshotsURL = '{% url manager-files-get %}';
-    var saveSnapshotURL = '{% url manager-file-upload %}';
+    var getSnapshotsURL = '{% url manager-files-get %}',
+        saveSnapshotURL = '{% url manager-file-upload %}',
+        validKeyPath = '{{ valid_key_path }}';
 
-    init(getSnapshotsURL, saveSnapshotURL);
+    init(getSnapshotsURL, saveSnapshotURL, validKeyPath);
   </script>
 {% endblock %}

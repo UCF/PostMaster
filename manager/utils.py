@@ -333,6 +333,22 @@ class AmazonS3Helper:
 
         return extensions
 
+    def get_base_key_path_url(self):
+        try:
+            keyobj = self.bucket.get_key(self.base_key_path, validate=True)
+        except Exception, e:
+            raise AmazonS3Helper.InvalidKeyError(e)
+
+        url = keyobj.generate_url(
+            0,
+            query_auth=False,
+            force_http=True
+        )
+        url = self.convert_key_url_sslsafe(url)
+
+        return url
+
+
     def convert_key_url_sslsafe(self, url):
         """
         Returns an ssl-friendly url for a key.  Buckets containing periods
