@@ -47,6 +47,14 @@ function loadEditor(template) {
 }
 
 
+// Appends a doctype to a string of markup.  Assumes the string does not
+// already contain a doctype declaration.
+function appendDoctypeToMarkup(markupString) {
+  var docType = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+  return docType + markupString;
+}
+
+
 // Returns a string containing cleaned markup suitable for sending in an email.
 // Assumes markupString does NOT contain a doctype declaration.
 function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily) {
@@ -101,45 +109,9 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
   domDoc = $domDoc[0];
 
   // We can't access the iframe's doctype when we grab its contents, so re-add it here:
-  var docType = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
-  var docMarkupClean = docType + domDoc.documentElement.outerHTML;
+  var docMarkupClean = appendDoctypeToMarkup(domDoc.documentElement.outerHTML);
 
   return docMarkupClean;
-}
-
-
-// Generate markup from iframe contents and paste it into #generated-markup
-function generateMarkup() {
-  var $markupContainer = $('#generated-markup');
-  var editorWindow = document.getElementById('editor-window').contentWindow;
-
-  // Stop here if the editor window doesn't exist (should never reach this
-  // point, but just in case)
-  if (!editorWindow) {
-    return;
-  }
-
-  // Empty the markup container
-  $markupContainer.text('');
-
-  // Destroy all active Froala editors in the iframe to remove Froala markup
-  editorWindow.pmDesignerDestroy();
-
-  // Fetch necessary css styles from the editor window for generating
-  // email-friendly markup and inline styles
-  var pPadding = editorWindow.pmDesignerParagraphPadding();
-  var pLineHeight = editorWindow.pmDesignerParagraphLineHeight();
-  var pFontFamily = editorWindow.pmDesignerParagraphFontFamily();
-
-  // Grab the editor's markup as a string and clean it
-  var docMarkup = editorWindow.document.documentElement.outerHTML;
-  var docMarkupClean = getCleanedMarkupString(docMarkup, pPadding, pLineHeight, pFontFamily);
-
-  // Add the cleaned markup to $markupContainer
-  $markupContainer.text(docMarkupClean);
-
-  // Reload the editors
-  editorWindow.pmDesignerEnable();
 }
 
 
@@ -205,13 +177,71 @@ function loadSnapshot($snapshotList, $snapshotByURL) {
 }
 
 
-// Saves a snapshot to s3.  NOTE: not compatible with IE<10
+// Returns Blob object containing markup for snapshot
+function getSnapshotMarkup() {
+  // var editorWindow = document.getElementById('editor-window').contentWindow;
+  var editorWindow = $('#editor-window')[0].contentWindow;
+
+  // Stop here if the editor window doesn't exist (should never reach this
+  // point, but just in case)
+  if (!editorWindow) {
+    return;
+  }
+
+  // Destroy all active Froala editors in the iframe to remove Froala markup
+  editorWindow.pmDesignerDestroy();
+
+  // Grab the editor's markup as a string.  Just re-add the doctype for snapshots.
+  var docMarkup = editorWindow.document.documentElement.outerHTML;
+  docMarkup = appendDoctypeToMarkup(docMarkup);
+
+  // Reload the editors
+  editorWindow.pmDesignerEnable();
+
+  return docMarkup;
+}
+
+
+// Returns Blob object containing markup for cleaned, live-ready email
+function getLiveHTMLMarkup() {
+  // var editorWindow = document.getElementById('editor-window').contentWindow;
+  var editorWindow = $('#editor-window')[0].contentWindow;
+
+  // Stop here if the editor window doesn't exist (should never reach this
+  // point, but just in case)
+  if (!editorWindow) {
+    return;
+  }
+
+  // Destroy all active Froala editors in the iframe to remove Froala markup
+  editorWindow.pmDesignerDestroy();
+
+  // Fetch necessary css styles from the editor window for generating
+  // email-friendly markup and inline styles
+  var pPadding = editorWindow.pmDesignerParagraphPadding();
+  var pLineHeight = editorWindow.pmDesignerParagraphLineHeight();
+  var pFontFamily = editorWindow.pmDesignerParagraphFontFamily();
+
+  // Grab the editor's markup as a string and clean it
+  var docMarkup = editorWindow.document.documentElement.outerHTML;
+  var docMarkupClean = getCleanedMarkupString(docMarkup, pPadding, pLineHeight, pFontFamily);
+
+  // Reload the editors
+  editorWindow.pmDesignerEnable();
+
+  return docMarkupClean;
+}
+
+
+// Saves a snapshot to s3.  NOTE: FormData not compatible with IE<10
 // (TODO: set filename and contents from editor)
 function saveSnapshot(saveSnapshotURL) {
   var liveHTMLFormData = new FormData(),
       snapshotFormData = new FormData(),
-      liveHTMLBlob = new Blob(['cleaned contents from editor window will go here'], {type: 'text/html'}),
-      snapshotBlob = new Blob(['snapshot from editor window will go here'], {type: 'text/html'});
+      liveHTML = getLiveHTMLMarkup(),
+      snapshot = getSnapshotMarkup(),
+      liveHTMLBlob = new Blob([liveHTML], {type: 'text/html'}),
+      snapshotBlob = new Blob([snapshot], {type: 'text/html'});
   // TODO can this be cleaned up?
   liveHTMLFormData.append('file', liveHTMLBlob, 'myfilename.html');
   liveHTMLFormData.append('extension_groupname', 'html');
@@ -287,9 +317,6 @@ function init(getSnapshotsURL, saveSnapshotURL) {
       loadTemplate(newTemplateVal, true);
     }
   });
-
-  // Generate email markup from editor when Generate Markup btn is clicked
-  $('#generate-markup').on('click', generateMarkup);
 
   // Fetch and render a list of existing snapshots when Load Snapshot modal is
   // toggled
