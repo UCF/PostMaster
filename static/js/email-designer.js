@@ -205,7 +205,50 @@ function loadSnapshot($snapshotList, $snapshotByURL) {
 }
 
 
-function init(getSnapshotsURL) {
+// Saves a snapshot to s3.  NOTE: not compatible with IE<10
+// (TODO: set filename and contents from editor)
+function saveSnapshot(saveSnapshotURL) {
+  var liveHTMLFormData = new FormData(),
+      snapshotFormData = new FormData(),
+      liveHTMLBlob = new Blob(['cleaned contents from editor window will go here'], {type: 'text/html'}),
+      snapshotBlob = new Blob(['snapshot from editor window will go here'], {type: 'text/html'});
+  // TODO can this be cleaned up?
+  liveHTMLFormData.append('file', liveHTMLBlob, 'myfilename.html');
+  liveHTMLFormData.append('extension_groupname', 'html');
+  liveHTMLFormData.append('protocol', 'http://');
+  snapshotFormData.append('file', snapshotBlob, 'myfilename.snapshot.html');
+  snapshotFormData.append('extension_groupname', 'html');
+  snapshotFormData.append('protocol', 'http://');
+
+  // Could probably combine these ajax calls into a single request,
+  // but it'd require a new view to handle multiple files
+  $.ajax({
+    cache: false,
+    contentType: false,
+    data: liveHTMLFormData,
+    dataType: 'json',
+    method: 'POST',
+    processData: false,
+    url: saveSnapshotURL
+  }).done(function(data) {
+    $('#saved-live-url').text(data.link);
+  });
+
+  $.ajax({
+    cache: false,
+    contentType: false,
+    data: snapshotFormData,
+    dataType: 'json',
+    method: 'POST',
+    processData: false,
+    url: saveSnapshotURL
+  }).done(function(data) {
+    $('#saved-snapshot-url').text(data.link);
+  });
+}
+
+
+function init(getSnapshotsURL, saveSnapshotURL) {
   // TODO: clean up
   var $templateSelect = $('#template-select'),
       $snapshotModal = $('#load-snapshot-modal'),
@@ -257,5 +300,9 @@ function init(getSnapshotsURL) {
   // Load snapshot when Load Snapshot btn is clicked
   $('#load-snapshot').on('click', function() {
     loadSnapshot($snapshotList, $snapshotByURL);
+  });
+
+  $('#save-changes').on('click', function() {
+    saveSnapshot(saveSnapshotURL);
   });
 }

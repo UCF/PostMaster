@@ -402,7 +402,7 @@ class AmazonS3Helper:
 
         return file_list
 
-    def upload_file(self, file, file_prefix='', unique=True, extension_groupname=None):
+    def upload_file(self, file, unique, file_prefix='', extension_groupname=None):
         """
         Uploads a file to S3 and returns its key (optionally prefixed by
         file_prefix arg).
@@ -415,17 +415,14 @@ class AmazonS3Helper:
         if file_prefix is None:
             file_prefix = ''
 
-        if unique is not True:
-            unique = False
-
         if file:
             filename, file_extension = os.path.splitext(file.name)
+
             if extension_groupname:
                 valid_extensions = self.get_extensions_by_groupname(
                     extension_groupname
                 )
-
-            if(
+            if (
                 extension_groupname is not None and
                 file_extension not in valid_extensions
             ):
@@ -434,12 +431,14 @@ class AmazonS3Helper:
 
             # Create a unique filename (so we don't accidentally overwrite an
             # existing file) if unique==True
-            if unique:
+            if unique is True:
                 filename_unique = filename \
                     + '_'  \
                     + str(datetime.now().strftime('%Y%m%d%H%M%S')) \
                     + file_extension
                 filename = filename_unique
+            else:
+                filename = file.name
 
             try:
                 # Create a new key for the new object and upload it

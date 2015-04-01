@@ -50,6 +50,11 @@
   <span class="glyphicon glyphicon-download"></span> Generate Markup
 </button>
 
+<!-- Button that saves markup and its snapshot -->
+<button class="btn btn-lg btn-primary" id="save-changes" data-toggle="modal" data-target="#save-changes-modal">
+  <span class="glyphicon glyphicon-download"></span> Save Changes
+</button>
+
 <!-- Modal for generating email markup -->
 <div class="modal fade" id="generate-markup-modal" role="dialog" tabindex="-1" aria-labelledby="generate-markup-modal-label" aria-hidden="true">
   <div class="modal-dialog">
@@ -103,6 +108,26 @@
   </div>
 </div>
 
+<!-- Modal for save changes -->
+<div class="modal fade" id="save-changes-modal" role="dialog" tabindex="-1" aria-labelledby="save-changes-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="save-changes-modal-label">Changes Saved</h4>
+      </div>
+      <div class="modal-body">
+        <p>Your changes have been saved.  The public URL below contains markup for your email, which can be used in a live send.  The snapshot URL can be sent to others to allow them to make their own changes.  Their changes will not overwrite anything you've done so far.</p>
+        <p id="saved-live-url"></p>
+        <p id="saved-snapshot-url"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!--
 Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
@@ -136,7 +161,8 @@ These are injected into the email template markup when loadEditor() is called.
   <script>
     // TODO cleanup
     var getSnapshotsURL = '{% url manager-files-get %}';
+    var saveSnapshotURL = '{% url manager-file-upload %}';
 
-    init(getSnapshotsURL);
+    init(getSnapshotsURL, saveSnapshotURL);
   </script>
 {% endblock %}

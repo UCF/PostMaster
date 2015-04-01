@@ -27,6 +27,7 @@ function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGro
     imageUpload: true,
     imageUploadParam: 'file',
     imageUploadParams: {
+      unique: true,
       extension_groupname: extensionGroupname,
       protocol: '//'
     },
@@ -72,6 +73,7 @@ function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL, extensionGro
     imageUpload: true,
     imageUploadParam: 'file',
     imageUploadParams: {
+      unique: true,
       extension_groupname: extensionGroupname,
       protocol: '//'
     },
