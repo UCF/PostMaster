@@ -148,12 +148,13 @@ function getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup) {
           // Check specifically for snapshots
           if (snapshotURL.substring(snapshotURL.length - 14) == '.snapshot.html') {
             $listItem = $snapshotListItemMarkup.clone();
+            filename = snapshotURL.substring(snapshotURL.lastIndexOf('/') + 1);
             $listItem
               .find('input[type="radio"]')
                 .val(snapshotURL)
                 .end()
               .find('.snapshot-list-item-name')
-                .text(snapshotURL);
+                .text(filename);
             $snapshotList.append($listItem);
             count++;
           }
@@ -178,7 +179,10 @@ function getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup) {
 function snapshotURLIsValid(validKeyPath, snapshotURL) {
   var is_valid = false;
 
-  if (snapshotURL.length && validKeyPath.length) {
+  if (
+    typeof snapshotURL !== 'undefined' &&
+    snapshotURL.length && validKeyPath.length
+  ) {
     snapshotURL = $.trim(snapshotURL);
     snapshotURL = snapshotURL.replace(/^(https?:)?\/\//, '');
     validKeyPath = validKeyPath.replace(/^http:\/\//, ''); // http is forced, so expect it
@@ -209,7 +213,7 @@ function loadSnapshot(validKeyPath) {
     snapshotURL = snapshotByURLVal;
   }
 
-  if (snapshotURL) {
+  if (snapshotURL !== '') {
     // Ensure returned url is protocol relative
     snapshotURL = snapshotURL.replace(/^https?:\/\//, '//');
     if (snapshotURL.slice(0, 2) !== '//') {
