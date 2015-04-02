@@ -752,6 +752,7 @@ class Email(models.Model):
         html_lock        = threading.Lock()
         for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1):
             sending_thread = SendingThread()
+            sending_thread.daemon = True
             sending_thread.start()
 
         # Block the main thread until the queue is empty
