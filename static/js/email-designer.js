@@ -1,4 +1,4 @@
-// Loads a template via ajax (stored in static media dir).
+// Loads a template (or snapshot) via ajax.
 function loadTemplate(templateSrc) {
   var template = '';
 
@@ -12,10 +12,14 @@ function loadTemplate(templateSrc) {
     dataType: 'html',
     method: 'GET',
     url: templateSrc
-  }).done(function(data) {
-    template = data;
-    loadEditor(template);
-  });
+  })
+    .done(function(data) {
+      template = data;
+      loadEditor(template);
+    })
+    .fail(function() {
+      alert('Failed to load template or snapshot.');
+    });
   return;
 }
 
@@ -38,12 +42,20 @@ function loadEditor(template) {
   doc.close();
 
   if (template === '') {
-    // Disable markup generator if editor window is empty
-    $('#generate-markup').attr('disabled', 'disabled');
+    // Disable save changes btn if editor window is empty
+    $('#pre-save-changes').attr('disabled', 'disabled');
   }
   else {
-    $('#generate-markup').removeAttr('disabled');
+    $('#pre-save-changes').removeAttr('disabled');
   }
+}
+
+
+// Appends a doctype to a string of markup.  Assumes the string does not
+// already contain a doctype declaration.
+function appendDoctypeToMarkup(markupString) {
+  var docType = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+  return docType + markupString;
 }
 
 
@@ -70,6 +82,7 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
 
   // Add inline line-height:inherit declaration to span's inside
   // .pm-template-editable-paragraph.
+  // Make all images within paragraphs responsive; strip out remaining inline css.
   // Replace all .pm-template-editable-paragraph p tags with tables
   // (<p> tags are too inconsistent across email clients.)
   $domDoc
@@ -77,6 +90,10 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
       .css('line-height', 'inherit')
       .end()
     .find('.pm-template-editable-paragraph p')
+      .find('img')
+        .addClass('responsiveimg')
+        .attr('style', '')
+        .end()
       .wrap('<table class="paragraphtable" style="width: 100%;"><tr><td class="paragraphtd" style="width: 100%; font-family: '+ pFontFamily +'; padding: '+ pPadding +'; margin: 0; line-height: '+ pLineHeight +';"></td></tr></table>')
       .contents()
       .unwrap();
@@ -101,17 +118,127 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
   domDoc = $domDoc[0];
 
   // We can't access the iframe's doctype when we grab its contents, so re-add it here:
-  var docType = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
-  var docMarkupClean = docType + domDoc.documentElement.outerHTML;
+  var docMarkupClean = appendDoctypeToMarkup(domDoc.documentElement.outerHTML);
 
   return docMarkupClean;
 }
 
 
-// Generate markup from iframe contents and paste it into #generated-markup
-function generateMarkup() {
-  var $markupContainer = $('#generated-markup');
-  var editorWindow = document.getElementById('editor-window').contentWindow;
+// Retrieve existing snapshots
+function getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup) {
+  var $snapshotList = $('#load-snapshot-list');
+
+  // Clear existing value
+  $snapshotList.html('');
+
+  $.ajax({
+    cache: false,
+    data: {
+      extension_groupname: 'html',
+      protocol: '//'
+    },
+    dataType: 'json',
+    method: 'GET',
+    url: getSnapshotsURL
+  })
+    .done(function(data) {
+      if (data.length > 0) {
+        count = 0;
+        $.each(data, function(index, snapshotURL) {
+          // Check specifically for snapshots
+          if (snapshotURL.substring(snapshotURL.length - 14) == '.snapshot.html') {
+            $listItem = $snapshotListItemMarkup.clone();
+            filename = snapshotURL.substring(snapshotURL.lastIndexOf('/') + 1);
+            $listItem
+              .find('input[type="radio"]')
+                .val(snapshotURL)
+                .end()
+              .find('.snapshot-list-item-name')
+                .text(filename);
+            $snapshotList.append($listItem);
+            count++;
+          }
+        });
+        if (count === 0) {
+          $snapshotList.html('No snapshots found.');
+        }
+      }
+      else {
+        $snapshotList.html('No snapshots found.');
+      }
+    })
+    .fail(function() {
+      $snapshotList.html('Could not load snapshot list.  Please try again later.');
+    });
+}
+
+
+// Determines if a snapshot URL looks valid (came from our s3 instance).
+// This won't actually check to see if the file exists at the given location,
+// but makes sure we don't attempt to fetch something that doesn't look right
+function snapshotURLIsValid(validKeyPath, snapshotURL) {
+  var is_valid = false;
+
+  if (
+    typeof snapshotURL !== 'undefined' &&
+    snapshotURL.length && validKeyPath.length
+  ) {
+    snapshotURL = $.trim(snapshotURL);
+    snapshotURL = snapshotURL.replace(/^(https?:)?\/\//, '');
+    validKeyPath = validKeyPath.replace(/^http:\/\//, ''); // http is forced, so expect it
+
+    if (
+      snapshotURL.slice(0, validKeyPath.length) == validKeyPath &&
+      snapshotURL.slice(-14) == '.snapshot.html'
+    ) {
+      is_valid = true;
+    }
+  }
+
+  return is_valid;
+}
+
+
+// Loads a snapshot from the snapshot select modal form
+function loadSnapshot(validKeyPath) {
+  var snapshotURL = '',
+      $snapshotByURL = $('#load-snapshot-urlfield'),
+      snapshotListVal = $('#load-snapshot-list').find('input[type="radio"]:checked').val(),
+      snapshotByURLVal = $snapshotByURL.val();
+
+  if (snapshotURLIsValid(validKeyPath, snapshotListVal)) {
+    snapshotURL = snapshotListVal;
+  }
+  else if (snapshotURLIsValid(validKeyPath, snapshotByURLVal)) {
+    snapshotURL = snapshotByURLVal;
+  }
+
+  if (snapshotURL !== '') {
+    // Ensure returned url is protocol relative
+    snapshotURL = snapshotURL.replace(/^https?:\/\//, '//');
+    if (snapshotURL.slice(0, 2) !== '//') {
+      snapshotURL = '//' + snapshotURL;
+    }
+
+    loadTemplate(snapshotURL);
+
+    // Manually close modal--the load snapshot submit button does not do this
+    // automatically, since we need to validate first
+    $('#load-snapshot-modal').modal('hide');
+
+    // Reset template dropdown
+    $('#template-select').val('');
+  }
+  else {
+    alert('Could not load snapshot: snapshot is invalid.');
+  }
+}
+
+
+// Returns Blob object containing markup for snapshot
+function getSnapshotMarkup() {
+  // var editorWindow = document.getElementById('editor-window').contentWindow;
+  var editorWindow = $('#editor-window')[0].contentWindow;
 
   // Stop here if the editor window doesn't exist (should never reach this
   // point, but just in case)
@@ -119,8 +246,30 @@ function generateMarkup() {
     return;
   }
 
-  // Empty the markup container
-  $markupContainer.text('');
+  // Destroy all active Froala editors in the iframe to remove Froala markup
+  editorWindow.pmDesignerDestroy();
+
+  // Grab the editor's markup as a string.  Just re-add the doctype for snapshots.
+  var docMarkup = editorWindow.document.documentElement.outerHTML;
+  docMarkup = appendDoctypeToMarkup(docMarkup);
+
+  // Reload the editors
+  editorWindow.pmDesignerEnable();
+
+  return docMarkup;
+}
+
+
+// Returns Blob object containing markup for cleaned, live-ready email
+function getLiveHTMLMarkup() {
+  // var editorWindow = document.getElementById('editor-window').contentWindow;
+  var editorWindow = $('#editor-window')[0].contentWindow;
+
+  // Stop here if the editor window doesn't exist (should never reach this
+  // point, but just in case)
+  if (!editorWindow) {
+    return;
+  }
 
   // Destroy all active Froala editors in the iframe to remove Froala markup
   editorWindow.pmDesignerDestroy();
@@ -135,23 +284,100 @@ function generateMarkup() {
   var docMarkup = editorWindow.document.documentElement.outerHTML;
   var docMarkupClean = getCleanedMarkupString(docMarkup, pPadding, pLineHeight, pFontFamily);
 
-  // Add the cleaned markup to $markupContainer
-  $markupContainer.text(docMarkupClean);
-
   // Reload the editors
   editorWindow.pmDesignerEnable();
+
+  return docMarkupClean;
 }
 
 
-function init() {
-  var $templateSelect = $('#template-select');
-  var currentTemplate = '';
-  var currentTemplateVal = '';
+// Cleans a string suitable for use as a filename
+function cleanFilename(filename) {
+  return $.trim(filename).replace(/[^a-z0-9-_]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
+}
 
-  // Load the current template (if the browser has cached a selection)
+
+// Saves a snapshot to s3.  NOTE: FormData not compatible with IE<10
+function saveSnapshot(saveSnapshotURL) {
+  var filename = cleanFilename($('#save-email-name').val()),
+      liveHTMLFormData = new FormData(),
+      snapshotFormData = new FormData(),
+      liveHTML = getLiveHTMLMarkup(),
+      snapshot = getSnapshotMarkup(),
+      liveHTMLBlob = new Blob([liveHTML], {type: 'text/html'}),
+      snapshotBlob = new Blob([snapshot], {type: 'text/html'});
+
+  liveHTMLFormData.append('file', liveHTMLBlob, filename + '.html');
+  liveHTMLFormData.append('extension_groupname', 'html');
+  liveHTMLFormData.append('protocol', 'http://');
+  snapshotFormData.append('file', snapshotBlob, filename + '.snapshot.html');
+  snapshotFormData.append('extension_groupname', 'html');
+  snapshotFormData.append('protocol', 'http://');
+
+  // Could probably combine these ajax calls into a single request,
+  // but it'd require a new view to handle multiple files
+  $.when(
+    $.ajax({
+      cache: false,
+      contentType: false,
+      data: liveHTMLFormData,
+      dataType: 'json',
+      method: 'POST',
+      processData: false,
+      url: saveSnapshotURL
+    }),
+    $.ajax({
+      cache: false,
+      contentType: false,
+      data: snapshotFormData,
+      dataType: 'json',
+      method: 'POST',
+      processData: false,
+      url: saveSnapshotURL
+    })
+  )
+    .done(function(liveArgs, snapshotArgs) {
+      var liveLink = liveArgs[0].link,
+          snapshotLink = snapshotArgs[0].link;
+      $('#saved-live-url').text(liveLink);
+      $('#saved-snapshot-url').text(snapshotLink);
+      $('#save-changes-modal')
+        .find('.save-changes-inprogress')
+          .addClass('hidden')
+          .end()
+        .find('.save-changes-success')
+          .removeClass('hidden');
+    })
+    .fail(function() {
+      $('#save-changes-modal')
+        .find('.save-changes-inprogress')
+          .addClass('hidden')
+          .end()
+        .find('.save-changes-failure')
+          .removeClass('hidden');
+    });
+}
+
+
+function init(getSnapshotsURL, saveSnapshotURL, validKeyPath) {
+  var $templateSelect = $('#template-select'),
+      $snapshotListItemMarkup = $('#load-snapshot-list').find('.snapshot-wrapper').detach().first(),
+      currentTemplate = '',
+      currentTemplateVal = '';
+
+  // Load the current template
   $(window).on('load', function() {
+    // Catch a cached value from the browser
     currentTemplate = $templateSelect.find('option:selected').text();
     currentTemplateVal = $templateSelect.val();
+
+    // Force default to be whatever the 2nd option is
+    if (currentTemplateVal === '') {
+      currentTemplate = $templateSelect.find('option:nth-child(2)').text();
+      currentTemplateVal = $templateSelect.find('option:nth-child(2)').val();
+      $templateSelect.val(currentTemplateVal);
+    }
+
     loadTemplate(currentTemplateVal, true);
   });
 
@@ -161,26 +387,28 @@ function init() {
   $templateSelect.on('change', function() {
     var newTemplateVal = $(this).val();
 
-    if (currentTemplateVal !== '') {
-      if (window.confirm('Are you sure you want to switch templates? You will lose all changes made in the editor.')) {
-        currentTemplateVal = newTemplateVal;
-        currentTemplate = $(this).find('option:selected').text();
-        loadTemplate(newTemplateVal, true);
-      }
-      else {
-        $(this).val(currentTemplateVal);
-      }
-    }
-    else {
+    if (window.confirm('Are you sure you want to switch templates? You will lose all changes made in the editor.')) {
       currentTemplateVal = newTemplateVal;
       currentTemplate = $(this).find('option:selected').text();
       loadTemplate(newTemplateVal, true);
     }
+    else {
+      $(this).val(currentTemplateVal);
+    }
   });
 
-  // Generate email markup from editor when Generate Markup btn is clicked
-  $('#generate-markup').on('click', generateMarkup);
+  // Fetch and render a list of existing snapshots when Load Snapshot modal is
+  // toggled
+  $('#load-snapshot-modal').on('show.bs.modal', function() {
+    getExistingSnapshots(getSnapshotsURL, $snapshotListItemMarkup);
+  });
+
+  // Load snapshot when Load Snapshot btn is clicked
+  $('#load-snapshot').on('click', function() {
+    loadSnapshot(validKeyPath);
+  });
+
+  $('#save-changes').on('click', function() {
+    saveSnapshot(saveSnapshotURL);
+  });
 }
-
-
-init();

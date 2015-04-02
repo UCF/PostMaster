@@ -353,12 +353,14 @@ class EmailDesignView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(EmailDesignView, self).get_context_data(**kwargs)
         templates_path = 'email-templates/'
+        s3 = AmazonS3Helper()
+
         project_url = settings.PROJECT_URL
         project_url_agnostic = project_url.replace('http://', '//')
         context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
         context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
         context['froala_license'] = settings.FROALA_EDITOR_LICENSE
-        context['valid_image_groupname'] = 'image'
+        context['valid_key_path'] = s3.get_base_key_path_url()
         return context
 
 
@@ -989,6 +991,7 @@ def s3_upload_user_file(request):
         file_prefix = request.user.username + '/'
         protocol = request.POST.get('protocol')
         extension_groupname = request.POST.get('extension_groupname')
+        unique = request.POST.get('unique')
         s3 = AmazonS3Helper()
 
         if file_prefix is None:
@@ -997,14 +1000,20 @@ def s3_upload_user_file(request):
         if protocol not in s3.valid_protocols:
             protocol = '//'
 
+        # convert to bool
+        if not unique:
+            unique = False
+        else:
+            unique = True
+
         if file is None:
             response_data['error'] = 'File not set.'
         else:
             try:
                 keyobj = s3.upload_file(
                     file=file,
+                    unique=unique,
                     file_prefix=file_prefix,
-                    unique=True,
                     extension_groupname=extension_groupname
                 )
             except AmazonS3Helper.KeyCreateError, e:

@@ -1,5 +1,5 @@
 // Enables all editing functionality.
-function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extension_groupname) {
+function pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL) {
   $('.pm-template-editable-single').editable({
     allowedTags: ['a', 'b', 'em', 'i', 's', 'strong', 'span', 'u'],
     buttons: ['bold', 'italic', 'underline', 'createLink', 'html'],
@@ -17,20 +17,21 @@ function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extens
     defaultImageAlignment: 'left',
     defaultImageWidth: 0,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
-    imageDeleteURL: file_delete_url,
+    imageDeleteURL: fileDeleteURL,
     imagesLoadParams: {
-      extension_groupname: extension_groupname,
+      extension_groupname: 'image',
       protocol: '//'
     },
-    imagesLoadURL: file_get_url,
+    imagesLoadURL: fileGetURL,
     imageMove: false,
     imageUpload: true,
     imageUploadParam: 'file',
     imageUploadParams: {
-      extension_groupname: extension_groupname,
+      unique: true,
+      extension_groupname: 'image',
       protocol: '//'
     },
-    imageUploadURL: file_upload_url,
+    imageUploadURL: fileUploadURL,
     inlineMode: true,
     mediaManager: true,
     paragraphy: true,
@@ -62,20 +63,21 @@ function pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extens
     defaultImageWidth: 0,
     inlineMode: true,
     imageButtons: ['linkImage', 'replaceImage', 'removeImage'],
-    imageDeleteURL: file_delete_url,
+    imageDeleteURL: fileDeleteURL,
     imagesLoadParams: {
-      extension_groupname: extension_groupname,
+      extension_groupname: 'image',
       protocol: '//'
     },
-    imagesLoadURL: file_get_url,
+    imagesLoadURL: fileGetURL,
     imageMove: false,
     imageUpload: true,
     imageUploadParam: 'file',
     imageUploadParams: {
-      extension_groupname: extension_groupname,
+      unique: true,
+      extension_groupname: 'image',
       protocol: '//'
     },
-    imageUploadURL: file_upload_url,
+    imageUploadURL: fileUploadURL,
     mediaManager: true,
     paragraphy: false,
     plainPaste: true,
@@ -177,9 +179,9 @@ function pmDesignerParagraphFontFamily() {
 }
 
 
-function pmDesignerInit(file_upload_url, file_get_url, file_delete_url, extension_groupname) {
+function pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL) {
   $(window).on('load', function() {
-    pmDesignerEnable(file_upload_url, file_get_url, file_delete_url, extension_groupname);
+    pmDesignerEnable(fileUploadURL, fileGetURL, fileDeleteURL);
   });
   $(window).on('load resize', pmDesignerResponsiveParagraphs);
 }

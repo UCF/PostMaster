@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
-	{{ block.super }}
-	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-	<li class="active">
-		<a href="{% url manager-email-design %}">Design</a>
-	</li>
+  {{ block.super }}
+  <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+  <li class="active">
+    <a href="{% url manager-email-design %}">Design</a>
+  </li>
 {% endblock %}
 
 {% block page-body %}
@@ -21,6 +21,7 @@
             <option value="{{ email_templates_url }}{{ template }}">{{ template }}</option>
           {% endfor %}
         </select>
+        <button class="btn btn-default" data-toggle="modal" data-target="#load-snapshot-modal">Load Snapshot</button>
       </div>
     </div>
   </div>
@@ -44,9 +45,9 @@
   <iframe id="editor-window"></iframe>
 </div>
 
-<!-- Form that returns clean markup from the editor -->
-<button class="btn btn-lg btn-primary" id="generate-markup" data-toggle="modal" data-target="#generate-markup-modal">
-  <span class="glyphicon glyphicon-download"></span> Generate Markup
+<!-- Button that saves markup and its snapshot -->
+<button class="btn btn-lg btn-primary" id="pre-save-changes" data-toggle="modal" data-target="#pre-save-changes-modal">
+  <span class="glyphicon glyphicon-floppy-save"></span> Save Changes
 </button>
 
 <!-- Modal for generating email markup -->
@@ -61,6 +62,107 @@
         <p>Copy and paste the markup below into a new .html file, then upload the file somewhere that Postmaster can access it via url.</p>
         <p><strong>Make sure to test this markup in Litmus before sending a live email.</strong></p>
         <textarea class="html-textarea" id="generated-markup" autocomplete="off"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for loading a snapshot -->
+<div class="modal fade" id="load-snapshot-modal" role="dialog" tabindex="-1" aria-labelledby="load-snapshot-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="load-snapshot-modal-label">Load Snapshot</h4>
+      </div>
+      <div class="modal-body">
+        <p>Select an existing snapshot, or paste a URL into the field below.</p>
+        <p class="text-warning">You will lose any unsaved changes after clicking the "Load Snapshot" button.</p>
+        <div id="load-snapshot-list">
+          <div class="snapshot-wrapper">
+            <label>
+              <input type="radio" name="snapshot-list-item" value="">
+              <span class="snapshot-list-item-name"></span>
+            </label>
+          </div>
+        </div>
+        <div class="form-inline">
+          <div class="form-group">
+          <label for="load-snapshot-urlfield">Snapshot by URL:</label>
+            <input class="form-control" type="text" id="load-snapshot-urlfield" placeholder="Enter a snapshot url here..." />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="load-snapshot">Load Snapshot</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for pre-save changes -->
+<div class="modal fade" id="pre-save-changes-modal" role="dialog" tabindex="-1" aria-labelledby="pre-save-changes-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="pre-save-changes-modal-label">Save Your Changes</h4>
+      </div>
+      <div class="modal-body">
+        <p>Pick a name for your generated markup files.  File names should contain <strong>letters, numbers, dashes and/or underscores</strong>, and should be no more than 100 characters long.</p>
+        <p>Note that, if a file with the name you pick already exists, it will be overwritten.</p>
+        <div class="form-inline">
+          <div class="form-group">
+            <label class="sr-only" for="save-email-name">File name</label>
+            <input type="text" class="form-control" id="save-email-name" value="my-custom-email" />
+            <div class="form-control-static text-muted">.html</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="save-changes" data-dismiss="modal" data-toggle="modal" data-target="#save-changes-modal">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for post-save changes -->
+<div class="modal fade" id="save-changes-modal" role="dialog" tabindex="-1" aria-labelledby="save-changes-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title save-changes-inprogress" id="save-changes-modal-label">Saving...</h4>
+        <h4 class="modal-title save-changes-success hidden" id="save-changes-modal-label">Changes Saved</h4>
+        <h4 class="modal-title save-changes-failure hidden" id="save-changes-modal-label">Failed to Save Changes</h4>
+      </div>
+      <div class="modal-body save-changes-inprogress">
+        <img class="ajax-loader center-block" src="{{ MEDIA_URL }}/img/ajax-loader.gif" />
+        <div class="alert alert-info" role="alert">
+          <p>Saving your changes...</p>
+        </div>
+      </div>
+      <div class="modal-body save-changes-success hidden">
+        <div class="alert alert-success" role="alert">
+          <p>Your changes have been saved.</p>
+        </div>
+        <p>
+          The live URL below contains markup for your email, which can be used in a live send.  The snapshot URL can be sent to others to allow them to make their own changes.  Their changes will not overwrite anything you've done so far.
+        </p>
+        <strong>Live URL:</strong>
+        <p id="saved-live-url"></p>
+        <strong>Snapshot URL:</strong>
+        <p id="saved-snapshot-url"></p>
+      </div>
+      <div class="modal-body save-changes-failure hidden">
+        <div class="alert alert-danger" role="alert">
+          <p>Something went wrong when trying to save changes.  Please try again later.</p>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -85,12 +187,11 @@ These are injected into the email template markup when loadEditor() is called.
   <script class="pm-editor-script" src="{{ MEDIA_URL }}/js/email-designer-editor.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
-    var file_upload_url = '{% url manager-file-upload %}',
-        file_get_url = '{% url manager-files-get %}',
-        file_delete_url = '{% url manager-file-delete %}',
-        img_extension_groupname = '{{ valid_image_groupname }}';
+    var fileUploadURL = '{% url manager-file-upload %}',
+        fileGetURL = '{% url manager-files-get %}',
+        fileDeleteURL = '{% url manager-file-delete %}';
 
-    pmDesignerInit(file_upload_url, file_get_url, file_delete_url, img_extension_groupname);
+    pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL);
   </script>
 </textarea>
 
@@ -99,4 +200,11 @@ These are injected into the email template markup when loadEditor() is called.
 {% block javascript-footer %}
   {{ block.super }}
   <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
+  <script>
+    var getSnapshotsURL = '{% url manager-files-get %}',
+        saveSnapshotURL = '{% url manager-file-upload %}',
+        validKeyPath = '{{ valid_key_path }}';
+
+    init(getSnapshotsURL, saveSnapshotURL, validKeyPath);
+  </script>
 {% endblock %}
