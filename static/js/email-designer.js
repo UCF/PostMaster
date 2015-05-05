@@ -94,7 +94,7 @@ function getCleanedMarkupString(markupString, pPadding, pLineHeight, pFontFamily
         .addClass('responsiveimg')
         .attr('style', '')
         .end()
-      .wrap('<table class="paragraphtable" style="width: 100%;"><tr><td class="paragraphtd" style="width: 100%; font-family: '+ pFontFamily +'; padding: '+ pPadding +'; margin: 0; line-height: '+ pLineHeight +';"></td></tr></table>')
+      .wrap('<table class="paragraphtable" style="width: 100%;"><tr><td class="paragraphtd" style="width: 100%; font-family: '+ pFontFamily +'; padding: '+ pPadding +'; margin: 0; line-height: '+ pLineHeight +';"></td>\n</tr></table>')
       .contents()
       .unwrap();
 
