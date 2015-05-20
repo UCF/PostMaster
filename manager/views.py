@@ -415,20 +415,23 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
 
         if recipient_email:
             recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
-            recipient = Recipient.objects.filter(email_address=recipient_email)
-            if recipient:
+            try:
+                recipient = Recipient.objects.get(email_address=recipient_email)
                 if recipient not in recipient_group.recipients.all():
                     recipient_group.recipients.add(recipient)
                     recipient_group.save()
                 else:
                     messages.warning(self.request, 'Recipient %s already in %s.' % (recipient_email, recipient_group.name))
-            else:
+            except DoesNotExist:
                 recipient = Recipient(email_address=recipient_email)
                 recipient.save()
                 recipient_group.recipients.add(recipient)
                 recipient_group.save()
                 messages.success(self.request, 'Recipient %s successfully created and added to %s.' % (recipient_email, recipient_group.name))
                 return super(RecipientGroupUpdateView, self).form_valid(form)
+            except Exception, e:
+                message.errors(self.request, 'An error occurred: %s', e.strerror)
+                return super(RecipientGroupUpdateView, self).form_invalid(form)
 
         messages.success(self.request, 'Recipient group successfully updated.')
         return super(RecipientGroupUpdateView, self).form_valid(form)
