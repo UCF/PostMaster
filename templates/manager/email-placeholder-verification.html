@@ -17,9 +17,10 @@
                 {{error}}
             </div>
         {% endfor %}
-        {% for attribute, recipients in attributes %}
+        {% for attribute, recipients, count in attributes %}
             {% if recipients %}
                 <h2>Recipients missing placeholder "{{ attribute }}"</h2>
+                <label class="control-label">Count: {{ count }}</label>
                 <ul>
                 {% for recipient in recipients %}
                     <li>
