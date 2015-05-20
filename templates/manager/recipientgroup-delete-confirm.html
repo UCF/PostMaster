@@ -14,14 +14,24 @@
                 {{error}}
             </div>
         {% endfor %}
-        {% if emails %}
-            <div class="alert alert-danger">
-                <p>{{ recipientgroup.name }} is assigned to the following recurring emails:</p>
-                <ul>
-                {% for email in emails %}
-                    <li>{{ email.title }}</li>
-                {% endfor %}
-                </ul>
+        {% if recurring_emails or upcoming_emails %}
+            <div class="alert alert-warning">
+                {% if recurring_emails %}
+                    <p>{{ recipientgroup.name }} is assigned to the following recurring emails:</p>
+                    <ul>
+                    {% for email in recurring_emails %}
+                        <li>{{ email.title }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if upcoming_emails %}
+                    <p>{{ recipientgroup.name }} is assigned to the following upcoming emails:</p>
+                    <ul>
+                    {% for email in upcoming_emails %}
+                        <li>{{ email.title }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
                 <p>If you delete this group, the recipients in the group will no longer receive the above emails.
             </div>
         {% endif %}
