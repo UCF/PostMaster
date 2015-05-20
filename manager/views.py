@@ -9,6 +9,7 @@ from util import calc_url_mac
 import urllib
 import urlparse
 import json
+import collections
 
 from django.conf import settings
 from django.contrib import messages
@@ -183,6 +184,18 @@ class EmailUpdateView(EmailsMixin, UpdateView):
         return reverse('manager-email-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
+
+class EmailPlaceholderVerificationView(EmailsMixin, DetailView):
+    model = Email
+    template_name = 'manager/email-placeholder-verification.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailPlaceholderVerificationView, self).get_context_data(**kwargs)
+        placeholders = self.object.placeholders
+        context['attributes'] = []
+        for placeholder in placeholders:
+            context['attributes'].append((placeholder, self.object.recipients.exclude(attributes__name=placeholder)))
+        return context
 
 
 class EmailInstantSendView(EmailsMixin, FormView):

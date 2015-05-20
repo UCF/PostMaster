@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from datetime import datetime, timedelta, date
-from django.db.models import Q
+from django.db.models import Q, F
 from util import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.core.urlresolvers import reverse
 from email.mime.multipart import MIMEMultipart
@@ -17,6 +17,8 @@ import Queue
 import threading
 import requests
 import random
+
+from itertools import chain
 
 from manager.litmusapi import LitmusApi
 
@@ -409,6 +411,24 @@ class Email(models.Model):
             except IOError, e:
                 log.exception('Unable to fetch email html')
                 raise self.EmailException()
+
+    @property
+    def placeholders(self):
+        delimiter    = self.replace_delimiter
+        placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.html[1])
+        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+
+    @property
+    def recipients(self):
+        retval = None
+        for recipient_group in self.recipient_groups.all():
+            if retval is None:
+                retval = recipient_group.recipients.all()
+            else:
+                retval = retval | recipient_group.recipients.all()
+
+        return retval.distinct()
+    
 
     @property
     def text(self):

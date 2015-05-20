@@ -7,7 +7,10 @@
     </li>
 {% endblock %}
 {% block page-body %}
-<a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default pull-right">Unsubscriptions</a>
+<div class="btn-group pull-right">
+    <a href="{% url manager-email-placeholder-verification email.pk %}" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Placeholder Verification</a>
+    <a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default">Unsubscriptions</a>
+</div>
 <div class="clearfix"></div>
 <form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
     <fieldset>
