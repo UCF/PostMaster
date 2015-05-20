@@ -434,6 +434,19 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
+class RecipientGroupDeleteView(RecipientGroupsMixin, DeleteView):
+    model = RecipientGroup
+    template_name = 'manager/recipientgroup-delete-confirm.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RecipientGroupDeleteView, self).get_context_data(**kwargs)
+        recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
+        emails = Email.objects.filter(recipient_groups__id=recipient_group.id).exclude(recurrence=0)
+        context['emails'] = emails
+        return context
+
+    def get_success_url(self):
+        return reverse('manager-recipientgroups')
 
 ##
 # Recipients
