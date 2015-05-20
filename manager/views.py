@@ -434,7 +434,7 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
                     recipient_group.save()
                 else:
                     messages.warning(self.request, 'Recipient %s already in %s.' % (recipient_email, recipient_group.name))
-            except DoesNotExist:
+            except Recipient.DoesNotExist:
                 recipient = Recipient(email_address=recipient_email)
                 recipient.save()
                 recipient_group.recipients.add(recipient)
