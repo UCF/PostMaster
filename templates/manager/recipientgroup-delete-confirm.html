@@ -35,7 +35,7 @@
                 <p>If you delete this group, the recipients in the group will no longer receive the above emails.
             </div>
         {% endif %}
-        <h3>Are you sure you want to delete the recipient group "{{ recipientgroup.name }}"?</h3>
+        <p><strong>Are you sure you want to delete the recipient group "{{ recipientgroup.name }}"?</strong></p>
         <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Delete</button>
         <a href="{% url manager-recipientgroups %}" class="btn btn-default">
             <span class="glyphicon glyphicon-minus"></span> Cancel

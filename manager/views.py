@@ -459,8 +459,7 @@ class RecipientGroupDeleteView(RecipientGroupsMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupDeleteView, self).get_context_data(**kwargs)
-        recipient_group = RecipientGroup.objects.get(pk=self.object.pk)
-        recurring_emails = Email.objects.filter(active=True, recipient_groups__id=recipient_group.id).exclude(recurrence=0)
+        recurring_emails = Email.objects.filter(active=True, recipient_groups__id=self.object.pk).exclude(recurrence=0)
         upcoming_emails = Email.objects.filter(active=True, start_date__gt=datetime.now(), recurrence=0)
         context['recurring_emails'] = recurring_emails
         context['upcoming_emails'] = upcoming_emails
