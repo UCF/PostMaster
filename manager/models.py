@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from datetime import datetime, timedelta, date
-from django.db.models import Q, F
+from django.db.models import Q
 from util import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
 from django.core.urlresolvers import reverse
 from email.mime.multipart import MIMEMultipart
@@ -17,8 +17,6 @@ import Queue
 import threading
 import requests
 import random
-
-from itertools import chain
 
 from manager.litmusapi import LitmusApi
 

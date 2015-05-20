@@ -9,7 +9,6 @@ from util import calc_url_mac
 import urllib
 import urlparse
 import json
-import collections
 
 from django.conf import settings
 from django.contrib import messages
