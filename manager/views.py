@@ -33,7 +33,7 @@ from django.forms.util import ErrorList
 
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
-from manager.forms import PreivewInstanceLockForm
+from manager.forms import PreviewInstanceLockForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientAttributeFormSet
@@ -293,7 +293,7 @@ class PreviewInstanceListView(EmailsMixin, ListView):
 
 class LockContentView(UpdateView):
     model = PreviewInstance
-    form_class = PreivewInstanceLockForm
+    form_class = PreviewInstanceLockForm
 
     def get_success_url(self):
         """

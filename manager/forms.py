@@ -32,7 +32,7 @@ class EmailInstantSendForm(forms.Form):
         help_text='Which group(s) of recipients this email will go to. Hold down "Control", or "Command" on a Mac, to select more than one.')
 
 
-class PreivewInstanceLockForm(forms.ModelForm):
+class PreviewInstanceLockForm(forms.ModelForm):
     """
     Form for locking the preview instance content
     """
