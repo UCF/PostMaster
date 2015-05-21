@@ -12,6 +12,9 @@
 <form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
     <fieldset>
         <legend>Placeholder Verification</legend>
+        <div class="well">
+            <p>Below is a list of recipients that are missing attributes used in the "{{ object.title }}" email. Below each placeholder is a count of the recipients missing the corresponding attribute along with a short list (limited to 10 recipients) of the recipients.</p>
+        </div>
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
                 {{error}}
