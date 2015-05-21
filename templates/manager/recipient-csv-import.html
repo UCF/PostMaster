@@ -17,8 +17,8 @@
 			{% include 'form-control-group.html' %}
 		{% endfor %}
 		<div class="pull-right">
-			<button type="submit" class="btn btn-primary">Import</button>
-			<a href="{% url manager-home %}" class="btn">Cancel</a>
+			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-import" aria-hidden="true" ></span></span> Import</button>
+			<a href="{% url manager-home %}" class="btn btn-default"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
 		</div>
 	</fieldset>
 </form>
