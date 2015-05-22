@@ -20,21 +20,23 @@
                 {{error}}
             </div>
         {% endfor %}
-        {% for attribute, recipients, count in attributes %}
-            {% if recipients %}
-                <h2>Recipients missing placeholder "{{ attribute }}"</h2>
-                <label class="control-label">Count: {{ count }}</label>
-                <ul>
-                {% for recipient in recipients %}
-                    <li>
-                        <a href="{% url manager-recipient-update recipient.pk %}">
-                            {{ recipient.email_address }}
-                        </a>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endfor %}
+        {% if attributes.count > 0 %}
+            {% for attribute, recipients, count in attributes %}
+                {% if recipients %}
+                    <h2>Recipients missing the placeholder "{{ attribute }}"</h2>
+                    <label class="control-label">Count: {{ count }}</label>
+                    <ul>
+                    {% for recipient in recipients %}
+                        <li>
+                            <a href="{% url manager-recipient-update recipient.pk %}">
+                                {{ recipient.email_address }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </fieldset>
 </form>
 {% endblock %}

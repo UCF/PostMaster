@@ -194,7 +194,8 @@ class EmailPlaceholderVerificationView(EmailsMixin, DetailView):
         context['attributes'] = []
         for placeholder in placeholders:
             emails = self.object.recipients.exclude(attributes__name=placeholder)
-            context['attributes'].append((placeholder, emails[:10], emails.count))
+            if emails.count > 0:
+                context['attributes'].append((placeholder, emails[:10], emails.count))
         return context
 
 
