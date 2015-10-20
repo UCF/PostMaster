@@ -360,6 +360,20 @@ class InstanceDetailView(EmailsMixin, DetailView):
 
         return context
 
+def instance_cancel(request):
+    if request.POST:
+        instance_id = request.POST['email-instance-id']
+        if instance_id:
+            instance = Instance.obejcts.get(pk=instance_id)
+            instance.send_terminate = True
+            instance.save()
+
+
+    return reverse('manager-email-instance',
+        args=(),
+        kwargs={ 'pk': instance_id }
+    )
+
 
 class EmailDesignView(TemplateView):
     template_name = 'manager/email-design.html'

@@ -13,6 +13,10 @@
   <br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
 	{% if instance.in_progress %}
 	<div class="alert alert-info">This instance is still in progress.</div>
+	<form class="form-horizontal" action="{% url manager-instance-cancel %}" method="post">
+		<input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
+		<button type="submit" class="btn btn-error">Cancel Send</button>
+	</form>
 	{% else %}
 	<form class="form-horizontal" action="{% url manager-recipientgroup-create-email-opens %}" method="post">
 		<input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />

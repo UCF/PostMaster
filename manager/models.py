@@ -323,7 +323,6 @@ class Email(models.Model):
     preview_est_time = models.DateTimeField(null=True)
     live_est_time = models.DateTimeField(null=True)
     send_override = models.BooleanField(null=False, blank=False, default=True)
-    send_terminate = models.BooleanField(null=False, blank=False, default=False)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
 
     def is_sending_today(self, now=datetime.now()):
@@ -549,12 +548,10 @@ class Email(models.Model):
         class TerminationThread(threading.Thread):
             def run(self):
                 while True:
-                    log.debug('Terminator am running!')
-                    email = Email.objects.get(pk=email_id)
-                    if email.send_terminate:
+                    if instance.send_terminate:
                         sender_stop.set()
-                        email.send_terminate = False
-                        email.save()
+                        instance.send_terminate = False
+                        instance.save()
                         self.stop()
                         break
                     elif recipient_details_queue.empty():
@@ -735,7 +732,7 @@ class Email(models.Model):
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
             urls_tracked    = self.track_urls,
-            litmus_id = litmus_id
+            litmus_id       = litmus_id
         )
 
         recipients = Recipient.objects.filter(
@@ -750,7 +747,7 @@ class Email(models.Model):
         real_from               = self.from_email_address
         recipient_details_queue = Queue.Queue()
         sender_stop             = threading.Event()
-        email_id                = self.pk
+        instance_id             = instance.pk
         success                 = True
         recipient_attributes    = {}
         placeholders            = instance.placeholders
@@ -832,6 +829,7 @@ class Instance(models.Model):
                                         through='InstanceRecipientDetails')
     opens_tracked = models.BooleanField(default=False)
     urls_tracked = models.BooleanField(default=False)
+    send_terminate = models.BooleanField(default=False)
 
     @property
     def in_progress(self):
