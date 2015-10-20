@@ -323,6 +323,7 @@ class Email(models.Model):
     preview_est_time = models.DateTimeField(null=True)
     live_est_time = models.DateTimeField(null=True)
     send_override = models.BooleanField(null=False, blank=False, default=True)
+    send_terminate = models.BooleanField(null=False, blank=False, default=False)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
 
     def is_sending_today(self, now=datetime.now()):
@@ -545,6 +546,21 @@ class Email(models.Model):
 
             Takes additional_subject for testing purposes
         '''
+        class TerminationThread(threading.Thread):
+            def run(self):
+                while True:
+                    log.debug('Terminator am running!')
+                    email = Email.objects.get(pk=email_id)
+                    if email.send_terminate:
+                        sender_stop.set()
+                        email.send_terminate = False
+                        email.save()
+                        self.stop()
+                        break
+                    elif recipient_details_queue.empty():
+                        break
+                    else:
+                        time.sleep(1)
 
         class SendingThread(threading.Thread):
 
@@ -560,8 +576,17 @@ class Email(models.Model):
                 rate_limit_counter = 0
 
                 while True:
+                    log.debug('Sender is running')
                     if recipient_details_queue.empty():
                         log.debug('%s queue empty, exiting.' % self.name)
+                        break
+
+                    if sender_stop:
+                        log.debug('%s receieved termination signal.' % self.name)
+                        while not recipient_details_queue.empty():
+                            recipient_details_queue.get()
+                            recipient_details_queue.task_done()
+
                         break
 
                     recipient_details = recipient_details_queue.get()
@@ -633,14 +658,16 @@ class Email(models.Model):
                         msg            = MIMEMultipart('alternative')
                         msg['subject'] = subject
                         msg['From']    = display_from
-                        msg['To']      = recipient_details.recipient.email_address
+                        #msg['To']      = recipient_details.recipient.email_address
+                        msg['To']      = 'success@simulator.amazonses.com'
                         msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
                         if text is not None:
                             msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
                         log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
                         try:
-                            amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+                            #amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
+                            amazon.sendmail(real_from, 'success@simulator.amazonses.com', msg.as_string())
                         except smtplib.SMTPResponseException, e:
                             if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
                                 recipient_details_queue.put(recipient_details)
@@ -722,6 +749,8 @@ class Email(models.Model):
         display_from            = self.smtp_from_address
         real_from               = self.from_email_address
         recipient_details_queue = Queue.Queue()
+        sender_stop             = threading.Event()
+        email_id                = self.pk
         success                 = True
         recipient_attributes    = {}
         placeholders            = instance.placeholders
@@ -768,6 +797,11 @@ class Email(models.Model):
 
         log.debug('spin up sending threads...')
         html_lock        = threading.Lock()
+
+        terminate_thread = TerminationThread()
+        terminate_thread.daemon = True
+        terminate_thread.start()
+
         for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1):
             sending_thread = SendingThread()
             sending_thread.daemon = True
