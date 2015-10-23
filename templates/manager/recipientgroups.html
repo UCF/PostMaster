@@ -13,7 +13,6 @@
 
     <div class="col-sm-6">
       {% if is_paginated %}
-      <div>
         <ul class="pagination pagination-sm">
           {% if page_obj.has_previous %}
           <li>
@@ -31,7 +30,6 @@
           </li>
           {% endif %}
         </ul>
-      </div>
       {% endif %}
     </div>
 
@@ -41,7 +39,7 @@
           <div class="input-group">
             {{search_form.name|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
             <span class="input-group-btn">
-              <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+              <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
             </span>
           </div><!-- /input-group -->
         </div><!-- /form-group -->
