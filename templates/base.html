@@ -11,7 +11,7 @@
   <body>
     <div class="container">
       <div class="row">
-        <header class="col-sm-12 col-lg-8 col-lg-offset-2">
+        <header class="col-sm-12">
           {% block header %}
           <nav class="navbar navbar-default">
               <div class="container-fluid">
@@ -122,7 +122,7 @@
           </nav>
           {% endblock %}
         </header>
-        <section class="col-sm-12 col-lg-8 col-lg-offset-2">
+        <section class="col-sm-12">
           {% block messages-breadcrumbs %}
           {% if messages %}
             {% for message in messages %}

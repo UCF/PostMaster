@@ -42,6 +42,10 @@ class PreviewInstanceLockForm(forms.ModelForm):
         fields = ('lock_content', )
 
 
+class RecipientGroupSearchForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput())
+
+
 class RecipientGroupCreateUpdateForm(forms.ModelForm):
 
     class Meta:

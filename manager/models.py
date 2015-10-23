@@ -31,6 +31,9 @@ class Recipient(models.Model):
     email_address = models.CharField(max_length=255, unique=True)
     disable = models.BooleanField(default=False)
 
+    class Meta:
+            ordering = ["email_address"]
+
     def save(self, *args, **kwargs):
         if self.pk is None:
             self.email_address = self.email_address.lower()
@@ -112,6 +115,9 @@ class RecipientGroup(models.Model):
     '''
     name = models.CharField(max_length=100, unique=True)
     recipients = models.ManyToManyField(Recipient, related_name='groups')
+
+    class Meta:
+            ordering = ["name"]
 
     def __str__(self):
         return self.name + ' (' + str(self.recipients.count()) + ' recipients)'
@@ -316,8 +322,8 @@ class Email(models.Model):
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
     replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
     recipient_groups = models.ManyToManyField(RecipientGroup, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
-    track_urls = models.BooleanField(default=False, help_text=_HELP_TEXT['track_urls'])
-    track_opens = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
+    track_urls = models.BooleanField(default=True, help_text=_HELP_TEXT['track_urls'])
+    track_opens = models.BooleanField(default=True, help_text=_HELP_TEXT['track_opens'])
     preview = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
     preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
     preview_est_time = models.DateTimeField(null=True)
@@ -426,7 +432,7 @@ class Email(models.Model):
                 retval = retval | recipient_group.recipients.all()
 
         return retval.distinct()
-    
+
 
     @property
     def text(self):
