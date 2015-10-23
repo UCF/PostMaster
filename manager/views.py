@@ -39,6 +39,7 @@ from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientAttributeFormSet
 from manager.forms import RecipientCreateUpdateForm
 from manager.forms import RecipientCSVImportForm
+from manager.forms import RecipientGroupSearchForm
 from manager.forms import RecipientGroupCreateUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
@@ -386,6 +387,20 @@ class RecipientGroupListView(RecipientGroupsMixin, ListView):
     template_name = 'manager/recipientgroups.html'
     context_object_name = 'groups'
     paginate_by = 20
+
+    def get_queryset(self):
+        self._search_form = RecipientGroupSearchForm(self.request.GET)
+        self._search_valid = self._search_form.is_valid()
+        if self._search_valid:
+            return RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name']).order_by('name')
+        else:
+            return RecipientGroup.objects.order_by('name')
+
+    def get_context_data(self, **kwargs):
+        context = super(RecipientGroupListView, self).get_context_data(**kwargs)
+        context['search_form'] = self._search_form
+        context['search_valid'] = self._search_valid
+        return context
 
 
 class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
