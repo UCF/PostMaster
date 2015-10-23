@@ -33,15 +33,15 @@
   	<thead>
   		<tr>
   			<th scope="col">Name</th>
-  			<th scope="col">Number of Instances</th>
-  			<th></th>
+  			<th scope="col" class="col-sm-1 text-center">No. of Instances</th>
+  			<th class="col-sm-4"></th>
   		</tr>
   	</thead>
   	<tbody>
   		{% for email in emails %}
   		<tr data-link-url="{% url manager-email-instances email.pk %}">
   			<td>{{email.title}}</td>
-  			<td>{{email.instances.count}}</td>
+  			<td class="text-center">{{email.instances.count}}</td>
         <td>
           <div class="btn-group pull-right">
             <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">

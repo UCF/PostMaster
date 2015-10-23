@@ -316,8 +316,8 @@ class Email(models.Model):
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
     replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
     recipient_groups = models.ManyToManyField(RecipientGroup, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
-    track_urls = models.BooleanField(default=False, help_text=_HELP_TEXT['track_urls'])
-    track_opens = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
+    track_urls = models.BooleanField(default=True, help_text=_HELP_TEXT['track_urls'])
+    track_opens = models.BooleanField(default=True, help_text=_HELP_TEXT['track_opens'])
     preview = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
     preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
     preview_est_time = models.DateTimeField(null=True)
@@ -426,7 +426,7 @@ class Email(models.Model):
                 retval = retval | recipient_group.recipients.all()
 
         return retval.distinct()
-    
+
 
     @property
     def text(self):

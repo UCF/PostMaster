@@ -34,14 +34,14 @@
   	<thead>
   		<tr>
   			<th scope="col">Name</th>
-  			<th scope="col">Number of Recipients</th>
+  			<th scope="col" class="col-sm-1 text-center">No. of Recipients</th>
   		</tr>
   	</thead>
     <tbody>
       {% for group in groups %}
       <tr data-link-url="{% url manager-recipientgroup-update group.pk %}">
         <td>{{group.name}}</td>
-        <td>{{group.recipients.count}}</td>
+        <td class="text-center">{{group.recipients.count}}</td>
       </tr>
       {% endfor %}
     </tbody>
