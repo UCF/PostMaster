@@ -392,9 +392,9 @@ class RecipientGroupListView(RecipientGroupsMixin, ListView):
         self._search_form = RecipientGroupSearchForm(self.request.GET)
         self._search_valid = self._search_form.is_valid()
         if self._search_valid:
-            return RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name']).order_by('name')
+            return RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name'])
         else:
-            return RecipientGroup.objects.order_by('name')
+            return RecipientGroup.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
@@ -498,9 +498,9 @@ class RecipientListView(RecipientsMixin, ListView):
         self._search_form = RecipientSearchForm(self.request.GET)
         self._search_valid = self._search_form.is_valid()
         if self._search_valid:
-            return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address']).order_by('email_address')
+            return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
         else:
-            return Recipient.objects.order_by('email_address')
+            return Recipient.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super(RecipientListView, self).get_context_data(**kwargs)

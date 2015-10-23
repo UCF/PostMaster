@@ -31,6 +31,9 @@ class Recipient(models.Model):
     email_address = models.CharField(max_length=255, unique=True)
     disable = models.BooleanField(default=False)
 
+    class Meta:
+            ordering = ["email_address"]
+
     def save(self, *args, **kwargs):
         if self.pk is None:
             self.email_address = self.email_address.lower()
@@ -112,6 +115,9 @@ class RecipientGroup(models.Model):
     '''
     name = models.CharField(max_length=100, unique=True)
     recipients = models.ManyToManyField(Recipient, related_name='groups')
+
+    class Meta:
+            ordering = ["name"]
 
     def __str__(self):
         return self.name + ' (' + str(self.recipients.count()) + ' recipients)'
