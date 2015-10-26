@@ -9,6 +9,6 @@ $('#lockContentModal').on('show.bs.modal', function (event) {
   modal.find('.modal-body .lock-content').text(content);
   // Assume the html already has the checkbox checked by default
   if (!isLock) {
-    modal.find('#id_lock_content').removeAttr('checked')
+    modal.find('#id_lock_content').removeAttr('checked');
   }
-})
+});
