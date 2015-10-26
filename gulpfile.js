@@ -7,6 +7,7 @@ var gulp = require('gulp'),
     bower = require('gulp-bower'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
+    prefix = require('gulp-autoprefixer'),
     rename = require('gulp-rename'),
     jshint = require('gulp-jshint'),
     jshintStylish = require('jshint-stylish'),
@@ -50,6 +51,10 @@ gulp.task('css', function() {
       'config': 'scss-lint-config.yml',
     }))
     .pipe(sass().on('error', sass.logError))
+    .pipe(prefix({
+        browsers: ["last 3 versions", "> 10%", "ie 8"],
+        cascade: false
+    }))
     .pipe(minifyCss({compatibility: 'ie8'}))
     .pipe(rename('style.min.css'))
     .pipe(bless())
