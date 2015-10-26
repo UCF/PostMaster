@@ -1,4 +1,6 @@
 import boto
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 import csv
 from datetime import datetime
@@ -311,9 +313,10 @@ class AmazonS3Helper:
 
     def connect(self):
         try:
-            self.connection = boto.connect_s3(
+            self.connection = S3Connection(
                 settings.AMAZON_S3['aws_access_key_id'],
-                settings.AMAZON_S3['aws_secret_access_key']
+                settings.AMAZON_S3['aws_secret_access_key'],
+                calling_format=OrdinaryCallingFormat()
             )
             self.bucket = self.connection.get_bucket(
                 settings.AMAZON_S3['bucket']
@@ -344,34 +347,8 @@ class AmazonS3Helper:
             query_auth=False,
             force_http=True
         )
-        url = self.convert_key_url_sslsafe(url)
 
         return url
-
-
-    def convert_key_url_sslsafe(self, url):
-        """
-        Returns an ssl-friendly url for a key.  Buckets containing periods
-        cause insecure response errors within urls generated via
-        keyobj.generate_url(); see:
-        http://shlomoswidler.com/2009/08/amazon-s3-gotcha-using-virtual-host.html
-        """
-        if url:
-            bucket_name = settings.AMAZON_S3['bucket']
-            url_parsed = urlparse.urlsplit(url)
-
-            scheme = url_parsed.scheme
-            hostname = url_parsed.hostname.replace(bucket_name + '.', '', 1)
-            path = bucket_name + url_parsed.path
-            query = url_parsed.query
-            fragment = url_parsed.fragment
-
-            url = urlparse.urlunsplit(
-                (scheme, hostname, path, query, fragment)
-            )
-
-        return url
-
 
     def get_file_list(self, file_prefix='', return_extension_groupname=None):
         """
