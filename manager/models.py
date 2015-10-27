@@ -115,9 +115,18 @@ class RecipientGroup(models.Model):
     '''
     name = models.CharField(max_length=100, unique=True)
     recipients = models.ManyToManyField(Recipient, related_name='groups')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
             ordering = ["name"]
+
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        if not self.id:
+            self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+        return super(RecipientGroup, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name + ' (' + str(self.recipients.count()) + ' recipients)'

@@ -391,15 +391,34 @@ class RecipientGroupListView(RecipientGroupsMixin, ListView):
     def get_queryset(self):
         self._search_form = RecipientGroupSearchForm(self.request.GET)
         self._search_valid = self._search_form.is_valid()
+        self._sort_params = {
+            'name': self.request.GET.get('order'),
+            'updated_at': self.request.GET.get('order')
+        }
+
+        sort = self.request.GET.get('sort')
+
         if self._search_valid:
             return RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name'])
         else:
-            return RecipientGroup.objects.all()
+            recipient_groups = RecipientGroup.objects.all()
+
+            if sort is not None:
+                recipient_groups = recipient_groups.order_by(sort)
+                if self._sort_params[sort] == "des":
+                    self._sort_params[sort] = "asc"
+                    return recipient_groups.reverse()
+                else:
+                    self._sort_params[sort] = "des"
+                    return recipient_groups
+            else:
+                return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
         context['search_form'] = self._search_form
         context['search_valid'] = self._search_valid
+        context['sort_params'] = self._sort_params
         return context
 
 
