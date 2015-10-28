@@ -3,6 +3,12 @@ use postmaster;
 start transaction;
 
 ALTER TABLE manager_recipientgroup ADD created_at datetime;
-ALTER TABLE manager_recipientgroup ADD updated_at datetime;
+ALTER TABLE manager_recipientgroup ADD updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL;
+
+UPDATE
+	manager_recipientgroup
+SET
+	created_at = CURRENT_TIMESTAMP,
+	updated_at = CURRENT_TIMESTAMP;
 
 commit;

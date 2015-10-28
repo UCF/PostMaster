@@ -66,6 +66,31 @@ log = logging.getLogger(__name__)
 ##
 # Mixins
 ##
+class SortMixin(object):
+    def get_queryset(self):
+        queryset = super(SortMixin, self).get_queryset();
+
+        # Get sort parameter
+        self._sort = self.request.GET.get('sort')
+        self._order = self.request.GET.get('order')
+        
+        if self._sort:
+            queryset.order_by(self._sort)
+            if self._order == 'des':
+                self._order = 'asc'
+                return queryset.reverse()
+            else:
+                self._order = 'des'
+                return queryset
+        else:
+            return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(SortMixin, self).get_context_data(**kwargs)
+        context['sort'] = self._sort
+        context['order'] = self._order
+        return context
+
 class EmailsMixin(object):
     def get_context_data(self, **kwargs):
         context = super(EmailsMixin, self).get_context_data(**kwargs)
@@ -382,7 +407,7 @@ class EmailDesignView(TemplateView):
 ##
 # Recipients Groups
 ##
-class RecipientGroupListView(RecipientGroupsMixin, ListView):
+class RecipientGroupListView(RecipientGroupsMixin, SortMixin, ListView):
     model = RecipientGroup
     template_name = 'manager/recipientgroups.html'
     context_object_name = 'groups'
@@ -391,34 +416,20 @@ class RecipientGroupListView(RecipientGroupsMixin, ListView):
     def get_queryset(self):
         self._search_form = RecipientGroupSearchForm(self.request.GET)
         self._search_valid = self._search_form.is_valid()
-        self._sort_params = {
-            'name': self.request.GET.get('order'),
-            'updated_at': self.request.GET.get('order')
-        }
-
-        sort = self.request.GET.get('sort')
 
         if self._search_valid:
-            return RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name'])
+            recipient_groups =  RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name'])
         else:
             recipient_groups = RecipientGroup.objects.all()
 
-            if sort is not None:
-                recipient_groups = recipient_groups.order_by(sort)
-                if self._sort_params[sort] == "des":
-                    self._sort_params[sort] = "asc"
-                    return recipient_groups.reverse()
-                else:
-                    self._sort_params[sort] = "des"
-                    return recipient_groups
-            else:
-                return recipient_groups
+        recipient_groups = super(RecipientGroupListView, self).get_queryset()
+
+        return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
         context['search_form'] = self._search_form
         context['search_valid'] = self._search_valid
-        context['sort_params'] = self._sort_params
         return context
 
 
