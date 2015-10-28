@@ -29,6 +29,16 @@ input[type=file] {
   border-radius: 0 0 4px 4px;
 }
 
+.external {
+  display: inline-block;
+  width: 15px;
+  height: 13px;
+  background: url('../img/glyphicons-halflings.png');
+  background-position: -119px -72px;
+  overflow: hidden;
+  text-indent: -9999px;
+  margin-left: 5px;
+}
 
 /* Email Designer */
 #editor-window-outer {
