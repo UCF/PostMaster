@@ -340,6 +340,9 @@ class Email(models.Model):
     send_override = models.BooleanField(null=False, blank=False, default=True)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
 
+    class Meta:
+            ordering = ["title"]
+
     def is_sending_today(self, now=datetime.now()):
         """
         Determines if the email is meant to be sent today

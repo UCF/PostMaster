@@ -43,7 +43,7 @@ class PreviewInstanceLockForm(forms.ModelForm):
 
 
 class RecipientGroupSearchForm(forms.Form):
-    name = forms.CharField(widget=forms.TextInput())
+    search_query = forms.CharField(widget=forms.TextInput())
 
 
 class RecipientGroupCreateUpdateForm(forms.ModelForm):

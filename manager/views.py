@@ -66,14 +66,30 @@ log = logging.getLogger(__name__)
 ##
 # Mixins
 ##
-class SortMixin(object):
+class SortSearchMixin(object):
     def get_queryset(self):
-        queryset = super(SortMixin, self).get_queryset();
+        queryset = super(SortSearchMixin, self).get_queryset();
 
-        # Get sort parameter
-        self._sort = self.request.GET.get('sort')
-        self._order = self.request.GET.get('order')
-        
+        # sort parameter
+        self._sort = 'asc'
+        self._order = 'asc'
+        self._search_query = ''
+
+        if self.request.GET.get('sort'):
+            self._sort = self.request.GET.get('sort')
+
+        if self.request.GET.get('order'):
+            self._order = self.request.GET.get('order')
+
+        if self.request.GET.get('search_query'):
+            self._search_query = self.request.GET.get('search_query')
+
+        # search parameter (search_form defined in View)
+        self._search_valid = self.search_form.is_valid()
+
+        if self._search_valid:
+            queryset = queryset.filter(name__icontains=self.search_form.cleaned_data['search_query'])
+
         if self._sort:
             queryset.order_by(self._sort)
             if self._order == 'des':
@@ -86,9 +102,10 @@ class SortMixin(object):
             return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(SortMixin, self).get_context_data(**kwargs)
+        context = super(SortSearchMixin, self).get_context_data(**kwargs)
         context['sort'] = self._sort
         context['order'] = self._order
+        context['search_query'] = self._search_query
         return context
 
 class EmailsMixin(object):
@@ -407,28 +424,20 @@ class EmailDesignView(TemplateView):
 ##
 # Recipients Groups
 ##
-class RecipientGroupListView(RecipientGroupsMixin, SortMixin, ListView):
+class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
     model = RecipientGroup
     template_name = 'manager/recipientgroups.html'
     context_object_name = 'groups'
     paginate_by = 20
 
     def get_queryset(self):
-        self._search_form = RecipientGroupSearchForm(self.request.GET)
-        self._search_valid = self._search_form.is_valid()
-
-        if self._search_valid:
-            recipient_groups =  RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name'])
-        else:
-            recipient_groups = RecipientGroup.objects.all()
-
+        self.search_form = RecipientGroupSearchForm(self.request.GET)
         recipient_groups = super(RecipientGroupListView, self).get_queryset()
-
         return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
-        context['search_form'] = self._search_form
+        context['search_form'] = self.search_form
         context['search_valid'] = self._search_valid
         return context
 
