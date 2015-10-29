@@ -339,6 +339,8 @@ class Email(models.Model):
     live_est_time = models.DateTimeField(null=True)
     send_override = models.BooleanField(null=False, blank=False, default=True)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
             ordering = ["title"]

@@ -31,6 +31,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.forms.util import ErrorList
 
+from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
 from manager.forms import PreviewInstanceLockForm
@@ -88,7 +89,8 @@ class SortSearchMixin(object):
         self._search_valid = self.search_form.is_valid()
 
         if self._search_valid:
-            queryset = queryset.filter(name__icontains=self.search_form.cleaned_data['search_query'])
+            # TODO: title__icontains switched out for name__icontains for recipient_groups
+            queryset = queryset.filter(title__icontains=self.search_form.cleaned_data['search_query'])
 
         if self._sort:
             queryset.order_by(self._sort)
@@ -166,11 +168,22 @@ class OverviewListView(ListView):
 ##
 # Emails
 ##
-class EmailListView(EmailsMixin, ListView):
+class EmailListView(EmailsMixin, SortSearchMixin, ListView):
     model = Email
     template_name = 'manager/emails.html'
     context_object_name = 'emails'
     paginate_by = 20
+
+    def get_queryset(self):
+        self.search_form = EmailSearchForm(self.request.GET)
+        emails = super(EmailListView, self).get_queryset()
+        return emails
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailListView, self).get_context_data(**kwargs)
+        context['search_form'] = self.search_form
+        context['search_valid'] = self._search_valid
+        return context
 
 
 class EmailCreateView(EmailsMixin, CreateView):

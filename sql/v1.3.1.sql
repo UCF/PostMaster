@@ -11,4 +11,13 @@ SET
 	created_at = CURRENT_TIMESTAMP,
 	updated_at = CURRENT_TIMESTAMP;
 
+ALTER TABLE manager_email ADD created_at datetime;
+ALTER TABLE manager_email ADD updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL;
+
+UPDATE
+	manager_email
+SET
+	created_at = CURRENT_TIMESTAMP,
+	updated_at = CURRENT_TIMESTAMP;
+
 commit;

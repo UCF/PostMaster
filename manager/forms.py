@@ -9,6 +9,9 @@ from manager.models import RecipientGroup
 from manager.models import Setting
 
 
+class EmailSearchForm(forms.Form):
+    search_query = forms.CharField(widget=forms.TextInput())
+
 class EmailCreateUpdateForm(forms.ModelForm):
 
     class Meta:
