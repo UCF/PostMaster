@@ -89,8 +89,10 @@ class SortSearchMixin(object):
         self._search_valid = self.search_form.is_valid()
 
         if self._search_valid:
-            # TODO: title__icontains switched out for name__icontains for recipient_groups
-            queryset = queryset.filter(title__icontains=self.search_form.cleaned_data['search_query'])
+            kwargs = {
+                '{0}__icontains'.format(self.search_field): self.search_form.cleaned_data['search_query']
+            }
+            queryset = queryset.filter(**kwargs)
 
         if self._sort:
             queryset.order_by(self._sort)
@@ -175,6 +177,7 @@ class EmailListView(EmailsMixin, SortSearchMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
+        self.search_field = 'title'
         self.search_form = EmailSearchForm(self.request.GET)
         emails = super(EmailListView, self).get_queryset()
         return emails
@@ -444,6 +447,7 @@ class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
+        self.search_field = 'name'
         self.search_form = RecipientGroupSearchForm(self.request.GET)
         recipient_groups = super(RecipientGroupListView, self).get_queryset()
         return recipient_groups
