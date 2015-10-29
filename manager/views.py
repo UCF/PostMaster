@@ -866,8 +866,9 @@ def instance_open(request):
                 try:
                     recipient = Recipient.objects.get(id=recipient_id)
                     instance = Instance.objects.get(id=instance_id)
-                    InstanceOpen.objects.get(recipient=recipient,
-                                             instance=instance)
+                    instance_open = InstanceOpen(recipient=recipient,
+                                                 instance=instance)
+                    instance_open.save()
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
@@ -877,6 +878,8 @@ def instance_open(request):
                     log.error('bad instance')
                     pass
                 except InstanceOpen.DoesNotExist:
+                # TODO figure out what to do with this exception now
+                # that opens are saved regardless if they exist or not
                     instance_open = InstanceOpen(recipient=recipient,
                                                  instance=instance)
                     instance_open.save()
