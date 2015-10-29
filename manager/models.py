@@ -942,6 +942,13 @@ class InstanceOpen(models.Model):
     instance  = models.ForeignKey(Instance, related_name='opens')
     when      = models.DateTimeField(auto_now_add=True)
 
+class InstanceReOpen(models.Model):
+    '''
+        Describes a recipient's opening of an email after the first opening
+    '''
+    recipient = models.ForeignKey(Recipient, related_name='instances_reopened')
+    instance  = models.ForeignKey(Instance, related_name='reopens')
+    when      = models.DateTimeField(auto_now_add=True)
 
 class Setting(models.Model):
     name = models.CharField(max_length=80)

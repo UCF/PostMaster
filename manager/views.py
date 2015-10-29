@@ -47,6 +47,7 @@ from manager.forms import SettingCreateUpdateForm
 from manager.models import Email
 from manager.models import Instance
 from manager.models import InstanceOpen
+from manager.models import InstanceReOpen
 from manager.models import PreviewInstance
 from manager.models import RecipientAttribute
 from manager.models import Recipient
@@ -866,9 +867,12 @@ def instance_open(request):
                 try:
                     recipient = Recipient.objects.get(id=recipient_id)
                     instance = Instance.objects.get(id=instance_id)
-                    instance_open = InstanceOpen(recipient=recipient,
+                    InstanceOpen.objects.get(recipient=recipient,
+                                             instance=instance)
+                    instance_reopen = InstanceReOpen(recipient=recipient,
                                                  instance=instance)
-                    instance_open.save()
+                    instance_reopen.save()
+                    log.debug('open saved and reopen saved')
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
@@ -878,12 +882,15 @@ def instance_open(request):
                     log.error('bad instance')
                     pass
                 except InstanceOpen.DoesNotExist:
-                # TODO figure out what to do with this exception now
-                # that opens are saved regardless if they exist or not
                     instance_open = InstanceOpen(recipient=recipient,
                                                  instance=instance)
                     instance_open.save()
-                    log.debug('open saved')
+                    log.debug('open created')
+                except InstanceReOpen.DoesNotExist:
+                    instance_reopen = InstanceReOpen(recipient=recipient,
+                                                 instance=instance)
+                    instance_reopen.save()
+                    log.debug('re open created')
     return HttpResponse(settings.DOT, content_type='image/png')
 
 
