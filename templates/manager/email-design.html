@@ -176,6 +176,7 @@ Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
 -->
 <textarea id="editor-template-scripts" class="hidden">
+  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/static/bower_components/font-awesome/css/font-awesome.min.css" />
   <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/css/froala_editor.min.css" />
   <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/css/froala_style.min.css" />
   <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/css/email-designer-editor.css" />
@@ -193,7 +194,8 @@ These are injected into the email template markup when loadEditor() is called.
 {% endblock %}
 
 {% block javascript-footer %}
-  {{ block.super }}
+  {{ block.super }}		   {{ block.super }}
+-  <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
   <script>
     var getSnapshotsURL = '{% url manager-files-get %}',
         saveSnapshotURL = '{% url manager-file-upload %}',
