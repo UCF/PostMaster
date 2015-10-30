@@ -142,7 +142,7 @@
         <h4 class="modal-title save-changes-failure hidden" id="save-changes-modal-label">Failed to Save Changes</h4>
       </div>
       <div class="modal-body save-changes-inprogress">
-        <img class="ajax-loader center-block" src="{{ MEDIA_URL }}/img/ajax-loader.gif" />
+        <img class="ajax-loader center-block" src="{{ MEDIA_URL }}img/ajax-loader.gif" />
         <div class="alert alert-info" role="alert">
           <p>Saving your changes...</p>
         </div>
@@ -176,11 +176,12 @@ Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
 -->
 <textarea id="editor-template-scripts" class="hidden">
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/static/bower_components/font-awesome/css/font-awesome.min.css" />
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/css/froala_editor.min.css" />
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/css/froala_style.min.css" />
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}/css/email-designer-editor.css" />
-  <script src="{{ MEDIA_URL }}/js/email-designer-script.min.js"></script>
+  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}bower_components/font-awesome/css/font-awesome.min.css" />
+  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/froala_editor.min.css" />
+  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/froala_style.min.css" />
+  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/email-designer-editor.css" />
+  <script src="{{ MEDIA_URL }}bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="{{ MEDIA_URL }}js/email-designer-script.min.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
     var fileUploadURL = '{% url manager-file-upload %}',
@@ -194,8 +195,8 @@ These are injected into the email template markup when loadEditor() is called.
 {% endblock %}
 
 {% block javascript-footer %}
-  {{ block.super }}		   {{ block.super }}
--  <script src="{{ MEDIA_URL }}/js/email-designer.js"></script>
+  {{ block.super }}
+-  <script src="{{ MEDIA_URL }}js/email-designer.js"></script>
   <script>
     var getSnapshotsURL = '{% url manager-files-get %}',
         saveSnapshotURL = '{% url manager-file-upload %}',
