@@ -1073,7 +1073,6 @@ def s3_upload_user_file(request):
 
             try:
                 url = keyobj.generate_url(0, query_auth=False, force_http=True)
-                url = s3.convert_key_url_sslsafe(url)
             except Exception, e:
                 response_data['error'] = 'Failed to generate url for file.'
 
@@ -1110,7 +1109,6 @@ def s3_get_user_files(request):
 
             for keyobj in key_list:
                 url = keyobj.generate_url(0, query_auth=False, force_http=True)
-                url = s3.convert_key_url_sslsafe(url)
 
                 if url:
                     if protocol != 'http://':
