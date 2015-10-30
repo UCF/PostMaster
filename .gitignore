@@ -3,3 +3,16 @@
 settings_local.py
 *.db
 *.log
+
+# Bower
+static/bower_components/*
+
+# Sass stuff
+static/scss/.sass-cache/*
+dev/*/.sass-cache/*
+typings/*
+
+# Gulp
+node_modules/*
+# developer specific settings
+config.json
