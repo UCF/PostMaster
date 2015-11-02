@@ -71,7 +71,6 @@ gulp.task('js', function() {
 
       // Combine and uglify js files to create script.min.js.
       var minified = [
-        config.bowerDir + '/jquery/dist/jquery.js',
         config.bowerDir + '/bootstrap-sass-official/assets/javascripts/bootstrap.js',
         config.bowerDir + '/typeahead.js/dist/typeahead.bundle.js',
         config.jsPath + '/recipients.js',
@@ -87,12 +86,10 @@ gulp.task('js', function() {
 
       // Combine and uglify email designer js files to create email-designer-script.min.js.
       var designerMinified = [
-        config.bowerDir + '/jquery/dist/jquery.js',
         config.jsPath + '/froala.min.js',
         config.jsPath + '/froala-font_size.min.js',
         config.jsPath + '/froala-media_manager.min.js',
         config.jsPath + '/email-designer-editor.js',
-        config.jsPath + '/email-designer.js',
       ];
 
       gulp.src(designerMinified)
