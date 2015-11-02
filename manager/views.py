@@ -874,7 +874,6 @@ def instance_open(request):
                         instance_reopen.save()
                         log.debug('re-open created')
                     else:
-                        instance_open.save()
                         log.debug('open created')
                 except Recipient.DoesNotExist:
                     # strange
