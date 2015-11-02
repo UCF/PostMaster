@@ -9,6 +9,8 @@ Requirements
 - MySQL Python
 - Python LDAP
 - Python Requests
+- node v0.10.22+
+- gulp v3.9.0+
 
 Configuration
 ----------
@@ -31,6 +33,14 @@ Configuration
 - Settings are used for setting global value across the application
 	- office_hours_contact_info: displays next to the office hours section on the home page when logged in
 	- after_hours_contact_info: displays next to the after hours section on the home page when logged in
+
+Development
+-------
+- Make sure an up to date version of node is installed
+- Pull down the repo and `cd` into it.  Run `npm install` to install node packages in package.json, including gulp and bower.  Node packages will save to a `node_modules` directory in the root of the repo.
+- Install all front-end components and compile static assets by running `gulp default`.  During development, run `gulp watch` to detect static file changes automatically and run minification and compilation commands on the fly.
+- Make sure up-to-date concatenated/minified files are pushed up to the repo when making changes to static files.
+- Create a config.json from from config.template.json and update based on your preferences.
 
 Testing
 -------
