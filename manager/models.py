@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth.models import User
 import logging
 import smtplib
 import re
@@ -313,6 +314,7 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
+    creator = models.ForeignKey(User, related_name='created_email', null=True)
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
