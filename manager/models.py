@@ -121,13 +121,6 @@ class RecipientGroup(models.Model):
     class Meta:
             ordering = ["name"]
 
-    def save(self, *args, **kwargs):
-        ''' On save, update timestamps '''
-        if not self.id:
-            self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        return super(RecipientGroup, self).save(*args, **kwargs)
-
     def __str__(self):
         return self.name + ' (' + str(self.recipients.count()) + ' recipients)'
 
