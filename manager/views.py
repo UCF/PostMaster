@@ -359,7 +359,6 @@ class InstanceDetailView(EmailsMixin, DetailView):
 
             context['litmus_url'] = settings.LITMUS_BASE_URL + \
                 LitmusApi.TESTS + self.object.litmus_id
-
         return context
 
 
