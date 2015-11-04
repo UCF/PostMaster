@@ -858,6 +858,7 @@ class Instance(models.Model):
                 urls.append(URL.objects.get_or_create(
                     instance = self,
                     name     = href,
+                    href     = href,
                     position = URL.objects.filter(instance=self, name=href).count())[0])
         return urls
 
@@ -922,6 +923,7 @@ class URL(models.Model):
     '''
     instance = models.ForeignKey(Instance, related_name='urls')
     name     = models.CharField(max_length=2000)
+    href     = models.CharField(max_length=2000)
     created  = models.DateTimeField(auto_now_add=True)
 
     # An email's content may have more than on link

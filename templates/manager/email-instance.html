@@ -70,7 +70,7 @@
 				<tbody>
 					{% for url in instance.urls.all %}
 					<tr>
-						<td>{{url.name}}</td>
+						<td><a href="{{url.href}}">{{url.name}}</a><a href="{{url.href}}" class="external" target="_blank" title="Open link in a new window"> (new window)</a></td>
 						<td>{{url.position}}</td>
 						<td>{{url.clicks.count}}</td>
 						<td>
