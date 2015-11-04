@@ -854,7 +854,7 @@ def instance_open(request):
 
                     instance_open, created = InstanceOpen.objects.get_or_create(recipient=recipient, instance=instance, is_reopen=False)
                     if not created:
-                        instance_new = InstanceOpen.objects.create(recipient=recipient, instance=instance, is_reopen=True)
+                        instance_new = InstanceOpen(recipient=recipient, instance=instance, is_reopen=True)
                         instance_new.save()
                         log.debug('re-open created')
                     else:
