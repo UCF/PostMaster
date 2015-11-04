@@ -851,8 +851,15 @@ def instance_open(request):
                 try:
                     recipient = Recipient.objects.get(id=recipient_id)
                     instance = Instance.objects.get(id=instance_id)
-                    InstanceOpen.objects.get(recipient=recipient,
-                                             instance=instance)
+
+                    instance_open, created = InstanceOpen.objects.get_or_create(recipient=recipient, instance=instance, is_reopen=False)
+                    if not created:
+                        instance_new = InstanceOpen.objects.create(recipient=recipient, instance=instance, is_reopen=True)
+                        instance_new.save()
+                        log.debug('re-open created')
+                    else:
+                        log.debug('open created')
+
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
@@ -861,11 +868,6 @@ def instance_open(request):
                     # also strange
                     log.error('bad instance')
                     pass
-                except InstanceOpen.DoesNotExist:
-                    instance_open = InstanceOpen(recipient=recipient,
-                                                 instance=instance)
-                    instance_open.save()
-                    log.debug('open saved')
     return HttpResponse(settings.DOT, content_type='image/png')
 
 

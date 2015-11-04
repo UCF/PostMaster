@@ -46,7 +46,8 @@
 	<section>
 		<h3>Opens</h3>
 		{% if instance.opens_tracked %}
-		<p>Of the <big><strong>{{instance.recipient_details.count}}</strong></big> recipients, <big><strong>{{instance.opens.count}}</strong></big> opened the email. An open rate of <big><strong>{{instance.open_rate}}%</strong></big>.</p>
+		<p>Of the <big><strong>{{instance.recipient_details.count}}</strong></big> recipients, <big><strong>{{instance.initial_opens}}</strong></big> opened the email. An open rate of <big><strong>{{instance.open_rate}}%</strong></big>.</p>
+		<p>This email has been opened a total of <big><strong>{{instance.opens.count}}</strong></big> times.</p>
 		{% else %}
 		<p>Opens were not tracked for this instance.
 		{% endif %}
