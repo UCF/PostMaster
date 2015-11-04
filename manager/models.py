@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
+from itertools import chain
 import logging
 import smtplib
 import re
@@ -730,6 +731,24 @@ class Email(models.Model):
             groups__in = self.recipient_groups.all()).exclude(
                 pk__in=self.unsubscriptions.all()).distinct().exclude(
                 disable=True)
+
+        # Get creator's email TODO: Make this work with previews
+        if self.creator.email:
+            # Get recipient from creator email
+            recipient = Recipient.objects.filter(email_address=self.creator.email)[0]
+            if recipient:
+                # check to see if recipient is already in the recipients list
+                if recipient not in recipients:
+                    # Add recipient to recipient list
+                    recipients = list(chain(recipients, recipient))
+            # create recipient and add to recipient list
+            else:
+                recipient = Recipient(email_address=self.creator.email)
+                recipient.save()
+                recipient = Recipient.objects.filter(email_address=self.creator.email)
+                recipients = list(chain(recipients, recipient))
+        else:
+            log.debug('email_address not set for creator');
 
         # The interval between ticks is one second. This is used to make
         # sure that the threads don't exceed the sending limit
