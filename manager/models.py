@@ -505,6 +505,13 @@ class Email(models.Model):
         # recipients. They are defined in the comma-separate field preview_recipients
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
 
+        # Add email creator email to recipient list
+        if self.creator.email:
+            if self.creator.email not in recipients:
+                recipients.append(self.creator.email)
+        else:
+            log.debug('email_address not set for creator')
+
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'],
                                       settings.AMAZON_SMTP['port'])
@@ -732,7 +739,7 @@ class Email(models.Model):
                 pk__in=self.unsubscriptions.all()).distinct().exclude(
                 disable=True)
 
-        # Get creator's email TODO: Make this work with previews
+        # Add email creator email to recipient list
         if self.creator.email:
             # Get recipient from creator email
             recipient = Recipient.objects.filter(email_address=self.creator.email)[0]
