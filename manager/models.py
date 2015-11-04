@@ -828,6 +828,24 @@ class Instance(models.Model):
         return 0 if self.sent_count == 0 else round(float(opens)/float(self.sent_count)*100, significance)
 
     @property
+    def reopen_rate(self):
+        '''
+            Reopen rate of this instance as a percent.
+        '''
+        opens = self.opens.count()
+        reopens = self.reopens.count()
+        return opens + reopens
+
+    @property
+    def total_opens(self):
+        '''
+            Total open count.
+        '''
+        opens = self.opens.count()
+        reopens = self.reopens.count()
+        return opens + reopens
+
+    @property
     def sent_count(self):
         return self.recipient_details.exclude(when=None).count()
 
@@ -949,6 +967,13 @@ class InstanceOpen(models.Model):
     instance  = models.ForeignKey(Instance, related_name='opens')
     when      = models.DateTimeField(auto_now_add=True)
 
+class InstanceReOpen(models.Model):
+    '''
+        Describes a recipient's opening of an email after the first opening
+    '''
+    recipient = models.ForeignKey(Recipient, related_name='instances_reopened')
+    instance  = models.ForeignKey(Instance, related_name='reopens')
+    when      = models.DateTimeField(auto_now_add=True)
 
 class Setting(models.Model):
     name = models.CharField(max_length=80)

@@ -48,6 +48,7 @@ from manager.forms import SettingCreateUpdateForm
 from manager.models import Email
 from manager.models import Instance
 from manager.models import InstanceOpen
+from manager.models import InstanceReOpen
 from manager.models import PreviewInstance
 from manager.models import RecipientAttribute
 from manager.models import Recipient
@@ -416,7 +417,6 @@ class InstanceDetailView(EmailsMixin, DetailView):
 
             context['litmus_url'] = settings.LITMUS_BASE_URL + \
                 LitmusApi.TESTS + self.object.litmus_id
-
         return context
 
 
@@ -922,8 +922,14 @@ def instance_open(request):
                 try:
                     recipient = Recipient.objects.get(id=recipient_id)
                     instance = Instance.objects.get(id=instance_id)
-                    InstanceOpen.objects.get(recipient=recipient,
-                                             instance=instance)
+
+                    instance_open, created = InstanceOpen.objects.get_or_create(recipient=recipient, instance=instance)
+                    if created is False:
+                        instance_reopen = InstanceReOpen.objects.create(recipient=recipient, instance=instance)
+                        instance_reopen.save()
+                        log.debug('re-open created')
+                    else:
+                        log.debug('open created')
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
@@ -932,11 +938,7 @@ def instance_open(request):
                     # also strange
                     log.error('bad instance')
                     pass
-                except InstanceOpen.DoesNotExist:
-                    instance_open = InstanceOpen(recipient=recipient,
-                                                 instance=instance)
-                    instance_open.save()
-                    log.debug('open saved')
+
     return HttpResponse(settings.DOT, content_type='image/png')
 
 
