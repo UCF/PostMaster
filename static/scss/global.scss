@@ -2,8 +2,14 @@ body {
   margin: 15px 0;
 }
 
-table tr {
-  cursor: pointer;
+table {
+  tr {
+    cursor: pointer;
+
+    td {
+      vertical-align: middle !important;
+    }
+  }
 }
 
 input[type=file] {

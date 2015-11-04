@@ -31,6 +31,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.forms.util import ErrorList
 
+from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
 from manager.forms import PreviewInstanceLockForm
@@ -66,6 +67,51 @@ log = logging.getLogger(__name__)
 ##
 # Mixins
 ##
+class SortSearchMixin(object):
+    def get_queryset(self):
+        queryset = super(SortSearchMixin, self).get_queryset();
+
+        # sort parameter
+        self._sort = 'asc'
+        self._order = 'asc'
+        self._search_query = ''
+
+        if self.request.GET.get('sort'):
+            self._sort = self.request.GET.get('sort')
+
+        if self.request.GET.get('order'):
+            self._order = self.request.GET.get('order')
+
+        if self.request.GET.get('search_query'):
+            self._search_query = self.request.GET.get('search_query')
+
+        # search parameter (search_form defined in View)
+        self._search_valid = self.search_form.is_valid()
+
+        if self._search_valid:
+            kwargs = {
+                '{0}__icontains'.format(self.search_field): self.search_form.cleaned_data['search_query']
+            }
+            queryset = queryset.filter(**kwargs)
+
+        if self._sort:
+            queryset.order_by(self._sort)
+            if self._order == 'des':
+                self._order = 'asc'
+                return queryset.reverse()
+            else:
+                self._order = 'des'
+                return queryset
+        else:
+            return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(SortSearchMixin, self).get_context_data(**kwargs)
+        context['sort'] = self._sort
+        context['order'] = self._order
+        context['search_query'] = self._search_query
+        return context
+
 class EmailsMixin(object):
     def get_context_data(self, **kwargs):
         context = super(EmailsMixin, self).get_context_data(**kwargs)
@@ -124,11 +170,23 @@ class OverviewListView(ListView):
 ##
 # Emails
 ##
-class EmailListView(EmailsMixin, ListView):
+class EmailListView(EmailsMixin, SortSearchMixin, ListView):
     model = Email
     template_name = 'manager/emails.html'
     context_object_name = 'emails'
     paginate_by = 20
+
+    def get_queryset(self):
+        self.search_field = 'title'
+        self.search_form = EmailSearchForm(self.request.GET)
+        emails = super(EmailListView, self).get_queryset()
+        return emails
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailListView, self).get_context_data(**kwargs)
+        context['search_form'] = self.search_form
+        context['search_valid'] = self._search_valid
+        return context
 
 
 class EmailCreateView(EmailsMixin, CreateView):
@@ -382,23 +440,21 @@ class EmailDesignView(TemplateView):
 ##
 # Recipients Groups
 ##
-class RecipientGroupListView(RecipientGroupsMixin, ListView):
+class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
     model = RecipientGroup
     template_name = 'manager/recipientgroups.html'
     context_object_name = 'groups'
     paginate_by = 20
 
     def get_queryset(self):
-        self._search_form = RecipientGroupSearchForm(self.request.GET)
-        self._search_valid = self._search_form.is_valid()
-        if self._search_valid:
-            return RecipientGroup.objects.filter(name__icontains=self._search_form.cleaned_data['name'])
-        else:
-            return RecipientGroup.objects.all()
+        self.search_field = 'name'
+        self.search_form = RecipientGroupSearchForm(self.request.GET)
+        recipient_groups = super(RecipientGroupListView, self).get_queryset()
+        return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
-        context['search_form'] = self._search_form
+        context['search_form'] = self.search_form
         context['search_valid'] = self._search_valid
         return context
 

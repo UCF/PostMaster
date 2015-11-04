@@ -115,6 +115,8 @@ class RecipientGroup(models.Model):
     '''
     name = models.CharField(max_length=100, unique=True)
     recipients = models.ManyToManyField(Recipient, related_name='groups')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
             ordering = ["name"]
@@ -330,6 +332,11 @@ class Email(models.Model):
     live_est_time = models.DateTimeField(null=True)
     send_override = models.BooleanField(null=False, blank=False, default=True)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+            ordering = ["title"]
 
     def is_sending_today(self, now=datetime.now()):
         """
