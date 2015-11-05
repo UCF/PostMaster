@@ -744,9 +744,7 @@ class Email(models.Model):
             # Get recipient from creator email
             try:
                 recipient, created = Recipient.objects.get_or_create(email_address=self.creator.email)
-                log.debug(recipient)
                 recipient = Recipient.objects.filter(pk=recipient.id)
-                log.debug(recipient)
                 recipients = list(chain(recipients, recipient))
             except Recipient.MultipleObjectsReturned:
                 log.error('Multiple emails found for creator email ' + self.creator.email)
