@@ -1,3 +1,4 @@
+
 use postmaster;
 alter table manager_previewinstance modify column sent_html longtext;
 alter table manager_previewinstance ENGINE=InnoDB;
@@ -24,3 +25,6 @@ ALTER TABLE manager_email
 	ADD COLUMN creator_id int(11) DEFAULT NULL,
 	ADD CONSTRAINT FK_AUTH_USER_TABLE_CREATOR_ID FOREIGN KEY (creator_id)
 	REFERENCES auth_user (id)
+
+ALTER TABLE manager_instanceopen
+  ADD COLUMN is_reopen tinyint(1) NOT NULL
