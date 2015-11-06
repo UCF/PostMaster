@@ -8,6 +8,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth.models import User
+from itertools import chain
 import logging
 import smtplib
 import re
@@ -313,6 +315,7 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
+    creator = models.ForeignKey(User, related_name='created_email', null=True)
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
@@ -501,6 +504,13 @@ class Email(models.Model):
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
+
+        # Add email creator email to recipient list
+        if self.creator.email:
+            if self.creator.email not in recipients:
+                recipients.append(self.creator.email)
+        else:
+            log.debug('email_address not set for creator')
 
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'],
@@ -728,6 +738,18 @@ class Email(models.Model):
             groups__in = self.recipient_groups.all()).exclude(
                 pk__in=self.unsubscriptions.all()).distinct().exclude(
                 disable=True)
+
+        # Add email creator email to recipient list
+        if self.creator.email:
+            # Get recipient from creator email
+            try:
+                recipient, created = Recipient.objects.get_or_create(email_address=self.creator.email)
+                recipient = Recipient.objects.filter(pk=recipient.id)
+                recipients = list(chain(recipients, recipient))
+            except Recipient.MultipleObjectsReturned:
+                log.error('Multiple emails found for creator email ' + self.creator.email)
+        else:
+            log.debug('email_address not set for creator')
 
         # The interval between ticks is one second. This is used to make
         # sure that the threads don't exceed the sending limit

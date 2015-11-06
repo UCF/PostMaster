@@ -196,6 +196,7 @@ class EmailCreateView(EmailsMixin, CreateView):
 
     def form_valid(self, form):
         email = form.instance
+        form.instance.creator = self.request.user
 
         # Enable override send in case the service interval misses the email
         now = datetime.now()
