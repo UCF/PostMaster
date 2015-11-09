@@ -506,7 +506,7 @@ class Email(models.Model):
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
 
         # Add email creator email to recipient list
-        if self.creator.email:
+        if self.creator.email and self.preview is True:
             if self.creator.email not in recipients:
                 recipients.append(self.creator.email)
         else:
