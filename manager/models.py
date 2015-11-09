@@ -788,11 +788,15 @@ class Email(models.Model):
         # in the template. Do this upfront because looking up each one in the
         # sending loop is too slow
         log.debug('building recipients and recipient attributes...')
+        # Get all recipient attributes
+        all_recipient_attributes = RecipientAttribute.objects.filter(recipient_id__in=recipients)
+
         for recipient in recipients:
             recipient_attributes[recipient.pk] = {}
             for placeholder in placeholders:
+
                 try:
-                    recipient_attributes[recipient.pk][placeholder] = getattr(recipient, placeholder)
+                    recipient_attributes[recipient.pk][placeholder] = all_recipient_attributes.get(recipient=recipient, name=placeholder).value.encode('ascii', 'ignore')
                 except AttributeError:
                     recipient_attributes[recipient.pk][placeholder] = None
 
