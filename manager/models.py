@@ -823,6 +823,14 @@ class Instance(models.Model):
         return self.opens.exclude(is_reopen=True).count()
 
     @property
+    def re_opens(self):
+        return self.opens.exclude(is_reopen=False).count()
+
+    @property
+    def total_opens(self):
+        return self.opens.count()
+
+    @property
     def placeholders(self):
         delimiter    = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.sent_html)
