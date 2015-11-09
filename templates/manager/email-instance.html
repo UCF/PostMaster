@@ -54,7 +54,7 @@
 							<h4 class="upper">Recipients</h4>
 							<big class="larger"><strong>{{instance.recipient_details.count}}</strong></big>
 						</div>
-						<div class="col-lg-4 col-xs-4" data-toggle="tooltip" data-placement="top" title="The email was opened a total of {{instance.total_opens}} times, {{instance.re_opens}} of those being reopens.">
+						<div class="col-lg-4 col-xs-4">
 							<div class="center">
 								<h4 class="upper">Opened</h4>
 								<big class="larger"><strong>{{instance.initial_opens}}</strong></big>
@@ -66,8 +66,8 @@
 						</div>
 					</div>
 
-					<p class="help-block pull-right"><strong>{{instance.open_rate}}%</strong> of recipients opened this email.</p>
-				</div>
+					<p class="help-block">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong>{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
+					</div>
 
 				{% else %}
 				<p>Opens were not tracked for this instance.
