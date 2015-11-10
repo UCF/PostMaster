@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+    {{block.super}}
+    <li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
+    <li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
+    <li class="active"><a href="{% url manager-recipient-delete recipient.pk %}">Delete</a></li>
+{% endblock %}
+{% block page-body %}
+<form class="form-horizontal" action="{% url manager-recipient-delete recipient.pk %}" method="post">
+    <fieldset>
+        <legend>Delete Recipient</legend>
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{error}}
+            </div>
+        {% endfor %}
+
+        <p><strong>Are you sure you want to delete the recipient "{{ recipient.email_address }}"?</strong></p>
+        <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Delete</button>
+        <a href="{% url manager-recipients %}" class="btn btn-default">
+            <span class="glyphicon glyphicon-minus"></span> Cancel
+        </a>
+</form>
+{% endblock %}

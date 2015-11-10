@@ -61,6 +61,7 @@
             <thead>
                 <tr>
                     <th scope="col">Email Address</th>
+                    <th scope="col"><th>
                 </tr>
             </thead>
             <tbody>
@@ -68,6 +69,14 @@
                     {% for recipient in recipients %}
                     <tr data-link-url="{% url manager-recipient-update recipient.pk %}">
                         <td>{{recipient.email_address}}</td>
+                        <td>
+                          <div class="btn-group pull-right">
+                            <a class="btn btn-sm btn-default" href="{% url manager-recipient-update recipient.pk %}">
+                              <span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                            <a class="btn btn-sm btn-default" href="{% url manager-recipient-delete recipient.pk %}">
+                              <span class="glyphicon glyphicon-remove"></span> Delete</a>
+                          </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 {% endif %}
