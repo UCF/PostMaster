@@ -172,10 +172,6 @@ button.attr-delete:nth-of-type(1) {
   padding-top: 12px;
 }
 
-.previews {
-  margin-left: -15px;
-}
-
 .jumbotron.opens {
   padding: 10px 30px;
   border-radius: 0;
@@ -198,7 +194,11 @@ button.attr-delete:nth-of-type(1) {
     }
   }
 
-  big.larger {
+  .big {
+    font-size: larger;
+  }
+
+  .larger {
     font-size: 35px;
     text-align: center;
     display: block;
