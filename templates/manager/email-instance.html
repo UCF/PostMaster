@@ -16,7 +16,7 @@
   {% endif %}
 
 
-  <p>This instance was scheduled to go to <strong class="big">{{instance.recipient_details.count}}</strong> recipients. <strong class="big">{{instance.sent_count}}</strong> were actually sent.</p>
+  <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
 
   <div class="row">
     <div class="col-lg-7 col-md-6 col-sm-12">
@@ -25,13 +25,13 @@
       {% if instance.litmus_id %}
       <div class="row">
         {% if desktop_thumbnail_image %}
-        <div class="col-md-2">
+        <div class="col-md-3">
           <h4>Desktop</h4>
           <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
         </div>
         {% endif %}
         {% if mobile_thumbnail_image %}
-        <div class="col-md-2">
+        <div class="col-md-3">
           <h4>Mobile</h4>
           <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
         </div>
