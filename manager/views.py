@@ -557,7 +557,7 @@ class RecipientListView(RecipientsMixin, ListView):
         if self._search_valid:
             return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
         else:
-            return Recipient.objects.all()
+            return Recipient.objects.all().order_by('disable')
 
     def get_context_data(self, **kwargs):
         context = super(RecipientListView, self).get_context_data(**kwargs)
@@ -651,12 +651,36 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
-class RecipientDeleteView(RecipientsMixin, DeleteView):
+class RecipientInactivateView(RecipientsMixin, UpdateView):
     model = Recipient
-    template_name = 'manager/recipient-delete-confirm.html'
+    template_name = 'manager/recipient-inactivate-confirm.html'
 
-    def get_success_url(self):
-        return reverse('manager-recipients')
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+
+        log.debug('\n\nGET\n\n')
+
+
+        return self.render_to_response(
+            self.get_context_data(recipient=self.object))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+
+        log.debug('\n\nPOST\n\n')
+
+        self.object.disable = True
+        self.object.save()
+
+        messages.success(request, 'Recipient set to inactive.')
+        return HttpResponseRedirect(
+            reverse('manager-recipients',
+                args=()
+            )
+        )
+
 
 class RecipientAttributeListView(RecipientsMixin, ListView):
     model = RecipientAttribute

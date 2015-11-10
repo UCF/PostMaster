@@ -171,3 +171,13 @@ button.attr-delete:nth-of-type(1) {
 .add-attr-container .control-label {
   padding-top: 12px;
 }
+
+tr.inactive {
+  background: #E2E2E2;
+  color: #A2A2A2;
+}
+
+.table-hover>tbody>tr.inactive:hover {
+    background: #E8E8E8;
+    color: #A2A2A2;
+}
