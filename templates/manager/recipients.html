@@ -70,7 +70,7 @@
             <a class="btn btn-sm btn-default" href="{% url manager-recipient-update recipient.pk %}">
               <span class="glyphicon glyphicon-pencil"></span> Edit</a>
             {% if recipient.disable %}
-            <a class="btn btn-sm btn-default" href="{% url manager-recipient-inactivate recipient.pk %}">
+            <a class="btn btn-sm btn-default" href="{% url manager-recipient-activate recipient.pk %}">
               <span class="glyphicon glyphicon-eye-open"></span> Activate</a>
             {% else %}
             <a class="btn btn-sm btn-default" href="{% url manager-recipient-inactivate recipient.pk %}">

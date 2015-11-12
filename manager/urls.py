@@ -39,6 +39,7 @@ urlpatterns = patterns('manager.views',
     url(r'^recipient/(?P<pk>\d+)/attributes/$',       login_required(RecipientAttributeListView.as_view()),      name='manager-recipient-recipientattributes'),
     url(r'^recipient/(?P<pk>\d+)/update/$',           login_required(RecipientUpdateView.as_view()),             name='manager-recipient-update'),
     url(r'^recipient/(?P<pk>\d+)/inactivate/$',           login_required(RecipientInactivateView.as_view()),     name='manager-recipient-inactivate'),
+    url(r'^recipient/(?P<pk>\d+)/activate/$',           login_required(RecipientActivateView.as_view()),     name='manager-recipient-activate'),
     url(r'^recipient/(?P<pk>\d+)/subscriptions/$',    RecipientSubscriptionsUpdateView.as_view(),                name='manager-recipient-subscriptions'),
 
     # Settings
