@@ -58,25 +58,15 @@
   	<thead>
   		<tr>
         <th scope="col">Email Address</th>
-        <th scope="col"></th>
   		</tr>
   	</thead>
   	<tbody>
   		{% for recipient in recipients %}
   		<tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
-  			<td>{{recipient.email_address}}</td>
-        <td>
-          <div class="btn-group pull-right">
-            <a class="btn btn-sm btn-default" href="{% url manager-recipient-update recipient.pk %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit</a>
+        <td>{{recipient.email_address}}
             {% if recipient.disable %}
-            <a class="btn btn-sm btn-default" href="{% url manager-recipient-activate recipient.pk %}">
-              <span class="glyphicon glyphicon-eye-open"></span> Activate</a>
-            {% else %}
-            <a class="btn btn-sm btn-default" href="{% url manager-recipient-inactivate recipient.pk %}">
-              <span class="glyphicon glyphicon-eye-close"></span> Inactivate</a>
+            <span class="glyphicon pull-right glyphicon-eye-close">
             {% endif %}
-          </div>
         </td>
   		</tr>
   		{% endfor %}

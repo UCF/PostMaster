@@ -651,44 +651,6 @@ class RecipientUpdateView(RecipientsMixin, UpdateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
-class RecipientInactivateView(RecipientsMixin, UpdateView):
-    model = Recipient
-    template_name = 'manager/recipient-inactivate-confirm.html'
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        return self.render_to_response(
-            self.get_context_data(recipient=self.object))
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.disable = True
-        self.object.save()
-
-        messages.success(request, 'Recipient set to inactive.')
-        return HttpResponseRedirect(
-            reverse('manager-recipients',
-                args=()
-            )
-        )
-
-class RecipientActivateView(RecipientsMixin, UpdateView):
-    model = Recipient
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        self.object.disable = False
-        self.object.save()
-
-        messages.success(request, 'Recipient set to active.')
-        return HttpResponseRedirect(
-            reverse('manager-recipients',
-                args=()
-            )
-        )
-
 
 class RecipientAttributeListView(RecipientsMixin, ListView):
     model = RecipientAttribute
