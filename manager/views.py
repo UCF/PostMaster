@@ -982,6 +982,20 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
     def get_success_url(self):
         return reverse('manager-recipientgroups')
 
+
+def instance_json_feed(request):
+    retval = {}
+
+    if request.GET.get('pk'):
+        pk = request.GET.get('pk')
+        instance = Instance.objects.get(pk=pk)
+
+        retval['sent_count'] = instance.sent_count
+        retval['total'] = instance.recipient_details.count()
+
+    return HttpResponse(json.dumps(retval), content_type='application/json')
+
+
 def recipient_json_feed(request):
     search_term = ''
 

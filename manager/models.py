@@ -663,7 +663,6 @@ class Email(models.Model):
 
                         log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
                         try:
-                            time.sleep(5)
                             # amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
                             log.debug('************* Email would be sent to: ' + recipient_details.recipient.email_address + '****************');
                         except smtplib.SMTPResponseException, e:

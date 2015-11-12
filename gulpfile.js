@@ -73,6 +73,7 @@ gulp.task('js', function() {
       var minified = [
         config.bowerDir + '/bootstrap-sass-official/assets/javascripts/bootstrap.js',
         config.bowerDir + '/typeahead.js/dist/typeahead.bundle.js',
+        config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
         config.jsPath + '/recipientgroup-update.js',
         config.jsPath + '/global.js',
