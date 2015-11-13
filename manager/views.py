@@ -1,5 +1,6 @@
 from datetime import date
 from datetime import datetime
+import time
 import logging
 import os
 from util import calc_open_mac
@@ -243,6 +244,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
         return reverse('manager-email-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
+
 
 class EmailPlaceholderVerificationView(EmailsMixin, DetailView):
     model = Email
@@ -986,12 +988,22 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
 def instance_json_feed(request):
     retval = {}
 
+    def datetime_to_milliseconds(datetime_object):
+        if datetime_object:
+            timetuple = datetime_object.timetuple()
+            timestamp = time.mktime(timetuple)
+            return timestamp * 1000
+        else:
+            return 0
+
     if request.GET.get('pk'):
         pk = request.GET.get('pk')
         instance = Instance.objects.get(pk=pk)
 
         retval['sent_count'] = instance.sent_count
         retval['total'] = instance.recipient_details.count()
+        retval['start'] = datetime_to_milliseconds(instance.start)
+        retval['end'] = datetime_to_milliseconds(instance.end)
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
 
