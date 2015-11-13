@@ -11,30 +11,6 @@
 {% block page-body %}
   <h2>{{instance.email.title}} Instance
   <br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
-<<<<<<< HEAD
-	{% if instance.in_progress %}
-	<div class="alert alert-info">This instance is still in progress.</div>
-	<form class="form-horizontal" action="{% url manager-instance-cancel %}" method="post">
-		<input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-		<button type="submit" class="btn btn-error">Cancel Send</button>
-	</form>
-	{% else %}
-	<form class="form-horizontal" action="{% url manager-recipientgroup-create-email-opens %}" method="post">
-		<input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-		<button type="submit" class="btn btn-primary">Create Recipient Group</button>
-		<p class="help-block">Creates a Recipient Group based on recipients who opened this email</p>
-	</form>
-	{% endif %}
-	<p>This instance was scheduled to go to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients. <big><strong>{{instance.sent_count}}</strong></big> were actually sent.</p>
-  <section>
-    <h3>Previews</h3>
-    {% if instance.litmus_id %}
-    <div class="row">
-      {% if desktop_thumbnail_image %}
-      <div class="col-md-2">
-        <h4>Desktop</h4>
-        <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
-=======
   {% if instance.in_progress %}
 		<div class="alert alert-info">
 			<p>This instance is in progress <span class="sent">0 of 0</span> emails sent.</p>
@@ -67,7 +43,6 @@
           <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
         </div>
         {% endif %}
->>>>>>> send-status
       </div>
       <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
       {% else %}
