@@ -8,6 +8,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth.models import User
+from itertools import chain
 import logging
 import smtplib
 import re
@@ -30,6 +32,9 @@ class Recipient(models.Model):
 
     email_address = models.CharField(max_length=255, unique=True)
     disable = models.BooleanField(default=False)
+
+    class Meta:
+            ordering = ["email_address"]
 
     def save(self, *args, **kwargs):
         if self.pk is None:
@@ -112,9 +117,14 @@ class RecipientGroup(models.Model):
     '''
     name = models.CharField(max_length=100, unique=True)
     recipients = models.ManyToManyField(Recipient, related_name='groups')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+            ordering = ["name"]
 
     def __str__(self):
-        return self.name + ' (' + str(self.recipients.count()) + ' recipients)'
+        return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
 
 class EmailManager(models.Manager):
@@ -305,6 +315,7 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
+    creator = models.ForeignKey(User, related_name='created_email', null=True)
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
@@ -316,14 +327,19 @@ class Email(models.Model):
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
     replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
     recipient_groups = models.ManyToManyField(RecipientGroup, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
-    track_urls = models.BooleanField(default=False, help_text=_HELP_TEXT['track_urls'])
-    track_opens = models.BooleanField(default=False, help_text=_HELP_TEXT['track_opens'])
+    track_urls = models.BooleanField(default=True, help_text=_HELP_TEXT['track_urls'])
+    track_opens = models.BooleanField(default=True, help_text=_HELP_TEXT['track_opens'])
     preview = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
     preview_recipients = models.TextField(null=True, blank=True, help_text=_HELP_TEXT['preview_recipients'])
     preview_est_time = models.DateTimeField(null=True)
     live_est_time = models.DateTimeField(null=True)
     send_override = models.BooleanField(null=False, blank=False, default=True)
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+            ordering = ["title"]
 
     def is_sending_today(self, now=datetime.now()):
         """
@@ -488,6 +504,13 @@ class Email(models.Model):
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
+
+        # Add email creator email to recipient list
+        if self.creator.email and self.preview is True:
+            if self.creator.email not in recipients:
+                recipients.append(self.creator.email)
+        else:
+            log.debug('email_address not set for creator')
 
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'],
@@ -741,6 +764,18 @@ class Email(models.Model):
                 pk__in=self.unsubscriptions.all()).distinct().exclude(
                 disable=True)
 
+        # Add email creator email to recipient list
+        if self.creator.email:
+            # Get recipient from creator email
+            try:
+                recipient, created = Recipient.objects.get_or_create(email_address=self.creator.email)
+                recipient = Recipient.objects.filter(pk=recipient.id)
+                recipients = list(chain(recipients, recipient))
+            except Recipient.MultipleObjectsReturned:
+                log.error('Multiple emails found for creator email ' + self.creator.email)
+        else:
+            log.debug('email_address not set for creator')
+
         # The interval between ticks is one second. This is used to make
         # sure that the threads don't exceed the sending limit
         subject                 = self.subject + str(additional_subject)
@@ -780,11 +815,15 @@ class Email(models.Model):
         # in the template. Do this upfront because looking up each one in the
         # sending loop is too slow
         log.debug('building recipients and recipient attributes...')
+        # Get all recipient attributes
+        all_recipient_attributes = RecipientAttribute.objects.filter(recipient_id__in=recipients)
+
         for recipient in recipients:
             recipient_attributes[recipient.pk] = {}
             for placeholder in placeholders:
+
                 try:
-                    recipient_attributes[recipient.pk][placeholder] = getattr(recipient, placeholder)
+                    recipient_attributes[recipient.pk][placeholder] = all_recipient_attributes.get(recipient=recipient, name=placeholder).value.encode('ascii', 'ignore')
                 except AttributeError:
                     recipient_attributes[recipient.pk][placeholder] = None
 
@@ -844,12 +883,24 @@ class Instance(models.Model):
         '''
             Open rate of this instance as a percent.
         '''
-        opens = self.opens.count()
+        opens = self.initial_opens
         return 0 if self.sent_count == 0 else round(float(opens)/float(self.sent_count)*100, significance)
 
     @property
     def sent_count(self):
         return self.recipient_details.exclude(when=None).count()
+
+    @property
+    def initial_opens(self):
+        return self.opens.exclude(is_reopen=True).count()
+
+    @property
+    def re_opens(self):
+        return self.opens.exclude(is_reopen=False).count()
+
+    @property
+    def total_opens(self):
+        return self.opens.count()
 
     @property
     def placeholders(self):
@@ -968,6 +1019,7 @@ class InstanceOpen(models.Model):
     recipient = models.ForeignKey(Recipient, related_name='instances_opened')
     instance  = models.ForeignKey(Instance, related_name='opens')
     when      = models.DateTimeField(auto_now_add=True)
+    is_reopen = models.BooleanField(default=False)
 
 
 class Setting(models.Model):

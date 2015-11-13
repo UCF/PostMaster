@@ -1,5 +1,6 @@
 from datetime import date
 from datetime import datetime
+import time
 import logging
 import os
 from util import calc_open_mac
@@ -31,6 +32,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.forms.util import ErrorList
 
+from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
 from manager.forms import PreviewInstanceLockForm
@@ -39,6 +41,7 @@ from manager.forms import RecipientAttributeUpdateForm
 from manager.forms import RecipientAttributeFormSet
 from manager.forms import RecipientCreateUpdateForm
 from manager.forms import RecipientCSVImportForm
+from manager.forms import RecipientGroupSearchForm
 from manager.forms import RecipientGroupCreateUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
@@ -65,6 +68,51 @@ log = logging.getLogger(__name__)
 ##
 # Mixins
 ##
+class SortSearchMixin(object):
+    def get_queryset(self):
+        queryset = super(SortSearchMixin, self).get_queryset();
+
+        # sort parameter
+        self._sort = 'asc'
+        self._order = 'asc'
+        self._search_query = ''
+
+        if self.request.GET.get('sort'):
+            self._sort = self.request.GET.get('sort')
+
+        if self.request.GET.get('order'):
+            self._order = self.request.GET.get('order')
+
+        if self.request.GET.get('search_query'):
+            self._search_query = self.request.GET.get('search_query')
+
+        # search parameter (search_form defined in View)
+        self._search_valid = self.search_form.is_valid()
+
+        if self._search_valid:
+            kwargs = {
+                '{0}__icontains'.format(self.search_field): self.search_form.cleaned_data['search_query']
+            }
+            queryset = queryset.filter(**kwargs)
+
+        if self._sort:
+            queryset.order_by(self._sort)
+            if self._order == 'des':
+                self._order = 'asc'
+                return queryset.reverse()
+            else:
+                self._order = 'des'
+                return queryset
+        else:
+            return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(SortSearchMixin, self).get_context_data(**kwargs)
+        context['sort'] = self._sort
+        context['order'] = self._order
+        context['search_query'] = self._search_query
+        return context
+
 class EmailsMixin(object):
     def get_context_data(self, **kwargs):
         context = super(EmailsMixin, self).get_context_data(**kwargs)
@@ -123,11 +171,23 @@ class OverviewListView(ListView):
 ##
 # Emails
 ##
-class EmailListView(EmailsMixin, ListView):
+class EmailListView(EmailsMixin, SortSearchMixin, ListView):
     model = Email
     template_name = 'manager/emails.html'
     context_object_name = 'emails'
     paginate_by = 20
+
+    def get_queryset(self):
+        self.search_field = 'title'
+        self.search_form = EmailSearchForm(self.request.GET)
+        emails = super(EmailListView, self).get_queryset()
+        return emails
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailListView, self).get_context_data(**kwargs)
+        context['search_form'] = self.search_form
+        context['search_valid'] = self._search_valid
+        return context
 
 
 class EmailCreateView(EmailsMixin, CreateView):
@@ -137,6 +197,7 @@ class EmailCreateView(EmailsMixin, CreateView):
 
     def form_valid(self, form):
         email = form.instance
+        form.instance.creator = self.request.user
 
         # Enable override send in case the service interval misses the email
         now = datetime.now()
@@ -183,6 +244,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
         return reverse('manager-email-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
+
 
 class EmailPlaceholderVerificationView(EmailsMixin, DetailView):
     model = Email
@@ -395,11 +457,23 @@ class EmailDesignView(TemplateView):
 ##
 # Recipients Groups
 ##
-class RecipientGroupListView(RecipientGroupsMixin, ListView):
+class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
     model = RecipientGroup
     template_name = 'manager/recipientgroups.html'
     context_object_name = 'groups'
     paginate_by = 20
+
+    def get_queryset(self):
+        self.search_field = 'name'
+        self.search_form = RecipientGroupSearchForm(self.request.GET)
+        recipient_groups = super(RecipientGroupListView, self).get_queryset()
+        return recipient_groups
+
+    def get_context_data(self, **kwargs):
+        context = super(RecipientGroupListView, self).get_context_data(**kwargs)
+        context['search_form'] = self.search_form
+        context['search_valid'] = self._search_valid
+        return context
 
 
 class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
@@ -499,7 +573,7 @@ class RecipientListView(RecipientsMixin, ListView):
         if self._search_valid:
             return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
         else:
-            return Recipient.objects.all()
+            return Recipient.objects.all().order_by('disable')
 
     def get_context_data(self, **kwargs):
         context = super(RecipientListView, self).get_context_data(**kwargs)
@@ -865,8 +939,15 @@ def instance_open(request):
                 try:
                     recipient = Recipient.objects.get(id=recipient_id)
                     instance = Instance.objects.get(id=instance_id)
-                    InstanceOpen.objects.get(recipient=recipient,
-                                             instance=instance)
+
+                    instance_open, created = InstanceOpen.objects.get_or_create(recipient=recipient, instance=instance, is_reopen=False)
+                    if not created:
+                        instance_new = InstanceOpen(recipient=recipient, instance=instance, is_reopen=True)
+                        instance_new.save()
+                        log.debug('re-open created')
+                    else:
+                        log.debug('open created')
+
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
@@ -875,11 +956,6 @@ def instance_open(request):
                     # also strange
                     log.error('bad instance')
                     pass
-                except InstanceOpen.DoesNotExist:
-                    instance_open = InstanceOpen(recipient=recipient,
-                                                 instance=instance)
-                    instance_open.save()
-                    log.debug('open saved')
     return HttpResponse(settings.DOT, content_type='image/png')
 
 
@@ -921,6 +997,30 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
 
     def get_success_url(self):
         return reverse('manager-recipientgroups')
+
+
+def instance_json_feed(request):
+    retval = {}
+
+    def datetime_to_milliseconds(datetime_object):
+        if datetime_object:
+            timetuple = datetime_object.timetuple()
+            timestamp = time.mktime(timetuple)
+            return timestamp * 1000
+        else:
+            return 0
+
+    if request.GET.get('pk'):
+        pk = request.GET.get('pk')
+        instance = Instance.objects.get(pk=pk)
+
+        retval['sent_count'] = instance.sent_count
+        retval['total'] = instance.recipient_details.count()
+        retval['start'] = datetime_to_milliseconds(instance.start)
+        retval['end'] = datetime_to_milliseconds(instance.end)
+
+    return HttpResponse(json.dumps(retval), content_type='application/json')
+
 
 def recipient_json_feed(request):
     search_term = ''
@@ -1072,7 +1172,6 @@ def s3_upload_user_file(request):
 
             try:
                 url = keyobj.generate_url(0, query_auth=False, force_http=True)
-                url = s3.convert_key_url_sslsafe(url)
             except Exception, e:
                 response_data['error'] = 'Failed to generate url for file.'
 
@@ -1109,7 +1208,6 @@ def s3_get_user_files(request):
 
             for keyobj in key_list:
                 url = keyobj.generate_url(0, query_auth=False, force_http=True)
-                url = s3.convert_key_url_sslsafe(url)
 
                 if url:
                     if protocol != 'http://':

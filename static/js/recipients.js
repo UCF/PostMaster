@@ -63,7 +63,7 @@
     recipientCreatePage = (window.location.pathname.toString().indexOf('recipient/create/') !== -1);
     $clonedAttribute = $attributeContainer.find('.attribute').last().clone().appendTo('body').addClass('hide');
     // Select the first form input
-    $('form:first *:input[type!=hidden]:input[type!=checkbox]:first').focus();
+    $('form:first *:input[type=text]:first').focus();
     // Add attribute button click handler
     $('.add-attr-btn').on('click', addAttribute);
     // Delete attribute button click handler

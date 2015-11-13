@@ -9,11 +9,14 @@ from manager.models import RecipientGroup
 from manager.models import Setting
 
 
+class EmailSearchForm(forms.Form):
+    search_query = forms.CharField(widget=forms.TextInput())
+
 class EmailCreateUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Email
-        exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', )
+        exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', 'creator',)
 
 
 class EmailInstantSendForm(forms.Form):
@@ -40,6 +43,10 @@ class PreviewInstanceLockForm(forms.ModelForm):
     class Meta:
         model = PreviewInstance
         fields = ('lock_content', )
+
+
+class RecipientGroupSearchForm(forms.Form):
+    search_query = forms.CharField(widget=forms.TextInput())
 
 
 class RecipientGroupCreateUpdateForm(forms.ModelForm):
