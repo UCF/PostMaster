@@ -124,7 +124,7 @@ class RecipientGroup(models.Model):
             ordering = ["name"]
 
     def __str__(self):
-        return self.name + ' (' + str(self.recipients.count()) + ' recipients)'
+        return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
 
 class EmailManager(models.Manager):

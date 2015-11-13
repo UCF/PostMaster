@@ -175,3 +175,73 @@ button.attr-delete:nth-of-type(1) {
 .add-attr-container .control-label {
   padding-top: 12px;
 }
+
+.jumbotron.opens {
+  padding: 10px 30px;
+  border-radius: 0;
+
+  p {
+    font-size: 14px;
+  }
+
+  h3 {
+    color: #565656;
+  }
+
+  h4 {
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bold;
+    @media (max-width: 480px) {
+      font-size: 1em;
+      text-align: center;
+    }
+  }
+
+  .larger {
+    font-size: 35px;
+    text-align: center;
+    display: block;
+
+    @media (max-width: 480px) {
+      font-size: 1.75em;
+    }
+  }
+
+  .stats-container {
+    padding-bottom: 20px;
+
+    .center {
+      border: 1px solid #d6d6d6;
+      border-width: 0 1px;
+      display: block;
+      padding: 0 15px;
+      margin: 0 0 0 -30px;
+      @media (max-width: 480px) {
+        border: none;
+      }
+    }
+
+    .help-block {
+      padding-top: 10px;
+    }
+  }
+}
+
+tr.inactive {
+  background: #E2E2E2;
+  color: #A2A2A2;
+}
+
+.table-striped>tbody>tr.inactive:nth-of-type(odd),
+tbody>tr.inactive:nth-of-type(odd) {
+  background: #E8E8E8;
+  color: #A2A2A2;
+}
+
+.table-hover>tbody>tr.inactive:hover,
+.table-striped>tbody>tr.inactive:nth-of-type(odd):hover,
+tbody>tr.inactive:nth-of-type(odd):hover {
+  background: #EAEAE3;
+  color: #A2A2A2;
+}

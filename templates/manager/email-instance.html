@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
 {% block breadcrumbs %}
-	{{block.super}}
-	<li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-	<li><a href="{% url manager-email-update instance.email.pk %}">{{instance.email.title}}</a> <span class="divider">/</span></li>
-	<li><a href="{% url manager-email-instances instance.email.pk %}">Instances</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-email-instance instance.pk %}">{{instance.start}}</a></li>
+  {{block.super}}
+  <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+  <li><a href="{% url manager-email-update instance.email.pk %}">{{instance.email.title}}</a> <span class="divider">/</span></li>
+  <li><a href="{% url manager-email-instances instance.email.pk %}">Instances</a> <span class="divider">/</span></li>
+  <li class="active"><a href="{% url manager-email-instance instance.pk %}">{{instance.start}}</a></li>
 {% endblock %}
 
 {% block page-body %}
-	<h2>{{instance.email.title}} Instance
+  <h2>{{instance.email.title}} Instance
   <br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
-	{% if instance.in_progress %}
+  {% if instance.in_progress %}
 		<div class="alert alert-info">
 			<p>This instance is in progress <span class="sent">0 of 0</span> emails sent.</p>
 			<div class="progress send-progress">
@@ -21,76 +21,109 @@
 				</div>
 			</div>
 		</div>
-	{% else %}
-		<form class="form-horizontal" action="{% url manager-recipientgroup-create-email-opens %}" method="post">
-			<input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-			<button type="submit" class="btn btn-primary">Create Recipient Group</button>
-			<p class="help-block">Creates a Recipient Group based on recipients who opened this email</p>
-		</form>
-	{% endif %}
-	<p>This instance was scheduled to go to <big><strong>{{instance.recipient_details.count}}</strong></big> recipients. <big><strong>{{instance.sent_count}}</strong></big> were actually sent.</p>
-  <section>
-    <h3>Previews</h3>
-    {% if instance.litmus_id %}
-    <div class="row">
-      {% if desktop_thumbnail_image %}
-      <div class="col-md-2">
-        <h4>Desktop</h4>
-        <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
+  {% endif %}
+
+  <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
+
+  <div class="row">
+    <div class="col-lg-7 col-md-6 col-sm-12">
+    <section class="left-section previews">
+      <h3>Previews</h3>
+      {% if instance.litmus_id %}
+      <div class="row">
+        {% if desktop_thumbnail_image %}
+        <div class="col-md-3">
+          <h4>Desktop</h4>
+          <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
+        </div>
+        {% endif %}
+        {% if mobile_thumbnail_image %}
+        <div class="col-md-3">
+          <h4>Mobile</h4>
+          <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
+        </div>
+        {% endif %}
       </div>
+      <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
+      {% else %}
+      <h4>No Previews available</h4>
       {% endif %}
-      {% if mobile_thumbnail_image %}
-      <div class="col-md-2">
-        <h4>Mobile</h4>
-        <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
-      </div>
-      {% endif %}
+    </section>
     </div>
-    <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
+    <div class="col-lg-5 col-md-6 col-sm-12">
+    <section class="right-section jumbotron opens">
+      <h3>Opens</h3>
+      {% if instance.opens_tracked %}
+
+      <div class="stats-container">
+        <div class="row">
+          <div class="col-lg-4 col-xs-4">
+            <h4 class="upper">Recipients</h4>
+            <strong class="larger">{{instance.recipient_details.count}}</strong>
+          </div>
+          <div class="col-lg-4 col-xs-4">
+            <div class="center">
+              <h4 class="upper">Opened</h4>
+              <strong class="larger">{{instance.initial_opens}}</strong>
+            </div>
+          </div>
+          <div class="col-lg-4 col-xs-4">
+            <h4 class="upper">Open Rate</h4>
+            <strong class="larger">{{instance.open_rate}}%</strong>
+          </div>
+        </div>
+
+        <p class="help-block">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
+        </div>
+
+      {% else %}
+      <p>Opens were not tracked for this instance.
+      {% endif %}
+
+      {% if instance.in_progress %}
+      <div class="alert alert-info">This instance is still in progress.</div>
+      {% else %}
+      <form class="form-horizontal" action="{% url manager-recipientgroup-create-email-opens %}" method="post">
+        <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
+        <button type="submit" class="btn btn-primary">Create Recipient Group</button>
+        <p class="help-block">Creates a Recipient Group based on recipients who opened this email.</p>
+      </form>
+      {% endif %}
+    </section>
+    </div>
+  </div>
+
+  <section>
+    <h3>URLs</h3>
+    {% if not instance.urls_tracked %}
+    <p>URls were not tracked for this instance.</p>
     {% else %}
-    <h4>No Previews available</h4>
+    <p>URLs are tracked top to bottom, left to right. If there is more than one of the same URL in an email, each additional URL will have an increasing position number.</p>
+    <form id="url-clicks" action="{% url manager-recipientgroup-create-url-clicks %}" method="post">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">URL</th>
+            <th scope="col">Position</th>
+            <th scope="col">Clicks</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for url in instance.urls.all %}
+          <tr>
+            <td><a href="{{url.name}}">{{url.name}}</a></td>
+            <td>{{url.position}}</td>
+            <td>{{url.clicks.count}}</td>
+            <td>
+              <input class="checkbox" type="checkbox" name="url-pks[]" value="{{ url.pk }}" />
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="submit" class="btn btn-primary btn-lg pull-right">Create Recipient Group from Clicks</button>
+    </form>
     {% endif %}
   </section>
-	<section>
-		<h3>Opens</h3>
-		{% if instance.opens_tracked %}
-		<p>Of the <big><strong>{{instance.recipient_details.count}}</strong></big> recipients, <big><strong>{{instance.initial_opens}}</strong></big> opened the email. An open rate of <big><strong>{{instance.open_rate}}%</strong></big>.</p>
-		<p>The email was opened a total of <big><strong>{{instance.total_opens}}</strong></big> times, and reopened <big><strong>{{instance.re_opens}}</strong></big> times.</p>
-		{% else %}
-		<p>Opens were not tracked for this instance.
-		{% endif %}
-	</section>
-	<section>
-		<h3>URLs</h3>
-		{% if not instance.urls_tracked %}
-		<p>URls were not tracked for this instance.</p>
-		{% else %}
-		<p>URLs are tracked top to bottom, left to right. If there is more than one of the same URL in an email, each additional URL will have an increasing position number.</p>
-		<form id="url-clicks" action="{% url manager-recipientgroup-create-url-clicks %}" method="post">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th scope="col">URL</th>
-						<th scope="col">Position</th>
-						<th scope="col">Clicks</th>
-						<th scope="col">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for url in instance.urls.all %}
-					<tr>
-						<td><a href="{{url.name}}">{{url.name}}</a></td>
-						<td>{{url.position}}</td>
-						<td>{{url.clicks.count}}</td>
-						<td>
-							<input class="checkbox" type="checkbox" name="url-pks[]" value="{{ url.pk }}" />
-						</td>
-					</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-			<button type="submit" class="btn btn-primary btn-lg pull-right">Create Recipient Group from Clicks</button>
-		</form>
-		{% endif %}
-	</section>
 {% endblock %}
