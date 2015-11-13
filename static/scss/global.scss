@@ -222,5 +222,22 @@ button.attr-delete:nth-of-type(1) {
       padding-top: 10px;
     }
   }
+}
 
+tr.inactive {
+  background: #E2E2E2;
+  color: #A2A2A2;
+}
+
+.table-striped>tbody>tr.inactive:nth-of-type(odd),
+tbody>tr.inactive:nth-of-type(odd) {
+  background: #E8E8E8;
+  color: #A2A2A2;
+}
+
+.table-hover>tbody>tr.inactive:hover,
+.table-striped>tbody>tr.inactive:nth-of-type(odd):hover,
+tbody>tr.inactive:nth-of-type(odd):hover {
+  background: #EAEAE3;
+  color: #A2A2A2;
 }

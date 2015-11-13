@@ -557,7 +557,7 @@ class RecipientListView(RecipientsMixin, ListView):
         if self._search_valid:
             return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
         else:
-            return Recipient.objects.all()
+            return Recipient.objects.all().order_by('disable')
 
     def get_context_data(self, **kwargs):
         context = super(RecipientListView, self).get_context_data(**kwargs)
