@@ -422,35 +422,34 @@ class InstanceDetailView(EmailsMixin, DetailView):
 
         return context
 
+
 def instance_cancel(request, pk):
     retval= {}
 
+    # get the instance id
     if request.POST:
         instance_id = request.POST['email-instance-id']
     else:
         instance_id = pk
 
     if instance_id:
-        try:
-            instance = Instance.objects.get(pk=instance_id)
+        instance = get_object_or_404(Instance.objects, pk=instance_id)
+
+        # make sure we track the end time
+        if instance.send_terminate is not True:
             instance.send_terminate = True
+            #instance.end = datetime.now()
             instance.save()
 
-            retval['cancelled'] = True
-        except Instance.DoesNotExist:
-            retval['cancelled'] = False
+        # build some useful json
+        #datetime_object = instance.end
+        #timetuple = datetime_object.timetuple()
+        #timestamp = time.mktime(timetuple)
+        #retval['end'] = timestamp * 1000
 
-    # return reverse('manager-email-instance',
-    #     args=(),
-    #     kwargs={ 'pk': instance_id }
-    # )
-
-
-    # retval['sent_count'] = instance.sent_count
-    # retval['total'] = instance.recipient_details.count()
-    # retval['start'] = datetime_to_milliseconds(instance.start)
-    # retval['end'] = datetime_to_milliseconds(instance.end)
-
+        retval['sent_count'] = instance.sent_count
+        retval['total'] = instance.recipient_details.count()
+        retval['cancelled'] = True
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
 

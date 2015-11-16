@@ -688,7 +688,7 @@ class Email(models.Model):
                             #amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
                             #amazon.sendmail(real_from, 'success@simulator.amazonses.com', msg.as_string())
                             log.debug('this is where an amazon send would happen');
-                            time.sleep(5 + random.random())
+                            time.sleep(15 + random.random())
                         except smtplib.SMTPResponseException, e:
                             if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
                                 recipient_details_queue.put(recipient_details)

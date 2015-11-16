@@ -1,7 +1,8 @@
 (function () {
   'use strict';
 
-  var JSON_URL = '/instance/json/?pk=',
+  var PROGRESS_INSTANCE_URL = '/instance/json/?pk=',
+    CANCEL_INSTANCE_URL = '/email/instance/!@!/cancel',
     id,
     intervalId,
     $progressBar,
@@ -21,7 +22,7 @@
         .replaceWith('<strong>Error: The email send may have failed, the start time is more than 24 hours ago.</strong>');
     } else {
       $.ajax({
-        url: JSON_URL,
+        url: PROGRESS_INSTANCE_URL,
         data: { pk: id }
       }).done(function (data) {
         if (data.end) {
@@ -41,6 +42,20 @@
     }
   }
 
+  function cancelInstance(cancel_url) {
+    $.ajax({
+      url: cancel_url,
+      data: { pk: id }
+    }).success(function (data) {
+      console.log('instance has been cancelled');
+      console.log(data);
+    }).error(function (data, statusText, xhr) {
+      console.log('error');
+      console.log(data);
+      console.log(data.status);
+    });
+  }
+
   function init() {
     $progressBar = $('.progress-bar');
     if ($progressBar.length) {
@@ -48,6 +63,15 @@
       $sent = $('.sent');
       intervalId = setInterval(getProgress, 2000);
     }
+
+    var $cancel = $('.cancel-instance-form');
+    $cancel.on('click', '.cancel-instance-btn', function(e) {
+      e.preventDefault();
+      console.log('cancel the emails');
+      var cancel_url = CANCEL_INSTANCE_URL.replace('!@!', id);
+      console.log(cancel_url);
+      cancelInstance(cancel_url);
+    });
   }
 
   $(init);
