@@ -422,19 +422,37 @@ class InstanceDetailView(EmailsMixin, DetailView):
 
         return context
 
-def instance_cancel(request):
+def instance_cancel(request, pk):
+    retval= {}
+
     if request.POST:
         instance_id = request.POST['email-instance-id']
-        if instance_id:
-            instance = Instance.obejcts.get(pk=instance_id)
+    else:
+        instance_id = pk
+
+    if instance_id:
+        try:
+            instance = Instance.objects.get(pk=instance_id)
             instance.send_terminate = True
             instance.save()
 
+            retval['cancelled'] = True
+        except Instance.DoesNotExist:
+            retval['cancelled'] = False
 
-    return reverse('manager-email-instance',
-        args=(),
-        kwargs={ 'pk': instance_id }
-    )
+    # return reverse('manager-email-instance',
+    #     args=(),
+    #     kwargs={ 'pk': instance_id }
+    # )
+
+
+    # retval['sent_count'] = instance.sent_count
+    # retval['total'] = instance.recipient_details.count()
+    # retval['start'] = datetime_to_milliseconds(instance.start)
+    # retval['end'] = datetime_to_milliseconds(instance.end)
+
+
+    return HttpResponse(json.dumps(retval), content_type='application/json')
 
 
 class EmailDesignView(TemplateView):
