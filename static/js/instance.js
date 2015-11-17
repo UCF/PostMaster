@@ -25,9 +25,13 @@
         data: { pk: id }
       }).done(function (data) {
         if (data.end) {
-          location.reload();
+          window.location.reload();
+        } else if (data.error) {
+          $progressBar
+            .parents('.alert')
+            .text(data.error);
         } else {
-          if(new Date() - new Date(data.start) > ONE_DAY) {
+          if (new Date() - new Date(data.start) > ONE_DAY) {
             error = true;
           } else {
             var percentage = Math.round(data.sent_count / data.total * 100) + '%';
@@ -37,6 +41,11 @@
             $sent.text(data.sent_count + ' of ' + data.total);
           }
         }
+      }).fail(function () {
+        clearInterval(intervalId);
+        $progressBar
+          .parents('.alert')
+          .text('Error retrieving sent email data.');
       });
     }
   }
