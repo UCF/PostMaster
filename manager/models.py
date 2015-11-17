@@ -571,9 +571,13 @@ class Email(models.Model):
         class TerminationThread(threading.Thread):
             def run(self):
                 while True:
+                    the_instance = Instance.objects.get(pk=instance_id)
+                    log.debug('instance_id %s' % instance_id)
+                    log.debug('send terminate %s' % instance.send_terminate)
+                    log.debug('the_instance send terminate %s' % the_instance.send_terminate)
                     if instance.send_terminate:
                         sender_stop.set()
-                        instance.send_terminate = False
+                        #instance.send_terminate = False
                         instance.save()
                         break
                     elif recipient_details_queue.empty():
@@ -688,7 +692,7 @@ class Email(models.Model):
                             #amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
                             #amazon.sendmail(real_from, 'success@simulator.amazonses.com', msg.as_string())
                             log.debug('this is where an amazon send would happen');
-                            time.sleep(15 + random.random())
+                            time.sleep(5 + random.random())
                         except smtplib.SMTPResponseException, e:
                             if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
                                 recipient_details_queue.put(recipient_details)

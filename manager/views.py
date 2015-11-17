@@ -435,20 +435,13 @@ def instance_cancel(request, pk):
     if instance_id:
         instance = get_object_or_404(Instance.objects, pk=instance_id)
 
-        # make sure we track the end time
         if instance.send_terminate is not True:
             instance.send_terminate = True
             #instance.end = datetime.now()
             instance.save()
 
-        # build some useful json
-        #datetime_object = instance.end
-        #timetuple = datetime_object.timetuple()
-        #timestamp = time.mktime(timetuple)
-        #retval['end'] = timestamp * 1000
-
-        retval['sent_count'] = instance.sent_count
-        retval['total'] = instance.recipient_details.count()
+        #retval['sent_count'] = instance.sent_count
+        #retval['total'] = instance.recipient_details.count()
         retval['cancelled'] = True
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
