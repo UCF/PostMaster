@@ -62,6 +62,14 @@ class Recipient(models.Model):
             emails.extend(list(group_emails))
         return Email.objects.filter(pk__in=[e.pk for e in emails]).distinct()
 
+    def is_unsubscribed(self, email):
+        unsubscriptions = Unsubscribe.objects.filter(email=email, recipient=self)
+        if len(unsubscriptions) == 0:
+            return False
+        else:
+            return True
+    
+
     def set_groups(self, groups):
         if groups is not None:
             remove_groups = []
@@ -712,9 +720,14 @@ class Email(models.Model):
         )
 
         recipients = Recipient.objects.filter(
-            groups__in = self.recipient_groups.all()).exclude(
-                pk__in=self.unsubscriptions.all()).distinct().exclude(
-                disable=True)
+            groups__in = self.recipient_groups.all(),
+            disable=False
+            ).distinct()
+
+        unsubscriptions = self.unsubscriptions.all()
+
+        if unsubscriptions.exists():
+            recipients = recipients.exclude(id__in=[o.id for o in unsubscriptions])
 
         # The interval between ticks is one second. This is used to make
         # sure that the threads don't exceed the sending limit
