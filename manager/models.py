@@ -62,14 +62,6 @@ class Recipient(models.Model):
             emails.extend(list(group_emails))
         return Email.objects.filter(pk__in=[e.pk for e in emails]).distinct()
 
-    def is_unsubscribed(self, email):
-        unsubscriptions = Unsubscribe.objects.filter(email=email, recipient=self)
-        if len(unsubscriptions) == 0:
-            return False
-        else:
-            return True
-    
-
     def set_groups(self, groups):
         if groups is not None:
             remove_groups = []
