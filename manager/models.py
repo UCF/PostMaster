@@ -760,9 +760,14 @@ class Email(models.Model):
         )
 
         recipients = Recipient.objects.filter(
-            groups__in = self.recipient_groups.all()).exclude(
-                pk__in=self.unsubscriptions.all()).distinct().exclude(
-                disable=True)
+            groups__in = self.recipient_groups.all(),
+            disable=False
+            ).distinct()
+
+        unsubscriptions = self.unsubscriptions.all()
+
+        if unsubscriptions.exists():
+            recipients = recipients.exclude(id__in=[o.id for o in unsubscriptions])
 
         # Add email creator email to recipient list
         if self.creator.email:
