@@ -35,6 +35,11 @@ input[type=file] {
   width: 100%;
 }
 
+.bg-warning.cancelled {
+  padding:   20px;
+  color: #7D754A;
+}
+
 .send-progress {
   margin: 10px 0 30px 0;
 }

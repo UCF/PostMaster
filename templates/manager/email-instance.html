@@ -27,6 +27,11 @@
       </form>
     </div>
   {% endif %}
+  {% if instance.send_terminate %}
+    <div class="alert alert-warning">
+      <p><strong>Note:</strong> This instance was cancelled manually. <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before all emails were sent.{% if instance.end %} Emails stopped sending {{instance.end}}{% endif %}"></span></p>
+    </div>
+  {% endif %}
   <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
   <div class="row">
     <div class="col-lg-7 col-md-6 col-sm-12">

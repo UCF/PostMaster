@@ -23,6 +23,39 @@
       <li>After Hours or Emergency: {{ after_hours_contact_info|safe }}</li>
     </ul>
   </div>
+
+  {% if instances %}
+  <hr />
+  <p class="lead">Emails currently sending.</p>
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Email Name</th>
+        <th scope="col">Started</th>
+        <th scope="col">In Progress for</th>
+        <th scope="col">Recipients</th>
+        <th scope="col">Emails Sent</th>
+        <th scope="col">Action <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="Cancelling an instance will prevent future emails for that instance from being sent."></span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for instance in instances %}
+      <tr data-link-url="{% url manager-email-instance instance.pk %}">
+        <td>{{instance.email.title}}</td>
+        <td>{{instance.start}}</td>
+        <td>{{instance.run_time}}</td>
+        <td>{{instance.recipients.count}}</td>
+        <td>{{instance.sent_count}}</td>
+        <td>
+        <a class="btn btn-danger cancel-instance-btn open-instance-page" href="{% url manager-email-instance instance.pk %}#check_on_load">Cancel This Instance</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
     <hr />
     <p class="lead">Today's email overview.</p>
     {% if emails %}

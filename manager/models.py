@@ -577,8 +577,6 @@ class Email(models.Model):
                     the_instance = Instance.objects.get(pk=instance.pk)
                     if the_instance.send_terminate:
                         sender_stop.set()
-                        the_instance.send_terminate = False
-                        the_instance.save()
                         break
                     elif recipient_details_queue.empty():
                         break

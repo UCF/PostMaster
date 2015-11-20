@@ -165,6 +165,13 @@ class OverviewListView(ListView):
         except Setting.DoesNotExist:
             pass
 
+        try:
+            instances = Instance.objects.filter(end=None)
+        except Instance.DoesNotExist:
+            instances = None
+
+        context['instances'] = instances
+
         return context
 
 
@@ -433,16 +440,20 @@ def instance_cancel(request, pk):
         instance_id = pk
 
     if instance_id:
-        instance = get_object_or_404(Instance.objects, pk=instance_id)
+        try:
+            instance = Instance.objects.get(pk=instance_id)
 
-        if instance.send_terminate is not True:
-            instance.send_terminate = True
-            #instance.end = datetime.now()
-            instance.save()
+            if instance.send_terminate is not True:
+                instance.send_terminate = True
+                instance.save()
 
-        #retval['sent_count'] = instance.sent_count
-        #retval['total'] = instance.recipient_details.count()
-        retval['cancelled'] = True
+            retval['success'] = True
+            retval['message'] = "Email instance send_terminate set to true"
+        except Instance.DoesNotExist:
+            retval['success'] = False
+            retval['error'] = {}
+            retval['error']['code'] = 404
+            retval['error']['message'] = "Email instance does not exist"
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
 

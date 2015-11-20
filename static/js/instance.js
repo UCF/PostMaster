@@ -7,7 +7,7 @@
     intervalId,
     $progressBar,
     $sent,
-    $cancel_button,
+    $cancelForm,
     error = false,
     ONE_DAY = 24 * 60 * 60 * 1000;
 
@@ -21,6 +21,7 @@
       $progressBar
         .parent()
         .replaceWith('<strong>Error: The email send may have failed, the start time is more than 24 hours ago.</strong>');
+      $cancelForm.slideUp();
     } else {
       $.ajax({
         url: JSON_URL,
@@ -52,37 +53,52 @@
     }
   }
 
-  function cancelInstance(cancel_url) {
-    $cancel_button = $('.cancel-instance-btn');
+  function cancelButtonHandler($cancel_btn) {
+    var $this = $cancel_btn;
+    if ($this.hasClass('open-instance-page')) {
+      window.location = INSTANCE_URL + id + '#check_on_load';
+    }
+    else {
+      id = $this.parent('.cancel-instance-form').children('input.email-instance-id').val();
+      cancel_url = '/email/instance/' + id + '/cancel';
+      cancelInstance(cancel_url, $this);
+    }
+  }
+
+  function cancelInstance(cancel_url, $cancel_button) {
+    if (typeof $cancel_button == "undefined") {
+      $cancel_button = $('.cancel-instance-btn');
+    }
     $.ajax({
       url: cancel_url,
       data: { pk: id }
     }).success(function (data) {
-      console.log('instance has been cancelled');
-      console.log(data);
       $cancel_button.children('.text').text('Cancelling Instance...');
-      console.log($cancel_button.children('.hidden'));
       $cancel_button.children('.hidden').removeClass('hidden');
     }).error(function (data, statusText, xhr) {
       console.log('error');
       console.log(data);
-      console.log(data.status);
     });
   }
 
   function init() {
-    id = $('input.email-instance-id').val();
+    var current_hash = window.location.hash.replace('#', '');
+    $cancelForm = $('.cancel-instance-form');
     $progressBar = $('.progress-bar');
+
+    if (current_hash == 'check_on_load') {
+      cancelButtonHandler($('.cancel-instance-btn'));
+    }
+
+    id = $('input.email-instance-id').val();
     if ($progressBar.length) {
       $sent = $('.sent');
       intervalId = setInterval(getProgress, 2000);
     }
 
-    $('.cancel-instance-form').on('click', '.cancel-instance-btn', function(e) {
+    $cancelForm.on('click', '.cancel-instance-btn', function(e) {
       e.preventDefault();
-      console.log('cancel the emails');
       cancel_url = '/email/instance/' + id + '/cancel';
-      console.log(cancel_url);
       cancelInstance(cancel_url);
     });
   }
