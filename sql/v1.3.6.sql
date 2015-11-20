@@ -23,10 +23,10 @@ SET
 ALTER TABLE manager_email
 	ADD COLUMN creator_id int(11) DEFAULT NULL,
 	ADD CONSTRAINT FK_AUTH_USER_TABLE_CREATOR_ID FOREIGN KEY (creator_id)
-	REFERENCES auth_user (id)
+	REFERENCES auth_user (id);
 
 ALTER TABLE manager_instanceopen
-  ADD COLUMN is_reopen tinyint(1) NOT NULL
+  ADD COLUMN is_reopen tinyint(1) NOT NULL;
 
 ALTER TABLE manager_instance
-  ADD COLUMN send_terminate tinyint(1) NOT NULL
+  ADD COLUMN send_terminate tinyint(1) NOT NULL;

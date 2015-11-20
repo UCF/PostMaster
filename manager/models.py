@@ -570,15 +570,15 @@ class Email(models.Model):
         '''
         class TerminationThread(threading.Thread):
             def run(self):
+                from manager.utils import flush_transaction
                 while True:
-                    the_instance = Instance.objects.get(pk=instance_id)
-                    log.debug('instance_id %s' % instance_id)
-                    log.debug('send terminate %s' % instance.send_terminate)
-                    log.debug('the_instance send terminate %s' % the_instance.send_terminate)
-                    if instance.send_terminate:
+                    # Flushes sql transaction so we get fresh data
+                    flush_transaction()
+                    the_instance = Instance.objects.get(pk=instance.pk)
+                    if the_instance.send_terminate:
                         sender_stop.set()
-                        #instance.send_terminate = False
-                        instance.save()
+                        the_instance.send_terminate = False
+                        the_instance.save()
                         break
                     elif recipient_details_queue.empty():
                         break
@@ -599,7 +599,6 @@ class Email(models.Model):
                 rate_limit_counter = 0
 
                 while True:
-                    log.debug('Sender is running')
                     if recipient_details_queue.empty():
                         log.debug('%s queue empty, exiting.' % self.name)
                         break
@@ -681,18 +680,14 @@ class Email(models.Model):
                         msg            = MIMEMultipart('alternative')
                         msg['subject'] = subject
                         msg['From']    = display_from
-                        #msg['To']      = recipient_details.recipient.email_address
-                        msg['To']      = 'success@simulator.amazonses.com'
+                        msg['To']      = recipient_details.recipient.email_address
                         msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
                         if text is not None:
                             msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
 
                         log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
                         try:
-                            #amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
-                            #amazon.sendmail(real_from, 'success@simulator.amazonses.com', msg.as_string())
-                            log.debug('this is where an amazon send would happen');
-                            time.sleep(5 + random.random())
+                            amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
                         except smtplib.SMTPResponseException, e:
                             if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
                                 recipient_details_queue.put(recipient_details)
