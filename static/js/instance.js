@@ -8,6 +8,7 @@
     $progressBar,
     $sent,
     $cancelForm,
+    $cancelBtn,
     error = false,
     ONE_DAY = 24 * 60 * 60 * 1000;
 
@@ -53,28 +54,24 @@
     }
   }
 
-  function cancelButtonHandler($cancel_btn) {
-    var $this = $cancel_btn;
-    if ($this.hasClass('open-instance-page')) {
+  function cancelButtonHandler() {
+    if ($cancelBtn.hasClass('open-instance-page')) {
       window.location = INSTANCE_URL + id + '#check_on_load';
     }
     else {
-      id = $this.parent('.cancel-instance-form').children('input.email-instance-id').val();
-      cancel_url = '/email/instance/' + id + '/cancel';
-      cancelInstance(cancel_url, $this);
+      id = $cancelBtn.parent('.cancel-instance-form').children('input.email-instance-id').val();
+      cancel_url = '/email/instance/' + id + '/cancel/';
+      cancelInstance(cancel_url, $cancelBtn);
     }
   }
 
-  function cancelInstance(cancel_url, $cancel_button) {
-    if (typeof $cancel_button == "undefined") {
-      $cancel_button = $('.cancel-instance-btn');
-    }
+  function cancelInstance(cancel_url) {
     $.ajax({
       url: cancel_url,
       data: { pk: id }
     }).success(function (data) {
-      $cancel_button.children('.text').text('Cancelling Instance...');
-      $cancel_button.children('.hidden').removeClass('hidden');
+      $cancelBtn.children('.text').text('Cancelling Instance...');
+      $cancelBtn.children('.hidden').removeClass('hidden');
     }).error(function (data, statusText, xhr) {
       console.log('error');
       console.log(data);
@@ -85,9 +82,10 @@
     var current_hash = window.location.hash.replace('#', '');
     $cancelForm = $('.cancel-instance-form');
     $progressBar = $('.progress-bar');
+    $cancelBtn = $('.cancel-instance-btn');
 
-    if (current_hash == 'check_on_load') {
-      cancelButtonHandler($('.cancel-instance-btn'));
+    if (current_hash == 'check_on_load' && $cancelBtn.length > 0) {
+      cancelButtonHandler();
     }
 
     id = $('input.email-instance-id').val();

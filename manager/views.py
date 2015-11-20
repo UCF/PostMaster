@@ -443,12 +443,14 @@ def instance_cancel(request, pk):
         try:
             instance = Instance.objects.get(pk=instance_id)
 
-            if instance.send_terminate is not True:
+            if not instance.end:
                 instance.send_terminate = True
                 instance.save()
+                retval['message'] = "Email instance send_terminate set to true."
+            else:
+                retval['message'] = "Email instance send has already ended, set_terminate left unchanged."
 
             retval['success'] = True
-            retval['message'] = "Email instance send_terminate set to true"
         except Instance.DoesNotExist:
             retval['success'] = False
             retval['error'] = {}
