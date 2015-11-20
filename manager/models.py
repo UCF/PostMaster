@@ -606,7 +606,6 @@ class Email(models.Model):
                         while not recipient_details_queue.empty():
                             recipient_details_queue.get()
                             recipient_details_queue.task_done()
-
                         break
 
                     recipient_details = recipient_details_queue.get()
