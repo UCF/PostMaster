@@ -786,7 +786,6 @@ class Email(models.Model):
         real_from               = self.from_email_address
         recipient_details_queue = Queue.Queue()
         sender_stop             = threading.Event()
-        instance_id             = instance.pk
         success                 = True
         recipient_attributes    = {}
         placeholders            = instance.placeholders

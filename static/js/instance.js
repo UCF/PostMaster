@@ -59,7 +59,7 @@
       window.location = INSTANCE_URL + id + '#check_on_load';
     }
     else {
-      id = $cancelBtn.parent('.cancel-instance-form').children('input.email-instance-id').val();
+      id = $cancelBtn.siblings('input.email-instance-id').val();
       cancel_url = '/email/instance/' + id + '/cancel/';
       cancelInstance(cancel_url, $cancelBtn);
     }
@@ -71,10 +71,10 @@
       data: { pk: id }
     }).success(function (data) {
       $cancelBtn.children('.text').text('Cancelling Instance...');
-      $cancelBtn.children('.hidden').removeClass('hidden');
+      $cancelBtn.children('.spinner-loader').removeClass('hidden');
     }).error(function (data, statusText, xhr) {
-      console.log('error');
-      console.log(data);
+      $cancelBtn.children('.text').text('Cancel This Instance');
+      $cancelBtn.children('.spinner-loader').addClass('hidden');
     });
   }
 
@@ -96,8 +96,7 @@
 
     $cancelForm.on('click', '.cancel-instance-btn', function(e) {
       e.preventDefault();
-      cancel_url = '/email/instance/' + id + '/cancel';
-      cancelInstance(cancel_url);
+      cancelButtonHandler();
     });
   }
 

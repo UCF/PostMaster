@@ -13,7 +13,7 @@
   <br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
   {% if instance.in_progress %}
     <div class="alert alert-info">
-      <p>This instance is in progress <span class="sent">0 of 0</span> emails sent.</p>
+      <p>This instance is in progress: <span class="sent">0 of 0</span> emails sent.</p>
       <div class="progress send-progress">
         <div class="progress-bar progress-bar-success" data-id="{{instance.pk}}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
           style="min-width: 2em; width: 0%;">
@@ -29,7 +29,7 @@
   {% endif %}
   {% if instance.send_terminate %}
     <div class="alert alert-warning">
-      <p><strong>Note:</strong> This instance was cancelled manually. <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before all emails were sent.{% if instance.end %} Emails stopped sending {{instance.end}}{% endif %}"></span></p>
+      <p><strong>Note:</strong> This instance was cancelled manually. <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before emails were sent to all recipients."></span></p>
     </div>
   {% endif %}
   <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
