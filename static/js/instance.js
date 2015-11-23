@@ -59,8 +59,7 @@
     }
     else {
       id = $cancelBtn.siblings('input.email-instance-id').val();
-      cancel_url = '/email/instance/' + id + '/cancel/';
-      cancelInstance(cancel_url, $cancelBtn);
+      cancelInstance('/email/instance/' + id + '/cancel/', $cancelBtn);
     }
   }
 
