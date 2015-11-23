@@ -2,7 +2,6 @@
   'use strict';
 
   var JSON_URL = '/instance/json/?pk=',
-    cancel_url,
     id,
     intervalId,
     $progressBar,
@@ -84,7 +83,7 @@
     $progressBar = $('.progress-bar');
     $cancelBtn = $('.cancel-instance-btn');
 
-    if (current_hash == 'check_on_load' && $cancelBtn.length > 0) {
+    if (current_hash === 'check_on_load' && $cancelBtn.length > 0) {
       cancelButtonHandler();
     }
 
