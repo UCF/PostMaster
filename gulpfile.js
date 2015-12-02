@@ -36,6 +36,10 @@ gulp.task('bower', function() {
       // Add Glyphicons fonts
       gulp.src(config.bowerDir + '/bootstrap-sass-official/assets/fonts/*/*')
         .pipe(gulp.dest(config.fontPath));
+      gulp.src(config.bowerDir + '/font-awesome/fonts/*')
+        .pipe(gulp.dest(config.fontPath));
+      gulp.src(config.bowerDir + '/font-awesome/css/*.min.css')
+        .pipe(gulp.dest(config.cssPath));
     });
 });
 
