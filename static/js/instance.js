@@ -37,7 +37,12 @@
           if (new Date() - new Date(data.start) > ONE_DAY) {
             error = true;
           } else {
-            var percentage = Math.round(data.sent_count / data.total * 100) + '%';
+            var percentage = Math.round(data.sent_count / data.total * 100);
+            if (typeof percentage === 'number' ) {
+              percentage = percentage + '%';
+            } else {
+              precentage = '0%';
+            }
             $progressBar
               .css('width', percentage)
               .text(percentage);
