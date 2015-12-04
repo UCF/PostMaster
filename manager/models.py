@@ -826,7 +826,7 @@ class Email(models.Model):
 
                 try:
                     recipient_attributes[recipient.pk][placeholder] = all_recipient_attributes.get(recipient=recipient, name=placeholder).value.encode('ascii', 'ignore')
-                except AttributeError:
+                except RecipientAttribute.DoesNotExist:
                     recipient_attributes[recipient.pk][placeholder] = None
 
             recipient_details_queue.put(
