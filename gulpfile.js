@@ -76,6 +76,7 @@ gulp.task('js', function() {
       // Combine and uglify js files to create script.min.js.
       var minified = [
         config.bowerDir + '/bootstrap-sass-official/assets/javascripts/bootstrap.js',
+        config.bowerDir + '/typeahead.js/dist/bloodhound.js',
         config.bowerDir + '/typeahead.js/dist/typeahead.bundle.js',
         config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
