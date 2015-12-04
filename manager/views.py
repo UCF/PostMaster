@@ -166,7 +166,7 @@ class OverviewListView(ListView):
             pass
 
         try:
-            instances = Instance.objects.filter(end=None)
+            instances = Instance.objects.filter(end=None, send_terminate=False)
         except Instance.DoesNotExist:
             instances = None
 

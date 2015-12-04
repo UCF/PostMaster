@@ -20,11 +20,13 @@
           0%
         </div>
       </div>
+      {% if not instance.send_terminate %}
       <form class="form-horizontal cancel-instance-form" action="{% url manager-instance-cancel instance.pk %}" method="post">
         <input type="hidden" class="email-instance-id" name="email-instance-id" value="{{ instance.pk }}" />
         <button type="submit" class="btn btn-danger cancel-instance-btn"><span class="spinner-loader hidden">Loading...</span> <span class="text">Cancel This Instance</span></button>
         <p class="help-block">Cancelling will prevent future emails for this instance from being sent.</p>
       </form>
+      {% endif %}
     </div>
   {% endif %}
   {% if instance.send_terminate %}

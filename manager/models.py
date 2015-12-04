@@ -875,7 +875,7 @@ class Instance(models.Model):
 
     @property
     def in_progress(self):
-        if self.start is not None and self.end is None:
+        if self.start is not None and self.end is None and self.send_terminate is False:
             return True
         else:
             return False

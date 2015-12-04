@@ -41,7 +41,7 @@
             if (typeof percentage === 'number' ) {
               percentage = percentage + '%';
             } else {
-              precentage = '0%';
+              percentage = '0%';
             }
             $progressBar
               .css('width', percentage)
