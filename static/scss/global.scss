@@ -12,6 +12,16 @@ table {
   }
 }
 
+.subtitle {
+  font-size: 18px;
+  font-style: italic;
+
+  .search-query {
+    color: #337ab7;
+    font-weight: 700;
+  }
+}
+
 input[type=file] {
   margin-top: 7px;
 }

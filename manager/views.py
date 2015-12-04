@@ -602,6 +602,7 @@ class RecipientListView(RecipientsMixin, ListView):
         context = super(RecipientListView, self).get_context_data(**kwargs)
         context['search_form'] = self._search_form
         context['search_valid'] = self._search_valid
+        context['search_query'] = self._search_form.cleaned_data['email_address'] if self._search_valid else ''
         return context
 
 

@@ -4,14 +4,13 @@
 {% block page-body %}
 
   <h2>
-    {% if search_valid %}
-      Recipient Search Results for <em>{{search_form.email_address.value}}</em>
-    {% else %}
       Recipients
       <a href="{% url manager-recipient-create %}" class="btn btn-default">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-    {% endif %}
   </h2>
+  {% if search_query %}
+      <p class="subtitle">Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="search-query">&ldquo;{{ search_query }}&rdquo;</span> &hellip;</p>
+  {% endif %}
 
   <div class="row">
 
