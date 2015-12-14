@@ -822,7 +822,6 @@ class Email(models.Model):
         # Get all recipient attributes
         recipient_attributes = {}
         for placeholder in self.placeholders:
-            recipient_attributes[placeholder] = {}
             recipient_attributes[placeholder] = sorted(RecipientAttribute.objects.filter(recipient__in=recipients, name=placeholder), key=lambda r: r.recipient_id)
 
         for recipient in recipients:
