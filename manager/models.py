@@ -634,12 +634,10 @@ class Email(models.Model):
                         for placeholder in placeholders:
                             replacement = ''
                             if placeholder.lower() != 'unsubscribe':
-                                try:
-                                    replacement = recipient_attributes[placeholder][recipient_details.recipient.pk].value
-                                except IndexError:
+                                if recipient_attributes[recipient_details_queue.recipient.pk][placeholder] is None:
                                     log.error('Recipient %s is missing attribute %s' % (str(recipient_details.recipient), placeholder))
-                                except:
-                                    log.error('Error retrieving %s attribute %s' % (str(recipient_details.recipient), placeholder))
+                                else:
+                                    replacement = recipient_attributes[recipient_details.recipient.pk][placeholder]
                                 customized_html = customized_html.replace(delimiter + placeholder + delimiter, replacement)
                         # URL Tracking
                         if recipient_details.instance.urls_tracked:
@@ -820,11 +818,15 @@ class Email(models.Model):
         # sending loop is too slow
         log.debug('building recipients and recipient attributes...')
         # Get all recipient attributes
-        recipient_attributes = {}
-        for placeholder in self.placeholders:
-            recipient_attributes[placeholder] = sorted(RecipientAttribute.objects.filter(recipient__in=recipients, name=placeholder), key=lambda r: r.recipient_id)
-
         for recipient in recipients:
+            recipient_attributes[recipient.pk] = {}
+            for placeholder in placeholders:
+                try:
+                    recipient_attributes[recipient.pk][placeholder] = getattr(recipient, placeholder)
+                except AttributeError:
+                    recipient_attributes[recipient.pk][placeholder] = None
+
+
             recipient_details_queue.put(
                 InstanceRecipientDetails.objects.create(
                     recipient = recipient,
