@@ -634,7 +634,7 @@ class Email(models.Model):
                         for placeholder in placeholders:
                             replacement = ''
                             if placeholder.lower() != 'unsubscribe':
-                                if recipient_attributes[recipient_details_queue.recipient.pk][placeholder] is None:
+                                if recipient_attributes[recipient_details.recipient.pk][placeholder] is None:
                                     log.error('Recipient %s is missing attribute %s' % (str(recipient_details.recipient), placeholder))
                                 else:
                                     replacement = recipient_attributes[recipient_details.recipient.pk][placeholder]
