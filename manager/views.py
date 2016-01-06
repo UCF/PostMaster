@@ -243,8 +243,8 @@ class EmailUpdateView(EmailsMixin, UpdateView):
             # Clear the estimated times
             email.preview_est_time = None
             email.live_est_time = None
-            email.updated_at = datetime.now()
 
+        email.updated_at = now
         messages.success(self.request, 'Email successfully updated.')
         return super(EmailUpdateView, self).form_valid(form)
 
