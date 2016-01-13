@@ -244,6 +244,7 @@ class EmailUpdateView(EmailsMixin, UpdateView):
             email.preview_est_time = None
             email.live_est_time = None
 
+        email.updated_at = now
         messages.success(self.request, 'Email successfully updated.')
         return super(EmailUpdateView, self).form_valid(form)
 
