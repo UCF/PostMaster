@@ -28,8 +28,9 @@ Configuration
 	- TEST_EMAIL_SOURCE_HTML_URI
 	- TEST_EMAIL_SOURCE_TEXT_URI
 - Make sure to set the default value for Recipient disable on the DB to False (https://code.djangoproject.com/ticket/470)
+- Make sure (when developing locally) to set the SESSION_COOKIE_SECURE to False. If you have it set to True when not using SSL, nothing will apparently happen on a successful login. The setting value should be set to True when operating over SSL.
 - Schedule the mailer-process management command to run based on the PROCCESSING_INVERVAL DURATION variable (PRODUCTION ONLY)
-- Schedule the recipient-importers to run based on the availabiliy of their external data sources (PRODUCTION ONLY)
+- Schedule the recipient-importers to run based on the availability of their external data sources (PRODUCTION ONLY)
 - Settings are used for setting global value across the application
 	- office_hours_contact_info: displays next to the office hours section on the home page when logged in
 	- after_hours_contact_info: displays next to the after hours section on the home page when logged in
@@ -52,14 +53,14 @@ Testing
 Upgrading
 ---------
 - To v1.0.27
-	- Modify `manager_previewinstance.requested_start` to have the following defintion: `DATETIME NOT NULL`
-	- Modify `manager_instance.requested_start` to have the following defintion: `DATETIME NOT NULL`
+	- Modify `manager_previewinstance.requested_start` to have the following definition: `DATETIME NOT NULL`
+	- Modify `manager_instance.requested_start` to have the following definition: `DATETIME NOT NULL`
 - To v1.0.21
 	- Remove `manager_instance.in_progress` column
 	- Create `manager_instance.requested_start` column with the following definition: `TIME NOT NULL AFTER sent_html`
 	- Run the following SQL query: `UPDATE manager_instance JOIN manager_email ON manager_instance.email_id = manager_email.id SET manager_instance.requested_start = manager_email.send_time`
 	- Remove `manager_instance.sent` column
-	- Create `manager_instance.success` column with the followign definition: `TINYINT(1) NULL DEFAULT NULL AFTER end`
+	- Create `manager_instance.success` column with the following definition: `TINYINT(1) NULL DEFAULT NULL AFTER end`
 	- Run the following SQL query: `UPDATE manager_instance SET success = 1;`
 	- Remove `manager_instancerecipientdetails.exception_type` column
 	- Modify `manager_instancerecipientdetails.when` to the following definition `DATETIME NULL DEFAULT NULL`
