@@ -972,7 +972,9 @@ def instance_open(request):
                         log.debug('re-open created')
                     else:
                         log.debug('open created')
-
+                except InstanceOpen.MultipleObjectsReturned:
+                    log.error('multiple objects returned');
+                    pass
                 except Recipient.DoesNotExist:
                     # strange
                     log.error('bad recipient')
