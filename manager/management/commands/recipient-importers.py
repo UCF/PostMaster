@@ -71,7 +71,7 @@ class GMUCFImporter(Importer):
 
 		# Check to see if the rds_wharehouse database is configured
 		if 'rds_wharehouse' not in settings.DATABASES:
-			raise self.ImporterException('The rds_wharehouse database is configured.')
+			raise self.ImporterException('The rds_wharehouse database is not configured.')
 
 		self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
@@ -232,7 +232,7 @@ class GMUCFImporter(Importer):
 
 class AllStudentsImporter(Importer):
 	'''
-		Importer for the Good Morning UCF email list.
+		Importer for the All Students - Updated Daily IKM Data email list.
 	'''
 	name         = 'allstudentsimporter'
 	display_name = 'All Students Importer'
@@ -243,7 +243,7 @@ class AllStudentsImporter(Importer):
 
 		# Check to see if the rds_wharehouse database is configured
 		if 'rds_wharehouse' not in settings.DATABASES:
-			raise self.ImporterException('The rds_wharehouse database is configured.')
+			raise self.ImporterException('The rds_wharehouse database is not configured.')
 
 		self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
@@ -251,13 +251,13 @@ class AllStudentsImporter(Importer):
 		self.rds_wharehouse_db_name = settings.DATABASES['rds_wharehouse']['NAME']
 		self.postmaster_cursor = connections['default'].cursor()
 
-		# Check to see if the Good Morning UCF Group exists
+		# Check to see if the 'All Students - Updated Daily IKM Data' Group exists
 		try:
 			self.all_students_recipient_group_name = RecipientGroup.objects.get(name=self.all_students_recipient_group_name)
 		except RecipientGroup.DoesNotExist:
 			raise self.ImporterException('The All Students - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
 
-		# Make sure there is an index on the SMCA_GMUCF.email column
+		# Make sure there is an index on the ENRL_SDNT_LIST.email column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.ENRL_STDNT_LIST WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
 		results = self.postmaster_cursor.fetchall()
 		log.info('RDS Wharehouse index result count: %d' % len(results))
@@ -288,7 +288,8 @@ class AllStudentsImporter(Importer):
 			2. Create any recipients who are in the the RDS wharehouse data but not
 				in the recipients table.
 			3. Update any Recipient attributes
-			4. Add any newly created recipients to the Good Morning UCF group
+			4. Add any newly created recipients to the All Students - Updated Daily 
+				IKM Data group
 		'''
 
 		self.postmaster_cursor.execute('''
@@ -415,7 +416,7 @@ class AllStaffImporter(Importer):
 
 		# Check to see if the rds_wharehouse database is configured
 		if 'rds_wharehouse' not in settings.DATABASES:
-			raise self.ImporterException('The rds_wharehouse database is configured.')
+			raise self.ImporterException('The rds_wharehouse database is not configured.')
 
 		self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
@@ -423,13 +424,13 @@ class AllStaffImporter(Importer):
 		self.rds_wharehouse_db_name = settings.DATABASES['rds_wharehouse']['NAME']
 		self.postmaster_cursor = connections['default'].cursor()
 
-		# Check to see if the Good Morning UCF Group exists
+		# Check to see if the 'All Faculty-Staff - Updated Daily IKM Data' Group exists
 		try:
 			self.all_staff_recipient_group_name = RecipientGroup.objects.get(name=self.all_staff_recipient_group_name)
 		except RecipientGroup.DoesNotExist:
 			raise self.ImporterException('The All Faculty-Staff - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
 
-		# Make sure there is an index on the SMCA_GMUCF.email column
+		# Make sure there is an index on the ACTV_EMPL_LIST.email column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.ACTV_EMPL_LIST WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
 		results = self.postmaster_cursor.fetchall()
 		log.info('RDS Wharehouse index result count: %d' % len(results))
@@ -455,12 +456,13 @@ class AllStaffImporter(Importer):
 
 	def do_import(self):
 		'''
-			1. Remove any recipients from the All Facilty-Staff - Updated Daily IKM Data 
+			1. Remove any recipients from the All Faculty-Staff - Updated Daily IKM Data 
 				group who are no longer in the RDS wharehouse data.
 			2. Create any recipients who are in the the RDS wharehouse data but not
 				in the recipients table.
 			3. Update any Recipient attributes
-			4. Add any newly created recipients to the Good Morning UCF group
+			4. Add any newly created recipients to the All Faculty-Staff - Updated Daily 
+				IKM Data group
 		'''
 
 		self.postmaster_cursor.execute('''
