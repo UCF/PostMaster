@@ -190,7 +190,7 @@ class LitmusApi(object):
             log.error('Could not connect to Litmus', e)
             return None
 
-        return ET.fromstring(response.text)
+        return ET.fromstring(response.text.encode('utf-8'))
 
     def post_request(self, url, data):
         """
@@ -217,4 +217,4 @@ class LitmusApi(object):
             log.error('Could not connect to Litmus', e)
             return None
 
-        return ET.fromstring(response.text)
+        return ET.fromstring(response.text.encode('utf-8'))
