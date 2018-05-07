@@ -415,12 +415,12 @@ class Email(models.Model):
         else:
             try:
                 # Warm the cache
-                requests.get(self.source_html_uri)
+                requests.get(self.source_html_uri, verify=False)
 
                 # Get the email html
                 # This must be encoded in ASCII format due to Amazon SES limitations:
                 #http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
-                request = requests.get(self.source_html_uri)
+                request = requests.get(self.source_html_uri, verify=False)
                 return (request.status_code, request.text.encode('ascii', 'xmlcharrefreplace'))
             except IOError, e:
                 log.exception('Unable to fetch email html')
