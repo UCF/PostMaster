@@ -3,16 +3,12 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     minifyCss = require('gulp-minify-css'),
     bless = require('gulp-bless'),
-    notify = require('gulp-notify'),
-    bower = require('gulp-bower'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     prefix = require('gulp-autoprefixer'),
     rename = require('gulp-rename'),
     jshint = require('gulp-jshint'),
-    jshintStylish = require('jshint-stylish'),
     scsslint = require('gulp-scss-lint'),
-    vinylPaths = require('vinyl-paths'),
     browserSync = require('browser-sync').create(),
     reload = browserSync.reload;
 
@@ -22,26 +18,9 @@ var config = {
   jsPath: './static/js',
   fontPath: './static/fonts',
   htmlPath: './',
-  bowerDir: './static/bower_components',
   sync: config.sync,
   target: config.target,
 };
-
-
-// Run Bower
-gulp.task('bower', function() {
-  return bower()
-    .pipe(gulp.dest(config.bowerDir))
-    .on('end', function() {
-      // Add Glyphicons fonts
-      gulp.src(config.bowerDir + '/bootstrap-sass-official/assets/fonts/*/*')
-        .pipe(gulp.dest(config.fontPath));
-      gulp.src(config.bowerDir + '/font-awesome/fonts/*')
-        .pipe(gulp.dest(config.fontPath));
-      gulp.src(config.bowerDir + '/font-awesome/css/*.min.css')
-        .pipe(gulp.dest(config.cssPath));
-    });
-});
 
 
 // Process .scss files in /static/scss/
@@ -52,12 +31,11 @@ gulp.task('css', function() {
     }))
     .pipe(sass().on('error', sass.logError))
     .pipe(prefix({
-        browsers: ["last 3 versions", "> 10%", "ie 8"],
+        browsers: ["last 3 versions"],
         cascade: false
     }))
-    .pipe(minifyCss({compatibility: 'ie8'}))
+    .pipe(minifyCss())
     .pipe(rename('style.min.css'))
-    .pipe(bless())
     .pipe(gulp.dest(config.cssPath))
     .pipe(browserSync.stream());
 });
@@ -75,9 +53,6 @@ gulp.task('js', function() {
 
       // Combine and uglify js files to create script.min.js.
       var minified = [
-        config.bowerDir + '/bootstrap-sass-official/assets/javascripts/bootstrap.js',
-        config.bowerDir + '/typeahead.js/dist/bloodhound.js',
-        config.bowerDir + '/typeahead.js/dist/typeahead.bundle.js',
         config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
         config.jsPath + '/recipientgroup-update.js',
@@ -126,4 +101,4 @@ gulp.task('watch', function() {
 
 
 // Default task
-gulp.task('default', ['bower', 'css', 'js']);
+gulp.task('default', ['css', 'js']);
