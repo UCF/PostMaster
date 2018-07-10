@@ -36,18 +36,19 @@ Configuration
 
 Setup Python Environment
 -------
-virtualenv postmaster
-cd postmaster/
-git clone git@github.com:UCF/PostMaster.git src
-source bin/activate
-cd src/
-pip install -r requirements.txt
-deactivate
-source ../bin/activate
-create database defined in settings_local.py
-python manage.py syncdb
-npm install
-python manage.py runserver - to run webserver
+- virtualenv postmaster
+- cd postmaster/
+- git clone git@github.com:UCF/PostMaster.git src
+- source bin/activate
+- cd src/
+- pip install -r requirements.txt
+- Due to a bug with this particular version of virtualenv you may need to reactivate
+	- deactivate
+	- source ../bin/activate
+- create database defined in settings_local.py
+- python manage.py syncdb
+- npm install
+- python manage.py runserver - to run webserver
 
 Development
 -------
