@@ -4,17 +4,15 @@
 
 <div class="form-group {% if field.errors %}has-error has-feedback{% endif %}">
   {% if field|is_checkbox %}
-    <div class="col-sm-offset-3 col-sm-9">
-      <div class="checkbox">
-        <label>
-          {{ field }} {{field.label}}
-        </label>
-      </div>
-      <p class="help-block">{{field.help_text}}</p>
+    <div class="form-check">
+      <label class="form-check-label">
+        {{ field|add_class:"form-check-input" }} {{field.label}}
+      </label>
     </div>
+    <small class="form-text text-muted">{{field.help_text}}</small>
   {% else %}
-    <label for="{{field.id}}" class="col-sm-3 control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
-    <div class="col-sm-9">
+    <label for="{{field.id}}" class="control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+    <div class="controls">
 
       {% if field.field.required %}
         {% if field|is_file %}
@@ -38,7 +36,7 @@
           <p class="alert alert-danger">{{error}}</p>
         {% endfor %}
       {% endif %}
-      <p class="help-block">{{field.help_text}}</p>
+      <small class="form-text text-muted">{{field.help_text}}</small>
     </div>
   {% endif %}
 </div>
