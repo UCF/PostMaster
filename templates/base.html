@@ -11,9 +11,11 @@
   <body>
     <div class="container">
       <div class="row">
-        <header class="col-sm-12">
+        <header class="col-12">
           {% block header %}
-          <nav class="navbar navbar-default">
+          <nav class="navbar navbar-toggleable-lg navbar-light bg-faded">
+              <a class="navbar-brand" href="{% url manager-home %}">
+                <span class="fa fa-envelope" aria-hidden="true"></span> Postmaster</a>
               <div class="container-fluid">
 
                 <!-- Mobile -->
@@ -26,8 +28,6 @@
                       <span class="icon-bar"></span>
                     </button>
                   {% endif %}
-                  <a class="navbar-brand" href="{% url manager-home %}">
-                    <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Postmaster</a>
                 </div>
 
                 {% if user.is_authenticated %}
@@ -122,7 +122,7 @@
           </nav>
           {% endblock %}
         </header>
-        <section class="col-sm-12">
+        <section class="col-12">
           {% block messages-breadcrumbs %}
           {% if messages %}
             {% for message in messages %}
