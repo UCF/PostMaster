@@ -3,7 +3,7 @@
   "devDependencies": {
     "bower": "^1.4.1",
     "browser-sync": "^2.7.12",
-    "gulp": "~3.9.0",
+    "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-bless": "3.0.1",
     "gulp-bower": "0.0.10",
