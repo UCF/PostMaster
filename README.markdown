@@ -34,6 +34,21 @@ Configuration
 	- office_hours_contact_info: displays next to the office hours section on the home page when logged in
 	- after_hours_contact_info: displays next to the after hours section on the home page when logged in
 
+Setup Python Environment
+-------
+virtualenv postmaster
+cd postmaster/
+git clone git@github.com:UCF/PostMaster.git src
+source bin/activate
+cd src/
+pip install -r requirements.txt
+deactivate
+source ../bin/activate
+create database defined in settings_local.py
+python manage.py syncdb
+npm install
+python manage.py runserver - to run webserver
+
 Development
 -------
 - Make sure an up to date version of node is installed
