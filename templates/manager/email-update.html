@@ -10,9 +10,9 @@
 <form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
   <fieldset>
     {% for error in form.non_field_errors %}
-    <div class="alert alert-danger">
-      {{error}}
-    </div>
+      <div class="alert alert-danger">
+        {{error}}
+      </div>
     {% endfor %}
     {% for field in form %}
       {% include 'form-control-group.html' %}
