@@ -6,7 +6,7 @@
   <h2>
       Recipients
       <a href="{% url manager-recipient-create %}" class="btn btn-default">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
+        <span class="fas fa-plus" aria-hidden="true"></span> &nbsp;Add New</a>
   </h2>
   {% if search_query %}
       <p class="subtitle">Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="search-query">&ldquo;{{ search_query }}&rdquo;</span> &hellip;</p>
@@ -20,7 +20,7 @@
     		{% if page_obj.has_previous %}
     		<li>
     			<a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
-            <span class="glyphicon glyphicon-chevron-left"></span>Prev
+            <span class="fas fa-chevron-left"></span>Prev
           </a>
     		</li>
     		{% endif %}
@@ -30,7 +30,7 @@
     		{% if page_obj.has_next %}
     		<li>
     			<a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">
-            Next<span class="glyphicon glyphicon-chevron-right"></span>
+            Next<span class="fas fa-chevron-right"></span>
           </a>
     		</li>
     		{% endif %}
@@ -44,7 +44,7 @@
           <div class="input-group">
             {{search_form.email_address|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
             <span class="input-group-btn">
-              <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
+              <button class="btn btn-primary" type="submit"><span class="fas fa-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
             </span>
           </div><!-- /input-group -->
         </div><!-- /form-group -->
@@ -64,7 +64,7 @@
   		<tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
         <td>{{recipient.email_address}}
             {% if recipient.disable %}
-            <span class="glyphicon pull-right glyphicon-eye-close">
+            <span class="fa pull-right fa-eye-slash">
             {% endif %}
         </td>
   		</tr>
@@ -77,7 +77,7 @@
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="prev" aria-label="Previous">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+          <span class="fas fa-chevron-left"></span>Prev</a>
       </li>
       {% endif %}
       <li class="disabled">
@@ -86,7 +86,7 @@
       {% if page_obj.has_next %}
       <li>
         <a href="?page={{page_obj.next_page_number}}{% if search_valid %}&amp;email_address={{search_form.email_address.value}}{% endif %}" class="next" aria-label="Next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+          Next<span class="fas fa-chevron-right"></span></a>
       </li>
       {% endif %}
     </ul>

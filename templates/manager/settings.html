@@ -5,7 +5,7 @@
   <h2>
     Settings
     <a href="{% url manager-setting-create %}" class="btn btn-default">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add New</a>
+      <span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
   </h2>
 
   {% if is_paginated %}
@@ -14,7 +14,7 @@
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+          <span class="fas fa-chevron-left"></span>Prev</a>
       </li>
       {% endif %}
       <li class="disabled">
@@ -23,7 +23,7 @@
       {% if page_obj.has_next %}
       <li>
         <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+          Next<span class="fas fa-chevron-right"></span></a>
       </li>
       {% endif %}
     </ul>
@@ -53,7 +53,7 @@
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+          <span class="fas fa-chevron-left"></span>Prev</a>
       </li>
       {% endif %}
       <li class="disabled">
@@ -62,7 +62,7 @@
       {% if page_obj.has_next %}
       <li>
         <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+          Next<span class="fas fa-chevron-right"></span></a>
       </li>
       {% endif %}
     </ul>

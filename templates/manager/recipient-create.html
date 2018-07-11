@@ -33,7 +33,7 @@
                 {{ attr_form.value|add_class:"form-control" }}
               </div>
               <button class="btn btn-danger delete-attr-btn">
-                <span class="glyphicon glyphicon-remove" aria-hidden="true" data-color="danger"></span>
+                <span class="fas fa-minus" aria-hidden="true" data-color="danger"></span>
               </button>
             </div>
           </div>
@@ -46,7 +46,7 @@
             <div class="form-group row">
               <label class="col-sm-6 control-label">Add another recipient attribute...</label>
               <button class="btn btn-success add-attr-btn">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true" data-color="success"></span>
+                <span class="fas fa-plus" aria-hidden="true" data-color="success"></span>
               </button>
             </div>
           </div>
@@ -58,10 +58,10 @@
       <div class="form-group">
         <div class="col-sm-offset-3 col-sm-9">
     			<button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
+            <span class="fas fa-plus" aria-hidden="true"></span> Create
           </button>
     			<a href="{% url manager-recipients %}" class="btn btn-default">
-            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+            <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
         </div>
   		</div>
   	</fieldset>

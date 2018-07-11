@@ -30,9 +30,9 @@
             </div>
         {% endif %}
         <p><strong>Are you sure you want to delete the recipient group "{{ recipientgroup.name }}"?</strong></p>
-        <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Delete</button>
+        <button type="submit" class="btn btn-danger"><span class="fas fa-trash"></span> Delete</button>
         <a href="{% url manager-recipientgroups %}" class="btn btn-default">
-            <span class="glyphicon glyphicon-minus"></span> Cancel
+            <span class="fas fa-minus"></span> Cancel
         </a>
 </form>
 {% endblock %}

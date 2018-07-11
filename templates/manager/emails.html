@@ -7,7 +7,7 @@
     <div class="col-sm-6">
       <h2>Emails
         <a href="{% url manager-email-create %}" class="btn btn-default">
-          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
+          <span class="fas fa-plus" aria-hidden="true"></span> &nbsp;Add New</a>
       </h2>
       {% if search_query %}
         <p class="subtitle">Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="search-query">&ldquo;{{ search_query }}&rdquo;</span> &hellip;</p>
@@ -20,7 +20,7 @@
           <div class="input-group">
             {{search_form.search_query|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
             <span class="input-group-btn">
-              <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
+              <button class="btn btn-primary" type="submit"><span class="fas fa-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
             </span>
           </div><!-- /input-group -->
         </div><!-- /form-group -->
@@ -34,7 +34,7 @@
         {% if page_obj.has_previous %}
         <li>
           <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
-            <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+            <span class="fas fa-chevron-left"></span>Prev</a>
         </li>
         {% endif %}
         <li class="disabled">
@@ -43,7 +43,7 @@
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
-            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+            Next<span class="fas fa-chevron-right"></span></a>
         </li>
         {% endif %}
       </ul>
@@ -68,11 +68,11 @@
         <td>
           <div class="btn-group pull-right">
             <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">
-              <span class="glyphicon glyphicon-list"></span> Instances</a>
+              <span class="fas fa-list"></span> Instances</a>
             <a class="btn btn-sm btn-default" href="{% url manager-email-update email.pk %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit</a>
+              <span class="fas fa-pencil-alt"></span> Edit</a>
             <a class="btn btn-sm btn-default" href="{% url manager-email-preview-instances email.pk %}">
-              <span class="glyphicon glyphicon-eye-open"></span> Previews</a>
+              <span class="fas fa-eye"></span> Previews</a>
           </div>
         </td>
   		</tr>
@@ -86,7 +86,7 @@
         {% if page_obj.has_previous %}
         <li>
           <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
-            <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+            <span class="fas fa-chevron-left"></span>Prev</a>
         </li>
         {% endif %}
         <li class="disabled">
@@ -95,7 +95,7 @@
         {% if page_obj.has_next %}
         <li>
           <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
-            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+            Next<span class="fas fa-chevron-right"></span></a>
         </li>
         {% endif %}
       </ul>

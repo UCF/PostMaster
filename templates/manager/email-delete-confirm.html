@@ -3,7 +3,10 @@
 <h1 class="heading-underline h2">Confirm</h1>
 <p class="lead">Are you sure you want to delete {{email.title}}?</p>
 <form action="{% url manager-email-delete email.pk %}" method="post">
-  <button type="submit" class="btn btn-danger">Delete</button>
-  <a href="{% url manager-emails %}" class="btn btn-default">Cancel</a>
+  <button type="submit" class="btn btn-danger">
+    <span class="fas fa-trash" aria-hidden="true"></span> Delete
+  </button>
+  <a href="{% url manager-emails %}" class="btn btn-default">
+    <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
 </form>
 {% endblock %}
