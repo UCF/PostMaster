@@ -1,39 +1,35 @@
 {% load widget_tweaks %}
 {% load filters %}
 
-
-<div class="form-group {% if field.errors %}has-error has-feedback{% endif %}">
+<div class="form-group row{% if field.errors %} has-danger{% endif %}">
   {% if field|is_checkbox %}
-    <div class="form-check">
-      <label class="form-check-label">
-        {{ field|add_class:"form-check-input" }} {{field.label}}
+<div class="form-check mb-1 col-sm-9 offset-sm-3">
+    <label class="custom-control custom-checkbox form-check-label">
+        {{field|add_class:"custom-control-input"}}
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">{{field.label}}</span>
       </label>
     </div>
-    <small class="form-text text-muted">{{field.help_text}}</small>
+    <div class="col-sm-9 offset-sm-3">
+      <small class="form-text text-muted">{{field.help_text}}</small>
+    </div>
   {% else %}
-    <label for="{{field.id}}" class="control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
-    <div class="controls">
-
+    <label for="{{field.id}}" class="form-control-label col-sm-3 text-right">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+    <div class="col-sm-9">
       {% if field.field.required %}
         {% if field|is_file %}
           {{field|attr:"required"}}
         {% else %}
-          {{field|add_class:"form-control"|attr:"required"}}
+          {{field|add_class:"form-control form-control-danger"|attr:"required"}}
         {% endif %}
       {% elif field|is_file %}
         {{field}}
       {% else %}
-        {{field|add_class:"form-control"}}
+        {{field|add_class:"form-control form-control-danger"}}
       {% endif %}
-
-      {% if field.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-        <span id="inputError2Status" class="sr-only">(error)</span>
-      {% endif %}
-
       {% if field.errors %}
         {% for error in field.errors %}
-          <p class="alert alert-danger">{{error}}</p>
+          <div class="form-control-feedback">{{error}}</div>
         {% endfor %}
       {% endif %}
       <small class="form-text text-muted">{{field.help_text}}</small>
