@@ -6,6 +6,8 @@
     <title>Postmaster</title>
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.ucf.edu/athena-framework/v1.0.0/css/framework.min.css">
+    <link rel="stylesheet" href="{{MEDIA_URL}}css/solid.css" />
+    <link rel="stylesheet" href="{{MEDIA_URL}}css/fontawesome.css" />
     <link rel="stylesheet" href="{{MEDIA_URL}}css/style.min.css" />
   </head>
   <body>
@@ -15,7 +17,7 @@
           {% block header %}
           <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
             <a class="navbar-brand" href="{% url manager-home %}">
-              <span class="fa fa-envelope" aria-hidden="true"></span> Postmaster
+              <span class="fas fa-envelope mr-2" aria-hidden="true"></span> Postmaster
             </a>
 
             {% if user.is_authenticated %}
@@ -35,16 +37,16 @@
                   </a>
                   <div class="dropdown-menu" aria-labelledby="email-dropdown">
                     <a class="dropdown-item" href="{% url manager-emails %}">
-                      <span class="fa fa-list" aria-hidden="true"></span> All Emails
+                      <span class="fas fa-list" aria-hidden="true"></span> All Emails
                     </a>
                     <a class="dropdown-item" href="{% url manager-email-create %}">
-                      <span class="fa fa-plus" aria-hidden="true"></span> Add New
+                      <span class="fas fa-plus" aria-hidden="true"></span> Add New
                     </a>
                     <a class="dropdown-item" href="{% url manager-email-design %}">
-                      <span class="fa fa-pencil" aria-hidden="true"></span> Email Designer
+                      <span class="fas fa-pencil-alt" aria-hidden="true"></span> Email Designer
                     </a>
                     <a class="dropdown-item" href="{% url manager-email-instant-send %}">
-                      <span class="fa fa-paper-plane" aria-hidden="true"></span> Send Instant Email
+                      <span class="fas fa-paper-plane" aria-hidden="true"></span> Send Instant Email
                     </a>
                   </div>
                 </li>
@@ -55,13 +57,13 @@
                     Recipients</a>
                   <div class="dropdown-menu" aria-labelledby="recipients-dropdown">
                     <a class="dropdown-item" href="{% url manager-recipients %}">
-                      <span class="fa fa-list" aria-hidden="true"></span> All Recipients
+                      <span class="fas fa-list" aria-hidden="true"></span> All Recipients
                     </a>
                     <a class="dropdown-item" href="{% url manager-recipient-create %}">
-                      <span class="fa fa-plus" aria-hidden="true"></span> Add New
+                      <span class="fas fa-plus" aria-hidden="true"></span> Add New
                     </a>
                     <a class="dropdown-item" href="{% url manager-recipients-csv-import %}">
-                      <span class="fa fa-download" aria-hidden="true"></span> Import
+                      <span class="fas fa-download" aria-hidden="true"></span> Import
                     </a>
                   </div>
                 </li>
@@ -72,10 +74,10 @@
                     Recipient Groups</a>
                   <div class="dropdown-menu" aria-labelledby="recipient-groups-dropdown">
                     <a class="dropdown-item" href="{% url manager-recipientgroups %}">
-                      <span class="fa fa-list" aria-hidden="true"></span> All Recipient Groups
+                      <span class="fas fa-list" aria-hidden="true"></span> All Recipient Groups
                     </a>
                     <a class="dropdown-item" href="{% url manager-recipientgroup-create %}">
-                      <span class="fa fa-plus" aria-hidden="true"></span> Add New
+                      <span class="fas fa-plus" aria-hidden="true"></span> Add New
                     </a>
                   </div>
                 </li>
@@ -86,15 +88,15 @@
                     Settings</a>
                   <div class="dropdown-menu" aria-labelledby="settings-dropdown">
                     <a class="dropdown-item" href="{% url manager-settings %}">
-                      <span class="fa fa-list" aria-hidden="true"></span> All Settings</a>
+                      <span class="fas fa-list" aria-hidden="true"></span> All Settings</a>
                     <a class="dropdown-item" href="{% url manager-setting-create %}">
-                      <span class="fa fa-plus" aria-hidden="true"></span> Add New</a>
+                      <span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
                   </div>
                 </li>
 
                 <li class="nav-item">
                   <a class="nav-link" href="{% url logout %}">
-                    <span class="fa fa-sign-out"></span> Logout</a>
+                    <span class="fas fa-sign-out-alt mr-1"></span> Logout</a>
                 </li>
               </ul>
             </div> <!-- /.navbar-collapse -->

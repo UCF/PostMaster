@@ -2,7 +2,6 @@ var gulp = require('gulp'),
     config = require('./config.json'),
     sass = require('gulp-sass'),
     minifyCss = require('gulp-minify-css'),
-    bless = require('gulp-bless'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     prefix = require('gulp-autoprefixer'),
@@ -10,16 +9,17 @@ var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     scsslint = require('gulp-scss-lint'),
     browserSync = require('browser-sync').create(),
-    reload = browserSync.reload;
+    runSequence = require('run-sequence');
 
 var config = {
   sassPath: './static/scss',
   cssPath: './static/css',
   jsPath: './static/js',
-  fontPath: './static/fonts',
+  fontPath: './static/webfonts',
   htmlPath: './',
   sync: config.sync,
   target: config.target,
+  packagesPath: './node_modules',
 };
 
 
@@ -62,8 +62,7 @@ gulp.task('js', function() {
       gulp.src(minified)
         .pipe(concat('script.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(config.jsPath))
-        .pipe(browserSync.stream());
+        .pipe(gulp.dest(config.jsPath));
 
       // Combine and uglify email designer js files to create email-designer-script.min.js.
       var designerMinified = [
@@ -76,11 +75,27 @@ gulp.task('js', function() {
       gulp.src(designerMinified)
         .pipe(concat('email-designer-script.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(config.jsPath))
-        .pipe(browserSync.stream());
+        .pipe(gulp.dest(config.jsPath));
 
     });
 });
+
+//
+// Installation of components/dependencies
+//
+
+// Copy Font Awesome files
+gulp.task('move-components-fontawesome', function() {
+  gulp.src(config.packagesPath + '/@fortawesome/fontawesome-free/webfonts/**/*')
+   .pipe(gulp.dest(config.fontPath));
+  gulp.src([config.packagesPath + '/@fortawesome/fontawesome-free/css/solid.css', config.packagesPath + '/@fortawesome/fontawesome-free/css/fontawesome.css'])
+  .pipe(gulp.dest(config.cssPath));
+});
+
+// Run all component-related tasks
+gulp.task('components', [
+  'move-components-fontawesome'
+]);
 
 
 // Rerun tasks when files change
@@ -99,6 +114,10 @@ gulp.task('watch', function() {
   gulp.watch([config.jsPath + '/*.js', '!' + config.jsPath + '/*.min.js'], ['js']);
 });
 
-
+//
 // Default task
-gulp.task('default', ['css', 'js']);
+//
+gulp.task('default', function() {
+  // Make sure 'components' completes before 'css' or 'js' are allowed to run
+  runSequence('components', ['css', 'js']);
+});
