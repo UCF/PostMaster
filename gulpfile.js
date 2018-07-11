@@ -16,7 +16,8 @@ var config = {
   cssPath: './static/css',
   jsPath: './static/js',
   fontPath: './static/webfonts',
-  htmlPath: './',
+  htmlPath: './templates',
+  pyPath: './manager',
   sync: config.sync,
   target: config.target,
   packagesPath: './node_modules',
@@ -108,10 +109,10 @@ gulp.task('watch', function() {
     });
   }
 
-  gulp.watch(config.htmlPath + '/*.py');
-  gulp.watch(config.htmlPath + '/*.html');
-  gulp.watch(config.sassPath + '/*.scss', ['css']);
-  gulp.watch([config.jsPath + '/*.js', '!' + config.jsPath + '/*.min.js'], ['js']);
+  gulp.watch(config.pyPath + '/**/*.py').on("change", browserSync.reload);
+  gulp.watch(config.htmlPath + '/**/*.html').on("change", browserSync.reload);
+  gulp.watch(config.sassPath + '/**/*.scss', ['css']);
+  gulp.watch([config.jsPath + '/*.js', '!' + config.jsPath + '/*.min.js'], ['js']).on("change", browserSync.reload);
 });
 
 //
