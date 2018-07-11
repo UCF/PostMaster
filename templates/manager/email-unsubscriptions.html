@@ -9,7 +9,7 @@
   		{% if page_obj.has_previous %}
   		<li>
   			<a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+          <span class="fas fa-chevron-left"></span>Prev</a>
   		</li>
   		{% endif %}
       <li class="disabled">
@@ -18,7 +18,7 @@
   		{% if page_obj.has_next %}
   		<li>
   			<a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+          Next<span class="fas fa-chevron-right"></span></a>
   		</li>
   		{% endif %}
   	</ul>
@@ -46,7 +46,7 @@
       {% if page_obj.has_previous %}
       <li>
         <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+          <span class="fas fa-chevron-left"></span>Prev</a>
       </li>
       {% endif %}
       <li class="disabled">
@@ -55,7 +55,7 @@
       {% if page_obj.has_next %}
       <li>
         <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+          Next<span class="fas fa-chevron-right"></span></a>
       </li>
       {% endif %}
     </ul>

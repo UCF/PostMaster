@@ -13,8 +13,12 @@
         {% endfor %}
         <div class="form-group row">
           <div class="col-sm-9 offset-sm-3">
-            <button type="submit" class="btn btn-primary">Create</button>
-            <a href="{% url manager-emails %}" class="btn btn-default">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              <span class="fas fa-plus" aria-hidden="true"></span> Create
+            </button>
+            <a href="{% url manager-emails %}" class="btn btn-default">
+              <span class="fas fa-minus" aria-hidden="true"></span> Cancel
+            </a>
           </div>
         </div>
     </fieldset>
