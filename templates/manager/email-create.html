@@ -1,12 +1,4 @@
 {% extends 'base.html' %}
-{% block breadcrumbs %}
-    {{block.super}}
-    <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-    <li class="active">
-        <a href="{% url manager-email-create %}">Create</a>
-    </li>
-{% endblock %}
-
 {% block page-body %}
 <h1 class="h2 heading-underline">Create Email</h1>
 <form action="{% url manager-email-create %}" method="post">

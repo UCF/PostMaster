@@ -103,7 +103,7 @@
           {% endblock %}
         </header>
         <section class="col-12">
-          {% block messages-breadcrumbs %}
+          {% block messages %}
           {% if messages %}
             {% for message in messages %}
             <div class="alert{% if message.tags %} {{message.tags}}{% endif %}">

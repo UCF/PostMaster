@@ -1,12 +1,4 @@
 {% extends 'base.html' %}
-
-{% block breadcrumbs %}
-	{{block.super}}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a></li>
-{% endblock %}
-
 {% block page-body %}
 
 <a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-success pull-right">

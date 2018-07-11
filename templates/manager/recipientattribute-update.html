@@ -1,12 +1,4 @@
 {% extends 'base.html' %}
-{% block breadcrumbs %}
-    {{block.super}}
-    <li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipient-update attribute.recipient.pk %}">{{attribute.recipient.email_address}}</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipient-recipientattributes attribute.recipient.pk %}">Attributes</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipientattribute-update attribute.pk %}">{{attribute.name}}</a> <span class="divider">/</span></li>
-    <li class="active"><a href="{% url manager-recipientattribute-update attribute.pk %}">Update</a></li>
-{% endblock %}
 {% block page-body %}
 <form class="form-horizontal" action="{% url manager-recipientattribute-update attribute.pk %}" method="post">
     <fieldset>

@@ -1,12 +1,5 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-
-{% block breadcrumbs %}
-	{{block.super}}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipient-create %}">Create</a></li>
-{% endblock %}
-
 {% block page-body %}
   <form class="form-horizontal" action="{% url manager-recipient-create %}" method="post">
   	<fieldset>

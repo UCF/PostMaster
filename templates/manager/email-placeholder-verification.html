@@ -1,11 +1,4 @@
 {% extends 'base.html' %}
-{% block breadcrumbs %}
-    {{block.super}}
-    <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-    <li class="active">
-        <a href="{% url manager-email-update form.instance.pk %}">{{form.instance.title}}</a>
-    </li>
-{% endblock %}
 {% block page-body %}
 <a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default pull-right">Unsubscriptions</a>
 <div class="clearfix"></div>
@@ -41,7 +34,7 @@
         {% empty %}
             <div class="alert alert-info">
                 <p>No placeholders present in this email.</p>
-            </div>    
+            </div>
         {% endfor %}
     </fieldset>
 </form>

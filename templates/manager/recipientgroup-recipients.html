@@ -1,12 +1,4 @@
 {% extends 'base.html' %}
-
-{% block breadcrumbs %}
-	{{block.super}}
-	<li><a href="{% url manager-recipientgroups %}">Recipient Groups</a> <span class="divider">/</span></li>
-	<li><a href="{% url manager-recipientgroup-update recipientgroup.pk %}">{{recipientgroup.name}}</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipientgroup-recipients recipientgroup.pk %}">Recipients</a></li>
-{% endblock %}
-
 {% block page-body %}
 
   <h2>{{recipient_group.name}} Recipients</h2>

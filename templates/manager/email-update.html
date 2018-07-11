@@ -1,11 +1,4 @@
 {% extends 'base.html' %}
-{% block breadcrumbs %}
-    {{block.super}}
-    <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-    <li class="active">
-        <a href="{% url manager-email-update form.instance.pk %}">{{form.instance.title}}</a>
-    </li>
-{% endblock %}
 {% block page-body %}
 <div class="btn-group pull-right">
     <a href="{% url manager-email-placeholder-verification email.pk %}" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Placeholder Verification</a>

@@ -1,12 +1,5 @@
 {% extends 'base.html' %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
-  <li><a href="{% url manager-email-update email.pk %}">{{ email.title }}</a> <span class="divider">/</span></li>
-  <li class="active"><a href="{% url manager-email-instances email.pk %}">Instances</a></li>
-{% endblock %}
-
 {% block page-body %}
   <h2>{{ email.title }} Instances</h2>
 
