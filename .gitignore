@@ -16,4 +16,3 @@ typings/*
 node_modules/*
 # developer specific settings
 config.json
-package-lock.json
