@@ -155,7 +155,7 @@ input[type=file] {
 
 .attribute button span,
 .add-container button span {
-  padding: 15px 12px;
+  padding: 19px 15px;
 }
 
 .add-attr-container .row {
@@ -164,7 +164,8 @@ input[type=file] {
 }
 
 .add-attr-container .control-label {
-  padding-top: 12px;
+  margin-bottom: 5px;
+  padding-top: 20px;
 }
 
 .jumbotron.opens {
@@ -174,7 +175,6 @@ input[type=file] {
   p {
     font-size: 14px;
   }
-
 
   h4 {
     font-size: 14px;
