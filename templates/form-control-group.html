@@ -20,12 +20,12 @@
         {% if field|is_file %}
           {{field|attr:"required"}}
         {% else %}
-          {{field|add_class:"form-control form-control-danger"|attr:"required"}}
+          {{field|add_class:"form-control"|attr:"required"}}
         {% endif %}
       {% elif field|is_file %}
         {{field}}
       {% else %}
-        {{field|add_class:"form-control form-control-danger"}}
+        {{field|add_class:"form-control"}}
       {% endif %}
       {% if field.errors %}
         {% for error in field.errors %}
