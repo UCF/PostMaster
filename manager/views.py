@@ -30,7 +30,7 @@ from django.views.generic.edit import FormView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 
 from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm

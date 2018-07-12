@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
   {{block.super}}
-  <li><a href="{% url manager-settings %}">Settings</a> <span class="divider">/</span></li>
+  <li><a href="{% url 'manager-settings' %}">Settings</a> <span class="divider">/</span></li>
   <li class="active">
-    <a href="{% url manager-setting-update form.instance.pk %}">{{form.instance.title}}</a>
+    <a href="{% url 'manager-setting-update' form.instance.pk %}">{{form.instance.title}}</a>
   </li>
 {% endblock %}
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-setting-update setting.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-setting-update' setting.pk %}" method="post">
   <fieldset>
     <legend>Update Setting</legend>
     {% for error in form.non_field_errors %}
@@ -24,9 +24,9 @@
         <button type="submit" class="btn btn-primary">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Update
         </button>
-        <a href="{% url manager-settings %}" class="btn btn-default">
+        <a href="{% url 'manager-settings' %}" class="btn btn-default">
           <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
-        <a href="{% url manager-setting-delete setting.pk %}" class="btn btn-danger">
+        <a href="{% url 'manager-setting-delete' setting.pk %}" class="btn btn-danger">
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</a>
       </div>
     </div>

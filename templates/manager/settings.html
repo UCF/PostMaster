@@ -4,7 +4,7 @@
 
   <h2>
     Settings
-    <a href="{% url manager-setting-create %}" class="btn btn-default">
+    <a href="{% url 'manager-setting-create' %}" class="btn btn-default">
       <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add New</a>
   </h2>
 
@@ -39,7 +39,7 @@
     </thead>
     <tbody>
       {% for setting in settings %}
-      <tr data-link-url="{% url manager-setting-update setting.pk %}">
+      <tr data-link-url="{% url 'manager-setting-update' setting.pk %}">
         <td>{{setting.name}}</td>
         <td>{{setting.value}}</td>
       </tr>

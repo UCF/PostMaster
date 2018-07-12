@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
     {{block.super}}
-    <li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipient-update attribute.recipient.pk %}">{{attribute.recipient.email_address}}</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipient-recipientattributes attribute.recipient.pk %}">Attributes</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipientattribute-update attribute.pk %}">{{attribute.name}}</a> <span class="divider">/</span></li>
-    <li class="active"><a href="{% url manager-recipientattribute-update attribute.pk %}">Update</a></li>
+    <li><a href="{% url 'manager-recipients' %}">Recipients</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'manager-recipient-update' attribute.recipient.pk %}">{{attribute.recipient.email_address}}</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'manager-recipient-recipientattributes' attribute.recipient.pk %}">Attributes</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'manager-recipientattribute-update' attribute.pk %}">{{attribute.name}}</a> <span class="divider">/</span></li>
+    <li class="active"><a href="{% url 'manager-recipientattribute-update' attribute.pk %}">Update</a></li>
 {% endblock %}
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-recipientattribute-update attribute.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientattribute-update' attribute.pk %}" method="post">
     <fieldset>
         <legend>Update <em>{{attribute.name}}</em> Attribute for {{attribute.recipient.email_address}}</legend>
         {% for error in form.non_field_errors %}
@@ -25,9 +25,9 @@
             <button type="submit" class="btn btn-primary">
               <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Update
             </button>
-            <a href="{% url manager-recipients %}" class="btn btn-default">
+            <a href="{% url 'manager-recipients' %}" class="btn btn-default">
               <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
-            <a href="{% url manager-recipientattribute-delete attribute.pk %}" class="btn btn-danger">
+            <a href="{% url 'manager-recipientattribute-delete' attribute.pk %}" class="btn btn-danger">
               <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</a>
           </div>
         </div>

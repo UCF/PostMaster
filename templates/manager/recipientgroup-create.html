@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
     {{block.super}}
-    <li><a href="{% url manager-recipientgroups %}">Recipient Groups</a> <span class="divider">/</span></li>
-    <li class="active"><a href="{% url manager-recipientgroup-create %}">Create</a></li>
+    <li><a href="{% url 'manager-recipientgroups' %}">Recipient Groups</a> <span class="divider">/</span></li>
+    <li class="active"><a href="{% url 'manager-recipientgroup-create' %}">Create</a></li>
 {% endblock %}
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-recipientgroup-create %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientgroup-create' %}" method="post">
     <fieldset>
         <legend>Create Recipient Group</legend>
         {% for error in form.non_field_errors %}
@@ -21,7 +21,7 @@
           <div class="col-sm-offset-3 col-sm-9">
             <button type="submit" class="btn btn-primary">
               <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</button>
-            <a href="{% url manager-recipientgroups %}" class="btn btn-default">
+            <a href="{% url 'manager-recipientgroups' %}" class="btn btn-default">
               <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
           </div>
         </div>

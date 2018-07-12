@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
   {{ block.super }}
-  <li><a href="{% url manager-emails %}">Emails</a> <span class="divider">/</span></li>
+  <li><a href="{% url 'manager-emails' %}">Emails</a> <span class="divider">/</span></li>
   <li class="active">
-    <a href="{% url manager-email-design %}">Design</a>
+    <a href="{% url 'manager-email-design' %}">Design</a>
   </li>
 {% endblock %}
 
@@ -184,9 +184,9 @@ These are injected into the email template markup when loadEditor() is called.
   <script src="{{ MEDIA_URL }}js/email-designer-script.min.js"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
-    var fileUploadURL = '{% url manager-file-upload %}',
-        fileGetURL = '{% url manager-files-get %}',
-        fileDeleteURL = '{% url manager-file-delete %}';
+    var fileUploadURL = '{% url 'manager-file-upload' %}',
+        fileGetURL = '{% url 'manager-files-get' %}',
+        fileDeleteURL = '{% url 'manager-file-delete' %}';
 
     pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL);
   </script>
@@ -198,8 +198,8 @@ These are injected into the email template markup when loadEditor() is called.
   {{ block.super }}
 -  <script src="{{ MEDIA_URL }}js/email-designer.js"></script>
   <script>
-    var getSnapshotsURL = '{% url manager-files-get %}',
-        saveSnapshotURL = '{% url manager-file-upload %}',
+    var getSnapshotsURL = '{% url 'manager-files-get' %}',
+        saveSnapshotURL = '{% url 'manager-file-upload' %}',
         validKeyPath = '{{ valid_key_path }}';
 
     init(getSnapshotsURL, saveSnapshotURL, validKeyPath);

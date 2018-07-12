@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
     {{block.super}}
-    <li><a href="{% url manager-recipientgroups %}">Recipient Groups</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipientgroup-update recipientgroup.pk %}">{{recipientgroup.name}}</a> <span class="divider">/</span></li>
-    <li class="active"><a href="{% url manager-recipientgroup-delete recipientgroup.pk %}">Delete</a></li>
+    <li><a href="{% url 'manager-recipientgroups' %}">Recipient Groups</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'manager-recipientgroup-update' recipientgroup.pk %}">{{recipientgroup.name}}</a> <span class="divider">/</span></li>
+    <li class="active"><a href="{% url 'manager-recipientgroup-delete' recipientgroup.pk %}">Delete</a></li>
 {% endblock %}
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-recipientgroup-delete recipientgroup.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientgroup-delete' recipientgroup.pk %}" method="post">
     <fieldset>
         <legend>Delete Recipient Group</legend>
         {% for error in form.non_field_errors %}
@@ -37,7 +37,7 @@
         {% endif %}
         <p><strong>Are you sure you want to delete the recipient group "{{ recipientgroup.name }}"?</strong></p>
         <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Delete</button>
-        <a href="{% url manager-recipientgroups %}" class="btn btn-default">
+        <a href="{% url 'manager-recipientgroups' %}" class="btn btn-default">
             <span class="glyphicon glyphicon-minus"></span> Cancel
         </a>
 </form>
