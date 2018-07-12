@@ -26,7 +26,7 @@
 
   function addAttribute(e) {
     e.preventDefault();
-    var $newAttribute = $clonedAttribute.clone().removeClass('hide');
+    var $newAttribute = $clonedAttribute.clone().removeClass('d-none');
     $newAttribute.appendTo($attributeContainer);
     // recipient create
     if(recipientCreatePage) {
@@ -61,7 +61,7 @@
 
   function init() {
     recipientCreatePage = (window.location.pathname.toString().indexOf('recipient/create/') !== -1);
-    $clonedAttribute = $attributeContainer.find('.attribute').last().clone().appendTo('body').addClass('hide');
+    $clonedAttribute = $attributeContainer.find('.attribute').last().clone().appendTo('body').addClass('d-none');
     // Select the first form input
     $('form:first *:input[type=text]:first').focus();
     // Add attribute button click handler
