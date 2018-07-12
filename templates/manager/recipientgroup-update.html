@@ -63,7 +63,7 @@
                     <tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
                         <td>{{recipient.email_address}}
                             {% if recipient.disable %}
-                            <span class="fa pull-right fa-eye-slash">
+                            <span class="fa float-right fa-eye-slash">
                             {% endif %}
                         </td>
                     </tr>

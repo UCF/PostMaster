@@ -15,7 +15,7 @@
 			{% with unsubscriptions=recipient.unsubscriptions.all %}
 				{% for email in recipient.subscriptions %}
 				<tr>
-					<td style="text-align:center;">
+					<td class="text-center">
 						<input type="checkbox" name="subscribed_emails" value="{{email.pk}}" {% if email not in unsubscriptions %}checked="checked" {% endif %} />
 					</td>
 					<td>{{email.title}}</td>

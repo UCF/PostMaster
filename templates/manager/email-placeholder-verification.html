@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default pull-right">Unsubscriptions</a>
+<a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default float-right">Unsubscriptions</a>
 <div class="clearfix"></div>
 <form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
     <fieldset>
