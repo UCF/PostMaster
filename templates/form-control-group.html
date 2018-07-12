@@ -3,19 +3,19 @@
 
 <div class="form-group row{% if field.errors %} has-danger{% endif %}">
   {% if field|is_checkbox %}
-<div class="form-check mb-1 col-sm-9 offset-sm-3">
+<div class="form-check mb-1 col-md-9 offset-md-3">
     <label class="custom-control custom-checkbox form-check-label">
         {{field|add_class:"custom-control-input"}}
         <span class="custom-control-indicator"></span>
         <span class="custom-control-description">{{field.label}}</span>
       </label>
     </div>
-    <div class="col-sm-9 offset-sm-3">
+    <div class="col-md-9 offset-md-3">
       <small class="form-text text-muted">{{field.help_text}}</small>
     </div>
   {% else %}
-    <label for="{{field.id}}" class="form-control-label col-sm-3 text-right">{{field.label}} {% if field.field.required %}*{% endif %}</label>
-    <div class="col-sm-9">
+    <label for="{{field.id}}" class="form-control-label col-md-3 text-left text-md-right">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+    <div class="col-md-9">
       {% if field.field.required %}
         {% if field|is_file %}
           {{field|attr:"required"}}
