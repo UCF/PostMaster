@@ -9,7 +9,7 @@ ADMINS = (
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/static/'
+# MEDIA_URL = '/static/'
 
 # Base URL of the project. Needed in places where build_absolute_uri
 # can't be used because there is no request object (e.g. management commands)
@@ -109,6 +109,12 @@ TEST_EMAIL_RECIPIENT = ''
 # Source URIs that test emails will use
 TEST_EMAIL_SOURCE_HTML_URI = ''
 TEST_EMAIL_SOURCE_TEXT_URI = ''
+
+STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(PROJECT_FOLDER, "static") # Comment out when using locally
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_FOLDER, "static")
+]
 
 LOGGING = {
     'version':1,

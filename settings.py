@@ -16,15 +16,6 @@ USE_I18N          = False
 
 LOGIN_REDIRECT_URL = '/'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-    'django.contrib.messages.context_processors.messages',
-)
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     'widget_tweaks',
     'manager',
 )
@@ -84,5 +76,3 @@ except ImportError:
         'Local settings file was not found. ' +
         'Ensure settings_local.py exists in project root.'
     )
-
-MEDIA_ROOT     = os.path.join(PROJECT_FOLDER, 'static')
