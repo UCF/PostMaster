@@ -2,6 +2,7 @@ import os
 
 
 DEBUG = True
+LOCAL_DEBUG = False
 ADMINS = (
     #('Your Name', 'your_email@domain.com'),
 )

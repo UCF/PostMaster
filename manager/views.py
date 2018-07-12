@@ -31,6 +31,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.forms.utils import ErrorList
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
@@ -471,8 +472,8 @@ class EmailDesignView(TemplateView):
 
         project_url = settings.PROJECT_URL
         project_url_agnostic = project_url.replace('http://', '//')
-        context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
-        context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
+        context['email_templates_url'] = staticfiles_storage.url(templates_path)
+        context['email_templates'] = os.listdir(staticfiles_storage.path(templates_path))
         context['froala_license'] = settings.FROALA_EDITOR_LICENSE
         context['valid_key_path'] = s3.get_base_key_path_url()
         return context
