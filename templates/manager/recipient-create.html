@@ -21,7 +21,7 @@
 
       <div class="form-group attribute-container">
         {% for attr_form in recipient_attributes_formset %}
-          <div class="col-sm-offset-3 col-sm-8 attribute">
+          <div class="offset-sm-3 col-sm-8 attribute">
             {{ attr_form.id }}
             <div class="form-group row">
               <label class="col-sm-1 control-label">Name</label>
@@ -42,7 +42,7 @@
 
       <div class="add-attr-container">
         <div class="form-group">
-          <div class="col-sm-offset-3 col-sm-8 add-container">
+          <div class="offset-sm-3 col-sm-8 add-container">
             <div class="form-group row">
               <label class="col-sm-6 control-label">Add another recipient attribute...</label>
               <button class="btn btn-success add-attr-btn">
@@ -56,7 +56,7 @@
       <hr>
 
       <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
+        <div class="offset-sm-3 col-sm-9">
     			<button type="submit" class="btn btn-primary">
             <span class="fas fa-plus" aria-hidden="true"></span> Create
           </button>
