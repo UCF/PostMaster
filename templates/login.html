@@ -8,7 +8,30 @@
         <div class="alert alert-danger">{{error}}</div>
         {% endfor %}
         {% for field in form %}
-            {% include 'form-control-group.html' %}
+          {% load widget_tweaks %}
+          {% load filters %}
+          <div class="form-group{% if field.errors %} has-danger{% endif %}">
+            {% if field %}
+              <label for="{{field.id}}" class="form-control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+              {% if field.field.required %}
+                {% if field|is_file %}
+                  {{field|attr:"required"}}
+                {% else %}
+                  {{field|add_class:"form-control form-control-danger"|attr:"required"}}
+                {% endif %}
+              {% elif field|is_file %}
+                {{field}}
+              {% else %}
+                {{field|add_class:"form-control form-control-danger"}}
+              {% endif %}
+              {% if field.errors %}
+                {% for error in field.errors %}
+                  <div class="form-control-feedback">{{error}}</div>
+                {% endfor %}
+              {% endif %}
+              <small class="form-text text-muted">{{field.help_text}}</small>
+            {% endif %}
+          </div>
         {% endfor %}
         <input type="hidden" name="next" value="{{next}}" />
         {% csrf_token %}
