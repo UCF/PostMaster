@@ -11,15 +11,15 @@
         {% for field in form %}
             {% include 'form-control-group.html' %}
         {% endfor %}
-        <div class="form-group">
-            <label class="control-label col-sm-3" for="tb_recipient_search">Add Recipient</label>
+        <div class="form-group row">
+            <label class="control-label col-sm-3 text-right" for="tb_recipient_search">Add Recipient</label>
             <div class="col-sm-9">
                 <input type="email" id="tb_recipient_search" name="recipient-email" class="form-control" />
                 <p class="help-block">Enter email address and press enter.</p>
             </div>
         </div>
-        <div class="form-group">
-          <div class="col-sm-offset-3 col-sm-9">
+        <div class="form-group row">
+          <div class="offset-sm-3 col-sm-9">
             <button type="submit" class="btn btn-primary">
               <span class="fas fa-pencil-alt" aria-hidden="true"></span> Update</button>
             <a href="{% url manager-recipientgroup-delete pk=recipientgroup.id %}" class="btn btn-danger">
@@ -51,7 +51,7 @@
 <form>
     <fieldset>
         <legend>Recipients</legend>
-        <table class="table table-striped table-hover">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th scope="col">Email Address</th>
