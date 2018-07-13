@@ -43,10 +43,23 @@ input[type=file] {
   display: block !important;
 }
 
-.tt-dropdown-menu {
-  border-radius: 0 0 4px 4px;
-  padding: 8px 4px 4px;
+.twitter-typeahead {
+  display: block !important;
+}
+
+.tt-menu {
+  border: 1px solid #ccc;
   width: 100%;
+}
+
+.tt-suggestion {
+  background: rgba(230, 230, 230, .95);
+  padding: 8px 10px;
+}
+
+.tt-cursor {
+   cursor: pointer;
+   background: rgba(255, 255, 255, 0.95);
 }
 
 .send-progress {
