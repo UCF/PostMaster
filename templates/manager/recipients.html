@@ -2,18 +2,30 @@
 {% load widget_tweaks %}
 
 {% block page-body %}
-
-  <h2>
-      Recipients
-      <a href="{% url manager-recipient-create %}" class="btn btn-default">
-        <span class="fas fa-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-  </h2>
-  {% if search_query %}
-      <p class="subtitle">Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="search-query">&ldquo;{{ search_query }}&rdquo;</span> &hellip;</p>
-  {% endif %}
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="d-inline-block heading-underline h2 my-1">Recipients</h1>
+      <a href="{% url manager-recipient-create %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+    </div>
+    <div class="col-sm-12 mt-5">
+      {% if search_query %}
+        <p class="small d-inline-block">
+          Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</p>
+      {% endif %}
+      <form class="form-inline float-right" action="{% url manager-recipients %}" method="get">
+        <div class="form-group">
+          <div class="input-group">
+            {{search_form.email_address|add_class:"form-control form-control-sm search-query"|attr:"required"|attr:"placeholder='Search for...'"|attr:"aria-label='Search for...'"}}
+            <span class="input-group-btn">
+              <button class="btn btn-primary btn-sm" type="submit"><span class="fas fa-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
+            </span>
+          </div>
+        </div>
+    	</form>
+    </div>
+  </div>
 
   <div class="row">
-
     <div class="col-sm-6">
     	{% if is_paginated %}
         <nav aria-label="Recipient list pagination">
@@ -39,40 +51,28 @@
         </nav>
       {% endif %}
     </div>
-
-    <div class="col-sm-6">
-    	<form class="form-inline form-search float-right" action="{% url manager-recipients %}" method="get">
-        <div class="form-group">
-          <div class="input-group">
-            {{search_form.email_address|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
-            <span class="input-group-btn">
-              <button class="btn btn-primary" type="submit"><span class="fas fa-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
-            </span>
-          </div><!-- /input-group -->
-        </div><!-- /form-group -->
-    	</form>
-    </div>
-
   </div>
 
-  <table class="table table-hover" id="email-list">
-  	<thead>
-  		<tr>
-        <th scope="col">Email Address</th>
-  		</tr>
-  	</thead>
-  	<tbody>
-  		{% for recipient in recipients %}
-  		<tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
-        <td>{{recipient.email_address}}
-            {% if recipient.disable %}
-            <span class="fa float-right fa-eye-slash">
-            {% endif %}
-        </td>
-  		</tr>
-  		{% endfor %}
-  	</tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-hover" id="email-list">
+      <thead>
+        <tr>
+          <th scope="col">Email Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for recipient in recipients %}
+          <tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
+            <td>{{recipient.email_address}}
+                {% if recipient.disable %}
+                <span class="fa float-right fa-eye-slash">
+                {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% if is_paginated %}
     <nav aria-label="Recipient list pagination">
