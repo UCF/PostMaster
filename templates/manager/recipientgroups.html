@@ -13,23 +13,27 @@
 
     <div class="col-sm-6">
       {% if is_paginated %}
-        <ul class="pagination pagination-sm">
-          {% if page_obj.has_previous %}
-          <li>
-            <a href="?page={{page_obj.previous_page_number}}" class="prev">
-              <span class="fas fa-chevron-left"></span>Prev</a>
-          </li>
-          {% endif %}
-          <li class="disabled">
-            <a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-          </li>
-          {% if page_obj.has_next %}
-          <li>
-            <a href="?page={{page_obj.next_page_number}}" class="next">
-              Next<span class="fas fa-chevron-right"></span></a>
-          </li>
-          {% endif %}
-        </ul>
+        <nav aria-label="Recipient groups list pagination">
+          <ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+                <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+              </a>
+            </li>
+            {% endif %}
+            <li class="disabled page-item">
+              <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+                Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
       {% endif %}
     </div>
 
@@ -68,25 +72,27 @@
   </table>
 
   {% if is_paginated %}
-  <div>
-    <ul class="pagination pagination-sm">
-      {% if page_obj.has_previous %}
-      <li>
-        <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="fas fa-chevron-left"></span>Prev</a>
-      </li>
-      {% endif %}
-      <li class="disabled">
-        <a href="#">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-      </li>
-      {% if page_obj.has_next %}
-      <li>
-        <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="fas fa-chevron-right"></span></a>
-      </li>
-      {% endif %}
-    </ul>
-  </div>
+    <nav aria-label="Recipient groups list pagination">
+      <ul class="pagination pagination-sm">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+            <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+          </a>
+        </li>
+        {% endif %}
+        <li class="disabled page-item">
+          <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+            Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
   {% endif %}
 
 {% endblock %}
