@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block page-body %}
-  <p><big>Are you sure you want to delete {{setting.name}}?</big></p>
+  <h1 class="heading-underline h2">Confirm</h1>
+  <p class="lead">Are you sure you want to delete {{setting.name}}?</p>
   <form action="{% url manager-setting-delete setting.pk %}" method="post">
     <button type="submit" class="btn btn-danger">
       <span class="fas fa-trash" aria-hidden="true"></span> Delete

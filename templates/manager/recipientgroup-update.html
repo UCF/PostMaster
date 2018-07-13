@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block page-body %}
+<h1 class="h2 heading-underline">Update Recipient Group</h1>
 <form class="form-horizontal" action="{% url manager-recipientgroup-update recipientgroup.pk %}" method="post">
     <fieldset>
-        <legend>Update Recipient Group</legend>
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
                 {{error}}
@@ -21,36 +21,22 @@
         <div class="form-group row">
           <div class="offset-sm-3 col-sm-9">
             <button type="submit" class="btn btn-primary">
-              <span class="fas fa-pencil-alt" aria-hidden="true"></span> Update</button>
-            <a href="{% url manager-recipientgroup-delete pk=recipientgroup.id %}" class="btn btn-danger">
-              <span class="fas fa-trash" aria-hidden="true"></span> Delete</a>
+              <span class="fas fa-pencil-alt" aria-hidden="true"></span> Update
+            </button>
             <a href="{% url manager-recipientgroups %}" class="btn btn-default">
-              <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
+              <span class="fas fa-minus" aria-hidden="true"></span> Cancel
+            </a>
+            <a href="{% url manager-recipientgroup-delete pk=recipientgroup.id %}" class="float-right btn btn-danger">
+              <span class="fas fa-trash" aria-hidden="true"></span> Delete
+            </a>
           </div>
         </div>
     </fieldset>
 </form>
-<nav>
-    <ul class="pagination pagination-sm">
-        {% if recipients.has_previous %}
-        <li>
-            <a href="?page={{recipients.previous_page_number}}" class="prev">
-          <span class="fas fa-chevron-left"></span>Prev</a>
-        </li>
-        {% endif %}
-        <li class="disabled">
-            <a href="#">Page {{recipients.number}} of {{recipients.paginator.num_pages}}</a>
-        </li>
-        {% if recipients.has_next %}
-        <li>
-            <a href="?page={{recipients.next_page_number}}" class="next">Next<span class="fas fa-chevron-right"></span></a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
+
+<h2 class="font-weight-normal h4 mt-5 mb-2">Recipients of {{recipientgroup.name}}</h2>
 <form>
     <fieldset>
-        <legend>Recipients</legend>
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -73,4 +59,25 @@
         </table>
     </fieldset>
 </form>
+<nav class="float-right" aria-label="Recipients of {{recipientgroup.name}} pagination">
+  <ul class="pagination pagination-sm">
+    {% if recipients.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{recipients.previous_page_number}}">
+          <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+        </a>
+    </li>
+    {% endif %}
+    <li class="disabled page-item">
+      <a class="page-link" href="#">Page {{recipients.number}} of {{recipients.paginator.num_pages}}</a>
+    </li>
+    {% if recipients.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{recipients.next_page_number}}" class="next">
+          Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+        </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
 {% endblock %}

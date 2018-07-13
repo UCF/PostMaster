@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% block page-body %}
+<h1 class="heading-underline h2">Confirm</h1>
+<p class="lead">Are you sure you want to delete the recipient group {{ recipientgroup.name }}?</p>
 <form class="form-horizontal" action="{% url manager-recipientgroup-delete recipientgroup.pk %}" method="post">
     <fieldset>
-        <legend>Delete Recipient Group</legend>
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
                 {{error}}
@@ -26,10 +27,9 @@
                     {% endfor %}
                     </ul>
                 {% endif %}
-                <p>If you delete this group, the recipients in the group will no longer receive the above emails.
+                <p class="mb-0">If you delete this group, the recipients in the group will no longer receive the above emails.</p>
             </div>
         {% endif %}
-        <p><strong>Are you sure you want to delete the recipient group "{{ recipientgroup.name }}"?</strong></p>
         <button type="submit" class="btn btn-danger"><span class="fas fa-trash"></span> Delete</button>
         <a href="{% url manager-recipientgroups %}" class="btn btn-default">
             <span class="fas fa-minus"></span> Cancel
