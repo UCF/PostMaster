@@ -1,6 +1,6 @@
 boto
 Django==1.11.12
-django-widget-tweaks==1.3
+django-widget-tweaks==1.4.2
 MySQL-python
 python-ldap
 requests
