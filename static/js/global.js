@@ -10,7 +10,7 @@
 
   function formValidation() {
     $('input').on('blur', function() {
-      if($(this).attr('required')) {
+      if($(this).attr('required') && !$(this).hasClass('search-query')) {
         if($(this).val()) {
           $(this).parents('.form-group').removeClass('has-danger').addClass('has-success');
         } else {
