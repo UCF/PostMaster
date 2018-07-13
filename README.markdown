@@ -56,9 +56,9 @@ Setup Python Environment
 - Pull down 2.0.0 code
 - `pip install -r requirements` to upgrade django.
 - It may be necessary to reactivate the virtual environment: `source ../bin/activate`
+- Compare `settings_local.py` with `settings_local.template.py` and make appropriate change.
 - Fake the initial migrations: `python manage.py migrate --fake-initial`
 - Migrate any other changes in 2.0.0: `python manage.py migrate`
-- Compare `settings_local.py` with `settings_local.template.py` and make appropriate change.
 
 Development
 -------

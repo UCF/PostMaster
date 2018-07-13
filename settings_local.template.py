@@ -158,11 +158,6 @@ LOGGING = {
         }
     },
     'loggers': {
-        'django': {
-            'handlers':['discard'],
-            'propogate': True,
-            'level':'INFO'
-        },
         # To log to the Windows event log instead of application.log, change the
         # `file` in the line `nteventlog` in the `handlers` line below
         'manager': {
