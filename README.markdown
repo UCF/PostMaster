@@ -33,6 +33,7 @@ Configuration
 - Settings are used for setting global value across the application
 	- office_hours_contact_info: displays next to the office hours section on the home page when logged in
 	- after_hours_contact_info: displays next to the after hours section on the home page when logged in
+- When developing locally, set `LOCAL_DEBUG` to `True` to ensure static files are properly served up.
 
 Setup Python Environment
 -------
