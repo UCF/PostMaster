@@ -913,7 +913,7 @@ class Instance(models.Model):
         if not self.urls_tracked:
             return []
 
-        hrefs = re.findall('<a(?:.*)href="([^"]+)"', self.sent_html)
+        hrefs = re.findall('<a(?:[ \w\-\=\"]+)?href=\"([^\"]+)\"', self.sent_html)
         urls  = []
 
         for href in hrefs:
