@@ -50,6 +50,16 @@ Setup Python Environment
 - npm install
 - python manage.py runserver - to run webserver
 
+2.0.0 Upgrade
+-------
+- Ensure virtual environment is using python 2.7+
+- Pull down 2.0.0 code
+- `pip install -r requirements` to upgrade django.
+- It may be necessary to reactivate the virtual environment: `source ../bin/activate`
+- Fake the initial migrations: `python manage.py migrate --fake-initial`
+- Migrate any other changes in 2.0.0: `python manage.py migrate`
+- Compare `settings_local.py` with `settings_local.template.py` and make appropriate change.
+
 Development
 -------
 - Make sure an up to date version of node is installed
