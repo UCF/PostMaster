@@ -63,6 +63,8 @@ MESSAGE_TAGS = {
     message_constants.ERROR   : 'alert-danger',
 }
 
+WSGI_APPLICATION = 'wsgi.application'
+
 DOT = ''
 with open(os.path.join(PROJECT_FOLDER, 'static', 'img', 'dot.png'), 'rb') as dot:
     DOT = dot.read()
