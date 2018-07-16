@@ -117,9 +117,10 @@ STATICFILES_DIRS = [
     os.path.join(PROJECT_FOLDER, "static")
 ]
 
+# Logging
 LOGGING = {
-    'version':1,
-    'disable_existing_loggers':True,
+    'version': 1,
+    'disable_existing_loggers': True,
     'filters': {
         'require_debug_true': {
             '()': 'logs.RequiredDebugTrue',
@@ -130,41 +131,56 @@ LOGGING = {
     },
     'formatters': {
         'talkative': {
-            'format':'[%(asctime)s]%(levelname)s:%(module)s:%(funcName)s:%(lineno)d:%(message)s'
+            'format': '[%(asctime)s] %(levelname)s:%(module)s %(funcName)s %(lineno)d %(message)s'
         },
         'concise': {
-            'format':'%(levelname)s: %(message)s (%(asctime)s)'
+            'format': '%(levelname)s: %(message)s (%(asctime)s)'
         }
     },
     'handlers': {
+        'discard': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler'
+        },
         'console': {
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-            'formatter':'talkative',
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'talkative',
             'filters': ['require_debug_true']
         },
         'file': {
             'level': 'INFO',
-            'class':'logging.FileHandler',
+            'class': 'logging.FileHandler',
             'filename': os.path.join(PROJECT_FOLDER,'logs', 'application.log'),
-            'formatter':'concise',
-            'filters': ['require_debug_false']
-        },
-        'nteventlog': {
-            'level'  : 'INFO',
-            'class'  : 'logging.handlers.NTEventLogHandler',
-            'appname': 'postmaster',
+            'formatter': 'concise',
             'filters': ['require_debug_false']
         }
     },
     'loggers': {
-        # To log to the Windows event log instead of application.log, change the
-        # `file` in the line `nteventlog` in the `handlers` line below
-        'manager': {
-            'handlers':['console', 'file'],
+        'core': {
+            'handlers': ['console', 'file'],
             'propogate': True,
-            'level':'DEBUG'
+            'level': 'WARNING'
         },
+        'django': {
+            'handlers': ['discard'],
+            'propogate': True,
+            'level': 'WARNING'
+        },
+        'events': {
+            'handlers': ['console', 'file'],
+            'propogate': True,
+            'level': 'WARNING'
+        },
+        'profiles': {
+            'handlers': ['console', 'file'],
+            'propogate': True,
+            'level': 'WARNING'
+        },
+        'util': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING'
+        }
     }
 }
 
