@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block page-body %}
+<h1 class="h2 heading-underline">Recipient Attributes for {{recipient.email_address}}</h1>
 
-<a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-success float-right">
-  <span class="fas fa-plus" aria-hidden="true"></span> Create New Attribute</a>
-<h2>Recipient Attributes for {{recipient.email_address}}</h2>
+<a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-default float-right mb-4">
+  <span class="fas fa-plus" aria-hidden="true"></span> Create New Attribute
+</a>
 
 {% if is_paginated %}
   <nav aria-label="Recipient attributes list pagination">
