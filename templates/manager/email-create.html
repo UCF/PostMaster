@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">Create Email</h1>
-<form action="{% url manager-email-create %}" method="post">
+<form action="{% url 'manager-email-create' %}" method="post">
   <fieldset>
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger" role="alert">
@@ -16,7 +16,7 @@
         <button type="submit" class="btn btn-primary">
           <span class="fas fa-plus" aria-hidden="true"></span> Create
         </button>
-        <a href="{% url manager-emails %}" class="btn btn-default">
+        <a href="{% url 'manager-emails' %}" class="btn btn-default">
           <span class="fas fa-minus" aria-hidden="true"></span> Cancel
         </a>
       </div>

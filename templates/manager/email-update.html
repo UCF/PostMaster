@@ -2,12 +2,12 @@
 {% block page-body %}
 <h1 class="h2 heading-underline d-inline-block">Update Email</h1>
 <div class="btn-group float-right">
-  <a href="{% url manager-email-placeholder-verification email.pk %}" class="btn btn-success btn-sm">
+  <a href="{% url 'manager-email-placeholder-verification' email.pk %}" class="btn btn-success btn-sm">
     <span class="fas fa-check"></span> Placeholder Verification</a>
-  <a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default btn-sm">Unsubscriptions</a>
+  <a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default btn-sm">Unsubscriptions</a>
 </div>
 <div class="clearfix"></div>
-<form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-email-update' email.pk %}" method="post">
   <fieldset>
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger">
@@ -22,10 +22,10 @@
         <button type="submit" class="btn btn-primary">
           <span class="fas fa-pencil-alt" aria-hidden="true"></span> Update
         </button>
-        <a href="{% url manager-emails %}" class="btn btn-default">
+        <a href="{% url 'manager-emails' %}" class="btn btn-default">
           <span class="fas fa-minus" aria-hidden="true"></span> Cancel
         </a>
-        <a href="{% url manager-email-delete email.pk %}" class="btn btn-danger float-right">
+        <a href="{% url 'manager-email-delete' email.pk %}" class="btn btn-danger float-right">
           <span class="fas fa-trash" aria-hidden="true"></span> Delete
         </a>
       </div>

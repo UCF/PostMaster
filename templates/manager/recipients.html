@@ -5,14 +5,14 @@
   <div class="row">
     <div class="col-sm-12">
       <h1 class="d-inline-block heading-underline h2 my-1">Recipients</h1>
-      <a href="{% url manager-recipient-create %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+      <a href="{% url 'manager-recipient-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
     </div>
     <div class="col-sm-12 mt-5">
       {% if search_query %}
         <p class="small d-inline-block">
           Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</p>
       {% endif %}
-      <form class="form-inline float-right" action="{% url manager-recipients %}" method="get">
+      <form class="form-inline float-right" action="{% url 'manager-recipients' %}" method="get">
         <div class="form-group">
           <div class="input-group">
             {{search_form.email_address|add_class:"form-control form-control-sm search-query"|attr:"required"|attr:"placeholder='Search for...'"|attr:"aria-label='Search for...'"}}
@@ -62,7 +62,7 @@
       </thead>
       <tbody>
         {% for recipient in recipients %}
-          <tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
+          <tr data-link-url="{% url 'manager-recipient-update' recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
             <td>{{recipient.email_address}}
                 {% if recipient.disable %}
                 <span class="fa float-right fa-eye-slash">

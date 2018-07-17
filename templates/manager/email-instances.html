@@ -40,7 +40,7 @@
     </thead>
     <tbody>
       {% for instance in instances %}
-      <tr data-link-url="{% url manager-email-instance instance.pk %}">
+      <tr data-link-url="{% url 'manager-email-instance' instance.pk %}">
         <td>{{instance.start}}</td>
         <td>{{instance.end}}</td>
         <td>{{instance.in_progress}}</td>

@@ -2,7 +2,7 @@
 {% block page-body %}
 <h1 class="h2 heading-underline">Recipient Attributes for {{recipient.email_address}}</h1>
 
-<a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-default float-right mb-4">
+<a href="{% url 'manager-recipientattribute-create' recipient.pk %}" class="btn btn-default float-right mb-4">
   <span class="fas fa-plus" aria-hidden="true"></span> Create New Attribute
 </a>
 
@@ -39,7 +39,7 @@
   	</thead>
   	<tbody>
   		{% for attribute in attributes %}
-  		<tr data-link-url="{% url manager-recipientattribute-update attribute.pk %}">
+  		<tr data-link-url="{% url 'manager-recipientattribute-update' attribute.pk %}">
   			<td>{{attribute.name}}</td>
   			<td>{{attribute.value}}</td>
   		</tr>

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">Update Setting</h1>
-<form class="form-horizontal" action="{% url manager-setting-update setting.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-setting-update' setting.pk %}" method="post">
   <fieldset>
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger">
@@ -17,10 +17,10 @@
         <button type="submit" class="btn btn-primary">
           <span class="fas fa-plus" aria-hidden="true"></span> Update
         </button>
-        <a href="{% url manager-settings %}" class="btn btn-default">
+        <a href="{% url 'manager-settings' %}" class="btn btn-default">
           <span class="fas fa-minus" aria-hidden="true"></span> Cancel
         </a>
-        <a href="{% url manager-setting-delete setting.pk %}" class="btn btn-danger float-right">
+        <a href="{% url 'manager-setting-delete' setting.pk %}" class="btn btn-danger float-right">
           <span class="fas fa-trash" aria-hidden="true"></span> Delete
         </a>
       </div>

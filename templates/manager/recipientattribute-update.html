@@ -2,7 +2,7 @@
 {% block page-body %}
 <h1 class="h2 heading-underline">Update <em>{{attribute.name}}</em> Attribute for {{attribute.recipient.email_address}}</h1>
 
-<form class="form-horizontal" action="{% url manager-recipientattribute-update attribute.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientattribute-update' attribute.pk %}" method="post">
   <fieldset>
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger">
@@ -19,10 +19,10 @@
         <button type="submit" class="btn btn-primary">
           <span class="fas fa-pencil-alt" aria-hidden="true"></span> Update
         </button>
-        <a href="{% url manager-recipients %}" class="btn btn-default">
+        <a href="{% url 'manager-recipients' %}" class="btn btn-default">
           <span class="fas fa-minus" aria-hidden="true"></span> Cancel
         </a>
-        <a href="{% url manager-recipientattribute-delete attribute.pk %}" class="btn btn-danger float-right">
+        <a href="{% url 'manager-recipientattribute-delete' attribute.pk %}" class="btn btn-danger float-right">
           <span class="fas fa-trash" aria-hidden="true"></span> Delete
         </a>
       </div>

@@ -4,7 +4,7 @@
 <div class="row mb-3">
   <div class="col-sm-12">
     <h1 class="d-inline-block heading-underline h2 my-1">Settings</h1>
-    <a href="{% url manager-setting-create %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+    <a href="{% url 'manager-setting-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
   </div>
 </div>
 
@@ -41,7 +41,7 @@
   </thead>
   <tbody>
     {% for setting in settings %}
-    <tr data-link-url="{% url manager-setting-update setting.pk %}">
+    <tr data-link-url="{% url 'manager-setting-update' setting.pk %}">
       <td>{{setting.name}}</td>
       <td>{{setting.value}}</td>
     </tr>

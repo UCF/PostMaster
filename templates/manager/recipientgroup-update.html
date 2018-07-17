@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">Update Recipient Group</h1>
-<form class="form-horizontal" action="{% url manager-recipientgroup-update recipientgroup.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientgroup-update' recipientgroup.pk %}" method="post">
     <fieldset>
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
@@ -23,10 +23,10 @@
             <button type="submit" class="btn btn-primary">
               <span class="fas fa-pencil-alt" aria-hidden="true"></span> Update
             </button>
-            <a href="{% url manager-recipientgroups %}" class="btn btn-default">
+            <a href="{% url 'manager-recipientgroups' %}" class="btn btn-default">
               <span class="fas fa-minus" aria-hidden="true"></span> Cancel
             </a>
-            <a href="{% url manager-recipientgroup-delete pk=recipientgroup.id %}" class="float-right btn btn-danger">
+            <a href="{% url 'manager-recipientgroup-delete' pk=recipientgroup.id %}" class="float-right btn btn-danger">
               <span class="fas fa-trash" aria-hidden="true"></span> Delete
             </a>
           </div>
@@ -46,7 +46,7 @@
             <tbody>
                 {% if recipients %}
                     {% for recipient in recipients %}
-                    <tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
+                    <tr data-link-url="{% url 'manager-recipient-update' recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
                         <td>{{recipient.email_address}}
                             {% if recipient.disable %}
                             <span class="fa float-right fa-eye-slash">

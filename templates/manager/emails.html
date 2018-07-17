@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col-sm-12">
       <h1 class="d-inline-block heading-underline h2 my-1">Emails</h1>
-      <a href="{% url manager-email-create %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+      <a href="{% url 'manager-email-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
     </div>
     <div class="col-sm-12 mt-5">
       {% if search_query %}
@@ -12,7 +12,7 @@
         Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;
       </p>
       {% endif %}
-      <form class="form-inline float-right" action="{% url manager-emails %}" method="get">
+      <form class="form-inline float-right" action="{% url 'manager-emails' %}" method="get">
         <div class="form-group">
           <div class="input-group">
             {{search_form.search_query|add_class:"form-control form-control-sm search-query"|attr:"required"|attr:"placeholder='Search for...'"|attr:"aria-label='Search for...'"}}
@@ -61,17 +61,17 @@
       </thead>
       <tbody>
         {% for email in emails %}
-        <tr class="d-flex" data-link-url="{% url manager-email-instances email.pk %}">
+        <tr class="d-flex" data-link-url="{% url 'manager-email-instances' email.pk %}">
           <td class="col-sm-3">{{email.title}}</td>
           <td class="col-sm-3">{{email.updated_at}}</td>
           <td class="col-sm-1 text-center">{{email.instances.count}}</td>
           <td class="col-sm-5 d-flex align-items-center justify-content-end">
             <div class="btn-group">
-              <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">
+              <a class="btn btn-sm btn-default" href="{% url 'manager-email-instances' email.pk %}">
                 <span class="fas fa-list" aria-hidden="true"></span> Instances</a>
-              <a class="btn btn-sm btn-default" href="{% url manager-email-update email.pk %}">
+              <a class="btn btn-sm btn-default" href="{% url 'manager-email-update' email.pk %}">
                 <span class="fas fa-edit" aria-hidden="true"></span> Edit</a>
-              <a class="btn btn-sm btn-default" href="{% url manager-email-preview-instances email.pk %}">
+              <a class="btn btn-sm btn-default" href="{% url 'manager-email-preview-instances' email.pk %}">
                 <span class="fas fa-eye" aria-hidden="true"></span> Previews</a>
             </div>
           </td>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,16 +7,16 @@
     <title>Postmaster</title>
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.ucf.edu/athena-framework/v1.0.0/css/framework.min.css">
-    <link rel="stylesheet" href="{{MEDIA_URL}}css/solid.css" />
-    <link rel="stylesheet" href="{{MEDIA_URL}}css/fontawesome.css" />
-    <link rel="stylesheet" href="{{MEDIA_URL}}css/style.min.css" />
+    <link rel="stylesheet" href="{% 'css/solid.css' %}" />
+    <link rel="stylesheet" href="{% 'css/fontawesome.css' %}" />
+    <link rel="stylesheet" href="{% 'css/style.min.css' %}" />
   </head>
   <body>
     <header>
       {% block header %}
       <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
         <div class="container">
-          <a class="navbar-brand" href="{% url manager-home %}">
+          <a class="navbar-brand" href="{% url 'manager-home %}">
             <span class="fas fa-envelope mr-2" aria-hidden="true"></span> Postmaster
           </a>
           {% if user.is_authenticated %}
@@ -31,16 +32,16 @@
                   Emails
                 </a>
                 <div class="dropdown-menu" aria-labelledby="email-dropdown">
-                  <a class="dropdown-item" href="{% url manager-emails %}">
+                  <a class="dropdown-item" href="{% url 'manager-emails' %}">
                     <span class="fas fa-list" aria-hidden="true"></span> All Emails
                   </a>
-                  <a class="dropdown-item" href="{% url manager-email-create %}">
+                  <a class="dropdown-item" href="{% url 'manager-email-create' %}">
                     <span class="fas fa-plus" aria-hidden="true"></span> Add New
                   </a>
-                  <a class="dropdown-item" href="{% url manager-email-design %}">
+                  <a class="dropdown-item" href="{% url 'manager-email-design' %}">
                     <span class="fas fa-pencil-alt" aria-hidden="true"></span> Email Designer
                   </a>
-                  <a class="dropdown-item" href="{% url manager-email-instant-send %}">
+                  <a class="dropdown-item" href="{% url 'manager-email-instant-send' %}">
                     <span class="fas fa-paper-plane" aria-hidden="true"></span> Send Instant Email
                   </a>
                 </div>
@@ -50,13 +51,13 @@
                 <a href="#" class="nav-link dropdown-toggle" id="recipients-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Recipients</a>
                 <div class="dropdown-menu" aria-labelledby="recipients-dropdown">
-                  <a class="dropdown-item" href="{% url manager-recipients %}">
+                  <a class="dropdown-item" href="{% url 'manager-recipients' %}">
                     <span class="fas fa-list" aria-hidden="true"></span> All Recipients
                   </a>
-                  <a class="dropdown-item" href="{% url manager-recipient-create %}">
+                  <a class="dropdown-item" href="{% url 'manager-recipient-create' %}">
                     <span class="fas fa-plus" aria-hidden="true"></span> Add New
                   </a>
-                  <a class="dropdown-item" href="{% url manager-recipients-csv-import %}">
+                  <a class="dropdown-item" href="{% url 'manager-recipients-csv-import' %}">
                     <span class="fas fa-download" aria-hidden="true"></span> Import
                   </a>
                 </div>
@@ -66,10 +67,10 @@
                 <a href="#" class="nav-link dropdown-toggle" id="recipient-groups-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Recipient Groups</a>
                 <div class="dropdown-menu" aria-labelledby="recipient-groups-dropdown">
-                  <a class="dropdown-item" href="{% url manager-recipientgroups %}">
+                  <a class="dropdown-item" href="{% url 'manager-recipientgroups' %}">
                     <span class="fas fa-list" aria-hidden="true"></span> All Recipient Groups
                   </a>
-                  <a class="dropdown-item" href="{% url manager-recipientgroup-create %}">
+                  <a class="dropdown-item" href="{% url 'manager-recipientgroup-create' %}">
                     <span class="fas fa-plus" aria-hidden="true"></span> Add New
                   </a>
                 </div>
@@ -79,16 +80,16 @@
                 <a href="#" class="nav-link dropdown-toggle" id="settings-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Settings</a>
                 <div class="dropdown-menu" aria-labelledby="settings-dropdown">
-                  <a class="dropdown-item" href="{% url manager-settings %}">
+                  <a class="dropdown-item" href="{% url 'manager-settings' %}">
                     <span class="fas fa-list" aria-hidden="true"></span> All Settings</a>
-                  <a class="dropdown-item" href="{% url manager-setting-create %}">
+                  <a class="dropdown-item" href="{% url 'manager-setting-create' %}">
                     <span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
                 </div>
               </li>
             </ul>
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
-                <a class="nav-link" href="{% url logout %}">
+                <a class="nav-link" href="{% url 'logout' %}">
                   <span class="fas fa-sign-out-alt mr-1"></span> Logout</a>
               </li>
             </ul>
@@ -120,7 +121,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.3/js/tether.min.js" integrity="sha256-mIiWebTG82x+OcV3vUA49ffGDIAJ53uC9jflw5/+REs=" crossorigin="anonymous"></script>
     <script src="https://cdn.ucf.edu/athena-framework/v1.0.0/js/framework.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.0.1/typeahead.bundle.min.js"></script>
-    <script src="{{MEDIA_URL}}js/script.min.js"></script>
+    <script src="{% static 'js/script.min.js' %}"></script>
     <script type="text/javascript" id="ucfhb-script" src="//universityheader.ucf.edu/bar/js/university-header.js?use-1200-breakpoint=1" async></script>
     {% endblock %}
   </body>

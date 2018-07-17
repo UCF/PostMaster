@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block page-body %}
 <div class="row">
   <div class="col-md-5 col-sm-5">
@@ -134,7 +135,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body save-changes-inprogress">
-        <img class="ajax-loader center-block" src="{{ MEDIA_URL }}img/ajax-loader.gif" />
+        <img class="ajax-loader center-block" src="{% static img/ajax-loader.gif" />
         <div class="alert alert-info" role="alert">
           <p>Saving your changes...</p>
         </div>
@@ -168,17 +169,17 @@ Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
 -->
 <textarea id="editor-template-scripts" class="d-none">
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/font-awesome.min.css" />
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/froala_editor.min.css" />
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/froala_style.min.css" />
-  <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/email-designer-editor.css" />
+  <link class="pm-editor-script" rel="stylesheet" href="{% static css/font-awesome.min.css' %}" />
+  <link class="pm-editor-script" rel="stylesheet" href="{% static css/froala_editor.min.css' %}" />
+  <link class="pm-editor-script" rel="stylesheet" href="{% static css/froala_style.min.css' %}" />
+  <link class="pm-editor-script" rel="stylesheet" href="{% static css/email-designer-editor.css' %}" />
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="{{ MEDIA_URL }}js/email-designer-script.min.js"></script>
+  <script src="{% static 'js/email-designer-script.min.js' %}"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
-    var fileUploadURL = '{% url manager-file-upload %}',
-        fileGetURL = '{% url manager-files-get %}',
-        fileDeleteURL = '{% url manager-file-delete %}';
+    var fileUploadURL = '{% url 'manager-file-upload' %}',
+        fileGetURL = '{% url 'manager-files-get' %}',
+        fileDeleteURL = '{% url 'manager-file-delete' %}';
 
     pmDesignerInit(fileUploadURL, fileGetURL, fileDeleteURL);
   </script>
@@ -188,10 +189,10 @@ These are injected into the email template markup when loadEditor() is called.
 
 {% block javascript-footer %}
   {{ block.super }}
--  <script src="{{ MEDIA_URL }}js/email-designer.js"></script>
+  <script src="{% static 'js/email-designer.js' %}"></script>
   <script>
-    var getSnapshotsURL = '{% url manager-files-get %}',
-        saveSnapshotURL = '{% url manager-file-upload %}',
+    var getSnapshotsURL = '{% url 'manager-files-get' %}',
+        saveSnapshotURL = '{% url 'manager-file-upload' %}',
         validKeyPath = '{{ valid_key_path }}';
 
     init(getSnapshotsURL, saveSnapshotURL, validKeyPath);

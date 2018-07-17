@@ -2,7 +2,7 @@
 {% block page-body %}
 <h1 class="heading-underline h2">Confirm</h1>
 <p class="lead">Are you sure you want to delete the recipient group {{ recipientgroup.name }}?</p>
-<form class="form-horizontal" action="{% url manager-recipientgroup-delete recipientgroup.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientgroup-delete' recipientgroup.pk %}" method="post">
     <fieldset>
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
@@ -31,7 +31,7 @@
             </div>
         {% endif %}
         <button type="submit" class="btn btn-danger"><span class="fas fa-trash"></span> Delete</button>
-        <a href="{% url manager-recipientgroups %}" class="btn btn-default">
+        <a href="{% url 'manager-recipientgroups' %}" class="btn btn-default">
             <span class="fas fa-minus"></span> Cancel
         </a>
 </form>

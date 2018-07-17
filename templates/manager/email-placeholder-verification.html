@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline d-inline-block">Placeholder Verification</h1>
-<a href="{% url manager-email-unsubscriptions email.pk %}" class="btn btn-default float-right">Unsubscriptions</a>
+<a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default float-right">Unsubscriptions</a>
 <div class="clearfix"></div>
-<form class="form-horizontal" action="{% url manager-email-update email.pk %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-email-update' email.pk %}" method="post">
   <fieldset>
     <div class="card card-faded mb-3">
       <div class="card-block">
@@ -22,7 +22,7 @@
         <ul>
           {% for recipient in recipients %}
             <li>
-              <a href="{% url manager-recipient-update recipient.pk %}">
+              <a href="{% url 'manager-recipient-update' recipient.pk %}">
                 {{ recipient.email_address }}
               </a>
             </li>

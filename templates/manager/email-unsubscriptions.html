@@ -34,7 +34,7 @@
   </thead>
   <tbody>
     {% for recipient in recipients %}
-    <tr data-link-url="{% url manager-recipient-update recipient.pk %}">
+    <tr data-link-url="{% url 'manager-recipient-update' recipient.pk %}">
       <td>{{recipient.email_address}}</td>
     </tr>
     {% endfor %}

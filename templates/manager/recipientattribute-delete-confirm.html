@@ -2,11 +2,11 @@
 {% block page-body %}
   <h1 class="heading-underline h2">Confirm</h1>
   <p class="lead">Are you sure you want to delete the {{attribute.name}} attribute for {{attribute.recipient.email_address}}?</p>
-	<form action="{% url manager-recipientattribute-delete attribute.pk %}" method="post">
+	<form action="{% url 'manager-recipientattribute-delete' attribute.pk %}" method="post">
 		<button type="submit" class="btn btn-danger">
       <span class="fas fa-trash" aria-hidden="true"></span> Delete
     </button>
-		<a href="{% url manager-recipients %}" class="btn btn-default">
+		<a href="{% url 'manager-recipients' %}" class="btn btn-default">
       <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
   </form>
 {% endblock %}

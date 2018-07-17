@@ -4,7 +4,7 @@
   <h1 class="h2">Manage Subscriptions for <span class="text-primary">{{recipient.email_address}}</span></h1>
 {% endblock %}
 {% block page-body %}
-  <form action="{% url manager-recipient-subscriptions pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
+  <form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
     <div class="table-responsive">
       <table class="table table-bordered table-striped">
         <thead>

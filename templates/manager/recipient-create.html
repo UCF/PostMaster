@@ -2,7 +2,7 @@
 {% load widget_tweaks %}
 {% block page-body %}
   <h1 class="h2 heading-underline">Create Recipient</h1>
-  <form class="form-horizontal" action="{% url manager-recipient-create %}" method="post">
+  <form class="form-horizontal" action="{% url 'manager-recipient-create' %}" method="post">
   	<fieldset>
   		{% for error in form.non_field_errors %}
   			<div class="alert alert-danger">
@@ -67,7 +67,7 @@
     			<button type="submit" class="btn btn-primary">
             <span class="fas fa-plus" aria-hidden="true"></span> Create
           </button>
-    			<a href="{% url manager-recipients %}" class="btn btn-default">
+    			<a href="{% url 'manager-recipients' %}" class="btn btn-default">
             <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
         </div>
   		</div>

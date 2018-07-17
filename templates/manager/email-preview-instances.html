@@ -44,7 +44,7 @@
         <td>{{ preview.requested_start }}</td>
         <th>{% if preview.instance %}Sent{% else %}Not yet{% endif %}</th>
         <td>{{ preview.lock_content }}</td>
-        <td>{% if not preview.past and not preview.email.instance_exists %}{% if preview.lock_content %}<button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-form-url="{% url manager-email-lock-content preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock Content</button>{% else %}<button type="button" class="btn btn-warning btn-xs" data-target="#lockContentModal" data-form-url="{% url manager-email-lock-content preview.pk %}" data-toggle="modal" data-lock="true" data-content="Lock">Lock Content</button>{% endif %}{% endif %}{% if preview.instance %}<a href="{% url manager-email-instance preview.instance.pk %}" class="btn btn-primary btn-xs">View Instance</a>{% endif %}</td>
+        <td>{% if not preview.past and not preview.email.instance_exists %}{% if preview.lock_content %}<button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-form-url="{% url 'manager-email-lock-content' preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock Content</button>{% else %}<button type="button" class="btn btn-warning btn-xs" data-target="#lockContentModal" data-form-url="{% url 'manager-email-lock-content' preview.pk %}" data-toggle="modal" data-lock="true" data-content="Lock">Lock Content</button>{% endif %}{% endif %}{% if preview.instance %}<a href="{% url 'manager-email-instance' preview.instance.pk %}" class="btn btn-primary btn-xs">View Instance</a>{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>

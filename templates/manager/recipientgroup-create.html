@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">Create Recipient Group</h1>
-<form class="form-horizontal" action="{% url manager-recipientgroup-create %}" method="post">
+<form class="form-horizontal" action="{% url 'manager-recipientgroup-create' %}" method="post">
     <fieldset>
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
@@ -16,7 +16,7 @@
           <div class="offset-sm-3 col-sm-9">
             <button type="submit" class="btn btn-primary">
               <span class="fas fa-plus" aria-hidden="true"></span> Create</button>
-            <a href="{% url manager-recipientgroups %}" class="btn btn-default">
+            <a href="{% url 'manager-recipientgroups' %}" class="btn btn-default">
               <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
           </div>
         </div>
