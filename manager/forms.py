@@ -138,4 +138,5 @@ class RecipientSubscriptionsForm(forms.ModelForm):
 class SettingCreateUpdateForm(forms.ModelForm):
 
     class Meta:
+        fields = '__all__'
         model = Setting

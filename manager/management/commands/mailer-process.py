@@ -57,7 +57,7 @@ class Command(BaseCommand):
                         cursor = connection.cursor()
                         cursor.execute('UPDATE manager_email SET preview_est_time = %s WHERE id = %s',
                                        [next_datetime, email.id])
-                        transaction.commit_unless_managed()
+                        transaction.commit()
 
                         # Updated time so go to next email
                         break
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                         cursor = connection.cursor()
                         cursor.execute('UPDATE manager_email SET live_est_time = %s WHERE id = %s',
                                        [next_datetime, email.id])
-                        transaction.commit_unless_managed()
+                        transaction.commit()
 
                         # Updated time so go to next email
                         break

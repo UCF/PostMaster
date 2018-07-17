@@ -3,7 +3,7 @@
 <h1 class="page-header">Manage Subscriptions for {{recipient.email_address}}</h1>
 {% endblock %}
 {% block page-body %}
-<form action="{% url manager-recipient-subscriptions pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
+<form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
 	<table class="table table-bordered table-striped">
 		<thead>
 			<tr>

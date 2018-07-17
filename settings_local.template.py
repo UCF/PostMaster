@@ -2,6 +2,7 @@ import os
 
 
 DEBUG = True
+LOCAL_DEBUG = False
 ADMINS = (
     #('Your Name', 'your_email@domain.com'),
 )
@@ -9,7 +10,7 @@ ADMINS = (
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/static/'
+# MEDIA_URL = '/static/'
 
 # Base URL of the project. Needed in places where build_absolute_uri
 # can't be used because there is no request object (e.g. management commands)
@@ -110,9 +111,16 @@ TEST_EMAIL_RECIPIENT = ''
 TEST_EMAIL_SOURCE_HTML_URI = ''
 TEST_EMAIL_SOURCE_TEXT_URI = ''
 
+STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(PROJECT_FOLDER, "static") # Comment out when using locally
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_FOLDER, "static")
+]
+
+# Logging
 LOGGING = {
-    'version':1,
-    'disable_existing_loggers':True,
+    'version': 1,
+    'disable_existing_loggers': True,
     'filters': {
         'require_debug_true': {
             '()': 'logs.RequiredDebugTrue',
@@ -123,50 +131,56 @@ LOGGING = {
     },
     'formatters': {
         'talkative': {
-            'format':'[%(asctime)s]%(levelname)s:%(module)s:%(funcName)s:%(lineno)d:%(message)s'
+            'format': '[%(asctime)s] %(levelname)s:%(module)s %(funcName)s %(lineno)d %(message)s'
         },
         'concise': {
-            'format':'%(levelname)s: %(message)s (%(asctime)s)'
+            'format': '%(levelname)s: %(message)s (%(asctime)s)'
         }
     },
     'handlers': {
         'discard': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler'
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler'
         },
         'console': {
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-            'formatter':'talkative',
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'talkative',
             'filters': ['require_debug_true']
         },
         'file': {
             'level': 'INFO',
-            'class':'logging.FileHandler',
+            'class': 'logging.FileHandler',
             'filename': os.path.join(PROJECT_FOLDER,'logs', 'application.log'),
-            'formatter':'concise',
-            'filters': ['require_debug_false']
-        },
-        'nteventlog': {
-            'level'  : 'INFO',
-            'class'  : 'logging.handlers.NTEventLogHandler',
-            'appname': 'postmaster',
+            'formatter': 'concise',
             'filters': ['require_debug_false']
         }
     },
     'loggers': {
+        'core': {
+            'handlers': ['console', 'file'],
+            'propogate': True,
+            'level': 'WARNING'
+        },
         'django': {
-            'handlers':['discard'],
+            'handlers': ['discard'],
             'propogate': True,
-            'level':'INFO'
+            'level': 'WARNING'
         },
-        # To log to the Windows event log instead of application.log, change the
-        # `file` in the line `nteventlog` in the `handlers` line below
-        'manager': {
-            'handlers':['console', 'file'],
+        'events': {
+            'handlers': ['console', 'file'],
             'propogate': True,
-            'level':'DEBUG'
+            'level': 'WARNING'
         },
+        'profiles': {
+            'handlers': ['console', 'file'],
+            'propogate': True,
+            'level': 'WARNING'
+        },
+        'util': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING'
+        }
     }
 }
 

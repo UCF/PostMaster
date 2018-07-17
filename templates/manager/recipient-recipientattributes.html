@@ -2,14 +2,14 @@
 
 {% block breadcrumbs %}
 	{{block.super}}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a></li>
+	<li><a href="{% url 'manager-recipients' %}">Recipients</a> <span class="divider">/</span></li>
+	<li><a href="{% url 'manager-recipient-update' recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
+	<li class="active"><a href="{% url 'manager-recipient-recipientattributes' recipient.pk %}">Attributes</a></li>
 {% endblock %}
 
 {% block page-body %}
 
-<a href="{% url manager-recipientattribute-create recipient.pk %}" class="btn btn-success pull-right">
+<a href="{% url 'manager-recipientattribute-create' recipient.pk %}" class="btn btn-success pull-right">
   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Attribute</a>
 <h2>Recipient Attributes for {{recipient.email_address}}</h2>
 
@@ -44,7 +44,7 @@
   	</thead>
   	<tbody>
   		{% for attribute in attributes %}
-  		<tr data-link-url="{% url manager-recipientattribute-update attribute.pk %}">
+  		<tr data-link-url="{% url 'manager-recipientattribute-update' attribute.pk %}">
   			<td>{{attribute.name}}</td>
   			<td>{{attribute.value}}</td>
   		</tr>

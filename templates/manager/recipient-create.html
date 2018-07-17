@@ -3,12 +3,12 @@
 
 {% block breadcrumbs %}
 	{{block.super}}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipient-create %}">Create</a></li>
+	<li><a href="{% url 'manager-recipients' %}">Recipients</a> <span class="divider">/</span></li>
+	<li class="active"><a href="{% url 'manager-recipient-create' %}">Create</a></li>
 {% endblock %}
 
 {% block page-body %}
-  <form class="form-horizontal" action="{% url manager-recipient-create %}" method="post">
+  <form class="form-horizontal" action="{% url 'manager-recipient-create' %}" method="post">
   	<fieldset>
   		<legend>Create Recipient</legend>
 
@@ -67,7 +67,7 @@
     			<button type="submit" class="btn btn-primary">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
           </button>
-    			<a href="{% url manager-recipients %}" class="btn btn-default">
+    			<a href="{% url 'manager-recipients' %}" class="btn btn-default">
             <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
         </div>
   		</div>

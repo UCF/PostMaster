@@ -2,20 +2,15 @@
 {% block page-body %}
     <p class="lead">Welcome to the Postmaster Emailer.</p>
   <p>
-    The purpose of this system is gather content
-    from external sources and then email that content
-    to a set of recipients.
+    The purpose of this system is to gather content from external sources and then email that content to a set of recipients.
   </p>
   <p>
-    This page contains a general overview of how the system is built and
-    operates. You can always get back to this page by clicking the Postmaster
-    Emailer logo located in the top left corner of every page.
+    This page contains a general overview of how the system is built and operates. You can always get back to this page by clicking the Postmaster Emailer logo located in the top left corner of every page.
   </p>
   <div class="well">
     <p>
       <strong>
-        If you have any questions or problems,
-        please contact the Web Communications Team:
+        If you have any questions or problems, please contact the Web Communications Team:
       </strong>
     </p>
     <ul>
@@ -26,7 +21,7 @@
 
   {% if instances %}
   <hr />
-  <p class="lead">Emails currently sending.</p>
+  <p class="lead">Emails currently sending:</p>
 
   <table class="table table-striped table-hover">
     <thead>
@@ -41,14 +36,14 @@
     </thead>
     <tbody>
       {% for instance in instances %}
-      <tr data-link-url="{% url manager-email-instance instance.pk %}">
+      <tr data-link-url="{% url 'manager-email-instance' instance.pk %}">
         <td>{{instance.email.title}}</td>
         <td>{{instance.start}}</td>
         <td>{{instance.run_time}}</td>
         <td>{{instance.recipients.count}}</td>
         <td>{{instance.sent_count}}</td>
         <td>
-        <a class="btn btn-danger cancel-instance-btn open-instance-page" href="{% url manager-email-instance instance.pk %}#check_on_load">Cancel This Instance</a>
+        <a class="btn btn-danger cancel-instance-btn open-instance-page" href="{% url 'manager-email-instance' instance.pk %}#check_on_load">Cancel This Instance</a>
         </td>
       </tr>
       {% endfor %}
@@ -57,7 +52,7 @@
   {% endif %}
 
     <hr />
-    <p class="lead">Today's email overview.</p>
+    <p class="lead">Today's email overview:</p>
     {% if emails %}
     <table class="table table-striped table-hover">
         <thead>
@@ -67,7 +62,7 @@
                 <th scope="col">~ Preview Time</th>
                 <th scope="col">Preview Sent</th>
                 <th scope="col">Locked <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="The lock indicates whether the live email will get fresh content from the uri or use the existing content from the preview email. True: use preview email content. False: get fresh content from uri."></span></th>
-                <th scope="col">Aciton</th>
+                <th scope="col">Action</th>
                 <th scope="col">~ Live Time</th>
                 <th scope="col">Live Sent</th>
                 <th></th>
@@ -75,7 +70,7 @@
         </thead>
         <tbody>
             {% for email in emails %}
-            <tr data-link-url="{% url manager-email-update email.pk %}">
+            <tr data-link-url="{% url 'manager-email-update' email.pk %}">
                 <td>{{email.title}}</td>
                 <td>{{ email.send_time }}</td>
                 <td>
@@ -102,7 +97,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if email.todays_preview and not email.todays_preview.past and not email.instance_exists %}{% if email.todays_preview.lock_content %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url manager-email-lock-content email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock</a>{% else %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url manager-email-lock-content email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="true" data-content="Lock">Lock</a>{% endif %}{% else %}NA{% endif %}
+                  {% if email.todays_preview and not email.todays_preview.past and not email.instance_exists %}{% if email.todays_preview.lock_content %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url 'manager-email-lock-content' email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock</a>{% else %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url 'manager-email-lock-content' email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="true" data-content="Lock">Lock</a>{% endif %}{% else %}NA{% endif %}
                 </td>
                 <td>{{email.live_est_time|date:'g:i a'}}</td>
                 <td>
@@ -117,7 +112,7 @@
         </tbody>
     </table>
     {% else %}
-    <p><strong>No emails are scheduled to send today</strong></p>
+    <p><strong>No emails are scheduled to send today.</strong></p>
     {% endif %}
   <hr />
   <p>
@@ -129,10 +124,10 @@
     The details of a person or entity. Recipients only have a single field: email address (column name: email_address). However when implementing data import scripts, developers may choose to add any number of additional attributes to recipients. Contact the Web Communications Team for more details on this functionality.
   </p>
   <p>
-    It is frequently neccessary to include details of a recipient such as name or email address in the content of an email. In the Postmaster Emailer system, this can be accomplished by adding recipient attribute placholders to the email content. These placeholders will then be replaced with the specific recipient's attribute value when the email is sent. The attribute placeholders take the form of <strong>&lt;delimiter&gt;attribute name&lt;delimiter&gt;</strong>. The default delimited is !@! but this can be modified on a per email basis. Also, you must know the column name of the attribute you wish to use. As mentioned above, the column name for the email address attribute is email_address. Consult the developer of your import script for the column names of other attributes.
+    It is frequently necessary to include details of a recipient such as name or email address in the content of an email. In the Postmaster Emailer system, this can be accomplished by adding recipient attribute placeholders to the email content. These placeholders will then be replaced with the specific recipient's attribute value when the email is sent. The attribute placeholders take the form of <strong>&lt;delimiter&gt;attribute name&lt;delimiter&gt;</strong>. The default delimited is !@! but this can be modified on a per email basis. Also, you must know the column name of the attribute you wish to use. As mentioned above, the column name for the email address attribute is email_address. Consult the developer of your import script for the column names of other attributes.
   </p>
   <p>
-    Recipients are aggregated into named groups called <strong>recipient groups</strong>. When creating an email, these groups are how you will define which recipients will recieve your email. Important notes about recipient groups:
+    Recipients are aggregated into named groups called <strong>recipient groups</strong>. When creating an email, these groups are how you will define which recipients will receive your email. Important notes about recipient groups:
   </p>
   <ul>
     <li>A recipient can be part of more than one recipient group.</li>
@@ -143,17 +138,16 @@
   </ul>
   <h3>Emails</h3>
   <p>
-    This details what, when, and how an email will be sent to a set of
-    recipients.
+    This details what, when, and how an email will be sent to a set of recipients.
   </p>
   <p>
     The Postmaster Email system has a preview function which allows for a review of the content of an email before it is sent out to the specified recipient groups. If the preview functionality is activated when an email is created, a preview email will be sent out to the specified list of preview recipients <strong>1 hour</strong> before the real email is sent to the recipient groups.
   </p>
   <p>
-    The Postmaster Email system is capabale of tracking when a recipient opens an email and when a recipient clicks on a link in an email.
+    The Postmaster Email system is capable of tracking when a recipient opens an email and when a recipient clicks on a link in an email.
   </p>
   <p>
-    When an email is sent, the details of that particular send (known as an <strong>instance</strong>) are recored.
+    When an email is sent, the details of that particular send (known as an <strong>instance</strong>) are recorded.
   </p>
 
   {% comment %}

@@ -5,7 +5,7 @@
 
   <h2>
       Recipients
-      <a href="{% url manager-recipient-create %}" class="btn btn-default">
+      <a href="{% url 'manager-recipient-create' %}" class="btn btn-default">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
   </h2>
   {% if search_query %}
@@ -39,7 +39,7 @@
     </div>
 
     <div class="col-sm-6">
-    	<form class="form-inline form-search pull-right" action="{% url manager-recipients %}" method="get">
+    	<form class="form-inline form-search pull-right" action="{% url 'manager-recipients' %}" method="get">
         <div class="form-group">
           <div class="input-group">
             {{search_form.email_address|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
@@ -61,7 +61,7 @@
   	</thead>
   	<tbody>
   		{% for recipient in recipients %}
-  		<tr data-link-url="{% url manager-recipient-update recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
+  		<tr data-link-url="{% url 'manager-recipient-update' recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
         <td>{{recipient.email_address}}
             {% if recipient.disable %}
             <span class="glyphicon pull-right glyphicon-eye-close">
