@@ -17,7 +17,7 @@
     {% endfor %}
     {% for attribute, recipients, count in attributes %}
       {% if recipients %}
-        <h2 class="">Recipients missing the placeholder "{{ attribute }}"</h2>
+        <h2 class="h4 font-weight-normal">Recipients missing the placeholder "{{ attribute }}":</h2>
         <label class="control-label">Count: {{ count }}</label>
         <ul>
           {% for recipient in recipients %}
