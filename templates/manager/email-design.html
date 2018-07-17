@@ -2,18 +2,18 @@
 {% block page-body %}
 <div class="row">
   <div class="col-md-5 col-sm-5">
-    <h2>Email Designer</h2>
+    <h1 class="h2 heading-underline">Email Designer</h1>
   </div>
   <div class="col-md-7 col-sm-7">
     <div class="form-inline float-right">
       <div class="form-group">
-        <select class="form-control" id="template-select">
+        <select class="form-control form-control-sm" id="template-select">
           <option value="">Select a Template</option>
           {% for template in email_templates %}
             <option value="{{ email_templates_url }}{{ template }}">{{ template }}</option>
           {% endfor %}
         </select>
-        <button class="btn btn-default" data-toggle="modal" data-target="#load-snapshot-modal">Load Snapshot</button>
+        <button class="btn btn-default btn-sm ml-2" data-toggle="modal" data-target="#load-snapshot-modal">Load Snapshot</button>
       </div>
     </div>
   </div>
@@ -38,8 +38,8 @@
 </div>
 
 <!-- Button that saves markup and its snapshot -->
-<button class="btn btn-lg btn-primary" id="pre-save-changes" data-toggle="modal" data-target="#pre-save-changes-modal">
-  <span class="fas fa-floppy-save"></span> Save Changes
+<button class="btn btn-primary" id="pre-save-changes" data-toggle="modal" data-target="#pre-save-changes-modal">
+  <span class="fas fa-download"></span> Save Changes
 </button>
 
 <!-- Modal for generating email markup -->
@@ -101,8 +101,8 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="pre-save-changes-modal-label">Save Your Changes</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body">
         <p>Pick a name for your generated markup files.  File names should contain <strong>letters, numbers, dashes and/or underscores</strong>, and should be no more than 100 characters long.</p>
@@ -110,7 +110,7 @@
         <div class="form-inline">
           <div class="form-group">
             <label class="sr-only" for="save-email-name">File name</label>
-            <input type="text" class="form-control" id="save-email-name" value="my-custom-email" />
+            <input type="text" class="form-control form-control-sm" id="save-email-name" value="my-custom-email" />
             <div class="form-control-static text-muted">.html</div>
           </div>
         </div>
@@ -128,10 +128,10 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title save-changes-inprogress" id="save-changes-modal-label">Saving...</h4>
         <h4 class="modal-title save-changes-success hidden" id="save-changes-modal-label">Changes Saved</h4>
         <h4 class="modal-title save-changes-failure hidden" id="save-changes-modal-label">Failed to Save Changes</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body save-changes-inprogress">
         <img class="ajax-loader center-block" src="{{ MEDIA_URL }}img/ajax-loader.gif" />
@@ -167,7 +167,7 @@
 Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
 -->
-<textarea id="editor-template-scripts" class="hidden">
+<textarea id="editor-template-scripts" class="d-none">
   <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/font-awesome.min.css" />
   <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/froala_editor.min.css" />
   <link class="pm-editor-script" rel="stylesheet" href="{{ MEDIA_URL }}css/froala_style.min.css" />
