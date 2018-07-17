@@ -279,7 +279,7 @@ class EmailInstantSendView(EmailsMixin, FormView):
 
         if 'email_id' in self.request.GET:
             email = Email.objects.get(pk=self.request.GET.get('email_id'))
-            initial['subject'] = email.subject
+            initial['subject'] = "**TEST** " + email.subject + " **TEST**"
             initial['source_html_uri'] = email.source_html_uri
             initial['from_email_address'] = email.from_email_address
             initial['from_friendly_name'] = email.from_friendly_name
