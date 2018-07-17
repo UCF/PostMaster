@@ -8,9 +8,9 @@
 {% endblock %}
 {% block page-body %}
 <div class="btn-group pull-right">
-    <a href="{% url 'manager-email-instant-send' %}?email_id={{object.pk}}" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span> Send Instant Test</a>
+    <a href="{% url 'manager-email-instant-send' %}?email_id={{object.pk}}" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Create Instant Send</a>
     <a href="{% url 'manager-email-placeholder-verification' email.pk %}" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Placeholder Verification</a>
-    <a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default">Unsubscriptions</a>
+    <a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-down"></span> Unsubscriptions</a>
 </div>
 <div class="clearfix"></div>
 <form class="form-horizontal" action="{% url 'manager-email-update' email.pk %}" method="post">
