@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
 	{{block.super}}
-	<li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-	<li class="active"><a href="{% url manager-recipients-csv-import %}"></a>CSV Import</li>
+	<li><a href="{% url 'manager-recipients' %}">Recipients</a> <span class="divider">/</span></li>
+	<li class="active"><a href="{% url 'manager-recipients-csv-import' %}"></a>CSV Import</li>
 {% endblock %}
 {% block page-body %}
 <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
@@ -18,7 +18,7 @@
 		{% endfor %}
 		<div class="col-sm-offset-3 col-sm-9">
 			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-import" aria-hidden="true" ></span></span> Import</button>
-			<a href="{% url manager-home %}" class="btn btn-default"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+			<a href="{% url 'manager-home' %}" class="btn btn-default"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
 		</div>
 	</fieldset>
 </form>

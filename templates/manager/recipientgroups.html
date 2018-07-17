@@ -5,7 +5,7 @@
 
   <h2>
     Recipient Groups
-    <a href="{% url manager-recipientgroup-create %}" class="btn btn-default">
+    <a href="{% url 'manager-recipientgroup-create' %}" class="btn btn-default">
       <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add New</a>
   </h2>
 
@@ -34,7 +34,7 @@
     </div>
 
     <div class="col-sm-6">
-    	<form class="form-inline form-search pull-right" action="{% url manager-recipientgroups %}" method="get">
+    	<form class="form-inline form-search pull-right" action="{% url 'manager-recipientgroups' %}" method="get">
         <div class="form-group">
           <div class="input-group">
             {{search_form.search_query|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
@@ -58,7 +58,7 @@
   	</thead>
     <tbody>
       {% for group in groups %}
-      <tr data-link-url="{% url manager-recipientgroup-update group.pk %}">
+      <tr data-link-url="{% url 'manager-recipientgroup-update' group.pk %}">
         <td>{{group.name}}</td>
         <td>{{group.updated_at}}</td>
         <td class="text-center">{{group.recipients.count}}</td>

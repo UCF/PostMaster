@@ -83,7 +83,7 @@ class Recipient(models.Model):
         # reverse. This is because this method is called by management commands which
         # have no concept of get_script_prefix().
         return '?'.join([
-            settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}, prefix='/'),
+            settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}),
             urllib.urlencode({
                 'mac'      :calc_unsubscribe_mac(self.pk)
             })
@@ -320,8 +320,8 @@ class Email(models.Model):
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
     source_text_uri = models.URLField(null=True, blank=True, help_text=_HELP_TEXT['source_text_uri'])
-    start_date = models.DateField(help_text=_HELP_TEXT['start_date'], default=datetime.now().today())
-    send_time = models.TimeField(help_text=_HELP_TEXT['send_time'], default=datetime.now().time)
+    start_date = models.DateField(help_text=_HELP_TEXT['start_date'])
+    send_time = models.TimeField(help_text=_HELP_TEXT['send_time'])
     recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices, help_text=_HELP_TEXT['recurrence'])
     from_email_address = models.CharField(max_length=256, help_text=_HELP_TEXT['from_email_address'])
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])

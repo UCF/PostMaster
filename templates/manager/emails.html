@@ -6,7 +6,7 @@
   <div class="row">
     <div class="col-sm-6">
       <h2>Emails
-        <a href="{% url manager-email-create %}" class="btn btn-default">
+        <a href="{% url 'manager-email-create' %}" class="btn btn-default">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
       </h2>
       {% if search_query %}
@@ -15,7 +15,7 @@
     </div>
 
     <div class="col-sm-6">
-    	<form class="form-inline form-search pull-right" action="{% url manager-emails %}" method="get">
+    	<form class="form-inline form-search pull-right" action="{% url 'manager-emails' %}" method="get">
         <div class="form-group">
           <div class="input-group">
             {{search_form.search_query|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
@@ -61,17 +61,17 @@
   	</thead>
   	<tbody>
   		{% for email in emails %}
-  		<tr data-link-url="{% url manager-email-instances email.pk %}">
+  		<tr data-link-url="{% url 'manager-email-instances' email.pk %}">
   			<td>{{email.title}}</td>
         <td>{{email.updated_at}}</td>
   			<td class="text-center">{{email.instances.count}}</td>
         <td>
           <div class="btn-group pull-right">
-            <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">
+            <a class="btn btn-sm btn-default" href="{% url 'manager-email-instances' email.pk %}">
               <span class="glyphicon glyphicon-list"></span> Instances</a>
-            <a class="btn btn-sm btn-default" href="{% url manager-email-update email.pk %}">
+            <a class="btn btn-sm btn-default" href="{% url 'manager-email-update' email.pk %}">
               <span class="glyphicon glyphicon-pencil"></span> Edit</a>
-            <a class="btn btn-sm btn-default" href="{% url manager-email-preview-instances email.pk %}">
+            <a class="btn btn-sm btn-default" href="{% url 'manager-email-preview-instances' email.pk %}">
               <span class="glyphicon glyphicon-eye-open"></span> Previews</a>
           </div>
         </td>

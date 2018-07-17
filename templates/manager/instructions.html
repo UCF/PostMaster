@@ -36,14 +36,14 @@
     </thead>
     <tbody>
       {% for instance in instances %}
-      <tr data-link-url="{% url manager-email-instance instance.pk %}">
+      <tr data-link-url="{% url 'manager-email-instance' instance.pk %}">
         <td>{{instance.email.title}}</td>
         <td>{{instance.start}}</td>
         <td>{{instance.run_time}}</td>
         <td>{{instance.recipients.count}}</td>
         <td>{{instance.sent_count}}</td>
         <td>
-        <a class="btn btn-danger cancel-instance-btn open-instance-page" href="{% url manager-email-instance instance.pk %}#check_on_load">Cancel This Instance</a>
+        <a class="btn btn-danger cancel-instance-btn open-instance-page" href="{% url 'manager-email-instance' instance.pk %}#check_on_load">Cancel This Instance</a>
         </td>
       </tr>
       {% endfor %}
@@ -70,7 +70,7 @@
         </thead>
         <tbody>
             {% for email in emails %}
-            <tr data-link-url="{% url manager-email-update email.pk %}">
+            <tr data-link-url="{% url 'manager-email-update' email.pk %}">
                 <td>{{email.title}}</td>
                 <td>{{ email.send_time }}</td>
                 <td>
@@ -97,7 +97,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if email.todays_preview and not email.todays_preview.past and not email.instance_exists %}{% if email.todays_preview.lock_content %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url manager-email-lock-content email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock</a>{% else %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url manager-email-lock-content email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="true" data-content="Lock">Lock</a>{% endif %}{% else %}NA{% endif %}
+                  {% if email.todays_preview and not email.todays_preview.past and not email.instance_exists %}{% if email.todays_preview.lock_content %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url 'manager-email-lock-content' email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="false" data-content="Unlock">Unlock</a>{% else %}<a href="#" class="btn btn-xs btn-warning" data-toggle="modal" data-form-url="{% url 'manager-email-lock-content' email.todays_preview.pk %}" data-target="#lockContentModal" data-lock="true" data-content="Lock">Lock</a>{% endif %}{% else %}NA{% endif %}
                 </td>
                 <td>{{email.live_est_time|date:'g:i a'}}</td>
                 <td>
