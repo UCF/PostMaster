@@ -1,3 +1,4 @@
+.DS_Store
 .idea
 *.pyc
 settings_local.py
@@ -16,4 +17,3 @@ typings/*
 node_modules/*
 # developer specific settings
 config.json
-package-lock.json

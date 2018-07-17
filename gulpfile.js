@@ -2,46 +2,26 @@ var gulp = require('gulp'),
     config = require('./config.json'),
     sass = require('gulp-sass'),
     minifyCss = require('gulp-minify-css'),
-    bless = require('gulp-bless'),
-    notify = require('gulp-notify'),
-    bower = require('gulp-bower'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     prefix = require('gulp-autoprefixer'),
     rename = require('gulp-rename'),
     jshint = require('gulp-jshint'),
-    jshintStylish = require('jshint-stylish'),
     scsslint = require('gulp-scss-lint'),
-    vinylPaths = require('vinyl-paths'),
     browserSync = require('browser-sync').create(),
-    reload = browserSync.reload;
+    runSequence = require('run-sequence');
 
 var config = {
   sassPath: './static/scss',
   cssPath: './static/css',
   jsPath: './static/js',
-  fontPath: './static/fonts',
-  htmlPath: './',
-  bowerDir: './static/bower_components',
+  fontPath: './static/webfonts',
+  htmlPath: './templates',
+  pyPath: './manager',
   sync: config.sync,
   target: config.target,
+  packagesPath: './node_modules',
 };
-
-
-// Run Bower
-gulp.task('bower', function() {
-  return bower()
-    .pipe(gulp.dest(config.bowerDir))
-    .on('end', function() {
-      // Add Glyphicons fonts
-      gulp.src(config.bowerDir + '/bootstrap-sass-official/assets/fonts/*/*')
-        .pipe(gulp.dest(config.fontPath));
-      gulp.src(config.bowerDir + '/font-awesome/fonts/*')
-        .pipe(gulp.dest(config.fontPath));
-      gulp.src(config.bowerDir + '/font-awesome/css/*.min.css')
-        .pipe(gulp.dest(config.cssPath));
-    });
-});
 
 
 // Process .scss files in /static/scss/
@@ -52,12 +32,11 @@ gulp.task('css', function() {
     }))
     .pipe(sass().on('error', sass.logError))
     .pipe(prefix({
-        browsers: ["last 3 versions", "> 10%", "ie 8"],
+        browsers: ["last 3 versions"],
         cascade: false
     }))
-    .pipe(minifyCss({compatibility: 'ie8'}))
+    .pipe(minifyCss())
     .pipe(rename('style.min.css'))
-    .pipe(bless())
     .pipe(gulp.dest(config.cssPath))
     .pipe(browserSync.stream());
 });
@@ -75,9 +54,6 @@ gulp.task('js', function() {
 
       // Combine and uglify js files to create script.min.js.
       var minified = [
-        config.bowerDir + '/bootstrap-sass-official/assets/javascripts/bootstrap.js',
-        config.bowerDir + '/typeahead.js/dist/bloodhound.js',
-        config.bowerDir + '/typeahead.js/dist/typeahead.bundle.js',
         config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
         config.jsPath + '/recipientgroup-update.js',
@@ -87,8 +63,7 @@ gulp.task('js', function() {
       gulp.src(minified)
         .pipe(concat('script.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(config.jsPath))
-        .pipe(browserSync.stream());
+        .pipe(gulp.dest(config.jsPath));
 
       // Combine and uglify email designer js files to create email-designer-script.min.js.
       var designerMinified = [
@@ -101,11 +76,27 @@ gulp.task('js', function() {
       gulp.src(designerMinified)
         .pipe(concat('email-designer-script.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(config.jsPath))
-        .pipe(browserSync.stream());
+        .pipe(gulp.dest(config.jsPath));
 
     });
 });
+
+//
+// Installation of components/dependencies
+//
+
+// Copy Font Awesome files
+gulp.task('move-components-fontawesome', function() {
+  gulp.src(config.packagesPath + '/@fortawesome/fontawesome-free/webfonts/**/*')
+   .pipe(gulp.dest(config.fontPath));
+  gulp.src([config.packagesPath + '/@fortawesome/fontawesome-free/css/solid.css', config.packagesPath + '/@fortawesome/fontawesome-free/css/fontawesome.css'])
+  .pipe(gulp.dest(config.cssPath));
+});
+
+// Run all component-related tasks
+gulp.task('components', [
+  'move-components-fontawesome'
+]);
 
 
 // Rerun tasks when files change
@@ -118,12 +109,16 @@ gulp.task('watch', function() {
     });
   }
 
-  gulp.watch(config.htmlPath + '/*.py');
-  gulp.watch(config.htmlPath + '/*.html');
-  gulp.watch(config.sassPath + '/*.scss', ['css']);
-  gulp.watch([config.jsPath + '/*.js', '!' + config.jsPath + '/*.min.js'], ['js']);
+  gulp.watch(config.pyPath + '/**/*.py').on("change", browserSync.reload);
+  gulp.watch(config.htmlPath + '/**/*.html').on("change", browserSync.reload);
+  gulp.watch(config.sassPath + '/**/*.scss', ['css']);
+  gulp.watch([config.jsPath + '/*.js', '!' + config.jsPath + '/*.min.js'], ['js']).on("change", browserSync.reload);
 });
 
-
+//
 // Default task
-gulp.task('default', ['bower', 'css', 'js']);
+//
+gulp.task('default', function() {
+  // Make sure 'components' completes before 'css' or 'js' are allowed to run
+  runSequence('components', ['css', 'js']);
+});

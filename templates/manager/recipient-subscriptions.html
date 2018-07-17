@@ -1,32 +1,32 @@
 {% extends 'base.html' %}
 {% block header %}
-<h1 class="page-header">Manage Subscriptions for {{recipient.email_address}}</h1>
+<div class="container mt-5">
+  <h1 class="h2">Manage Subscriptions for <span class="text-primary">{{recipient.email_address}}</span></h1>
 {% endblock %}
 {% block page-body %}
-<form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
-	<table class="table table-bordered table-striped">
-		<thead>
-			<tr>
-				<th scope="col" style="width:10%">Subscribed</th>
-				<th scope="col">Email</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% with unsubscriptions=recipient.unsubscriptions.all %}
-				{% for email in recipient.subscriptions %}
-				<tr>
-					<td style="text-align:center;">
-						<input type="checkbox" name="subscribed_emails" value="{{email.pk}}" {% if email not in unsubscriptions %}checked="checked" {% endif %} />
-					</td>
-					<td>{{email.title}}</td>
-				</tr>
-				{% endfor %}
-			{% endwith %}
-		</tbody>
-	</table>
-	<button type="submit" class="btn btn-primary">Update Subscriptions</button>
-</form>
-<p style="text-align:center;">
-	Send us your <a href="http://gmucf.cms.smca.ucf.edu/feedback/">comments &amp; feedback</a>.
-</p>
+  <form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th scope="col" style="width:10%">Subscribed</th>
+            <th scope="col">Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% with unsubscriptions=recipient.unsubscriptions.all %} {% for email in recipient.subscriptions %}
+          <tr>
+            <td class="text-center">
+              <input type="checkbox" name="subscribed_emails" value="{{email.pk}}" {% if email not in unsubscriptions %}checked="checked" {% endif %} />
+            </td>
+            <td>{{email.title}}</td>
+          </tr>
+          {% endfor %} {% endwith %}
+        </tbody>
+      </table>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Subscriptions</button>
+  </form>
+  <p class="text-center mt-5">Send us your <a href="https://www.ucf.edu/brand/contact-us/">comments &amp; feedback</a>.</p>
+</div>
 {% endblock %}

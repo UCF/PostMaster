@@ -3,126 +3,108 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Postmaster</title>
     <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.ucf.edu/athena-framework/v1.0.0/css/framework.min.css">
+    <link rel="stylesheet" href="{% static 'css/solid.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.min.css' %}" />
+    <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-        <header class="col-sm-12">
-          {% block header %}
-          <nav class="navbar navbar-default">
-              <div class="container-fluid">
-
-                <!-- Mobile -->
-                <div class="navbar-header">
-                  {% if user.is_authenticated %}
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse">
-                      <span class="sr-only">Toggle navigation</span>
-                      <span class="icon-bar"></span>
-                      <span class="icon-bar"></span>
-                      <span class="icon-bar"></span>
-                    </button>
-                  {% endif %}
-                  <a class="navbar-brand" href="{% url 'manager-home' %}">
-                    <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Postmaster</a>
+    <header>
+      {% block header %}
+      <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'manager-home' %}">
+            <span class="fas fa-envelope mr-2" aria-hidden="true"></span> Postmaster
+          </a>
+          {% if user.is_authenticated %}
+          <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-controls="bs-navbar-collapse"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+              <!-- Emails -->
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" id="email-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Emails
+                </a>
+                <div class="dropdown-menu" aria-labelledby="email-dropdown">
+                  <a class="dropdown-item" href="{% url 'manager-emails' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> All Emails
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-email-create' %}">
+                    <span class="fas fa-plus" aria-hidden="true"></span> Add New
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-email-design' %}">
+                    <span class="fas fa-pencil-alt" aria-hidden="true"></span> Email Designer
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-email-instant-send' %}">
+                    <span class="fas fa-paper-plane" aria-hidden="true"></span> Send Instant Email
+                  </a>
                 </div>
-
-                {% if user.is_authenticated %}
-                <div class="collapse navbar-collapse" id="bs-navbar-collapse">
-                  <ul class="nav navbar-nav">
-
-                    <!-- Emails -->
-                    <li class="dropdown{% if section == 'emails' %} active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        Emails <span class="caret"></span></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li>
-                          <a href="{% url 'manager-emails' %}">
-                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> &nbsp;All Emails</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-email-create' %}">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-email-design' %}">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> &nbsp;Email Designer</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-email-instant-send' %}">
-                            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> &nbsp;Send Instant Email</a>
-                        </li>
-                      </ul>
-                    </li>
-
-                    <!-- Recipients -->
-                    <li class="dropdown{% if section == 'recipients' %} active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        Recipients <span class="caret"></span></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li>
-                          <a href="{% url 'manager-recipients' %}">
-                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> &nbsp;All Recipients</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-recipient-create' %}">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-recipients-csv-import' %}">
-                            <span class="glyphicon glyphicon-import" aria-hidden="true"></span> &nbsp;Import</a>
-                        </li>
-                      </ul>
-                    </li>
-
-                    <!-- Recipients Groups -->
-                    <li class="dropdown{% if section == 'recipientgroups' %} active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        Recipient Groups <span class="caret"></span></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li>
-                          <a href="{% url 'manager-recipientgroups' %}">
-                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> &nbsp;All Recipient Groups</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-recipientgroup-create' %}">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-                        </li>
-                      </ul>
-                    </li>
-
-                    <!-- Settings -->
-                    <li class="dropdown{% if section == 'settings' %} active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        Settings <span class="caret"></span></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li>
-                          <a href="{% url 'manager-settings' %}">
-                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> &nbsp;All Settings</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'manager-setting-create' %}">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul class="nav navbar-nav navbar-right">
-                      <li>
-                        <a href="{% url 'logout' %}">
-                          <span class="glyphicon glyphicon-off"></span> Logout</a>
-                      </li>
-                  </ul>
-                </div> <!-- /.navbar-collapse -->
-                {% endif %}
-              </div> <!-- /.container -->
-          </nav>
-          {% endblock %}
-        </header>
-        <section class="col-sm-12">
-          {% block messages-breadcrumbs %}
+              </li>
+              <!-- Recipients -->
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" id="recipients-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Recipients</a>
+                <div class="dropdown-menu" aria-labelledby="recipients-dropdown">
+                  <a class="dropdown-item" href="{% url 'manager-recipients' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> All Recipients
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-recipient-create' %}">
+                    <span class="fas fa-plus" aria-hidden="true"></span> Add New
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-recipients-csv-import' %}">
+                    <span class="fas fa-upload" aria-hidden="true"></span> Import
+                  </a>
+                </div>
+              </li>
+              <!-- Recipients Groups -->
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" id="recipient-groups-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Recipient Groups</a>
+                <div class="dropdown-menu" aria-labelledby="recipient-groups-dropdown">
+                  <a class="dropdown-item" href="{% url 'manager-recipientgroups' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> All Recipient Groups
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-recipientgroup-create' %}">
+                    <span class="fas fa-plus" aria-hidden="true"></span> Add New
+                  </a>
+                </div>
+              </li>
+              <!-- Settings -->
+              <li class="nav-item dropdown{% if section == 'settings' %} active{% endif %}">
+                <a href="#" class="nav-link dropdown-toggle" id="settings-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Settings</a>
+                <div class="dropdown-menu" aria-labelledby="settings-dropdown">
+                  <a class="dropdown-item" href="{% url 'manager-settings' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> All Settings</a>
+                  <a class="dropdown-item" href="{% url 'manager-setting-create' %}">
+                    <span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+                </div>
+              </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">
+                  <span class="fas fa-sign-out-alt mr-1"></span> Logout</a>
+              </li>
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+      </nav>
+      {% endblock %}
+    </header>
+    <div class="container my-4">
+      <div class="row">
+        <section class="col-12">
+          {% block messages %}
           {% if messages %}
             {% for message in messages %}
             <div class="alert{% if message.tags %} {{message.tags}}{% endif %}">
@@ -136,10 +118,11 @@
         </section>
       </div>
     </div>
-
     {% block javascript-footer %}
-      <!-- JavaScript -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.3/js/tether.min.js" integrity="sha256-mIiWebTG82x+OcV3vUA49ffGDIAJ53uC9jflw5/+REs=" crossorigin="anonymous"></script>
+    <script src="https://cdn.ucf.edu/athena-framework/v1.0.0/js/framework.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.0.1/typeahead.bundle.min.js"></script>
     <script src="{% static 'js/script.min.js' %}"></script>
     <script type="text/javascript" id="ucfhb-script" src="//universityheader.ucf.edu/bar/js/university-header.js?use-1200-breakpoint=1" async></script>
     {% endblock %}
