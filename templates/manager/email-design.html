@@ -135,7 +135,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body save-changes-inprogress">
-        <img class="ajax-loader center-block" src="{% static 'img/ajax-loader.gif'" />
+        <span class="ajax-loader fas fa-spinner fa-spin"></span>
         <div class="alert alert-info" role="alert">
           <p>Saving your changes...</p>
         </div>
@@ -169,7 +169,6 @@ Contains css, script references necessary for the wysiwyg editor.
 These are injected into the email template markup when loadEditor() is called.
 -->
 <textarea id="editor-template-scripts" class="d-none">
-  <link class="pm-editor-script" rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}" />
   <link class="pm-editor-script" rel="stylesheet" href="{% static 'css/froala_editor.min.css' %}" />
   <link class="pm-editor-script" rel="stylesheet" href="{% static 'css/froala_style.min.css' %}" />
   <link class="pm-editor-script" rel="stylesheet" href="{% static 'css/email-designer-editor.css' %}" />
