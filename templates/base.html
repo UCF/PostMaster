@@ -7,16 +7,16 @@
     <title>Postmaster</title>
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.ucf.edu/athena-framework/v1.0.0/css/framework.min.css">
-    <link rel="stylesheet" href="{% 'css/solid.css' %}" />
-    <link rel="stylesheet" href="{% 'css/fontawesome.css' %}" />
-    <link rel="stylesheet" href="{% 'css/style.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/solid.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.min.css' %}" />
   </head>
   <body>
     <header>
       {% block header %}
       <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
         <div class="container">
-          <a class="navbar-brand" href="{% url 'manager-home %}">
+          <a class="navbar-brand" href="{% url 'manager-home' %}">
             <span class="fas fa-envelope mr-2" aria-hidden="true"></span> Postmaster
           </a>
           {% if user.is_authenticated %}
