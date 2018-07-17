@@ -1,69 +1,68 @@
 {% extends 'base.html' %}
 {% block page-body %}
+<h1 class="heading-underline h2">{{email.title}} Unsubscriptions</h1>
 
-  <h2>{{email.title}} Unsubscriptions</h2>
+{% if is_paginated %}
+  <nav aria-label="Email unsubscriptions list pagination">
+    <ul class="pagination pagination-sm">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+          <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+        </a>
+      </li>
+      {% endif %}
+      <li class="disabled page-item">
+        <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+          Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
 
-  {% if is_paginated %}
-    <nav aria-label="Email unsubscriptions list pagination">
-      <ul class="pagination pagination-sm">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{page_obj.previous_page_number}}">
-            <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
-          </a>
-        </li>
-        {% endif %}
-        <li class="disabled page-item">
-          <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
-        {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
-            Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
-          </a>
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
-  {% endif %}
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Email Address</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for recipient in recipients %}
+    <tr data-link-url="{% url manager-recipient-update recipient.pk %}">
+      <td>{{recipient.email_address}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-  <table class="table table-striped table-hover">
-  	<thead>
-  		<tr>
-  			<th scope="col">Email Address</th>
-  		</tr>
-  	</thead>
-  	<tbody>
-  		{% for recipient in recipients %}
-  		<tr data-link-url="{% url manager-recipient-update recipient.pk %}">
-  			<td>{{recipient.email_address}}</td>
-  		</tr>
-  		{% endfor %}
-  	</tbody>
-  </table>
-
-  {% if is_paginated %}
-    <nav aria-label="Email unsubscriptions list pagination">
-      <ul class="pagination pagination-sm">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{page_obj.previous_page_number}}">
-            <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
-          </a>
-        </li>
-        {% endif %}
-        <li class="disabled page-item">
-          <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
-        {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
-            Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
-          </a>
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
-  {% endif %}
+{% if is_paginated %}
+  <nav aria-label="Email unsubscriptions list pagination">
+    <ul class="pagination pagination-sm">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+          <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+        </a>
+      </li>
+      {% endif %}
+      <li class="disabled page-item">
+        <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+          Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
 
 {% endblock %}
