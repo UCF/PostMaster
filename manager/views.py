@@ -274,6 +274,19 @@ class EmailInstantSendView(EmailsMixin, FormView):
     template_name = 'manager/email-instant-send.html'
     form_class = EmailInstantSendForm
 
+    def get_initial(self):
+        initial = super(EmailInstantSendView, self).get_initial()
+
+        if 'email_id' in self.request.GET:
+            email = Email.objects.get(pk=self.request.GET.get('email_id'))
+            initial['subject'] = "**TEST** " + email.subject + " **TEST**"
+            initial['source_html_uri'] = email.source_html_uri
+            initial['from_email_address'] = email.from_email_address
+            initial['from_friendly_name'] = email.from_friendly_name
+            initial['replace_delimiter'] = email.replace_delimiter
+
+        return initial
+
     def form_valid(self, form):
         subject = form.cleaned_data['subject']
         source_html_uri = form.cleaned_data['source_html_uri']
