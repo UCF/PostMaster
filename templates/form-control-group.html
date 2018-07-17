@@ -3,8 +3,8 @@
 
 <div class="form-group row{% if field.errors %} has-danger{% endif %}">
   {% if field|is_checkbox %}
-<div class="form-check mb-1 col-md-9 offset-md-3">
-    <label class="custom-control custom-checkbox form-check-label">
+    <div class="form-check mb-1 col-md-9 offset-md-3">
+      <label class="custom-control custom-checkbox form-check-label">
         {{field|add_class:"custom-control-input"}}
         <span class="custom-control-indicator"></span>
         <span class="custom-control-description">{{field.label}}</span>
