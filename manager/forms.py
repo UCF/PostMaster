@@ -29,7 +29,8 @@ class EmailInstantSendForm(forms.Form):
     from_friendly_name = forms.CharField(label="From friendly name",
         help_text="A display name associated with the from email address")
     replace_delimiter = forms.CharField(label="Replace delimiter",
-        help_text="Character(s) that replacement labels are wrapped in")
+        help_text="Character(s) that replacement labels are wrapped in",
+        initial="!@!")
     recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(),
         label="Recipient groups",
         help_text='Which group(s) of recipients this email will go to. Hold down "Control", or "Command" on a Mac, to select more than one.')

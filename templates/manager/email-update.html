@@ -2,9 +2,12 @@
 {% block page-body %}
 <h1 class="h2 heading-underline d-inline-block">Update Email</h1>
 <div class="btn-group float-right">
+  <a href="{% url 'manager-email-instant-send' %}?email_id={{object.pk}}" class="btn btn-primary btn-sm">
+    <span class="fas fa-plus"></span> Create Instant Send</a>
   <a href="{% url 'manager-email-placeholder-verification' email.pk %}" class="btn btn-success btn-sm">
     <span class="fas fa-check"></span> Placeholder Verification</a>
-  <a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default btn-sm">Unsubscriptions</a>
+  <a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default btn-sm">
+    <span class="fas fa-thumbs-down"></span> Unsubscriptions</a>
 </div>
 <div class="clearfix"></div>
 <form class="form-horizontal" action="{% url 'manager-email-update' email.pk %}" method="post">
