@@ -14,7 +14,7 @@
       <small class="form-text text-muted">{{field.help_text}}</small>
     </div>
   {% else %}
-    <label for="{{field.id}}" class="form-control-label col-md-3 text-left text-md-right">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+    <label for="{{field.id}}" class="col-form-label col-md-3 text-left text-md-right">{{field.label}} {% if field.field.required %}*{% endif %}</label>
     <div class="col-md-9">
       {% if field.field.required %}
         {% if field|is_file %}
