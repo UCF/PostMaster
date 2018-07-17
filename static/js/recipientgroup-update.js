@@ -1,10 +1,6 @@
 (function () {
   $('#tb_recipient_search').focus();
 
-  function getQuery() {
-    return $('#tb_recipient_search').val();
-  }
-
   var recipients = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('email_address'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
