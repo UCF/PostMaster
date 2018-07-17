@@ -18,29 +18,8 @@ table {
   }
 }
 
-.subtitle {
-  font-size: 18px;
-  font-style: italic;
-
-  .search-query {
-    font-weight: 700;
-  }
-}
-
 input[type=file] {
-  margin-top: 7px;
-}
-
-.form-group .alert-danger {
-  padding: 5px 10px;
-}
-
-.form-control-label {
   margin-top: 15px;
-}
-
-.pagination {
-  margin: 0;
 }
 
 .twitter-typeahead {
@@ -193,7 +172,6 @@ input[type=file] {
     }
   }
 }
-
 
 .attr-field-label,
 .attr-field {
