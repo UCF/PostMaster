@@ -31,7 +31,7 @@ class EmailInstantSendForm(forms.Form):
     replace_delimiter = forms.CharField(label="Replace delimiter",
         help_text="Character(s) that replacement labels are wrapped in",
         initial="!@!")
-    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(),
+    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False),
         label="Recipient groups",
         help_text='Which group(s) of recipients this email will go to. Hold down "Control", or "Command" on a Mac, to select more than one.')
 
@@ -78,7 +78,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
             self.fields['groups'].initial = self.instance.groups.all()
         self.fields['disable'].label = 'Email Undeliverable'
 
-    groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(), )
+    groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False), )
 
     class Meta:
         model = Recipient
@@ -87,7 +87,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
 
 class RecipientCSVImportForm(forms.Form):
     existing_group_name = forms.ModelChoiceField(
-        queryset=RecipientGroup.objects.all(),
+        queryset=RecipientGroup.objects.filter(archived=False),
         required=False,
         help_text='If adding recipients to an existing recipient group, choose the group name.',
         to_field_name='name')
