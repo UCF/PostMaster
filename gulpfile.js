@@ -32,7 +32,7 @@ gulp.task('css', function() {
     }))
     .pipe(sass().on('error', sass.logError))
     .pipe(prefix({
-        browsers: ["last 3 versions"],
+        browsers: ["last 2 versions", "not ie 10"],
         cascade: false
     }))
     .pipe(minifyCss())
