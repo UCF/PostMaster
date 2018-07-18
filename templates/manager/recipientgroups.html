@@ -10,7 +10,8 @@
     <div class="col-sm-12 mt-5">
       {% if search_query %}
         <p class="small d-inline-block">
-          Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</p>
+          Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</span>
+        </p>
       {% endif %}
       <form class="form-inline float-right" action="{% url 'manager-recipientgroups' %}" method="get">
         <div class="form-group">

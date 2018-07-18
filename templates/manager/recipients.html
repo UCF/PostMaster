@@ -10,7 +10,8 @@
     <div class="col-sm-12 mt-5">
       {% if search_query %}
         <p class="small d-inline-block">
-          Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</p>
+          Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</span>
+        </p>
       {% endif %}
       <form class="form-inline float-right" action="{% url 'manager-recipients' %}" method="get">
         <div class="form-group">
@@ -65,7 +66,7 @@
           <tr data-link-url="{% url 'manager-recipient-update' recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
             <td>{{recipient.email_address}}
                 {% if recipient.disable %}
-                <span class="fa float-right fa-eye-slash">
+                <span class="fa float-right fa-eye-slash"></span>
                 {% endif %}
             </td>
           </tr>
