@@ -15,7 +15,7 @@ def load_fixture(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0001_initial'),
+        ('manager', '0002_recipientgroup_archived'),
     ]
 
     operations = [
