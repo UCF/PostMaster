@@ -43,7 +43,8 @@ from manager.forms import RecipientAttributeFormSet
 from manager.forms import RecipientCreateUpdateForm
 from manager.forms import RecipientCSVImportForm
 from manager.forms import RecipientGroupSearchForm
-from manager.forms import RecipientGroupCreateUpdateForm
+from manager.forms import RecipientGroupCreateForm
+from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
@@ -203,6 +204,12 @@ class EmailCreateView(EmailsMixin, CreateView):
     template_name = 'manager/email-create.html'
     form_class = EmailCreateUpdateForm
 
+    def get_form(self, form_class=None):
+        form = super(EmailCreateView, self).get_form(form_class)
+        form.fields['recipient_groups'].queryset = RecipientGroup.objects.filter(
+            archived=False)
+        return form
+
     def form_valid(self, form):
         email = form.instance
         form.instance.creator = self.request.user
@@ -227,6 +234,19 @@ class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
     template_name = 'manager/email-update.html'
     form_class = EmailCreateUpdateForm
+
+    def get_form(self, form_class=None):
+        form = super(EmailUpdateView, self).get_form(form_class)
+        email = form.instance
+        if email is not None:
+            selected_recipient_groups = email.recipient_groups.all()
+            active_recipient_groups = RecipientGroup.objects.filter(
+                archived=False)
+            # Always show all selected recipient groups for the email,
+            # even if the group(s) have been archived:
+            valid_recipient_groups = (active_recipient_groups | selected_recipient_groups).distinct()
+            form.fields['recipient_groups'].queryset = valid_recipient_groups
+        return form
 
     def form_valid(self, form):
         email = form.instance
@@ -505,19 +525,26 @@ class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
         self.search_field = 'name'
         self.search_form = RecipientGroupSearchForm(self.request.GET)
         recipient_groups = super(RecipientGroupListView, self).get_queryset()
+        if not self.request.GET.get('status') or self.request.GET.get('status') == 'Active':
+            recipient_groups = recipient_groups.filter(archived=False)
+        elif self.request.GET.get('status') == 'Archived':
+            recipient_groups = recipient_groups.filter(archived=True)
         return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
         context['search_form'] = self.search_form
         context['search_valid'] = self._search_valid
+        context['status'] = 'Active' if not self.request.GET.get(
+            'status') else self.request.GET.get(
+            'status')
         return context
 
 
 class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
     model = RecipientGroup
     template_name = 'manager/recipientgroup-create.html'
-    form_class = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupCreateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient group successfully created.')
@@ -532,7 +559,7 @@ class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
 class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
     model = RecipientGroup
     template_name = 'manager/recipientgroup-update.html'
-    form_class = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupUpdateForm
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupUpdateView, self).get_context_data(**kwargs)
