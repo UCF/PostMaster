@@ -32,7 +32,7 @@ gulp.task('css', function() {
     }))
     .pipe(sass().on('error', sass.logError))
     .pipe(prefix({
-        browsers: ["last 3 versions"],
+        browsers: ["last 2 versions", "not ie 10"],
         cascade: false
     }))
     .pipe(minifyCss())
@@ -109,6 +109,7 @@ gulp.task('watch', function() {
     });
   }
 
+  gulp.watch(['./settings_local.py', './util.py', './urls.py']).on("change", browserSync.reload);
   gulp.watch(config.pyPath + '/**/*.py').on("change", browserSync.reload);
   gulp.watch(config.htmlPath + '/**/*.html').on("change", browserSync.reload);
   gulp.watch(config.sassPath + '/**/*.scss', ['css']);
