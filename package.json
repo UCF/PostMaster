@@ -1,12 +1,10 @@
 {
   "private": true,
   "devDependencies": {
-    "bower": "^1.4.1",
+    "@fortawesome/fontawesome-free": "^5.1.0",
     "browser-sync": "^2.7.12",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
-    "gulp-bless": "3.0.1",
-    "gulp-bower": "0.0.10",
     "gulp-concat": "^2.5.2",
     "gulp-debug": "^2.0.1",
     "gulp-jshint": "^1.11.0",
@@ -17,6 +15,8 @@
     "gulp-scss-lint": "^0.2.0",
     "gulp-uglify": "^1.2.0",
     "jshint-stylish": "^2.0.0",
+    "run-sequence": "^2.2.1",
     "vinyl-paths": "^1.0.0"
-  }
+  },
+  "dependencies": {}
 }

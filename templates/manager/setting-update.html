@@ -1,15 +1,8 @@
 {% extends 'base.html' %}
-{% block breadcrumbs %}
-  {{block.super}}
-  <li><a href="{% url 'manager-settings' %}">Settings</a> <span class="divider">/</span></li>
-  <li class="active">
-    <a href="{% url 'manager-setting-update' form.instance.pk %}">{{form.instance.title}}</a>
-  </li>
-{% endblock %}
 {% block page-body %}
+<h1 class="h2 heading-underline">Update Setting</h1>
 <form class="form-horizontal" action="{% url 'manager-setting-update' setting.pk %}" method="post">
   <fieldset>
-    <legend>Update Setting</legend>
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger">
         {{error}}
@@ -19,15 +12,17 @@
       {% include 'form-control-group.html' %}
     {% endfor %}
 
-    <div class="form-group">
-      <div class="col-sm-offset-3 col-sm-9">
+    <div class="form-group row">
+      <div class="col-sm-9 offset-sm-3">
         <button type="submit" class="btn btn-primary">
-          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Update
+          <span class="fas fa-plus" aria-hidden="true"></span> Update
         </button>
         <a href="{% url 'manager-settings' %}" class="btn btn-default">
-          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
-        <a href="{% url 'manager-setting-delete' setting.pk %}" class="btn btn-danger">
-          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</a>
+          <span class="fas fa-minus" aria-hidden="true"></span> Cancel
+        </a>
+        <a href="{% url 'manager-setting-delete' setting.pk %}" class="btn btn-danger float-right">
+          <span class="fas fa-trash" aria-hidden="true"></span> Delete
+        </a>
       </div>
     </div>
   </fieldset>

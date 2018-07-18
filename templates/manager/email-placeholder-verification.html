@@ -1,48 +1,43 @@
 {% extends 'base.html' %}
-{% block breadcrumbs %}
-    {{block.super}}
-    <li><a href="{% url 'manager-emails' %}">Emails</a> <span class="divider">/</span></li>
-    <li class="active">
-        <a href="{% url 'manager-email-update' form.instance.pk %}">{{form.instance.title}}</a>
-    </li>
-{% endblock %}
 {% block page-body %}
-<a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default pull-right">Unsubscriptions</a>
+<h1 class="h2 heading-underline d-inline-block">Placeholder Verification</h1>
+<a href="{% url 'manager-email-unsubscriptions' email.pk %}" class="btn btn-default float-right">Unsubscriptions</a>
 <div class="clearfix"></div>
 <form class="form-horizontal" action="{% url 'manager-email-update' email.pk %}" method="post">
-    <fieldset>
-        <legend>Placeholder Verification</legend>
-        <div class="well">
-            <p>Below is a list of recipients that are missing attributes used in the "{{ object.title }}" email. Below each placeholder is a count of the recipients missing the corresponding attribute along with a short list (limited to 10 recipients) of the recipients.</p>
+  <fieldset>
+    <div class="card card-faded mb-3">
+      <div class="card-block">
+        <p class="card-text">Below is a list of recipients that are missing attributes used in the "{{ object.title }}" email. Below each placeholder is a count of the recipients missing the corresponding attribute along with a short list (limited to 10 recipients) of the recipients.</p>
+      </div>
+    </div>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{error}}
+      </div>
+    {% endfor %}
+    {% for attribute, recipients, count in attributes %}
+      {% if recipients %}
+        <h2 class="h4 font-weight-normal">Recipients missing the placeholder "{{ attribute }}":</h2>
+        <label class="control-label">Count: {{ count }}</label>
+        <ul>
+          {% for recipient in recipients %}
+            <li>
+              <a href="{% url 'manager-recipient-update' recipient.pk %}">
+                {{ recipient.email_address }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="alert alert-info">
+          <p class="mb-0">No recipients are missing attributes in this email.</p>
         </div>
-        {% for error in form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{error}}
-            </div>
-        {% endfor %}
-        {% for attribute, recipients, count in attributes %}
-            {% if recipients %}
-                <h2>Recipients missing the placeholder "{{ attribute }}"</h2>
-                <label class="control-label">Count: {{ count }}</label>
-                <ul>
-                {% for recipient in recipients %}
-                    <li>
-                        <a href="{% url 'manager-recipient-update' recipient.pk %}">
-                            {{ recipient.email_address }}
-                        </a>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <div class="alert alert-info">
-                    <p>No recipients are missing attributes in this email.</p>
-                </div>
-            {% endif %}
-        {% empty %}
-            <div class="alert alert-info">
-                <p>No placeholders present in this email.</p>
-            </div>    
-        {% endfor %}
-    </fieldset>
+      {% endif %}
+      {% empty %}
+        <div class="alert alert-info">
+          <p class="mb-0">No placeholders present in this email.</p>
+        </div>
+    {% endfor %}
+  </fieldset>
 </form>
 {% endblock %}
