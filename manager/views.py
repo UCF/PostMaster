@@ -204,6 +204,12 @@ class EmailCreateView(EmailsMixin, CreateView):
     template_name = 'manager/email-create.html'
     form_class = EmailCreateUpdateForm
 
+    def get_form(self, form_class=None):
+        form = super(EmailCreateView, self).get_form(form_class)
+        form.fields['recipient_groups'].queryset = RecipientGroup.objects.filter(
+            archived=False)
+        return form
+
     def form_valid(self, form):
         email = form.instance
         form.instance.creator = self.request.user
@@ -228,6 +234,19 @@ class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
     template_name = 'manager/email-update.html'
     form_class = EmailCreateUpdateForm
+
+    def get_form(self, form_class=None):
+        form = super(EmailUpdateView, self).get_form(form_class)
+        email = form.instance
+        if email is not None:
+            selected_recipient_groups = email.recipient_groups.all()
+            active_recipient_groups = RecipientGroup.objects.filter(
+                archived=False)
+            # Always show all selected recipient groups for the email,
+            # even if the group(s) have been archived:
+            valid_recipient_groups = (active_recipient_groups | selected_recipient_groups).distinct()
+            form.fields['recipient_groups'].queryset = valid_recipient_groups
+        return form
 
     def form_valid(self, form):
         email = form.instance
