@@ -26,7 +26,7 @@
 
   function addAttribute(e) {
     e.preventDefault();
-    var $newAttribute = $clonedAttribute.clone().removeClass('hide');
+    var $newAttribute = $clonedAttribute.clone().removeClass('d-none');
     $newAttribute.appendTo($attributeContainer);
     // recipient create
     if(recipientCreatePage) {
@@ -55,25 +55,15 @@
     updateTotalForms();
   }
 
-  function highlightRowToggle(e) {
-    $(e.target).closest('.form-group').toggleClass('alert-' + $(e.target).attr('data-color'));
-  }
-
   function init() {
     recipientCreatePage = (window.location.pathname.toString().indexOf('recipient/create/') !== -1);
-    $clonedAttribute = $attributeContainer.find('.attribute').last().clone().appendTo('body').addClass('hide');
+    $clonedAttribute = $attributeContainer.find('.attribute').last().clone().appendTo('body').addClass('d-none');
     // Select the first form input
     $('form:first *:input[type=text]:first').focus();
     // Add attribute button click handler
     $('.add-attr-btn').on('click', addAttribute);
     // Delete attribute button click handler
     $attributeContainer.on('click', 'span', deleteAttribute);
-    // mouse over event
-    $attributeContainer.on('mouseover', 'span', highlightRowToggle);
-    $addAttrContainer.on('mouseover', 'span', highlightRowToggle);
-    // mouse out event
-    $attributeContainer.on('mouseout', 'span', highlightRowToggle);
-    $addAttrContainer.on('mouseout', 'span', highlightRowToggle);
   }
 
   $(init);

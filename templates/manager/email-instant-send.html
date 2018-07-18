@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block page-body %}
-<form class="form-horizontal" action="" method="post">
+<h1 class="h2 heading-underline mb-4">Send Email Instantly</h1>
+<form action="" method="post">
 	<fieldset>
-		<legend>Send Email Instantly</legend>
 		{% for error in form.non_field_errors %}
 			<div class="alert alert-danger">
 				{{error}}
@@ -11,9 +11,15 @@
 		{% for field in form %}
 			{% include 'form-control-group.html' %}
 		{% endfor %}
-		<div class="col-sm-offset-3 col-sm-9">
-			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-send" aria-hidden="true" ></span> Send</button>
-			<a href="{% url 'manager-home' %}" class="btn btn-default"> <span class="glyphicon glyphicon-minus" aria-hidden="true" ></span> Cancel</a>
+		<div class="form-group row">
+      <div class="offset-sm-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">
+          <span class="fas fa-paper-plane" aria-hidden="true"></span> Send
+        </button>
+        <a href="{% url 'manager-home' %}" class="btn btn-default">
+          <span class="fas fa-minus" aria-hidden="true"></span> Cancel
+        </a>
+      </div>
 		</div>
 	</fieldset>
 </form>

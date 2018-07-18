@@ -1,16 +1,7 @@
 {% extends 'base.html' %}
-
-{% block breadcrumbs %}
-  {{block.super}}
-  <li><a href="{% url 'manager-emails' %}">Emails</a> <span class="divider">/</span></li>
-  <li><a href="{% url 'manager-email-update' instance.email.pk %}">{{instance.email.title}}</a> <span class="divider">/</span></li>
-  <li><a href="{% url 'manager-email-instances' instance.email.pk %}">Instances</a> <span class="divider">/</span></li>
-  <li class="active"><a href="{% url 'manager-email-instance' instance.pk %}">{{instance.start}}</a></li>
-{% endblock %}
-
 {% block page-body %}
-  <h2>{{instance.email.title}} Instance
-  <br /><small>Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</small></h2>
+<h1 class="h2 heading-underline">{{instance.email.title}} Instance</h1>
+<p class="lead">Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</p>
   {% if instance.in_progress %}
     <div class="alert alert-info">
       <p>This instance is in progress: <span class="sent">0 of 0</span> emails sent.</p>
@@ -23,116 +14,117 @@
       {% if not instance.send_terminate %}
       <form class="form-horizontal cancel-instance-form" action="{% url 'manager-instance-cancel' instance.pk %}" method="post">
         <input type="hidden" class="email-instance-id" name="email-instance-id" value="{{ instance.pk }}" />
-        <button type="submit" class="btn btn-danger cancel-instance-btn"><span class="spinner-loader hidden">Loading...</span> <span class="text">Cancel This Instance</span></button>
-        <p class="help-block">Cancelling will prevent future emails for this instance from being sent.</p>
+        <button type="submit" class="btn btn-danger cancel-instance-btn"><span class="fas fa-spinner fa-spin hidden"></span> <span class="text">Cancel This Instance</span></button>
+        <p class="small mt-2">Cancelling will prevent future emails for this instance from being sent.</p>
       </form>
       {% endif %}
     </div>
   {% endif %}
   {% if instance.send_terminate %}
     <div class="alert alert-warning">
-      <p><strong>Note:</strong> This instance was cancelled manually. <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before emails were sent to all recipients."></span></p>
+      <strong>Note:</strong> This instance was cancelled manually. <span class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before emails were sent to all recipients."></span>
     </div>
   {% endif %}
   <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
   <div class="row">
-    <div class="col-lg-7 col-md-6 col-sm-12">
-    <section class="left-section previews">
-      <h3>Previews</h3>
-      {% if instance.litmus_id %}
-      <div class="row">
-        {% if desktop_thumbnail_image %}
-        <div class="col-md-3">
-          <h4>Desktop</h4>
-          <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
-        </div>
-        {% endif %}
-        {% if mobile_thumbnail_image %}
-        <div class="col-md-3">
-          <h4>Mobile</h4>
-          <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
-        </div>
-        {% endif %}
-      </div>
-      <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
-      {% else %}
-      <h4>No Previews available</h4>
-      {% endif %}
-    </section>
-    </div>
-    <div class="col-lg-5 col-md-6 col-sm-12">
-    <section class="right-section jumbotron opens">
-      <h3>Opens</h3>
-      {% if instance.opens_tracked %}
-
-      <div class="stats-container">
+    <div class="col-lg-7 col-sm-12 mb-3">
+      <section class="left-section previews">
+        <h3>Previews</h3>
+        {% if instance.litmus_id %}
         <div class="row">
-          <div class="col-lg-4 col-xs-4">
-            <h4 class="upper">Recipients</h4>
-            <strong class="larger">{{instance.recipient_details.count}}</strong>
+          {% if desktop_thumbnail_image %}
+          <div class="col-md-3">
+            <h4 class="h5">Desktop</h4>
+            <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
           </div>
-          <div class="col-lg-4 col-xs-4">
-            <div class="center">
-              <h4 class="upper">Opened</h4>
-              <strong class="larger">{{instance.initial_opens}}</strong>
+          {% endif %}
+          {% if mobile_thumbnail_image %}
+          <div class="col-md-3">
+            <h4 class="h5">Mobile</h4>
+            <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
+          </div>
+          {% endif %}
+        </div>
+        <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
+        {% else %}
+        <h4 class="h5">No Previews available</h4>
+        {% endif %}
+      </section>
+    </div>
+    <div class="col-lg-5 col-sm-12 mb-3">
+      <div class="card">
+        <h3 class="card-header">Opens</h3>
+        <div class="card-block">
+          {% if instance.opens_tracked %}
+            <div class="pb-2">
+              <div class="row">
+                <div class="col-4">
+                  <h4 class="font-weight-bold small text-uppercase">Recipients</h4>
+                  <strong class="lead font-weight-black">{{instance.recipient_details.count}}</strong>
+                </div>
+                <div class="col-4">
+                  <div class="center">
+                    <h4 class="font-weight-bold small text-uppercase">Opened</h4>
+                    <strong class="lead font-weight-black">{{instance.initial_opens}}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <h4 class="font-weight-bold small text-uppercase">Open Rate</h4>
+                  <strong class="lead font-weight-black">{{instance.open_rate}}%</strong>
+                </div>
+              </div>
+            <p class="small pt-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
             </div>
-          </div>
-          <div class="col-lg-4 col-xs-4">
-            <h4 class="upper">Open Rate</h4>
-            <strong class="larger">{{instance.open_rate}}%</strong>
-          </div>
+          {% else %}
+            <p>Opens were not tracked for this instance.</p>
+          {% endif %}
+
+        {% if instance.in_progress %}
+        <div class="alert alert-info">This instance is still in progress.</div>
+        {% else %}
+        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-opens' %}" method="post">
+          <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
+          <button type="submit" class="btn btn-primary">Create Recipient Group</button>
+          <p class="small mt-2">Creates a Recipient Group based on recipients who opened this email.</p>
+        </form>
+        {% endif %}
         </div>
-
-        <p class="help-block">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
-        </div>
-
-      {% else %}
-      <p>Opens were not tracked for this instance.
-      {% endif %}
-
-      {% if instance.in_progress %}
-      <div class="alert alert-info">This instance is still in progress.</div>
-      {% else %}
-      <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-opens' %}" method="post">
-        <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-        <button type="submit" class="btn btn-primary">Create Recipient Group</button>
-        <p class="help-block">Creates a Recipient Group based on recipients who opened this email.</p>
-      </form>
-      {% endif %}
-    </section>
+      </div>
     </div>
   </div>
 
   <section>
     <h3>URLs</h3>
     {% if not instance.urls_tracked %}
-    <p>URls were not tracked for this instance.</p>
+    <p>URLs were not tracked for this instance.</p>
     {% else %}
     <p>URLs are tracked top to bottom, left to right. If there is more than one of the same URL in an email, each additional URL will have an increasing position number.</p>
     <form id="url-clicks" action="{% url 'manager-recipientgroup-create-url-clicks' %}" method="post">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">URL</th>
-            <th scope="col">Position</th>
-            <th scope="col">Clicks</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for url in instance.urls.all %}
-          <tr>
-            <td><a href="{{url.name}}">{{url.name}}</a></td>
-            <td>{{url.position}}</td>
-            <td>{{url.clicks.count}}</td>
-            <td>
-              <input class="checkbox" type="checkbox" name="url-pks[]" value="{{ url.pk }}" />
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <button type="submit" class="btn btn-primary btn-lg pull-right">Create Recipient Group from Clicks</button>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">URL</th>
+              <th scope="col">Position</th>
+              <th scope="col">Clicks</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for url in instance.urls.all %}
+            <tr>
+              <td><a href="{{url.name}}">{{url.name}}</a></td>
+              <td>{{url.position}}</td>
+              <td>{{url.clicks.count}}</td>
+              <td>
+                <input class="checkbox" type="checkbox" name="url-pks[]" value="{{ url.pk }}" />
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn btn-primary float-right">Create Recipient Group from Clicks</button>
     </form>
     {% endif %}
   </section>
