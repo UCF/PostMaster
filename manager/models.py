@@ -127,6 +127,22 @@ class RecipientGroup(models.Model):
         return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
 
+class SubscriptionCategory(models.Model):
+    """
+        Describes a category of email for subscription purposes.
+    """
+
+    _HELP_TEXT = {
+        "name": "The name of the subscription category. Will be viewed by users on frontend.",
+        "description": "The description of the subscription category. Should include the types of emails sent in this category, as well as frequency.",
+        "unsubscriptions": "A list of recipients unsubscribed from this category."
+    }
+
+    name = models.CharField(max_length=100, unique=True, null=False, blank=False, help_text=_HELP_TEXT['name'])
+    description = models.TextField(null=False, blank=False, help_text=_HELP_TEXT['description'])
+    unsubscriptions = models.ManyToManyField(Recipient, help_text=_HELP_TEXT['unsubscriptions'], related_name="subscription_category")
+
+
 class EmailManager(models.Manager):
     '''
         A custom manager to determine when emails should be sent based on
@@ -337,6 +353,7 @@ class Email(models.Model):
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails')
 
     class Meta:
             ordering = ["title"]
