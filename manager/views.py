@@ -43,7 +43,8 @@ from manager.forms import RecipientAttributeFormSet
 from manager.forms import RecipientCreateUpdateForm
 from manager.forms import RecipientCSVImportForm
 from manager.forms import RecipientGroupSearchForm
-from manager.forms import RecipientGroupCreateUpdateForm
+from manager.forms import RecipientGroupCreateForm
+from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
@@ -492,19 +493,24 @@ class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
         self.search_field = 'name'
         self.search_form = RecipientGroupSearchForm(self.request.GET)
         recipient_groups = super(RecipientGroupListView, self).get_queryset()
+        active_only = False if self.request.GET.get('include_archived') == 'True' else True
+        if active_only:
+            recipient_groups = recipient_groups.filter(archived=False)
         return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
         context['search_form'] = self.search_form
         context['search_valid'] = self._search_valid
+        context['include_archived'] = True if self.request.GET.get(
+            'include_archived') == 'True' else False
         return context
 
 
 class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
     model = RecipientGroup
     template_name = 'manager/recipientgroup-create.html'
-    form_class = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupCreateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient group successfully created.')
@@ -519,7 +525,7 @@ class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
 class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
     model = RecipientGroup
     template_name = 'manager/recipientgroup-update.html'
-    form_class = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupUpdateForm
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupUpdateView, self).get_context_data(**kwargs)

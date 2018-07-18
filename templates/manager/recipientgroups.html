@@ -52,7 +52,8 @@
   	<thead>
   		<tr>
   			<th scope="col"><a href="?sort=name&order={{order}}&search_query={{search_query}}">Name</a></th>
-  			<th scope="col" class="col-sm-3"><a href="?sort=updated_at&order={{order}}&search_query={{search_query}}">Modified Date</a></th>
+        <th scope="col" class="col-sm-3"><a href="?include_archived={% if not include_archived %}True{% else %}False{% endif %}&sort=archived&order={{order}}&search_query={{search_query}}">Active</a></th>
+        <th scope="col" class="col-sm-3"><a href="?sort=updated&order={{order}}&search_query={{search_query}}">Modified Date</a></th>
   			<th scope="col" class="col-sm-2 text-center">No. of Recipients</th>
   		</tr>
   	</thead>
@@ -60,6 +61,7 @@
       {% for group in groups %}
       <tr data-link-url="{% url 'manager-recipientgroup-update' group.pk %}">
         <td>{{group.name}}</td>
+        <td>{% if group.archived %}No{% else %}Yes{% endif %}</td>
         <td>{{group.updated_at}}</td>
         <td class="text-center">{{group.recipients.count}}</td>
       </tr>

@@ -49,11 +49,24 @@ class RecipientGroupSearchForm(forms.Form):
     search_query = forms.CharField(widget=forms.TextInput())
 
 
-class RecipientGroupCreateUpdateForm(forms.ModelForm):
+class RecipientGroupCreateForm(forms.ModelForm):
 
     class Meta:
         model = RecipientGroup
-        exclude = ('recipients', )
+        exclude = ('recipients', 'archived')
+
+
+class RecipientGroupUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = RecipientGroup
+        exclude = ('recipients',)
+        labels = {
+            'archived': 'Archive Group',
+        }
+        help_texts = {
+            'archived': 'Marking a Recipient Group as "Archived" will hide this group in generic lists of Recipient Groups.',
+        }
 
 
 class RecipientCreateUpdateForm(forms.ModelForm):
