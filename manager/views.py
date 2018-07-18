@@ -525,17 +525,19 @@ class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
         self.search_field = 'name'
         self.search_form = RecipientGroupSearchForm(self.request.GET)
         recipient_groups = super(RecipientGroupListView, self).get_queryset()
-        active_only = False if self.request.GET.get('include_archived') == 'True' else True
-        if active_only:
+        if not self.request.GET.get('status') or self.request.GET.get('status') == 'Active':
             recipient_groups = recipient_groups.filter(archived=False)
+        elif self.request.GET.get('status') == 'Archived':
+            recipient_groups = recipient_groups.filter(archived=True)
         return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
         context['search_form'] = self.search_form
         context['search_valid'] = self._search_valid
-        context['include_archived'] = True if self.request.GET.get(
-            'include_archived') == 'True' else False
+        context['status'] = 'Active' if not self.request.GET.get(
+            'status') else self.request.GET.get(
+            'status')
         return context
 
 
