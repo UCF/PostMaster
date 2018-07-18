@@ -57,6 +57,7 @@ gulp.task('js', function() {
         config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
         config.jsPath + '/recipientgroup-update.js',
+        config.jsPath + '/email-template-upload.js',
         config.jsPath + '/global.js',
       ];
 
