@@ -1,105 +1,109 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-
 {% block page-body %}
-
   <div class="row">
-    <div class="col-sm-6">
-      <h2>Emails
-        <a href="{% url manager-email-create %}" class="btn btn-default">
-          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> &nbsp;Add New</a>
-      </h2>
-      {% if search_query %}
-        <p class="subtitle">Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="search-query">&ldquo;{{ search_query }}&rdquo;</span> &hellip;</p>
-      {% endif %}
+    <div class="col-sm-12">
+      <h1 class="d-inline-block heading-underline h2 my-1">Emails</h1>
+      <a href="{% url 'manager-email-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
     </div>
-
-    <div class="col-sm-6">
-    	<form class="form-inline form-search pull-right" action="{% url manager-emails %}" method="get">
+    <div class="col-sm-12 mt-5">
+      {% if search_query %}
+      <p class="small d-inline-block">
+        Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</span>
+      </p>
+      {% endif %}
+      <form class="form-inline float-right" action="{% url 'manager-emails' %}" method="get">
         <div class="form-group">
           <div class="input-group">
-            {{search_form.search_query|add_class:"form-control search-query"|attr:"required"|attr:"placeholder='Search for...'"}}
+            {{search_form.search_query|add_class:"form-control form-control-sm search-query"|attr:"required"|attr:"placeholder:Search for..."|attr:"aria-label:Search for..."}}
             <span class="input-group-btn">
-              <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
+              <button class="btn btn-primary btn-sm" type="submit"><span class="fas fa-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
             </span>
-          </div><!-- /input-group -->
-        </div><!-- /form-group -->
+          </div>
+        </div>
     	</form>
     </div>
   </div>
 
   {% if is_paginated %}
-    <div>
+    <nav aria-label="Email list pagination">
       <ul class="pagination pagination-sm">
         {% if page_obj.has_previous %}
-        <li>
-          <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
-            <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+        <li class="page-item">
+          <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+            <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+          </a>
         </li>
         {% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+        <li class="disabled page-item">
+          <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
         </li>
         {% if page_obj.has_next %}
-        <li>
-          <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
-            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+        <li class="page-item">
+          <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+            Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+          </a>
         </li>
         {% endif %}
       </ul>
-    </div>
+    </nav>
   {% endif %}
 
-  <table class="table table-striped table-hover">
-  	<thead>
-  		<tr>
-  			<th scope="col"><a href="?sort=name&order={{order}}&search_query={{search_query}}">Name</a></th>
-        <th scope="col" class="col-sm-3"><a href="?sort=updated_at&order={{order}}&search_query={{search_query}}">Modified Date</a></th>
-  			<th scope="col" class="col-sm-2 text-center">No. of Instances</th>
-  			<th class="col-sm-5 col-md-4 col-lg-3"></th>
-  		</tr>
-  	</thead>
-  	<tbody>
-  		{% for email in emails %}
-  		<tr data-link-url="{% url manager-email-instances email.pk %}">
-  			<td>{{email.title}}</td>
-        <td>{{email.updated_at}}</td>
-  			<td class="text-center">{{email.instances.count}}</td>
-        <td>
-          <div class="btn-group pull-right">
-            <a class="btn btn-sm btn-default" href="{% url manager-email-instances email.pk %}">
-              <span class="glyphicon glyphicon-list"></span> Instances</a>
-            <a class="btn btn-sm btn-default" href="{% url manager-email-update email.pk %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit</a>
-            <a class="btn btn-sm btn-default" href="{% url manager-email-preview-instances email.pk %}">
-              <span class="glyphicon glyphicon-eye-open"></span> Previews</a>
-          </div>
-        </td>
-  		</tr>
-  		{% endfor %}
-  	</tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr class="d-flex align-items-end">
+          <th class="col-sm-3"><a href="?sort=name&order={{order}}&search_query={{search_query}}">Name</a></th>
+          <th class="col-sm-3"><a href="?sort=updated_at&order={{order}}&search_query={{search_query}}">Modified Date</a></th>
+          <th class="col-sm-1 text-center">No. of Instances</th>
+          <th class="col-sm-5"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in emails %}
+        <tr class="d-flex" data-link-url="{% url 'manager-email-instances' email.pk %}">
+          <td class="col-sm-3">{{email.title}}</td>
+          <td class="col-sm-3">{{email.updated_at}}</td>
+          <td class="col-sm-1 text-center">{{email.instances.count}}</td>
+          <td class="col-sm-5 d-flex align-items-center justify-content-end">
+            <div class="btn-group">
+              <a class="btn btn-sm btn-default" href="{% url 'manager-email-instances' email.pk %}">
+                <span class="fas fa-list" aria-hidden="true"></span> Instances</a>
+              <a class="btn btn-sm btn-default" href="{% url 'manager-email-update' email.pk %}">
+                <span class="fas fa-edit" aria-hidden="true"></span> Edit</a>
+              <a class="btn btn-sm btn-default" href="{% url 'manager-email-preview-instances' email.pk %}">
+                <span class="fas fa-eye" aria-hidden="true"></span> Previews</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% if is_paginated %}
-    <div>
-      <ul class="pagination pagination-sm">
-        {% if page_obj.has_previous %}
-        <li>
-          <a href="?page={{page_obj.previous_page_number}}" class="prev" aria-label="Previous">
-            <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
-        </li>
-        {% endif %}
-        <li class="disabled">
-          <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
-        </li>
-        {% if page_obj.has_next %}
-        <li>
-          <a href="?page={{page_obj.next_page_number}}" class="next" aria-label="Next">
-            Next<span class="glyphicon glyphicon-chevron-right"></span></a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
+  <nav aria-label="Email list pagination">
+    <ul class="pagination pagination-sm">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+          <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+        </a>
+      </li>
+      {% endif %}
+      <li class="disabled page-item">
+        <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      </li>
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+          Next
+          <span class="fas fa-chevron-right" aria-hidden="true"></span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
   {% endif %}
 
 {% endblock %}

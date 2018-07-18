@@ -1,13 +1,13 @@
-from django.conf.urls.defaults      import patterns, include, url
+from django.conf.urls               import include, url
 from manager.views                  import *
-from django.views.generic.simple    import direct_to_template
+from django.views.generic           import TemplateView
 from django.contrib.auth.decorators import login_required
 
-urlpatterns = patterns('manager.views',
+urlpatterns = [
     # Emails
     url(r'^email/unsubscribe/?$',                   RecipientSubscriptionsUpdateView.as_view(),                 name='manager-email-unsubscribe-old'),
-    url(r'^email/open/?$',                          view='instance_open',                                       name='manager-email-open'),
-    url(r'^email/redirect/?$',                      view='redirect',                                            name='manager-email-redirect'),
+    url(r'^email/open/?$',                          instance_open,                                              name='manager-email-open'),
+    url(r'^email/redirect/?$',                      redirect,                                                   name='manager-email-redirect'),
     url(r'^email/create/$',                         login_required(EmailCreateView.as_view()),                  name='manager-email-create'),
     url(r'^email/design/$',                         login_required(EmailDesignView.as_view()),                  name='manager-email-design'),
     url(r'^email/(?P<pk>\d+)/delete/$',             login_required(EmailDeleteView.as_view()),                  name='manager-email-delete'),
@@ -54,4 +54,4 @@ urlpatterns = patterns('manager.views',
     url(r'^files/delete/$', login_required(s3_delete_user_file), name='manager-file-delete'),
 
     url(r'^$', login_required(OverviewListView.as_view()), name='manager-home'),
-)
+]

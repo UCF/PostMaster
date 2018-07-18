@@ -7,7 +7,7 @@ from django.contrib.messages import constants as message_constants
 PROJECT_FOLDER    = os.path.dirname(os.path.abspath(__file__))
 APP_FOLDER        = os.path.join(PROJECT_FOLDER, 'apps')
 INC_FOLDER        = os.path.join(PROJECT_FOLDER, 'third-party')
-ROOT_URLCONF      = os.path.basename(PROJECT_FOLDER) + '.urls'
+ROOT_URLCONF      = "urls"
 
 TIME_ZONE         = 'America/New_York'
 LANGUAGE_CODE     = 'en-us'
@@ -16,21 +16,6 @@ USE_I18N          = False
 
 LOGIN_REDIRECT_URL = '/'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-    'django.contrib.messages.context_processors.messages',
-)
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -38,9 +23,23 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-# Add local apps folder to python path
-sys.path.append(APP_FOLDER)
-sys.path.append(INC_FOLDER)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(PROJECT_FOLDER, 'templates')
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -64,6 +63,8 @@ MESSAGE_TAGS = {
     message_constants.ERROR   : 'alert-danger',
 }
 
+WSGI_APPLICATION = 'wsgi.application'
+
 DOT = ''
 with open(os.path.join(PROJECT_FOLDER, 'static', 'img', 'dot.png'), 'rb') as dot:
     DOT = dot.read()
@@ -76,9 +77,3 @@ except ImportError:
         'Local settings file was not found. ' +
         'Ensure settings_local.py exists in project root.'
     )
-
-
-TEMPLATE_DEBUG = DEBUG
-TEMPL_FOLDER   = os.path.join(PROJECT_FOLDER, 'templates')
-MEDIA_ROOT     = os.path.join(PROJECT_FOLDER, 'static')
-TEMPLATE_DIRS  = (TEMPL_FOLDER,)

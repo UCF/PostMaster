@@ -1,8 +1,14 @@
-.container {
-  margin-top: 30px;
+button {
+  cursor: pointer;
+}
+
+.nav-item .fas {
+  min-width: 1.3em;
 }
 
 table {
+  font-size: .85rem;
+
   tr {
     cursor: pointer;
 
@@ -12,52 +18,39 @@ table {
   }
 }
 
-.subtitle {
-  font-size: 18px;
-  font-style: italic;
-
-  .search-query {
-    color: #337ab7;
-    font-weight: 700;
-  }
-}
-
 input[type=file] {
-  margin-top: 7px;
-}
-
-.form-group .alert-danger {
-  padding: 5px 10px;
-}
-
-.pagination {
-  margin: 0;
+  margin-top: 15px;
 }
 
 .twitter-typeahead {
   display: block !important;
 }
 
-.tt-dropdown-menu {
-  background: rgba(230, 230, 230, .95);
-  border-radius: 0 0 4px 4px;
-  padding: 8px 4px 4px;
+.twitter-typeahead {
+  display: block !important;
+}
+
+.tt-menu {
+  border: 1px solid #ccc;
   width: 100%;
 }
 
-.bg-warning.cancelled {
-  padding:   20px;
-  color: #7D754A;
+.tt-suggestion {
+  background: rgba(230, 230, 230, .95);
+  padding: 8px 10px;
+}
+
+.tt-cursor {
+   cursor: pointer;
+   background: rgba(255, 255, 255, 0.95);
 }
 
 .send-progress {
-  margin: 10px 0 30px 0;
+  margin: 10px 0 30px;
 }
 
 // Email Designer
 #editor-window-outer {
-  background-color: #fafafa;
-  border: 1px solid #eee;
   box-sizing: border-box;
   height: 650px;
   margin: 0;
@@ -82,8 +75,6 @@ input[type=file] {
 }
 
 .html-textarea {
-  background: #fafafa;
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
   font-size: 12px;
   height: 300px;
   width: 100%;
@@ -94,7 +85,6 @@ input[type=file] {
 }
 
 #load-snapshot-list {
-  border: 1px solid #ccc;
   height: 250px;
   margin-bottom: 20px;
   overflow-y: scroll;
@@ -103,7 +93,6 @@ input[type=file] {
 }
 
 .snapshot-wrapper {
-  border: 1px solid #ddd;
   border-radius: 4px;
   box-sizing: border-box;
   display: inline-block;
@@ -135,78 +124,19 @@ input[type=file] {
   height: 300px;
 }
 
-.form-group.attribute-container {
-  margin-bottom: 0;
-}
-
-button.attr-delete:nth-of-type(1) {
-  color: #000;
-}
-
-.add-container,
-.attribute .row {
-  border-bottom-left-radius: 4px;
-  border-top-left-radius: 4px;
-}
-
-.attribute .row {
-  border: 1px solid #ccc;
-  margin-bottom: 8px;
-  padding: 5px 0;
-
-  &.alert-danger {
-    margin-top: 0;
-  }
-}
-
-.attribute button,
-.add-container button {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-  padding: 0;
-  position: absolute;
-  right: -39px;
-  top: 0;
-}
-
-.add-container {
-  border: 1px dashed #ccc;
-
-  button {
-    top: -1px;
-  }
-}
-
-.attribute button span,
-.add-container button span {
-  padding: 15px 12px;
-}
-
-.add-attr-container .row {
-  margin-bottom: 0;
-  padding-bottom: 11px;
-}
-
-.add-attr-container .control-label {
-  padding-top: 12px;
-}
-
 .jumbotron.opens {
-  padding: 10px 30px;
   border-radius: 0;
+  padding: 10px 30px;
 
   p {
     font-size: 14px;
   }
 
-  h3 {
-    color: #565656;
-  }
-
   h4 {
-    text-transform: uppercase;
     font-size: 14px;
     font-weight: bold;
+    text-transform: uppercase;
+
     @media (max-width: 480px) {
       font-size: 1em;
       text-align: center;
@@ -214,9 +144,9 @@ button.attr-delete:nth-of-type(1) {
   }
 
   .larger {
+    display: block;
     font-size: 35px;
     text-align: center;
-    display: block;
 
     @media (max-width: 480px) {
       font-size: 1.75em;
@@ -227,13 +157,13 @@ button.attr-delete:nth-of-type(1) {
     padding-bottom: 20px;
 
     .center {
-      border: 1px solid #d6d6d6;
       border-width: 0 1px;
       display: block;
-      padding: 0 15px;
       margin: 0 0 0 -30px;
+      padding: 0 15px;
+
       @media (max-width: 480px) {
-        border: none;
+        border: 0;
       }
     }
 
@@ -243,90 +173,22 @@ button.attr-delete:nth-of-type(1) {
   }
 }
 
-tr.inactive {
-  background: #E2E2E2;
-  color: #A2A2A2;
-}
+.attr-field-label,
+.attr-field {
+  width: 45%;
+  padding: 0 0 0 15px;
 
-.table-striped>tbody>tr.inactive:nth-of-type(odd),
-tbody>tr.inactive:nth-of-type(odd) {
-  background: #E8E8E8;
-  color: #A2A2A2;
-}
-
-.table-hover>tbody>tr.inactive:hover,
-.table-striped>tbody>tr.inactive:nth-of-type(odd):hover,
-tbody>tr.inactive:nth-of-type(odd):hover {
-  background: #EAEAE3;
-  color: #A2A2A2;
-}
-
-// http://www.css-spinners.com/spinner/spinner
-@-moz-keyframes spinner-loader {
-  0% {
-    -moz-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -moz-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes spinner-loader {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@keyframes spinner-loader {
-  0% {
-    -moz-transform: rotate(0deg);
-    -ms-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -moz-transform: rotate(360deg);
-    -ms-transform: rotate(360deg);
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
+  @media (max-width: 460px) {
+    width: 40%;
   }
 }
 
-/* :not(:required) hides this rule from IE9 and below */
-.spinner-loader:not(:required) {
-  -moz-animation: spinner-loader 1500ms infinite linear;
-  -webkit-animation: spinner-loader 1500ms infinite linear;
-  animation: spinner-loader 1500ms infinite linear;
-  -moz-border-radius: 0.5em;
-  -webkit-border-radius: 0.5em;
-  border-radius: 0.5em;
-  -moz-box-shadow: rgba(0, 0, 51, 0.3) 1.5em 0 0 0, rgba(0, 0, 51, 0.3) 1.1em 1.1em 0 0, rgba(0, 0, 51, 0.3) 0 1.5em 0 0, rgba(0, 0, 51, 0.3) -1.1em 1.1em 0 0, rgba(0, 0, 51, 0.3) -1.5em 0 0 0, rgba(0, 0, 51, 0.3) -1.1em -1.1em 0 0, rgba(0, 0, 51, 0.3) 0 -1.5em 0 0, rgba(0, 0, 51, 0.3) 1.1em -1.1em 0 0;
-  -webkit-box-shadow: rgba(0, 0, 51, 0.3) 1.5em 0 0 0, rgba(0, 0, 51, 0.3) 1.1em 1.1em 0 0, rgba(0, 0, 51, 0.3) 0 1.5em 0 0, rgba(0, 0, 51, 0.3) -1.1em 1.1em 0 0, rgba(0, 0, 51, 0.3) -1.5em 0 0 0, rgba(0, 0, 51, 0.3) -1.1em -1.1em 0 0, rgba(0, 0, 51, 0.3) 0 -1.5em 0 0, rgba(0, 0, 51, 0.3) 1.1em -1.1em 0 0;
-  box-shadow: rgba(0, 0, 51, 0.3) 1.5em 0 0 0, rgba(0, 0, 51, 0.3) 1.1em 1.1em 0 0, rgba(0, 0, 51, 0.3) 0 1.5em 0 0, rgba(0, 0, 51, 0.3) -1.1em 1.1em 0 0, rgba(0, 0, 51, 0.3) -1.5em 0 0 0, rgba(0, 0, 51, 0.3) -1.1em -1.1em 0 0, rgba(0, 0, 51, 0.3) 0 -1.5em 0 0, rgba(0, 0, 51, 0.3) 1.1em -1.1em 0 0;
-  display: inline-block;
-  font-size: 10px;
-  width: 1em;
-  height: 1em;
-  margin: 1.5em;
-  overflow: hidden;
-  text-indent: 100%;
-}
+.attr-field-btn {
+  width: 10%;
+  padding: 0;
 
-
-.btn .spinner-loader {
-  margin: 0;
-  font-size: 6px;
-  margin: 0 10px 0 6px;
-  box-shadow: rgba(255,255,255,.3) 1.5em 0 0 0,rgba(255,255,255,.3) 1.1em 1.1em 0 0,rgba(255,255,255,.3) 0 1.5em 0 0,rgba(255,255,255,.3) -1.1em 1.1em 0 0,rgba(255,255,255,.3) -1.5em 0 0 0,rgba(255,255,255,.3) -1.1em -1.1em 0 0,rgba(255,255,255,.3) 0 -1.5em 0 0,rgba(255,255,255,.3) 1.1em -1.1em 0 0;
-  position: relative;
-  top: -1px;
-
-  &.hidden {
-    display: none;
+  @media (max-width: 460px) {
+    width: 15%;
+    margin-right: 15px;
   }
 }

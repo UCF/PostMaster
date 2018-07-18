@@ -1,72 +1,76 @@
 {% extends 'base.html' %}
 
 {% block page-body %}
+<div class="row mb-3">
+  <div class="col-sm-12">
+    <h1 class="d-inline-block heading-underline h2 my-1">Settings</h1>
+    <a href="{% url 'manager-setting-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+  </div>
+</div>
 
-  <h2>
-    Settings
-    <a href="{% url manager-setting-create %}" class="btn btn-default">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add New</a>
-  </h2>
-
-  {% if is_paginated %}
-  <div>
+{% if is_paginated %}
+  <nav aria-label="Settings list pagination">
     <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
-      <li>
-        <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+          <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+        </a>
       </li>
       {% endif %}
-      <li class="disabled">
-        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      <li class="disabled page-item">
+        <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
       </li>
       {% if page_obj.has_next %}
-      <li>
-        <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+          Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+        </a>
       </li>
       {% endif %}
     </ul>
-  </div>
-  {% endif %}
+  </nav>
+{% endif %}
 
-  <table class="table table-striped table-hover">
-    <thead>
-      <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for setting in settings %}
-      <tr data-link-url="{% url manager-setting-update setting.pk %}">
-        <td>{{setting.name}}</td>
-        <td>{{setting.value}}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for setting in settings %}
+    <tr data-link-url="{% url 'manager-setting-update' setting.pk %}">
+      <td>{{setting.name}}</td>
+      <td>{{setting.value}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-  {% if is_paginated %}
-  <div>
+{% if is_paginated %}
+  <nav aria-label="Settings list pagination">
     <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
-      <li>
-        <a href="?page={{page_obj.previous_page_number}}" class="prev">
-          <span class="glyphicon glyphicon-chevron-left"></span>Prev</a>
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}">
+          <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+        </a>
       </li>
       {% endif %}
-      <li class="disabled">
-        <a href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
+      <li class="disabled page-item">
+        <a class="page-link" href="#">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a>
       </li>
       {% if page_obj.has_next %}
-      <li>
-        <a href="?page={{page_obj.next_page_number}}" class="next">
-          Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.next_page_number}}" class="next">
+          Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+        </a>
       </li>
       {% endif %}
     </ul>
-  </div>
-  {% endif %}
+  </nav>
+{% endif %}
 
 {% endblock %}

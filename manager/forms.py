@@ -29,7 +29,8 @@ class EmailInstantSendForm(forms.Form):
     from_friendly_name = forms.CharField(label="From friendly name",
         help_text="A display name associated with the from email address")
     replace_delimiter = forms.CharField(label="Replace delimiter",
-        help_text="Character(s) that replacement labels are wrapped in")
+        help_text="Character(s) that replacement labels are wrapped in",
+        initial="!@!")
     recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.all(),
         label="Recipient groups",
         help_text='Which group(s) of recipients this email will go to. Hold down "Control", or "Command" on a Mac, to select more than one.')
@@ -49,11 +50,24 @@ class RecipientGroupSearchForm(forms.Form):
     search_query = forms.CharField(widget=forms.TextInput())
 
 
-class RecipientGroupCreateUpdateForm(forms.ModelForm):
+class RecipientGroupCreateForm(forms.ModelForm):
 
     class Meta:
         model = RecipientGroup
-        exclude = ('recipients', )
+        exclude = ('recipients', 'archived')
+
+
+class RecipientGroupUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = RecipientGroup
+        exclude = ('recipients',)
+        labels = {
+            'archived': 'Archive Group',
+        }
+        help_texts = {
+            'archived': 'Marking a Recipient Group as "Archived" will hide this group in generic lists of Recipient Groups.',
+        }
 
 
 class RecipientCreateUpdateForm(forms.ModelForm):
@@ -138,4 +152,5 @@ class RecipientSubscriptionsForm(forms.ModelForm):
 class SettingCreateUpdateForm(forms.ModelForm):
 
     class Meta:
+        fields = '__all__'
         model = Setting

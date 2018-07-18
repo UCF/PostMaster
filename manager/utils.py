@@ -468,7 +468,7 @@ class AmazonS3Helper:
                 raise AmazonS3Helper.KeyDeleteError(e)
         return keyobj
 
-@transaction.commit_manually
+@transaction.non_atomic_requests
 def flush_transaction():
     """
     Flush the current transaction so we don't read stale data

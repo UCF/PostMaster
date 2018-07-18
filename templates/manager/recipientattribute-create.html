@@ -1,18 +1,8 @@
 {% extends 'base.html' %}
-
-{% block breadcrumbs %}
-    {{block.super}}
-    <li><a href="{% url manager-recipients %}">Recipients</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipient-update recipient.pk %}">{{recipient.email_address}}</a> <span class="divider">/</span></li>
-    <li><a href="{% url manager-recipient-recipientattributes recipient.pk %}">Attributes</a> <span class="divider">/</span></li>
-    <li class="active"><a href="{% url manager-recipientattribute-create recipient.pk %}">Create</a></li>
-{% endblock %}
-
 {% block page-body %}
-<form class="form-horizontal" action="{% url manager-recipientattribute-create recipient.pk %}" method="post">
+<h1 class="h2 heading-underline">Create Recipient Attribute</h1>
+<form class="form-horizontal" action="{% url 'manager-recipientattribute-create' recipient.pk %}" method="post">
     <fieldset>
-        <legend>Create Recipient Attribute</legend>
-
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger">
                 {{error}}
@@ -23,13 +13,13 @@
             {% include 'form-control-group.html' %}
         {% endfor %}
 
-        <div class="form-group">
-          <div class="col-sm-offset-3 col-sm-9">
+        <div class="form-group row">
+          <div class="offset-sm-3 col-sm-9">
             <button type="submit" class="btn btn-primary">
-              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
+              <span class="fas fa-plus" aria-hidden="true"></span> Create
             </button>
-            <a href="{% url manager-recipients %}" class="btn btn-default">
-              <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cancel</a>
+            <a href="{% url 'manager-recipients' %}" class="btn btn-default">
+              <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
           </div>
         </div>
     </fieldset>

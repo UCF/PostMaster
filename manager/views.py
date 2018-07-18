@@ -30,7 +30,8 @@ from django.views.generic.edit import FormView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
@@ -42,7 +43,8 @@ from manager.forms import RecipientAttributeFormSet
 from manager.forms import RecipientCreateUpdateForm
 from manager.forms import RecipientCSVImportForm
 from manager.forms import RecipientGroupSearchForm
-from manager.forms import RecipientGroupCreateUpdateForm
+from manager.forms import RecipientGroupCreateForm
+from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
@@ -273,6 +275,19 @@ class EmailInstantSendView(EmailsMixin, FormView):
     template_name = 'manager/email-instant-send.html'
     form_class = EmailInstantSendForm
 
+    def get_initial(self):
+        initial = super(EmailInstantSendView, self).get_initial()
+
+        if 'email_id' in self.request.GET:
+            email = Email.objects.get(pk=self.request.GET.get('email_id'))
+            initial['subject'] = "**TEST** " + email.subject + " **TEST**"
+            initial['source_html_uri'] = email.source_html_uri
+            initial['from_email_address'] = email.from_email_address
+            initial['from_friendly_name'] = email.from_friendly_name
+            initial['replace_delimiter'] = email.replace_delimiter
+
+        return initial
+
     def form_valid(self, form):
         subject = form.cleaned_data['subject']
         source_html_uri = form.cleaned_data['source_html_uri']
@@ -471,8 +486,8 @@ class EmailDesignView(TemplateView):
 
         project_url = settings.PROJECT_URL
         project_url_agnostic = project_url.replace('http://', '//')
-        context['email_templates_url'] = project_url_agnostic + settings.MEDIA_URL + templates_path
-        context['email_templates'] = os.listdir(settings.MEDIA_ROOT + '/' + templates_path)
+        context['email_templates_url'] = staticfiles_storage.url(templates_path)
+        context['email_templates'] = os.listdir(staticfiles_storage.path(templates_path))
         context['froala_license'] = settings.FROALA_EDITOR_LICENSE
         context['valid_key_path'] = s3.get_base_key_path_url()
         return context
@@ -491,19 +506,24 @@ class RecipientGroupListView(RecipientGroupsMixin, SortSearchMixin, ListView):
         self.search_field = 'name'
         self.search_form = RecipientGroupSearchForm(self.request.GET)
         recipient_groups = super(RecipientGroupListView, self).get_queryset()
+        active_only = False if self.request.GET.get('include_archived') == 'True' else True
+        if active_only:
+            recipient_groups = recipient_groups.filter(archived=False)
         return recipient_groups
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupListView, self).get_context_data(**kwargs)
         context['search_form'] = self.search_form
         context['search_valid'] = self._search_valid
+        context['include_archived'] = True if self.request.GET.get(
+            'include_archived') == 'True' else False
         return context
 
 
 class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
     model = RecipientGroup
     template_name = 'manager/recipientgroup-create.html'
-    form_class = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupCreateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Recipient group successfully created.')
@@ -518,7 +538,7 @@ class RecipientGroupCreateView(RecipientGroupsMixin, CreateView):
 class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
     model = RecipientGroup
     template_name = 'manager/recipientgroup-update.html'
-    form_class = RecipientGroupCreateUpdateForm
+    form_class = RecipientGroupUpdateForm
 
     def get_context_data(self, **kwargs):
         context = super(RecipientGroupUpdateView, self).get_context_data(**kwargs)

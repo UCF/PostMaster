@@ -1,19 +1,45 @@
 {% extends 'base.html' %}
+{% block header %}{% endblock %}
 {% block page-body %}
-<form action="{% url login %}" method="post">
-    {% for error in form.non_field_errors %}
-    <div class="alert alert-danger">{{error}}</div>
-    {% endfor %}
-    {% for field in form %}
-        {% include 'form-control-group.html' %}
-    {% endfor %}
-    <input type="hidden" name="next" value="{{next}}" />
-    {% csrf_token %}
-
-    <div class="form-group">
-      <div class="col-sm-offset-3 col-sm-9">
-        <button type="submit" class="btn btn-primary">Login</button>
-      </div>
-    </div>
-</form>
+<div class="row">
+  <div class="col-md-5">
+    <h1 class="h2 heading-underline">Login</h1>
+    <form class="form-horizontal" action="{% url 'login' %}" method="post">
+        {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">{{error}}</div>
+        {% endfor %}
+        {% for field in form %}
+          {% load widget_tweaks %}
+          {% load filters %}
+          <div class="form-group{% if field.errors %} has-danger{% endif %}">
+            {% if field %}
+              <label for="{{field.id}}" class="form-control-label">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+              {% if field.field.required %}
+                {% if field|is_file %}
+                  {{field|attr:"required"}}
+                {% else %}
+                  {{field|add_class:"form-control form-control-danger"|attr:"required"}}
+                {% endif %}
+              {% elif field|is_file %}
+                {{field}}
+              {% else %}
+                {{field|add_class:"form-control form-control-danger"}}
+              {% endif %}
+              {% if field.errors %}
+                {% for error in field.errors %}
+                  <div class="form-control-feedback">{{error}}</div>
+                {% endfor %}
+              {% endif %}
+              <small class="form-text text-muted">{{field.help_text}}</small>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <input type="hidden" name="next" value="{{next}}" />
+        {% csrf_token %}
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
