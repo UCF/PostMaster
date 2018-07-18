@@ -109,6 +109,7 @@ gulp.task('watch', function() {
     });
   }
 
+  gulp.watch(['./settings_local.py', './util.py', './urls.py']).on("change", browserSync.reload);
   gulp.watch(config.pyPath + '/**/*.py').on("change", browserSync.reload);
   gulp.watch(config.htmlPath + '/**/*.html').on("change", browserSync.reload);
   gulp.watch(config.sassPath + '/**/*.scss', ['css']);
