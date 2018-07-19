@@ -136,12 +136,16 @@ class SubscriptionCategory(models.Model):
     _HELP_TEXT = {
         "name": "The name of the subscription category. Will be viewed by users on frontend.",
         "description": "The description of the subscription category. Should include the types of emails sent in this category, as well as frequency.",
-        "unsubscriptions": "A list of recipients unsubscribed from this category."
+        "unsubscriptions": "A list of recipients unsubscribed from this category.",
+        "cannot_unsubscribe": "When checked, users following the Applies To pattern will not be able to unsubscribe from emails.",
+        "applies_to": "The pattern used to determine if users can unsubscribe from emails of this category."
     }
 
     name = models.CharField(max_length=100, unique=True, null=False, blank=False, help_text=_HELP_TEXT['name'])
     description = models.TextField(null=False, blank=False, help_text=_HELP_TEXT['description'])
     unsubscriptions = models.ManyToManyField(Recipient, help_text=_HELP_TEXT['unsubscriptions'], related_name="subscription_category")
+    cannot_unsubscribe = models.BooleanField(null=False, blank=False, default=False, help_text=_HELP_TEXT['cannot_unsubscribe'])
+    applies_to = models.CharField(max_length=255, null=True, blank=True, help_text=_HELP_TEXT['applies_to'])
 
     def __str__(self):
         return self.name
