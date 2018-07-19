@@ -147,6 +147,12 @@ class SubscriptionCategory(models.Model):
     cannot_unsubscribe = models.BooleanField(null=False, blank=False, default=False, help_text=_HELP_TEXT['cannot_unsubscribe'])
     applies_to = models.CharField(max_length=255, null=True, blank=True, help_text=_HELP_TEXT['applies_to'])
 
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
 
 class EmailManager(models.Manager):
     '''

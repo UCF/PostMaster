@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 from manager.models import Email
 from manager.models import PreviewInstance
@@ -76,10 +77,29 @@ class RecipientCreateUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RecipientCreateUpdateForm, self).__init__(*args, **kwargs)
         if self.instance.pk is not None:
+            self.fields['subscription_categories'].initial = self.instance.subscription_category.all()
             self.fields['groups'].initial = self.instance.groups.all()
         self.fields['disable'].label = 'Email Undeliverable'
 
     groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False), )
+    subscription_categories = forms.ModelMultipleChoiceField(
+                                queryset=SubscriptionCategory.objects.all(),
+                                required=False)
+
+    def save(self, *args, **kwargs):
+        # Get the categories we want the user to be subscribed to
+        subscription_categories = set(self.cleaned_data.get('subscription_categories'))
+        all_categories = set(SubscriptionCategory.objects.all())
+
+        for category in subscription_categories:
+            category.unsubscriptions.add(self.instance)
+
+        # Remove everything they did not click on
+        unsubscriptions = list(all_categories - subscription_categories)
+
+        for category in unsubscriptions:
+            category.unsubscriptions.remove(self.instance)
+        return super(RecipientCreateUpdateForm, self).save(*args, **kwargs)
 
     class Meta:
         model = Recipient
