@@ -98,8 +98,6 @@ class RecipientCreateUpdateForm(forms.ModelForm):
         else:
             subscription_categories = set()
 
-        print subscription_categories
-
         all_categories = set(SubscriptionCategory.objects.all())
 
         for category in subscription_categories:
