@@ -7,6 +7,7 @@ from manager.models import Recipient
 from manager.models import RecipientAttribute
 from manager.models import RecipientGroup
 from manager.models import Setting
+from manager.models import SubscriptionCategory
 
 
 class EmailSearchForm(forms.Form):
@@ -148,6 +149,15 @@ class RecipientSubscriptionsForm(forms.ModelForm):
         model = Recipient
         fields = ()
 
+class SubscriptionCategoryForm(forms.ModelForm):
+    class Meta:
+        model = SubscriptionCategory
+        fields = (
+            'name',
+            'description',
+            'cannot_unsubscribe',
+            'applies_to'
+        )
 
 class SettingCreateUpdateForm(forms.ModelForm):
 
