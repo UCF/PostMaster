@@ -355,7 +355,7 @@ class EmailInstantSendView(EmailsMixin, FormView):
 
 class EmailDeleteView(EmailsMixin, DeleteView):
     model = Email
-    template_name = 'manager/email-delete.html'
+    template_name = 'manager/email-delete-confirm.html'
     template_name_suffix = '-delete-confirm'
 
     def get_success_url(self):

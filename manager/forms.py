@@ -35,7 +35,7 @@ class EmailInstantSendForm(forms.Form):
         initial="!@!")
     recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False),
         label="Recipient groups",
-        help_text='Which group(s) of recipients this email will go to. Hold down "Control", or "Command" on a Mac, to select more than one.')
+        help_text='Which group(s) of recipients this email will go to.')
 
 
 class PreviewInstanceLockForm(forms.ModelForm):
