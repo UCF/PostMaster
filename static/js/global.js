@@ -44,8 +44,22 @@
     $('table').on('click', 'td:not(:has(a))', tableClickHandler);
     // initiate tooltip
     $('[data-toggle="tooltip"]').tooltip();
+    // Initiate select2 on multi-select inputs
     $('select[multiple]').select2({
       templateResult: select2TemplateResult
+    });
+    // Initiate datepickers
+    $('input[data-datepicker]').each(function() {
+      var $datepicker = $(this);
+      $datepicker.pikaday({
+        format: 'MM/DD/YYYY'
+      });
+    });
+    // Initiate timepickers
+    $('input[data-timepicker]').timepicker({
+      'scrollDefault': 'now',
+      'timeFormat': 'h:i a',
+      'step': 15
     });
     formValidation();
   }

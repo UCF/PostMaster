@@ -58,6 +58,10 @@ gulp.task('js', function() {
       // Combine and uglify js files to create script.min.js.
       var minified = [
         config.packagesPath + '/select2/dist/js/select2.js',
+        config.packagesPath + '/moment/moment.js',
+        config.packagesPath + '/pikaday/pikaday.js',
+        config.packagesPath + '/pikaday/plugins/pikaday.jquery.js',
+        config.packagesPath + '/timepicker/jquery.timepicker.js',
         config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
         config.jsPath + '/recipientgroup-update.js',

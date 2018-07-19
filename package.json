@@ -15,8 +15,11 @@
     "gulp-scss-lint": "^0.2.0",
     "gulp-uglify": "^1.2.0",
     "jshint-stylish": "^2.0.0",
+    "moment": "^2.22.2",
+    "pikaday": "^1.7.0",
     "run-sequence": "^2.2.1",
     "select2": "^4.0.6-rc.1",
+    "timepicker": "^1.11.12",
     "vinyl-paths": "^1.0.0"
   },
   "dependencies": {}
