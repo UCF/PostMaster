@@ -48,6 +48,7 @@ from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
+from manager.forms import SubscriptionCategoryForm
 from manager.models import Email
 from manager.models import Instance
 from manager.models import InstanceOpen
@@ -56,6 +57,7 @@ from manager.models import RecipientAttribute
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import Setting
+from manager.models import SubscriptionCategory
 from manager.models import URL
 from manager.models import URLClick
 from manager.litmusapi import LitmusApi
@@ -140,6 +142,13 @@ class SettingsMixin(object):
     def get_context_data(self, **kwargs):
         context = super(SettingsMixin, self).get_context_data(**kwargs)
         context['section'] = 'settings'
+        return context
+
+
+class SubscriptionsMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(SubscriptionsMixin, self).get_context_data(**kwargs)
+        context['section'] = 'subscriptions'
         return context
 
 
@@ -830,6 +839,11 @@ class RecipientSubscriptionsUpdateView(UpdateView):
     template_name = 'manager/recipient-subscriptions.html'
     form_class = RecipientSubscriptionsForm
 
+    def get_context_data(self, **kwargs):
+        context = super(RecipientSubscriptionsUpdateView, self).get_context_data()
+        context['subscription_categories'] = SubscriptionCategory.objects.all()
+        return context
+
     def get_object(self, *args, **kwargs):
         mac = self.request.GET.get('mac', None)
 
@@ -852,18 +866,14 @@ class RecipientSubscriptionsUpdateView(UpdateView):
         return recipient
 
     def form_valid(self, form):
-        current_subscriptions = self.object.subscriptions
-        current_unsubscriptions = self.object.unsubscriptions.all()
+        subscriptions = form.cleaned_data['subscription_categories']
+        unsubscriptions = list(set(SubscriptionCategory.objects.all()) - set(subscriptions))
 
-        # Add new unsubscriptions
-        for email in current_subscriptions:
-            if email not in form.cleaned_data['subscribed_emails']:
-                email.unsubscriptions.add(self.object)
+        for category in unsubscriptions:
+            category.unsubscriptions.add(self.object)
 
-        # Add new subscriptions
-        for email in form.cleaned_data['subscribed_emails']:
-            if email in current_unsubscriptions:
-                email.unsubscriptions.remove(self.object)
+        for category in subscriptions:
+            category.unsubscriptions.remove(self.object)
 
         return super(RecipientSubscriptionsUpdateView, self).form_valid(form)
 
@@ -872,6 +882,38 @@ class RecipientSubscriptionsUpdateView(UpdateView):
                          'Your subscriptions have been successfully updated.')
         return self.object.unsubscribe_url
 
+class SubscriptionCategoryListView(SubscriptionsMixin, ListView):
+    model = SubscriptionCategory
+    template_name = 'manager/subscription-category-list.html'
+    context_object_name = 'categories'
+
+class SubscriptionCategoryCreateView(SubscriptionsMixin, CreateView):
+    model = SubscriptionCategory
+    template_name = 'manager/subscription-category-create.html'
+    form_class = SubscriptionCategoryForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Subscription Category successfully created.')
+        return super(SubscriptionCategoryCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-subscription-categories-update',
+                      args=(),
+                      kwargs={'pk': self.object.pk})
+
+class SubscriptionCategoryUpdateView(SubscriptionsMixin, UpdateView):
+    model= SubscriptionCategory
+    template_name = 'manager/subscription-category-update.html'
+    form_class = SubscriptionCategoryForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Subscription Category successfully updated.')
+        return super(SubscriptionCategoryUpdateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-subscription-categories-update',
+                      args=(),
+                      kwargs={'pk': self.object.pk})
 
 class SettingListView(SettingsMixin, ListView):
     model = Setting
@@ -893,7 +935,6 @@ class SettingCreateView(SettingsMixin, CreateView):
         return reverse('manager-setting-update',
                        args=(),
                        kwargs={'pk': self.object.pk})
-
 
 class SettingUpdateView(SettingsMixin, UpdateView):
     model = Setting
@@ -1043,7 +1084,6 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
 
             new_group_name = form.cleaned_data['new_group_name']
             column_order = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
-            print column_order
             skip_first_row = form.cleaned_data['skip_first_row']
             csv_file = form.cleaned_data['csv_file']
 
