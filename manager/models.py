@@ -143,6 +143,12 @@ class SubscriptionCategory(models.Model):
     description = models.TextField(null=False, blank=False, help_text=_HELP_TEXT['description'])
     unsubscriptions = models.ManyToManyField(Recipient, help_text=_HELP_TEXT['unsubscriptions'], related_name="subscription_category")
 
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
 
 class EmailManager(models.Manager):
     '''
