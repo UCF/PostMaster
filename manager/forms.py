@@ -93,7 +93,13 @@ class RecipientCreateUpdateForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         # Get the categories we want the user to be subscribed to
-        subscription_categories = set(self.cleaned_data.get('unsubscription_categories'))
+        if self.cleaned_data.get('unsubscribed_categories') is not None:
+            subscription_categories = set(self.cleaned_data.get('unsubscribed_categories'))
+        else:
+            subscription_categories = set()
+
+        print subscription_categories
+
         all_categories = set(SubscriptionCategory.objects.all())
 
         for category in subscription_categories:
