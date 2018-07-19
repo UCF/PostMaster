@@ -159,9 +159,9 @@ class RecipientSubscriptionsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RecipientSubscriptionsForm, self).__init__(*args, **kwargs)
-        self.fields['subscribed_emails'].queryset = self.instance.subscriptions
+        self.fields['subscription_categories'].queryset = SubscriptionCategory.objects.all()
 
-    subscribed_emails = forms.ModelMultipleChoiceField(queryset=Email.objects.none(),
+    subscription_categories = forms.ModelMultipleChoiceField(queryset=SubscriptionCategory.objects.all(),
                                                        required=False)
 
     class Meta:
