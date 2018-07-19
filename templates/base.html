@@ -76,6 +76,15 @@
                   </a>
                 </div>
               </li>
+              <!-- Subscriptions -->
+              <li class="nav-item dropdown{% if section == 'subscriptions' %} active{% endif %}">
+                <a href="#" class="nav-link dropdown-toggle" id="subscriptions-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Subscriptions</a>
+                <div class="dropdown-menu" aria-labelledby="subscriptions-dropdown">
+                  <a class="dropdown-item" href="{% url 'manager-subscription-categories' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> Subscription Categories</a>
+                </div>
+              </li>
               <!-- Settings -->
               <li class="nav-item dropdown{% if section == 'settings' %} active{% endif %}">
                 <a href="#" class="nav-link dropdown-toggle" id="settings-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 from manager.models import Email
 from manager.models import PreviewInstance
@@ -7,6 +8,7 @@ from manager.models import Recipient
 from manager.models import RecipientAttribute
 from manager.models import RecipientGroup
 from manager.models import Setting
+from manager.models import SubscriptionCategory
 
 
 class EmailSearchForm(forms.Form):
@@ -75,10 +77,34 @@ class RecipientCreateUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RecipientCreateUpdateForm, self).__init__(*args, **kwargs)
         if self.instance.pk is not None:
+            subscriptions = self.instance.subscription_category.all()
+            if subscriptions:
+                self.fields['unsubscribed_categories'].initial = subscriptions
+            else:
+                self.fields['unsubscribed_categories'].initial = SubscriptionCategory.objects.none()
+            
             self.fields['groups'].initial = self.instance.groups.all()
         self.fields['disable'].label = 'Email Undeliverable'
 
     groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False), )
+    unsubscribed_categories = forms.ModelMultipleChoiceField(
+                                queryset=SubscriptionCategory.objects.all(),
+                                required=False)
+
+    def save(self, *args, **kwargs):
+        # Get the categories we want the user to be subscribed to
+        subscription_categories = set(self.cleaned_data.get('unsubscription_categories'))
+        all_categories = set(SubscriptionCategory.objects.all())
+
+        for category in subscription_categories:
+            category.unsubscriptions.add(self.instance)
+
+        # Remove everything they did not click on
+        unsubscriptions = list(all_categories - subscription_categories)
+
+        for category in unsubscriptions:
+            category.unsubscriptions.remove(self.instance)
+        return super(RecipientCreateUpdateForm, self).save(*args, **kwargs)
 
     class Meta:
         model = Recipient
@@ -139,15 +165,24 @@ class RecipientSubscriptionsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RecipientSubscriptionsForm, self).__init__(*args, **kwargs)
-        self.fields['subscribed_emails'].queryset = self.instance.subscriptions
+        self.fields['subscription_categories'].queryset = SubscriptionCategory.objects.all()
 
-    subscribed_emails = forms.ModelMultipleChoiceField(queryset=Email.objects.none(),
+    subscription_categories = forms.ModelMultipleChoiceField(queryset=SubscriptionCategory.objects.all(),
                                                        required=False)
 
     class Meta:
         model = Recipient
         fields = ()
 
+class SubscriptionCategoryForm(forms.ModelForm):
+    class Meta:
+        model = SubscriptionCategory
+        fields = (
+            'name',
+            'description',
+            'cannot_unsubscribe',
+            'applies_to'
+        )
 
 class SettingCreateUpdateForm(forms.ModelForm):
 
