@@ -868,10 +868,6 @@ class RecipientSubscriptionsUpdateView(UpdateView):
 
         return super(RecipientSubscriptionsUpdateView, self).form_valid(form)
 
-    def form_invalid(self, form):
-        print form.errors
-        return super(RecipientSubscriptionsUpdateView, self).form_invalid(form)
-
     def get_success_url(self):
         messages.success(self.request,
                          'Your subscriptions have been successfully updated.')
@@ -1048,7 +1044,6 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
 
             new_group_name = form.cleaned_data['new_group_name']
             column_order = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
-            print column_order
             skip_first_row = form.cleaned_data['skip_first_row']
             csv_file = form.cleaned_data['csv_file']
 

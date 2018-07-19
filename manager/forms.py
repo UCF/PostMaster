@@ -76,18 +76,23 @@ class RecipientCreateUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RecipientCreateUpdateForm, self).__init__(*args, **kwargs)
         if self.instance.pk is not None:
-            self.fields['subscription_categories'].initial = self.instance.subscription_category.all()
+            subscriptions = self.instance.subscription_category.all()
+            if subscriptions:
+                self.fields['unsubscribed_categories'].initial = subscriptions
+            else:
+                self.fields['unsubscribed_categories'].initial = SubscriptionCategory.objects.none()
+            
             self.fields['groups'].initial = self.instance.groups.all()
         self.fields['disable'].label = 'Email Undeliverable'
 
     groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False), )
-    subscription_categories = forms.ModelMultipleChoiceField(
+    unsubscribed_categories = forms.ModelMultipleChoiceField(
                                 queryset=SubscriptionCategory.objects.all(),
                                 required=False)
 
     def save(self, *args, **kwargs):
         # Get the categories we want the user to be subscribed to
-        subscription_categories = set(self.cleaned_data.get('subscription_categories'))
+        subscription_categories = set(self.cleaned_data.get('unsubscription_categories'))
         all_categories = set(SubscriptionCategory.objects.all())
 
         for category in subscription_categories:
