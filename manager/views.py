@@ -839,6 +839,11 @@ class RecipientSubscriptionsUpdateView(UpdateView):
     template_name = 'manager/recipient-subscriptions.html'
     form_class = RecipientSubscriptionsForm
 
+    def get_context_data(self, **kwargs):
+        context = super(RecipientSubscriptionsUpdateView, self).get_context_data()
+        context['subscription_categories'] = SubscriptionCategory.objects.all()
+        return context
+
     def get_object(self, *args, **kwargs):
         mac = self.request.GET.get('mac', None)
 
@@ -861,20 +866,20 @@ class RecipientSubscriptionsUpdateView(UpdateView):
         return recipient
 
     def form_valid(self, form):
-        current_subscriptions = self.object.subscriptions
-        current_unsubscriptions = self.object.unsubscriptions.all()
+        subscriptions = form.cleaned_data['subscription_categories']
+        unsubscriptions = list(set(SubscriptionCategory.objects.all()) - set(subscriptions))
 
-        # Add new unsubscriptions
-        for email in current_subscriptions:
-            if email not in form.cleaned_data['subscribed_emails']:
-                email.unsubscriptions.add(self.object)
+        for category in unsubscriptions:
+            category.unsubscriptions.add(self.object)
 
-        # Add new subscriptions
-        for email in form.cleaned_data['subscribed_emails']:
-            if email in current_unsubscriptions:
-                email.unsubscriptions.remove(self.object)
+        for category in subscriptions:
+            category.unsubscriptions.remove(self.object)
 
         return super(RecipientSubscriptionsUpdateView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        print form.errors
+        return super(RecipientSubscriptionsUpdateView, self).form_invalid(form)
 
     def get_success_url(self):
         messages.success(self.request,
