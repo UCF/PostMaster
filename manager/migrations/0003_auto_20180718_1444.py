@@ -7,11 +7,6 @@ import django.db.models.deletion
 
 from django.core.management import call_command
 
-fixture = 'manager_inital_data'
-
-def load_fixture(apps, schema_editor):
-    call_command('loaddata', fixture, app_label='manager')
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -33,6 +28,5 @@ class Migration(migrations.Migration):
             name='subscription_category',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='emails', to='manager.SubscriptionCategory'),
             preserve_default=False,
-        ),
-        migrations.RunPython(load_fixture),
+        )
     ]
