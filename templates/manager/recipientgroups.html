@@ -26,6 +26,18 @@
     </div>
   </div>
 
+  <ul class="nav nav-tabs my-3">
+    <li class="nav-item">
+      <a class="nav-link{% if status == 'Active' %} active{% endif %}" href="?status=Active&sort=name&order={{order}}&search_query={{search_query}}">Active</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link{% if status == 'Archived' %} active{% endif %}" href="?status=Archived&sort=name&order={{order}}&search_query={{search_query}}">Archived</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link{% if status == 'All' %} active{% endif %}" href="?status=All&sort=name&order={{order}}&search_query={{search_query}}">View All</a>
+    </li>
+  </ul>
+
   <div class="row">
     <div class="col-sm-6">
       {% if is_paginated %}
@@ -57,8 +69,9 @@
   <table class="table table-hover">
   	<thead>
   		<tr>
-  			<th scope="col"><a href="?sort=name&order={{order}}&search_query={{search_query}}">Name</a></th>
-  			<th scope="col"><a href="?sort=updated_at&order={{order}}&search_query={{search_query}}">Modified Date</a></th>
+        <th scope="col"><a href="?status={{status}}&sort=name&order={{order}}&search_query={{search_query}}">Name</a></th>
+        <th scope="col">Status</th>
+  			<th scope="col"><a href="?status={{status}}&sort=updated_at&order={{order}}&search_query={{search_query}}">Modified Date</a></th>
   			<th scope="col" class="text-center">No. of Recipients</th>
   		</tr>
   	</thead>
@@ -66,6 +79,7 @@
       {% for group in groups %}
       <tr data-link-url="{% url 'manager-recipientgroup-update' group.pk %}">
         <td>{{group.name}}</td>
+        <td>{% if group.archived %}Archived{% else %}Active{% endif %}</td>
         <td>{{group.updated_at}}</td>
         <td class="text-center">{{group.recipients.count}}</td>
       </tr>
