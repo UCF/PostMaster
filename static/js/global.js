@@ -29,11 +29,24 @@
     });
   }
 
+  function select2TemplateResult(result) {
+    var iconClass = 'far fa-lg fa-square';
+    var textClass = '';
+    if (result.selected) {
+      iconClass = 'fas fa-lg fa-check-square';
+      textClass = 'font-weight-bold';
+    }
+    return $('<span><span class="' + iconClass + ' mr-3" aria-hidden="true"></span><span class="' + textClass + '">' + result.text + '</span></span>');
+  }
+
   function init() {
     // Table row click handler
     $('table').on('click', 'td:not(:has(a))', tableClickHandler);
     // initiate tooltip
     $('[data-toggle="tooltip"]').tooltip();
+    $('select[multiple]').select2({
+      templateResult: select2TemplateResult
+    });
     formValidation();
   }
 

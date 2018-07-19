@@ -30,7 +30,10 @@ gulp.task('css', function() {
     .pipe(scsslint({
       'config': 'scss-lint-config.yml',
     }))
-    .pipe(sass().on('error', sass.logError))
+    .pipe(sass({
+      includePaths: [config.sassPath, config.packagesPath]
+    })
+      .on('error', sass.logError))
     .pipe(prefix({
         browsers: ["last 2 versions", "not ie 10"],
         cascade: false
@@ -54,6 +57,7 @@ gulp.task('js', function() {
 
       // Combine and uglify js files to create script.min.js.
       var minified = [
+        config.packagesPath + '/select2/dist/js/select2.js',
         config.jsPath + '/instance.js',
         config.jsPath + '/recipients.js',
         config.jsPath + '/recipientgroup-update.js',
@@ -88,9 +92,11 @@ gulp.task('js', function() {
 // Copy Font Awesome files
 gulp.task('move-components-fontawesome', function() {
   gulp.src(config.packagesPath + '/@fortawesome/fontawesome-free/webfonts/**/*')
-   .pipe(gulp.dest(config.fontPath));
-  gulp.src([config.packagesPath + '/@fortawesome/fontawesome-free/css/solid.css', config.packagesPath + '/@fortawesome/fontawesome-free/css/fontawesome.css'])
-  .pipe(gulp.dest(config.cssPath));
+    .pipe(gulp.dest(config.fontPath));
+
+  gulp.src([config.packagesPath + '/@fortawesome/fontawesome-free/css/all.css'])
+    .pipe(rename('fontawesome-all.css'))
+    .pipe(gulp.dest(config.cssPath));
 });
 
 // Run all component-related tasks
