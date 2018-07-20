@@ -28,14 +28,3 @@
 // =require script/recipients.js
 // =require script/recipientgroup-update.js
 // =require script/global.js
-
-
-
-
-
-
-
-
-
-
-
