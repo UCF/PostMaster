@@ -30,13 +30,7 @@
   }
 
   function select2TemplateResult(result) {
-    var iconClass = 'far fa-lg fa-square';
-    var textClass = '';
-    if (result.selected) {
-      iconClass = 'fas fa-lg fa-check-square';
-      textClass = 'font-weight-bold';
-    }
-    return $('<span><span class="' + iconClass + ' mr-3" aria-hidden="true"></span><span class="' + textClass + '">' + result.text + '</span></span>');
+    return $('<span><span class="select2-option-icon mr-3" aria-hidden="true"></span><span class="select2-option-text">' + result.text + '</span></span>');
   }
 
   function init() {
@@ -46,7 +40,8 @@
     $('[data-toggle="tooltip"]').tooltip();
     // Initiate select2 on multi-select inputs
     $('select[multiple]').select2({
-      templateResult: select2TemplateResult
+      templateResult: select2TemplateResult,
+      closeOnSelect: false
     });
     // Initiate datepickers
     $('input[data-datepicker]').each(function() {
