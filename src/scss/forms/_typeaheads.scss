@@ -1,0 +1,22 @@
+//
+// Overrides for Twitter Typeahead widgets
+//
+
+.twitter-typeahead {
+  display: block !important;
+}
+
+.tt-menu {
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.tt-suggestion {
+  background: rgba(230, 230, 230, .95);
+  padding: 8px 10px;
+}
+
+.tt-cursor {
+  background: rgba(255, 255, 255, .95);
+  cursor: pointer;
+}
