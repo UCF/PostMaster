@@ -175,8 +175,8 @@ input[type=file] {
 
 .attr-field-label,
 .attr-field {
-  width: 45%;
   padding: 0 0 0 15px;
+  width: 45%;
 
   @media (max-width: 460px) {
     width: 40%;
@@ -184,11 +184,11 @@ input[type=file] {
 }
 
 .attr-field-btn {
-  width: 10%;
   padding: 0;
+  width: 10%;
 
   @media (max-width: 460px) {
-    width: 15%;
     margin-right: 15px;
+    width: 15%;
   }
 }
