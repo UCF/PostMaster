@@ -4,8 +4,8 @@
 var creds = {
   bucket: 'web.ucf.edu',
   folder: 'email',
-  accessKey: 'AKIAIJIGOEVN46JWNBJA',
-  secretKey: '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'
+  accessKey: '',
+  secretKey: ''
 };
 
 // Configure The S3 Object
