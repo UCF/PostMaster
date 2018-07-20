@@ -6,30 +6,31 @@
 
 .select2-container--default {
   &.select2-container--focus .select2-selection--multiple {
-    border: 1px solid rgba(0, 0, 0, .15);
+    border: $border-width solid $dropdown-border-color;
   }
 
   &.select2-container--open .select2-selection {
-    border-color: rgba(2, 117, 216, .7);
-    box-shadow: inset 0 0 0 2px rgba(2, 117, 216, .7);
+    border-color: $brand-complementary;
+    box-shadow: $focus-inset-box-shadow;
   }
 
   &.select2-container--focus.select2-container--open .select2-selection--multiple {
-    border: 1px solid rgba(2, 117, 216, .7);
+    border: $border-width solid $brand-complementary;
   }
 
   .select2-selection {
     line-height: 2.25;
     padding: .5rem;
-    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: $input-transition;
   }
 
   .select2-selection--multiple {
-    border: 1px solid rgba(0, 0, 0, .15);
-    border-radius: 0;
+    border: $border-width solid $input-border-color;
+    border-radius: $input-border-radius;
 
     .select2-selection__choice {
-      background-color: #eee;
+      background-color: $gray-lighter;
+      border-color: $input-border-color;
       border-radius: 0;
       font-size: .75rem;
       font-weight: bold;
@@ -46,30 +47,36 @@
   }
 
   .select2-dropdown {
-    border-color: rgba(0, 0, 0, .15);
-    border-radius: 0;
+    border-color: $dropdown-border-color;
+    border-radius: $dropdown-border-radius;
   }
 
   .select2-results {
-    font-size: .85rem;
+    font-size: $font-size-sm;
   }
 
   .select2-results__option {
     padding: .75rem;
 
     &.select2-results__option--highlighted {
+      background-color: $component-active-bg;
+      color: $component-active-color;
+
+      // Nested selector req'd to properly override existing parent selector
+      // scss-lint:disable NestingDepth
       .fa-square {
-        color: #fff;
+        color: $component-active-color;
       }
+      // scss-lint:enable NestingDepth
     }
 
     &[aria-selected="true"]:not(.select2-results__option--highlighted) {
-      background-color: #eee;
-      color: #000;
+      background-color: $dropdown-link-hover-bg;
+      color: $dropdown-link-hover-color;
     }
 
     .fa-square {
-      color: #ccc;
+      color: $gray-light;
     }
   }
 }
