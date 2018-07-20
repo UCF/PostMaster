@@ -2,22 +2,22 @@
 // Overrides for Pikaday datepicker widgets
 //
 
-$pd-text-color: #333;
-$pd-title-color: #333;
-$pd-title-bg: #fff;
-$pd-picker-bg: #fff;
-$pd-picker-border: #ccc;
-$pd-picker-border-bottom: #bbb;
-$pd-picker-shadow: rgba(0,0,0,.5);
-$pd-th-color: #999;
-$pd-day-color: #666;
-$pd-day-bg: #f5f5f5;
-$pd-day-hover-color: #fff;
-$pd-day-hover-bg: #ff8000;
-$pd-day-today-color: #33aaff;
-$pd-day-selected-color: #fff;
-$pd-day-selected-bg: #33aaff;
-$pd-day-selected-shadow: #178fe5;
-$pd-day-disabled-color: #999;
-$pd-week-color: #999;
+$pd-text-color: $body-color;
+$pd-title-color: $body-color;
+$pd-title-bg: $body-bg;
+$pd-picker-bg: $body-bg;
+$pd-picker-border: $dropdown-border-color;
+$pd-picker-border-bottom: $dropdown-border-color;
+$pd-picker-shadow: $dropdown-box-shadow;
+$pd-th-color: $brand-default;
+$pd-day-color: $body-color;
+$pd-day-bg: $pd-picker-bg;
+$pd-day-hover-color: $dropdown-link-hover-color;
+$pd-day-hover-bg: $dropdown-link-hover-bg;
+$pd-day-today-color: $body-color;
+$pd-day-selected-color: $component-active-color;
+$pd-day-selected-bg: $component-active-bg;
+$pd-day-selected-shadow: transparent;
+$pd-day-disabled-color: $btn-link-disabled-color;
+$pd-week-color: $brand-default;
 $pd-font-family: $font-family-base;
