@@ -134,11 +134,11 @@ class SubscriptionCategory(models.Model):
     """
 
     _HELP_TEXT = {
-        "name": "The name of the subscription category. Will be viewed by users on frontend.",
+        "name": "The name of the subscription category. Will be viewable by front-end users.",
         "description": "The description of the subscription category. Should include the types of emails sent in this category, as well as frequency.",
         "unsubscriptions": "A list of recipients unsubscribed from this category.",
         "cannot_unsubscribe": "When checked, users following the Applies To pattern will not be able to unsubscribe from emails.",
-        "applies_to": "The pattern used to determine if users can unsubscribe from emails of this category."
+        "applies_to": "The pattern used to determine if users can unsubscribe from emails of this category. For example \"(knights)?\.?ucf\.edu$\" would apply to \"email@knights.ucf.edu\" and \"email@ucf.edu\"."
     }
 
     name = models.CharField(max_length=100, unique=True, null=False, blank=False, help_text=_HELP_TEXT['name'])
