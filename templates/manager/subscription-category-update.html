@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h1 class="h2 heading-underline">Update Subscription Category</h1>
+<form class="form-horizontal" action="{% url 'manager-subscription-categories-update' object.pk %}" method="post">
+  <fieldset>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{error}}
+      </div>
+    {% endfor %}
+    {% for field in form %}
+      {% include 'form-control-group.html' %}
+    {% endfor %}
+    <div class="row form-group">
+      <div class="offset-sm-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">
+          <span class="fas fa-plus" aria-hidden="true"></span> Update</button>
+        <a href="{% url 'manager-recipientgroups' %}" class="btn btn-default">
+          <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
+      </div>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}

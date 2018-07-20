@@ -5,25 +5,20 @@
 {% endblock %}
 {% block page-body %}
   <form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th scope="col" style="width:10%">Subscribed</th>
-            <th scope="col">Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% with unsubscriptions=recipient.unsubscriptions.all %} {% for email in recipient.subscriptions %}
-          <tr>
-            <td class="text-center">
-              <input type="checkbox" name="subscribed_emails" value="{{email.pk}}" {% if email not in unsubscriptions %}checked="checked" {% endif %} />
-            </td>
-            <td>{{email.title}}</td>
-          </tr>
-          {% endfor %} {% endwith %}
-        </tbody>
-      </table>
+    <div class="row mb-4">
+    {% with unsubscriptions=recipient.subscription_category.all %} {% for category in subscription_categories %}
+      <div class="col-sm-4">
+        <div class="card h-100">
+          <div class="card-block">
+            <h2 class="h4 card-title">{{category.name}}</h2>
+            <p class="card-text">{{category.description}}</p>
+          </div>
+          <div class="card-footer">
+            <label class="form-check-label"><input class="form-check-input" type="checkbox" id="subscription_categories" name="subscription_categories" value="{{category.pk}}" {% if category not in unsubscriptions %}checked="checked" {% endif %} /> Subscribe</label>
+          </div>
+        </div>
+      </div>
+    {% endfor %} {% endwith %}
     </div>
     <button type="submit" class="btn btn-primary">Update Subscriptions</button>
   </form>
