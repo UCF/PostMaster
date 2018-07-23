@@ -869,6 +869,8 @@ class RecipientSubscriptionsUpdateView(UpdateView):
         subscriptions = form.cleaned_data['subscription_categories']
         unsubscriptions = list(set(SubscriptionCategory.objects.all()) - set(subscriptions))
 
+        print unsubscriptions
+
         for category in unsubscriptions:
             category.unsubscriptions.add(self.object)
 

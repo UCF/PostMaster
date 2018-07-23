@@ -15,7 +15,11 @@
             <p class="card-text">{{category.description}}</p>
           </div>
           <div class="card-footer">
-            <label class="form-check-label"><input class="form-check-input" type="checkbox" id="subscription_categories" name="subscription_categories" value="{{category.pk}}" {% if category not in unsubscriptions %}checked="checked" {% endif %} {% displaycategory recipient.email_address category %} /> Subscribe</label>
+            {% if category|can_unsubscribe:recipient.email_address %}
+            <label class="form-check-label"><input class="form-check-input" type="checkbox" name="subscription_categories" value="{{category.pk}}" {% if category not in unsubscriptions %}checked="checked" {% endif %} /> Subscribe</label>
+            {% else %}
+            <p>You are subscribed to this email. <input type="hidden" name="subscription_categories" value="{{category.pk}}" /></p>
+            {% endif %}
           </div>
         </div>
       </div>
