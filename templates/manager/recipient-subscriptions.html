@@ -18,7 +18,7 @@
             {% if category|can_unsubscribe:recipient.email_address %}
             <label class="form-check-label"><input class="form-check-input" type="checkbox" name="subscription_categories" value="{{category.pk}}" {% if category not in unsubscriptions %}checked="checked" {% endif %} /> Subscribe</label>
             {% else %}
-            <p>You are subscribed to this email. <input type="hidden" name="subscription_categories" value="{{category.pk}}" /></p>
+            <label class="form-check-label"><input class="form-check-input" type="checkbox" disabled><input type="hidden" name="subscription_categories" value="{{category.pk}}" /> Subscribed</label>
             {% endif %}
           </div>
         </div>
