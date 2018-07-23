@@ -26,5 +26,6 @@
 
 // =require script/instance.js
 // =require script/recipients.js
+// =require script/subscription-update.js
 // =require script/recipientgroup-update.js
 // =require script/global.js

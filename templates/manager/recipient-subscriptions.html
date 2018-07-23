@@ -7,6 +7,12 @@
 {% block page-body %}
   <form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
     <div class="row mb-4">
+      <div class="col-md-4 col-12">
+        <button id="unsubscribe-all" class="btn btn-sm btn-default" type="button">Uncheck All Subscriptions</button>
+      </div>
+    </div>
+    </div>
+    <div class="row mb-4">
     {% with unsubscriptions=recipient.subscription_category.all %} {% for category in subscription_categories %}
       <div class="col-sm-4">
         <div class="card h-100">
@@ -18,7 +24,7 @@
             {% if category|can_unsubscribe:recipient.email_address %}
             <label class="form-check-label"><input class="form-check-input" type="checkbox" name="subscription_categories" value="{{category.pk}}" {% if category not in unsubscriptions %}checked="checked" {% endif %} /> Subscribe</label>
             {% else %}
-            <label class="form-check-label"><input class="form-check-input" type="checkbox" disabled><input type="hidden" name="subscription_categories" value="{{category.pk}}" /> Subscribed</label>
+            <label class="form-check-label"><input class="form-check-input" type="checkbox" disabled {% if category not in unsubscriptions %}checked="checked" {% endif %}><input type="hidden" name="subscription_categories" value="{{category.pk}}" /> Subscribed</label>
             {% endif %}
           </div>
         </div>
