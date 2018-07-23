@@ -7,11 +7,6 @@ import django.db.models.deletion
 
 from django.core.management import call_command
 
-fixture_name = 'manager_initial_data'
-
-def initial_load_data(apps, schema_editor):
-    call_command('loaddata', fixture_name, app_label='manager')
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -28,11 +23,10 @@ class Migration(migrations.Migration):
                 ('unsubscriptions', models.ManyToManyField(help_text=b'A list of recipients unsubscribed from this category.', related_name='subscription_category', to='manager.Recipient')),
             ],
         ),
-        migrations.RunPython(initial_load_data),
         migrations.AddField(
             model_name='email',
             name='subscription_category',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='emails', to='manager.SubscriptionCategory'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='emails', to='manager.SubscriptionCategory'),
             preserve_default=False,
         )
     ]
