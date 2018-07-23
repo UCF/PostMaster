@@ -9,10 +9,17 @@ APP_FOLDER        = os.path.join(PROJECT_FOLDER, 'apps')
 INC_FOLDER        = os.path.join(PROJECT_FOLDER, 'third-party')
 ROOT_URLCONF      = "urls"
 
-TIME_ZONE         = 'America/New_York'
-LANGUAGE_CODE     = 'en-us'
-SITE_ID           = 1
-USE_I18N          = False
+TIME_ZONE          = 'America/New_York'
+LANGUAGE_CODE      = 'en-us'
+SITE_ID            = 1
+USE_I18N           = False
+TIME_INPUT_FORMATS = [
+    '%I:%M %p',     # '02:30 PM'
+    '%I:%M:%S %p',  # '02:30:59 PM'
+    '%H:%M:%S',     # '14:30:59'
+    '%H:%M:%S.%f',  # '14:30:59.000200'
+    '%H:%M',        # '14:30'
+]
 
 LOGIN_REDIRECT_URL = '/'
 
