@@ -48,6 +48,11 @@ urlpatterns = [
     url(r'^setting/(?P<pk>\d+)/update/$',          login_required(SettingUpdateView.as_view()),      name='manager-setting-update'),
     url(r'^settings/$',                            login_required(SettingListView.as_view()),        name='manager-settings'),
 
+    # Subscriptions
+    url(r'^subscriptions/categories/$',                    login_required(SubscriptionCategoryListView.as_view()),   name='manager-subscription-categories'),
+    url(r'^subscriptions/categories/create/$',             login_required(SubscriptionCategoryCreateView.as_view()), name='manager-subscription-categories-create'),
+    url(r'^subscriptions/categories/(?P<pk>\d+)/update/$', login_required(SubscriptionCategoryUpdateView.as_view()), name='manager-subscription-categories-update'),
+
     # S3 User File Handling
     url(r'^files/upload/$', login_required(s3_upload_user_file), name='manager-file-upload'),
     url(r'^files/get/$',    login_required(s3_get_user_files),   name='manager-files-get'),

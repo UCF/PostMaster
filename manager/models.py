@@ -128,6 +128,32 @@ class RecipientGroup(models.Model):
         return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
 
+class SubscriptionCategory(models.Model):
+    """
+        Describes a category of email for subscription purposes.
+    """
+
+    _HELP_TEXT = {
+        "name": "The name of the subscription category. Will be viewable by front-end users.",
+        "description": "The description of the subscription category. Should include the types of emails sent in this category, as well as frequency.",
+        "unsubscriptions": "A list of recipients unsubscribed from this category.",
+        "cannot_unsubscribe": "When checked, users following the Applies To pattern will not be able to unsubscribe from emails.",
+        "applies_to": "The pattern used to determine if users can unsubscribe from emails of this category. For example \"(knights)?\.?ucf\.edu$\" would apply to \"email@knights.ucf.edu\" and \"email@ucf.edu\"."
+    }
+
+    name = models.CharField(max_length=100, unique=True, null=False, blank=False, help_text=_HELP_TEXT['name'])
+    description = models.TextField(null=False, blank=False, help_text=_HELP_TEXT['description'])
+    unsubscriptions = models.ManyToManyField(Recipient, help_text=_HELP_TEXT['unsubscriptions'], related_name="subscription_category")
+    cannot_unsubscribe = models.BooleanField(null=False, blank=False, default=False, help_text=_HELP_TEXT['cannot_unsubscribe'])
+    applies_to = models.CharField(max_length=255, null=True, blank=True, help_text=_HELP_TEXT['applies_to'])
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+
 class EmailManager(models.Manager):
     '''
         A custom manager to determine when emails should be sent based on
@@ -338,6 +364,7 @@ class Email(models.Model):
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails')
 
     class Meta:
             ordering = ["title"]
@@ -763,9 +790,12 @@ class Email(models.Model):
             disable=False
             ).distinct()
 
-        unsubscriptions = self.unsubscriptions.all()
+        if self.subscription_category:
+            unsubscriptions = self.subscription_category.unsubscriptions.all()
+        else:
+            unsubscriptions = self.unsubscriptions.all()
 
-        if unsubscriptions.exists():
+        if unsubscriptions:
             recipients = recipients.exclude(id__in=[o.id for o in unsubscriptions])
 
         # Add email creator email to recipient list
