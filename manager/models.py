@@ -153,6 +153,16 @@ class SubscriptionCategory(models.Model):
     def __unicode__(self):
         return self.name
 
+    def applies_to_email(self, email_address):
+        """
+        If the provided email matches the `applies_to` pattern,
+        this function returns True.
+        """
+        if re.search(self.applies_to, email_address):
+            return True
+
+        return False
+
 
 class EmailManager(models.Manager):
     '''
