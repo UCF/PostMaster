@@ -1,0 +1,10 @@
+[
+    {
+        "model": "manager.SubscriptionCategory",
+        "pk": 1,
+        "fields": {
+            "name": "Uncategorized",
+            "description": "Initial subscription category for migration purposes."
+        }
+    }
+]
