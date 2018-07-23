@@ -16,7 +16,7 @@
   }
 
   function toggleEmailTrigger(e) {
-    var $trigger = $(e.target).next().children('.view-email-trigger');
+    var $trigger = $('.' + $(e.target).attr('id'));
     if($(e.target).val().startsWith('https://')) {
       $trigger.fadeIn();
     } else {
@@ -39,12 +39,11 @@
     $templates = $('.templates');
 
     // Add event handlers
-    if($viewEmailTrigger.length) {
-      $viewEmailTrigger.parent().prev().on('change, blur', toggleEmailTrigger).blur();
-      $viewEmailTrigger.on('click', viewEmailTemplate);
-      $modalTrigger.on('click', setInputId);
-      $templates.on('click', copyTemplateLink);
-    }
+    $('#id_source_html_uri, #id_source_text_uri').on('change, blur', toggleEmailTrigger).blur();
+    $viewEmailTrigger.on('click', viewEmailTemplate);
+
+    $modalTrigger.on('click', setInputId);
+    $templates.on('click', copyTemplateLink);
   }
 
   $(init);

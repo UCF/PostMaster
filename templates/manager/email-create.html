@@ -44,6 +44,15 @@
 
 {% block javascript-footer %}
   {{ block.super }}
+  <script>
+    function getAWSCreds() {
+      return {
+        accessKey: "{{ aws_access_key_id }}",
+        secretKey: "{{ aws_secret_access_key }}",
+        bucket: "{{ bucket }}"
+      };
+    }
+  </script>
   <script src="/static/js/aws-sdk-2.277.1.min.js"></script>
   <script src="/static/js/s3.js"></script>
 {% endblock %}
