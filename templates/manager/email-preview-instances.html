@@ -103,5 +103,5 @@
 
 {% block javascript-footer %}
   {{ block.super }}
-  <script src="{{MEDIA_URL}}js/lockcontent.min.js"></script>
+  <script src="{% static 'js/lockcontent.min.js' %}"></script>
 {% endblock %}
