@@ -1,0 +1,23 @@
+//
+// Overrides for Pikaday datepicker widgets
+//
+
+$pd-text-color: $body-color;
+$pd-title-color: $body-color;
+$pd-title-bg: $body-bg;
+$pd-picker-bg: $body-bg;
+$pd-picker-border: $dropdown-border-color;
+$pd-picker-border-bottom: $dropdown-border-color;
+$pd-picker-shadow: $dropdown-box-shadow;
+$pd-th-color: $brand-default;
+$pd-day-color: $body-color;
+$pd-day-bg: $pd-picker-bg;
+$pd-day-hover-color: $dropdown-link-hover-color;
+$pd-day-hover-bg: $dropdown-link-hover-bg;
+$pd-day-today-color: $body-color;
+$pd-day-selected-color: $component-active-color;
+$pd-day-selected-bg: $component-active-bg;
+$pd-day-selected-shadow: transparent;
+$pd-day-disabled-color: $btn-link-disabled-color;
+$pd-week-color: $brand-default;
+$pd-font-family: $font-family-base;

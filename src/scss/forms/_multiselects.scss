@@ -1,0 +1,116 @@
+//
+// Overrides for select2.js multiselect widgets
+//
+
+// scss-lint:disable SelectorFormat NestingDepth
+
+.select2-container--default {
+  &.select2-container--focus .select2-selection--multiple {
+    border: $border-width solid $dropdown-border-color;
+  }
+
+  &.select2-container--open .select2-selection {
+    border-color: $brand-complementary;
+    box-shadow: $focus-inset-box-shadow;
+  }
+
+  &.select2-container--focus.select2-container--open .select2-selection--multiple {
+    border: $border-width solid $brand-complementary;
+  }
+
+  .select2-selection {
+    line-height: 2.25;
+    padding: .5rem;
+    transition: $input-transition;
+  }
+
+  .select2-selection--multiple {
+    border: $border-width solid $input-border-color;
+    border-radius: $input-border-radius;
+
+    .select2-selection__choice {
+      background-color: $gray-lighter;
+      border-color: $input-border-color;
+      border-radius: 0;
+      font-size: .75rem;
+      font-weight: bold;
+      line-height: 1;
+      padding: .125rem .5rem;
+    }
+
+    .select2-selection__choice__remove {
+      font-size: 2rem;
+      font-weight: 300;
+      margin-right: .5rem;
+      vertical-align: middle;
+    }
+  }
+
+  .select2-dropdown {
+    border-color: $dropdown-border-color;
+    border-radius: $dropdown-border-radius;
+  }
+
+  .select2-results {
+    font-size: $font-size-sm;
+  }
+
+  .select2-results__option {
+    padding: .75rem;
+
+    &:not(.select2-results__option--highlighted),
+    &:not([aria-selected="true"]) {
+      .select2-option-icon {
+        @extend .far;
+
+        &::before {
+          content: fa-content($fa-var-square);
+        }
+      }
+    }
+
+    &.select2-results__option--highlighted {
+      background-color: $dropdown-link-hover-bg;
+      color: $dropdown-link-hover-color;
+
+      .select2-option-icon {
+        color: $component-active-color;
+      }
+    }
+
+    &[aria-selected="true"] {
+      background-color: $dropdown-link-hover-bg;
+
+      &.select2-results__option--highlighted {
+        background-color: darken($dropdown-link-hover-bg, 5%);
+
+        .select2-option-icon {
+          &::before {
+            content: fa-content($fa-var-minus-square);
+          }
+        }
+      }
+
+      .select2-option-icon {
+        @extend .fas;
+        color: $component-active-color;
+
+        &::before {
+          content: fa-content($fa-var-check-square);
+        }
+      }
+
+      .select2-option-text {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+// scss-lint:enable SelectorFormat NestingDepth
+
+.select2-option-icon {
+  @include fa-icon;
+  color: $gray-light;
+  font-size: 1.325rem;
+}

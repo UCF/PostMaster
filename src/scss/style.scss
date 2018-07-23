@@ -1,0 +1,43 @@
+@import 'variables';
+
+//
+// Third-party assets:
+//
+
+// Athena
+@import './ucf-athena-framework/src/scss/framework';
+
+// Fontawesome
+@import './@fortawesome/fontawesome-free/scss/fontawesome';
+@import './@fortawesome/fontawesome-free/scss/fa-brands';
+@import './@fortawesome/fontawesome-free/scss/fa-regular';
+@import './@fortawesome/fontawesome-free/scss/fa-solid';
+
+// Select2 (multiselect widget lib)
+@import './select2/src/scss/core';
+
+// Pikaday (datepicker widget lib)
+@import 'forms/variables-datepickers';
+@import './pikaday/scss/pikaday';
+
+// jQuery Timepicker widget lib
+@import './timepicker/jquery.timepicker';
+
+
+//
+// Project-specific styles and overrides:
+//
+
+@import 'tables';
+
+@import 'components/buttons';
+@import 'components/navs';
+
+@import 'forms/base';
+@import 'forms/datepickers';
+@import 'forms/multiselects';
+@import 'forms/timepickers';
+@import 'forms/typeaheads';
+
+@import 'views/email-designer';
+@import 'views/email-instance';
