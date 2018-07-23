@@ -1,0 +1,42 @@
+//
+// Overrides for Pikaday datepicker widgets
+//
+
+.pika-lendar {
+  max-width: 300px;
+  width: auto;
+}
+
+.pika-label {
+  font-size: $font-size-md;
+}
+
+.pika-table {
+  table-layout: fixed;
+
+  th {
+    font-size: $font-size-xs;
+    letter-spacing: $letter-spacing-base;
+    padding-bottom: .5rem;
+    padding-left: .25rem;
+    padding-right: .25rem;
+    padding-top: .25rem;
+    text-transform: uppercase;
+  }
+}
+
+.pika-button {
+  font-size: $font-size-md;
+  height: 100%;
+  line-height: 1.65;
+  text-align: center;
+
+  &:hover,
+  .is-selected & {
+    border-radius: 0;
+  }
+
+  .is-today & {
+    text-decoration: underline;
+  }
+}

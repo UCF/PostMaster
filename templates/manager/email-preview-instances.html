@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block page-body %}
 <h1 class="h2 heading-underline">{{ email.title }} Instances</h1>
@@ -103,5 +104,5 @@
 
 {% block javascript-footer %}
   {{ block.super }}
-  <script src="/static/js/lockcontent.js"></script>
+  <script src="{% static 'js/lockcontent.min.js' %}"></script>
 {% endblock %}

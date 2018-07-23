@@ -53,6 +53,8 @@
     getFileList(printFileList, '2018');
   }
 
-  $(init);
+  if($('#id_source_html_uri').length) {
+    $(init);
+  }
 
 }());

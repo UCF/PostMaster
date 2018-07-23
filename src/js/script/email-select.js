@@ -6,7 +6,7 @@
       $modalTrigger,
       inputId;
 
-  function viewEmailTemplate(e) {
+  function viewEmail(e) {
     e.preventDefault();
     var inputValue = $('#' + $(e.target).attr('data-id')).val();
 
@@ -28,7 +28,7 @@
     inputId = $(e.target).attr('data-id');
   }
 
-  function copyTemplateLink(e) {
+  function copyEmailLink(e) {
     $('#' + inputId ).val($(e.target).attr('data-url')).blur();
     $('#viewUploadModal').modal('toggle');
   }
@@ -40,12 +40,14 @@
 
     // Add event handlers
     $('#id_source_html_uri, #id_source_text_uri').on('change, blur', toggleEmailTrigger).blur();
-    $viewEmailTrigger.on('click', viewEmailTemplate);
-
+    $viewEmailTrigger.on('click', viewEmail);
     $modalTrigger.on('click', setInputId);
-    $templates.on('click', copyTemplateLink);
+    $templates.on('click', copyEmailLink);
   }
 
-  $(init);
+  if($('#id_source_html_uri').length) {
+    $(init);
+  }
 
 }());
+
