@@ -173,7 +173,7 @@ These are injected into the email template markup when loadEditor() is called.
   <link class="pm-editor-script" rel="stylesheet" href="{% static 'css/froala_style.min.css' %}" />
   <link class="pm-editor-script" rel="stylesheet" href="{% static 'css/email-designer-editor.css' %}" />
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="{% static 'js/email-designer-script.min.js' %}"></script>
+  <script src="{% static 'js/email-designer-editor.min.js' %}"></script>
   <script>
     $.Editable.DEFAULTS.key = '{{ froala_license }}';
     var fileUploadURL = '{% url 'manager-file-upload' %}',
@@ -188,7 +188,7 @@ These are injected into the email template markup when loadEditor() is called.
 
 {% block javascript-footer %}
   {{ block.super }}
-  <script src="{% static 'js/email-designer.js' %}"></script>
+  <script src="{% static 'js/email-designer.min.js' %}"></script>
   <script>
     var getSnapshotsURL = '{% url 'manager-files-get' %}',
         saveSnapshotURL = '{% url 'manager-file-upload' %}',

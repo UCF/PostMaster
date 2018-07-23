@@ -1,0 +1,33 @@
+//
+// Overrides for jQuery timepicker lib widgets
+//
+
+// scss-lint:disable QualifyingElement
+
+.ui-timepicker-wrapper {
+  max-height: 200px;
+  min-width: 150px;
+  width: auto;
+}
+
+.ui-timepicker-list {
+  // This selector is ugly but necessary to override the original
+  // selector in the timepicker lib
+  &:hover .ui-timepicker-selected,
+  li.ui-timepicker-selected,
+  li.ui-timepicker-selected:hover {
+    background-color: $component-active-bg;
+    color: $component-active-color;
+  }
+
+  li {
+    padding: .325rem .75rem;
+
+    &:hover {
+      background-color: $dropdown-link-hover-bg;
+      color: $dropdown-link-hover-color;
+    }
+  }
+}
+
+// scss-lint:enable QualifyingElement
