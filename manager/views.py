@@ -238,13 +238,6 @@ class EmailCreateView(EmailsMixin, CreateView):
                        args=(),
                        kwargs={'pk': self.object.pk})
 
-    def get_context_data(self, **kwargs):
-        context = super(CreateView, self).get_context_data(**kwargs)
-        context['aws_access_key_id'] = settings.AMAZON_S3['aws_access_key_id']
-        context['aws_secret_access_key'] = settings.AMAZON_S3['aws_secret_access_key']
-        context['bucket'] = settings.AMAZON_S3['bucket']
-        return context
-
 
 class EmailUpdateView(EmailsMixin, UpdateView):
     model = Email
@@ -1299,7 +1292,7 @@ def s3_upload_user_file(request):
 
         return HttpResponse(
             json.dumps(response_data),
-            mimetype='application/json'
+            content_type='application/json'
         )
     else:
         return HttpResponseForbidden()
@@ -1378,7 +1371,7 @@ def s3_delete_user_file(request):
 
         return HttpResponse(
             json.dumps(response_data),
-            mimetype='application/json'
+            content_type='application/json'
         )
     else:
         return HttpResponseForbidden()

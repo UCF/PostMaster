@@ -35,4 +35,28 @@
     </div>
   </fieldset>
 </form>
+
+<!-- Modal for uploading a new HTML/plaintext email file -->
+<div class="modal fade" id="upload-email-modal" tabindex="-1" role="dialog" aria-labelledby="upload-email-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="upload-email-modal-label">Upload a File</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="upload-email-file-input">Select File</label>
+          <input type="file" class="form-control-file" id="upload-email-file-input" aria-describedby="upload-email-file-help" accept="">
+          <small id="upload-email-file-help" class="form-text text-muted">Select a file on your computer to use in this email.</small>
+        </div>
+        <button disabled type="submit" class="btn btn-primary" id="upload-email-submit" data-upload-action="{% url 'manager-file-upload' %}"
+          data-insert-field="">Upload</button>
+        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

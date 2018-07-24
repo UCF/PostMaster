@@ -26,7 +26,6 @@
 
 // =require script/instance.js
 // =require script/recipients.js
-// =require script/email-list.js
-// =require script/email-select.js
+// =require script/email-createupdate.js
 // =require script/recipientgroup-update.js
 // =require script/global.js
