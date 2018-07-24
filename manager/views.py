@@ -504,23 +504,6 @@ def instance_cancel(request, pk):
     return HttpResponse(json.dumps(retval), content_type='application/json')
 
 
-class EmailDesignView(TemplateView):
-    template_name = 'manager/email-design.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(EmailDesignView, self).get_context_data(**kwargs)
-        templates_path = 'email-templates/'
-        s3 = AmazonS3Helper()
-
-        project_url = settings.PROJECT_URL
-        project_url_agnostic = project_url.replace('http://', '//')
-        context['email_templates_url'] = staticfiles_storage.url(templates_path)
-        context['email_templates'] = os.listdir(staticfiles_storage.path(templates_path))
-        context['froala_license'] = settings.FROALA_EDITOR_LICENSE
-        context['valid_key_path'] = s3.get_base_key_path_url()
-        return context
-
-
 ##
 # Recipients Groups
 ##
