@@ -1236,18 +1236,16 @@ def create_recipient_group_url_clicks(request):
 def s3_upload_user_file(request):
     """
     Uploads a unique file to Amazon S3, using a key prefixed with the current
-    user's username.
+    year + month.
 
     Returns json containing uploaded file url ( {link: '...'} ) or error
     message ( {error: '...'} ).
-
-    Note: returned json must follow this format to play nicely with the Froala
-    image uploader.
     """
+    today = datetime.today()
     if request.method == 'POST':
         response_data = {}
         file = request.FILES['file']
-        file_prefix = request.user.username + '/'
+        file_prefix = str(today.year) + '/' + '{:02d}'.format(today.month) + '/'
         protocol = request.POST.get('protocol')
         extension_groupname = request.POST.get('extension_groupname')
         unique = request.POST.get('unique')
