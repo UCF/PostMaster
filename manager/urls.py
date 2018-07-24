@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^email/open/?$',                          instance_open,                                              name='manager-email-open'),
     url(r'^email/redirect/?$',                      redirect,                                                   name='manager-email-redirect'),
     url(r'^email/create/$',                         login_required(EmailCreateView.as_view()),                  name='manager-email-create'),
-    url(r'^email/design/$',                         login_required(EmailDesignView.as_view()),                  name='manager-email-design'),
     url(r'^email/(?P<pk>\d+)/delete/$',             login_required(EmailDeleteView.as_view()),                  name='manager-email-delete'),
     url(r'^email/(?P<pk>\d+)/update/$',             login_required(EmailUpdateView.as_view()),                  name='manager-email-update'),
     url(r'^email/(?P<pk>\d+)/verify-placeholders/$', login_required(EmailPlaceholderVerificationView.as_view()), name='manager-email-placeholder-verification'),
