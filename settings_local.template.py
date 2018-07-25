@@ -74,7 +74,8 @@ AMAZON_S3 = {
     'valid_extension_groups': {
         # Defines sets of valid filetypes by name
         'image': ['.png', '.jpg', '.jpeg', '.gif'],
-        'html': ['.html']
+        'html': ['.html'],
+        'plaintext': ['.txt']
     }
 }
 

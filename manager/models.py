@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 from itertools import chain
 import logging
 import smtplib
@@ -332,8 +333,8 @@ class Email(models.Model):
         'active': 'Whether the email is active or not. Inactive emails will not be sent',
         'title': 'Internal identifier of the email',
         'subject': 'Subject of the email',
-        'source_html_uri': 'Source URI of the email HTML',
-        'source_text_uri': 'Source URI of the email text',
+        'source_html_uri': 'Source URI of the email HTML. <a href="#" class="upload-modal-trigger btn btn-sm btn-link text-transform-none letter-spacing-0" data-id="id_source_html_uri" data-accept="text/html" data-toggle="modal" data-target="#upload-email-modal">Upload Email</a> <a href="" target="_blank" data-id="id_source_html_uri" class="btn btn-sm btn-link text-transform-none letter-spacing-0 view-email-trigger d-none">View Email HTML</a>',
+        'source_text_uri': 'Source URI of the email text. <a href="#" class="upload-modal-trigger btn btn-sm btn-link text-transform-none letter-spacing-0" data-id="id_source_text_uri" data-accept="text/plain" data-toggle="modal" data-target="#upload-email-modal">Upload Email</a> <a href="" target="_blank" data-id="id_source_text_uri" class="btn btn-sm btn-link text-transform-none letter-spacing-0 view-email-trigger d-none">View Email Text</a>',
         'start_date': 'Date that the email will first be sent.',
         'send_time': 'Time of day when the email will be sent. Times will be rounded to the nearest quarter hour.',
         'recurrence': 'If and how often the email will be resent.',
@@ -351,8 +352,8 @@ class Email(models.Model):
     creator = models.ForeignKey(User, related_name='created_email', null=True)
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
-    source_html_uri = models.URLField(help_text=_HELP_TEXT['source_html_uri'])
-    source_text_uri = models.URLField(null=True, blank=True, help_text=_HELP_TEXT['source_text_uri'])
+    source_html_uri = models.URLField(help_text=mark_safe(_HELP_TEXT['source_html_uri']))
+    source_text_uri = models.URLField(null=True, blank=True, help_text=mark_safe(_HELP_TEXT['source_text_uri']))
     start_date = models.DateField(help_text=_HELP_TEXT['start_date'])
     send_time = models.TimeField(help_text=_HELP_TEXT['send_time'])
     recurrence = models.SmallIntegerField(null=True, blank=True, default=Recurs.never, choices=Recurs.choices, help_text=_HELP_TEXT['recurrence'])

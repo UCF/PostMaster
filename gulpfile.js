@@ -107,8 +107,7 @@ function buildJS(src, dest) {
     .pipe(rename({
       extname: '.min.js'
     }))
-    .pipe(gulp.dest(dest))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest(dest));
 }
 
 // Concat and uglify main js files
@@ -174,7 +173,7 @@ gulp.task('watch', function() {
   gulp.watch(config.pyPath + '/**/*.py').on("change", browserSync.reload);
   gulp.watch(config.htmlPath + '/**/*.html').on("change", browserSync.reload);
   gulp.watch(config.src.scssPath + '/**/*.scss', ['css']);
-  gulp.watch([config.src.jsPath + '/*.js', '!' + config.src.jsPath + '/*.min.js'], ['js']);
+  gulp.watch([config.src.jsPath + '/**/*.js', '!' + config.src.jsPath + '/*.min.js'], ['js']).on("change", browserSync.reload);
 });
 
 //
