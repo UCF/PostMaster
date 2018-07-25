@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^email/open/?$',                          instance_open,                                              name='manager-email-open'),
     url(r'^email/redirect/?$',                      redirect,                                                   name='manager-email-redirect'),
     url(r'^email/create/$',                         login_required(EmailCreateView.as_view()),                  name='manager-email-create'),
-    url(r'^email/design/$',                         login_required(EmailDesignView.as_view()),                  name='manager-email-design'),
     url(r'^email/(?P<pk>\d+)/delete/$',             login_required(EmailDeleteView.as_view()),                  name='manager-email-delete'),
     url(r'^email/(?P<pk>\d+)/update/$',             login_required(EmailUpdateView.as_view()),                  name='manager-email-update'),
     url(r'^email/(?P<pk>\d+)/verify-placeholders/$', login_required(EmailPlaceholderVerificationView.as_view()), name='manager-email-placeholder-verification'),
@@ -55,8 +54,6 @@ urlpatterns = [
 
     # S3 User File Handling
     url(r'^files/upload/$', login_required(s3_upload_user_file), name='manager-file-upload'),
-    url(r'^files/get/$',    login_required(s3_get_user_files),   name='manager-files-get'),
-    url(r'^files/delete/$', login_required(s3_delete_user_file), name='manager-file-delete'),
 
     url(r'^$', login_required(OverviewListView.as_view()), name='manager-home'),
 ]
