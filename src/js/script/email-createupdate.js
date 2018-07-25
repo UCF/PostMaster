@@ -146,20 +146,22 @@
   }
 
   function init() {
-    $uploadModalTriggers = $('.upload-modal-trigger');
     $uploadModal = $('#upload-email-modal');
-    $uploadModalFileInput = $uploadModal.find('#upload-email-file-input');
-    $uploadModalError = $uploadModal.find('#upload-email-error');
-    $uploadModalSubmitBtn = $uploadModal.find('#upload-email-submit');
-    $uploadModalLoadingIcon = $uploadModal.find('#upload-email-loading-icon');
-    $viewEmailTriggers = $('.view-email-trigger');
-    $emailSelectInputs = $('#id_source_html_uri, #id_source_text_uri');
+    if ($uploadModal.length) {
+      $uploadModalFileInput = $uploadModal.find('#upload-email-file-input');
+      $uploadModalError = $uploadModal.find('#upload-email-error');
+      $uploadModalSubmitBtn = $uploadModal.find('#upload-email-submit');
+      $uploadModalLoadingIcon = $uploadModal.find('#upload-email-loading-icon');
+      $uploadModalTriggers = $('.upload-modal-trigger');
+      $viewEmailTriggers = $('.view-email-trigger');
+      $emailSelectInputs = $('#id_source_html_uri, #id_source_text_uri');
 
-    $uploadModalTriggers.on('click', setupUploadModal);
-    $uploadModalFileInput.on('change', toggleSubmitBtnState);
-    $uploadModalSubmitBtn.on('click', processUploadedEmailFile);
-    $emailSelectInputs.on('change blur', toggleEmailTrigger).blur();
-    $viewEmailTriggers.on('click', viewEmail);
+      $uploadModalTriggers.on('click', setupUploadModal);
+      $uploadModalFileInput.on('change', toggleSubmitBtnState);
+      $uploadModalSubmitBtn.on('click', processUploadedEmailFile);
+      $emailSelectInputs.on('change blur', toggleEmailTrigger).blur();
+      $viewEmailTriggers.on('click', viewEmail);
+    }
   }
 
   $(init);
