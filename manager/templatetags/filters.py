@@ -28,3 +28,10 @@ def is_checkboxselectmultiple(field):
 @register.filter
 def is_file(field):
     return isinstance(field.field.widget, forms.ClearableFileInput)
+
+@register.filter
+def can_unsubscribe(category, email_address):
+    if category.cannot_unsubscribe and category.applies_to_email(email_address):
+        return False
+
+    return True
