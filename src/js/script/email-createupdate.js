@@ -4,7 +4,9 @@
   var $uploadModalTriggers,
       $uploadModal,
       $uploadModalFileInput,
+      $uploadModalError,
       $uploadModalSubmitBtn,
+      $uploadModalLoadingIcon,
       $viewEmailTriggers,
       $emailSelectInputs;
 
@@ -26,6 +28,9 @@
 
     // Add the 'data-insert-field' attr to the submit btn for reference later
     $uploadModalSubmitBtn.attr('data-insert-field', formFieldID);
+
+    // Hide any existing error message
+    $uploadModalError.addClass('d-none');
   }
 
   //
@@ -59,6 +64,9 @@
   function processUploadedEmailFile() {
     var fileRaw = $uploadModalFileInput.prop('files')[0];
     if (!fileRaw || $uploadModalSubmitBtn.attr('disabled')) { return; }
+
+    // Show the upload btn's loading icon
+    $uploadModalLoadingIcon.removeClass('d-none');
 
     // Set up uploaded file data
     var ext = '';
@@ -103,9 +111,13 @@
         // Finally, close the modal
         $uploadModal.modal('hide');
       })
-      .fail(function (result) {
-        // TODO
-        console.log(result);
+      .fail(function() {
+        // Show our generic error message in the modal
+        $uploadModalError.removeClass('d-none');
+      })
+      .always(function() {
+        // Re-hide the upload btn's loading icon
+        $uploadModalLoadingIcon.addClass('d-none');
       });
   }
 
@@ -137,7 +149,9 @@
     $uploadModalTriggers = $('.upload-modal-trigger');
     $uploadModal = $('#upload-email-modal');
     $uploadModalFileInput = $uploadModal.find('#upload-email-file-input');
+    $uploadModalError = $uploadModal.find('#upload-email-error');
     $uploadModalSubmitBtn = $uploadModal.find('#upload-email-submit');
+    $uploadModalLoadingIcon = $uploadModal.find('#upload-email-loading-icon');
     $viewEmailTriggers = $('.view-email-trigger');
     $emailSelectInputs = $('#id_source_html_uri, #id_source_text_uri');
 
