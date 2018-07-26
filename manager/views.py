@@ -504,23 +504,6 @@ def instance_cancel(request, pk):
     return HttpResponse(json.dumps(retval), content_type='application/json')
 
 
-class EmailDesignView(TemplateView):
-    template_name = 'manager/email-design.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(EmailDesignView, self).get_context_data(**kwargs)
-        templates_path = 'email-templates/'
-        s3 = AmazonS3Helper()
-
-        project_url = settings.PROJECT_URL
-        project_url_agnostic = project_url.replace('http://', '//')
-        context['email_templates_url'] = staticfiles_storage.url(templates_path)
-        context['email_templates'] = os.listdir(staticfiles_storage.path(templates_path))
-        context['froala_license'] = settings.FROALA_EDITOR_LICENSE
-        context['valid_key_path'] = s3.get_base_key_path_url()
-        return context
-
-
 ##
 # Recipients Groups
 ##
@@ -1236,18 +1219,16 @@ def create_recipient_group_url_clicks(request):
 def s3_upload_user_file(request):
     """
     Uploads a unique file to Amazon S3, using a key prefixed with the current
-    user's username.
+    year + month.
 
     Returns json containing uploaded file url ( {link: '...'} ) or error
     message ( {error: '...'} ).
-
-    Note: returned json must follow this format to play nicely with the Froala
-    image uploader.
     """
+    today = datetime.today()
     if request.method == 'POST':
         response_data = {}
         file = request.FILES['file']
-        file_prefix = request.user.username + '/'
+        file_prefix = str(today.year) + '/' + '{:02d}'.format(today.month) + '/'
         protocol = request.POST.get('protocol')
         extension_groupname = request.POST.get('extension_groupname')
         unique = request.POST.get('unique')
@@ -1292,86 +1273,7 @@ def s3_upload_user_file(request):
 
         return HttpResponse(
             json.dumps(response_data),
-            mimetype='application/json'
-        )
-    else:
-        return HttpResponseForbidden()
-
-
-def s3_get_user_files(request):
-    """
-    Returns json array of a user's files' urls in S3 bucket.
-    """
-    if request.method == 'GET':
-        response_data = {}
-        protocol = request.GET.get('protocol')
-        file_prefix = request.user.username + '/'
-        extension_groupname = request.GET.get('extension_groupname')
-        s3 = AmazonS3Helper()
-
-        if protocol not in s3.valid_protocols:
-            protocol = 'http://'
-
-        try:
-            key_list = s3.get_file_list(file_prefix, extension_groupname)
-            url_list = []
-
-            for keyobj in key_list:
-                url = keyobj.generate_url(0, query_auth=False, force_http=True)
-
-                if url:
-                    if protocol != 'http://':
-                        url = url.replace('http://', protocol)
-
-                    url_list.append(url)
-
-            response_data = url_list
-        except AmazonS3Helper.KeylistFetchError, e:
-            response_data['error'] = 'Failed to retrieve user file list.'
-
-        return HttpResponse(
-            json.dumps(response_data),
-            mimetype='application/json'
-        )
-    else:
-        return HttpResponseForbidden()
-
-
-def s3_delete_user_file(request):
-    """
-    Deletes a file from Amazon S3 by its url.
-
-    Returns json containing success message ( {message: '...'} ) or error
-    message ( {error: '...'} ).
-
-    Note: returned json must follow this format to play nicely with the Froala
-    image uploader.
-    """
-    if request.method == 'POST':
-        response_data = {}
-        file_prefix = request.user.username + '/'
-        file_src = request.POST.get('src')  # url of file
-        s3 = AmazonS3Helper()
-
-        if file_src is None:
-            response_data['error'] = 'No file source set.'
-        else:
-            # Get the filename from file_src url
-            filename = os.path.basename(urlparse.urlsplit(file_src).path)
-
-            keyname = s3.base_key_path + file_prefix + filename
-
-            try:
-                keyobj = s3.delete_file(keyname)
-                response_data['message'] = 'File successfully deleted.'
-            except AmazonS3Helper.InvalidKeyError, e:
-                response_data['error'] = str(e)
-            except AmazonS3Helper.KeyDeleteError, e:
-                response_data['error'] = 'Failed to delete file.'
-
-        return HttpResponse(
-            json.dumps(response_data),
-            mimetype='application/json'
+            content_type='application/json'
         )
     else:
         return HttpResponseForbidden()

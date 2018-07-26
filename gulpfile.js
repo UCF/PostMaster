@@ -107,23 +107,12 @@ function buildJS(src, dest) {
     .pipe(rename({
       extname: '.min.js'
     }))
-    .pipe(gulp.dest(dest))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest(dest));
 }
 
 // Concat and uglify main js files
 gulp.task('js-build-global', function () {
   return buildJS(config.src.jsPath + '/script.js');
-});
-
-// Concat and uglify email editor js files
-gulp.task('js-build-email-designer-editor', function () {
-  return buildJS(config.src.jsPath + '/email-designer-editor.js');
-});
-
-// Concat and uglify email interface js files
-gulp.task('js-build-email-designer-script', function () {
-  return buildJS(config.src.jsPath + '/email-designer.js');
 });
 
 // Concat and uglify content lock script
@@ -133,7 +122,7 @@ gulp.task('js-build-lockcontent-script', function () {
 
 // All js-related tasks
 gulp.task('js', function () {
-  runSequence('js-lint', 'js-build-global', 'js-build-email-designer-script', 'js-build-email-designer-editor', 'js-build-lockcontent-script');
+  runSequence('js-lint', 'js-build-global', 'js-build-lockcontent-script');
 });
 
 
@@ -174,7 +163,7 @@ gulp.task('watch', function() {
   gulp.watch(config.pyPath + '/**/*.py').on("change", browserSync.reload);
   gulp.watch(config.htmlPath + '/**/*.html').on("change", browserSync.reload);
   gulp.watch(config.src.scssPath + '/**/*.scss', ['css']);
-  gulp.watch([config.src.jsPath + '/*.js', '!' + config.src.jsPath + '/*.min.js'], ['js']);
+  gulp.watch([config.src.jsPath + '/**/*.js', '!' + config.src.jsPath + '/*.min.js'], ['js']).on("change", browserSync.reload);
 });
 
 //
