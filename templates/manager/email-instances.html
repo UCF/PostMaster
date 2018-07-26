@@ -42,7 +42,11 @@
     <tbody>
       {% for instance in instances %}
       <tr data-link-url="{% url 'manager-email-instance' instance.pk %}">
-        <td>{{instance.subject}}</td>
+        {% if instance.subject %}
+          <td>{{instance.subject}}</td>
+        {% else %}
+          <td><span class="text-default">Not available</span></td>
+        {% endif %}
         <td>{{instance.start}}</td>
         <td>{{instance.end}}</td>
         <td>{{instance.in_progress}}</td>

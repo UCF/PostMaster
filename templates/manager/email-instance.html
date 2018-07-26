@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">{{instance.email.title}} Instance</h1>
-<p class="lead">Email subject: <strong>{{instance.subject}}</strong></p>
+<p class="lead">Email subject:
+  {% if instance.subject %}
+    <span class="font-weight-bold">{{instance.subject}}</span>
+  {% else %}
+    <span class="text-default">Not available</span>
+  {% endif %}
+</p>
 <p class="mb-1">Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</p>
   {% if instance.in_progress %}
     <div class="alert alert-info">
