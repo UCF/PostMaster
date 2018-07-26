@@ -898,7 +898,7 @@ class Instance(models.Model):
         Describes what happens when an email is actual sent.
     '''
     email = models.ForeignKey(Email, related_name='instances')
-    subject = models.TextField(null=True)
+    subject = models.TextField(null=True, max_length=998)
     sent_html = models.TextField()
     litmus_id = models.CharField(max_length=100, null=True, blank=True)
     requested_start = models.DateTimeField()

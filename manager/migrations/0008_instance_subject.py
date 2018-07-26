@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='instance',
             name='subject',
-            field=models.TextField(null=True),
+            field=models.TextField(max_length=998, null=True),
         ),
     ]
