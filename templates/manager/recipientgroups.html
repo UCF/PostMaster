@@ -4,7 +4,10 @@
 {% block page-body %}
   <div class="row">
     <div class="col-sm-12">
-      <h1 class="d-inline-block heading-underline h2 my-1">Recipient Groups</h1>
+      <h1 class="d-inline-block heading-underline h2 my-1">
+        {% if preview %}Preview{% else %}Live Send{% endif %}
+        Recipient Groups
+      </h1>
       <a href="{% url 'manager-recipientgroup-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
     </div>
     <div class="col-sm-12 mt-5">

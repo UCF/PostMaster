@@ -121,6 +121,11 @@ class RecipientGroup(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     archived = models.BooleanField(default=False)
+    preview = models.BooleanField(
+        default=False,
+        verbose_name='Is a Preview Group',
+        help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
+    )
 
     class Meta:
             ordering = ["name"]

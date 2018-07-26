@@ -64,7 +64,10 @@
                   Recipient Groups</a>
                 <div class="dropdown-menu" aria-labelledby="recipient-groups-dropdown">
                   <a class="dropdown-item" href="{% url 'manager-recipientgroups' %}">
-                    <span class="fas fa-list" aria-hidden="true"></span> All Recipient Groups
+                    <span class="fas fa-list" aria-hidden="true"></span> Live Send Recipient Groups
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-recipientgroups-previewgroups' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> Preview Recipient Groups
                   </a>
                   <a class="dropdown-item" href="{% url 'manager-recipientgroup-create' %}">
                     <span class="fas fa-plus" aria-hidden="true"></span> Add New

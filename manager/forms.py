@@ -68,7 +68,7 @@ class RecipientGroupUpdateForm(forms.ModelForm):
             'archived': 'Archive Group',
         }
         help_texts = {
-            'archived': 'Marking a Recipient Group as "Archived" will hide this group in generic lists of Recipient Groups.',
+            'archived': 'Marking this group as "Archived" will hide it in generic lists of recipient groups.',
         }
 
 
@@ -82,7 +82,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
                 self.fields['unsubscribed_categories'].initial = subscriptions
             else:
                 self.fields['unsubscribed_categories'].initial = SubscriptionCategory.objects.none()
-            
+
             self.fields['groups'].initial = self.instance.groups.all()
         self.fields['disable'].label = 'Email Undeliverable'
 
