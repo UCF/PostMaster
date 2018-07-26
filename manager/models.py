@@ -371,7 +371,7 @@ class Email(models.Model):
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails')
+    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True)
 
     class Meta:
             ordering = ["title"]
