@@ -20,6 +20,11 @@ class EmailCreateUpdateForm(forms.ModelForm):
         model = Email
         exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', 'creator',)
 
+    def __init__(self, *args, **kwargs):
+        super(EmailCreateUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['recipient_groups'].queryset = RecipientGroup.objects.filter(
+            archived=False, preview=False)
+
 
 class EmailInstantSendForm(forms.Form):
     subject = forms.CharField(label="Subject",
@@ -33,9 +38,9 @@ class EmailInstantSendForm(forms.Form):
     replace_delimiter = forms.CharField(label="Replace delimiter",
         help_text="Character(s) that replacement labels are wrapped in",
         initial="!@!")
-    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False),
+    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False, preview=True),
         label="Recipient groups",
-        help_text='Which group(s) of recipients this email will go to.')
+        help_text='Which preview recipient group(s) this email will go to.')
 
 
 class PreviewInstanceLockForm(forms.ModelForm):
