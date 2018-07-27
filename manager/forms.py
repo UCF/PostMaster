@@ -20,6 +20,11 @@ class EmailCreateUpdateForm(forms.ModelForm):
         model = Email
         exclude = ('unsubscriptions', 'preview_est_time', 'live_est_time', 'send_override', 'creator',)
 
+    def __init__(self, *args, **kwargs):
+        super(EmailCreateUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['recipient_groups'].queryset = RecipientGroup.objects.filter(
+            archived=False, preview=False)
+
 
 class EmailInstantSendForm(forms.Form):
     subject = forms.CharField(label="Subject",
@@ -33,9 +38,9 @@ class EmailInstantSendForm(forms.Form):
     replace_delimiter = forms.CharField(label="Replace delimiter",
         help_text="Character(s) that replacement labels are wrapped in",
         initial="!@!")
-    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False),
+    recipient_groups = forms.ModelMultipleChoiceField(queryset=RecipientGroup.objects.filter(archived=False, preview=True),
         label="Recipient groups",
-        help_text='Which group(s) of recipients this email will go to.')
+        help_text='Which preview recipient group(s) this email will go to.')
 
 
 class PreviewInstanceLockForm(forms.ModelForm):
@@ -68,7 +73,7 @@ class RecipientGroupUpdateForm(forms.ModelForm):
             'archived': 'Archive Group',
         }
         help_texts = {
-            'archived': 'Marking a Recipient Group as "Archived" will hide this group in generic lists of Recipient Groups.',
+            'archived': 'Marking this group as "Archived" will hide it in generic lists of recipient groups.',
         }
 
 
@@ -82,7 +87,7 @@ class RecipientCreateUpdateForm(forms.ModelForm):
                 self.fields['unsubscribed_categories'].initial = subscriptions
             else:
                 self.fields['unsubscribed_categories'].initial = SubscriptionCategory.objects.none()
-            
+
             self.fields['groups'].initial = self.instance.groups.all()
         self.fields['disable'].label = 'Email Undeliverable'
 
