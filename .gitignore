@@ -3,6 +3,7 @@
 *.pyc
 settings_local.py
 *.db
+db.sqlite3
 *.log
 
 # Bower
