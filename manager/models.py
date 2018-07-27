@@ -790,6 +790,7 @@ class Email(models.Model):
 
         instance = Instance.objects.create(
             email           = self,
+            subject         = self.subject,
             sent_html       = html,
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
@@ -902,6 +903,7 @@ class Instance(models.Model):
         Describes what happens when an email is actual sent.
     '''
     email = models.ForeignKey(Email, related_name='instances')
+    subject = models.TextField(null=True, max_length=998)
     sent_html = models.TextField()
     litmus_id = models.CharField(max_length=100, null=True, blank=True)
     requested_start = models.DateTimeField()

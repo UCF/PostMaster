@@ -30,6 +30,7 @@
   <table class="table table-striped table-hover">
     <thead>
       <tr>
+        <th scope="col">Subject</th>
         <th scope="col">Start</th>
         <th scope="col">End</th>
         <th scope="col">In Progress</th>
@@ -41,6 +42,11 @@
     <tbody>
       {% for instance in instances %}
       <tr data-link-url="{% url 'manager-email-instance' instance.pk %}">
+        {% if instance.subject %}
+          <td>{{instance.subject}}</td>
+        {% else %}
+          <td><span class="text-default">Not available</span></td>
+        {% endif %}
         <td>{{instance.start}}</td>
         <td>{{instance.end}}</td>
         <td>{{instance.in_progress}}</td>
