@@ -50,7 +50,7 @@ class LitmusApi(object):
         # Get all the clients and add them to the request
         clients_xml = self.get_clients()
         element_type = type(Element(None))
-        if clients_xml and isinstance(clients_xml, element_type):
+        if clients_xml is not None and isinstance(clients_xml, element_type):
             xml = '<?xml version="1.0" encoding="UTF-8"?>' + \
                   '<test_set><applications type="array">'
 
@@ -87,7 +87,7 @@ class LitmusApi(object):
         """
         test_id = None
         element_type = type(Element(None))
-        if xml and isinstance(xml, element_type):
+        if xml is not None and isinstance(xml, element_type):
             test_id_xml = xml.find('./id')
             if test_id_xml is not None:
                 test_id = test_id_xml.text
@@ -102,7 +102,7 @@ class LitmusApi(object):
         """
         email = None
         element_type = type(Element(None))
-        if xml and isinstance(xml, element_type):
+        if xml is not None and isinstance(xml, element_type):
             email_xml = xml.findall('./test_set_versions/test_set_version/url_or_guid')
             if email_xml is not None:
                 email = email_xml[0].text
