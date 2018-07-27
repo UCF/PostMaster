@@ -49,7 +49,7 @@ Installation and Setup
 - Copy `config.template.json`, make any desired changes, and save as `config.json`
 - Make sure the default artifacts are created: `gulp default`
 - Copy `settings_local.template.py`, make appropriate changes, and save as `settings_local.py`
-- Create the database define in settings_local.py: `python manage.py migrate`
+- Create the database defined in settings_local.py: `python manage.py migrate`
 - Run the local server to debug and test: `python manage.py runserver`
 
 Testing
