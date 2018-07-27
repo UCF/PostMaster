@@ -35,39 +35,22 @@ Configuration
 	- after_hours_contact_info: displays next to the after hours section on the home page when logged in
 - When developing locally, set `LOCAL_DEBUG` to `True` to ensure static files are properly served up.
 
-Setup Python Environment
+Installation and Setup
 -------
-- virtualenv postmaster
-- cd postmaster/
-- git clone git@github.com:UCF/PostMaster.git src
-- source bin/activate
-- cd src/
-- pip install -r requirements.txt
-- Due to a bug with this particular version of virtualenv you may need to reactivate
-	- deactivate
-	- source ../bin/activate
-- create database defined in settings_local.py
-- python manage.py syncdb
-- npm install
-- python manage.py runserver - to run webserver
-
-2.0.0 Upgrade
--------
-- Ensure virtual environment is using python 2.7+
-- Pull down 2.0.0 code
-- `pip install -r requirements` to upgrade django.
-- It may be necessary to reactivate the virtual environment: `source ../bin/activate`
-- Compare `settings_local.py` with `settings_local.template.py` and make appropriate change.
-- Fake the initial migrations: `python manage.py migrate --fake-initial`
-- Migrate any other changes in 2.0.0: `python manage.py migrate`
-
-Development
--------
-- Make sure an up to date version of node is installed
-- Pull down the repo and `cd` into it.  Run `npm install` to install node packages in package.json, including gulp and bower.  Node packages will save to a `node_modules` directory in the root of the repo.
-- Install all front-end components and compile static assets by running `gulp default`.  During development, run `gulp watch` to detect static file changes automatically and run minification and compilation commands on the fly.
-- Make sure up-to-date concatenated/minified files are pushed up to the repo when making changes to static files.
-- Create a config.json from from config.template.json and update based on your preferences.
+- Install virtual environment:`pip install virtualenv`
+- Create virtual environment for your project: `virtualenv postmaster` and move to the directory: `cd postmaster/`
+- Clone repository into src directory: `git clone git@github.com:UCF/PostMaster.git src` and move to the directory `cd src/`
+- Activate virtual environment: `source ../bin/activate`
+- Install requirements: `pip install -r requirements.txt`
+- Due to a bug with this particular version of virtualenv you may need to reactivate:
+	- `deactivate`
+	- `source ../bin/activate`
+- Install the required npm packages: `npm install`
+- Copy `config.template.json`, make any desired changes, and save as `config.json`
+- Make sure the default artifacts are created: `gulp default`
+- Copy `settings_local.template.py`, make appropriate changes, and save as `settings_local.py`
+- Create the database defined in settings_local.py: `python manage.py migrate`
+- Run the local server to debug and test: `python manage.py runserver`
 
 Testing
 -------
@@ -78,6 +61,14 @@ Testing
 
 Upgrading
 ---------
+- To **v2.0.0**
+	- Ensure virtual environment is using python 2.7+
+	- Pull down 2.0.0 code
+	- `pip install -r requirements` to upgrade django.
+	- It may be necessary to reactivate the virtual environment: `source ../bin/activate`
+	- Compare `settings_local.py` with `settings_local.template.py` and make appropriate change.
+	- Fake the initial migrations: `python manage.py migrate --fake-initial`
+	- Migrate any other changes in 2.0.0: `python manage.py migrate`
 - To v1.0.27
 	- Modify `manager_previewinstance.requested_start` to have the following defintion: `DATETIME NOT NULL`
 	- Modify `manager_instance.requested_start` to have the following defintion: `DATETIME NOT NULL`
