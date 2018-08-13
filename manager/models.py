@@ -1070,3 +1070,8 @@ class InstanceOpen(models.Model):
 class Setting(models.Model):
     name = models.CharField(max_length=80)
     value = models.CharField(max_length=200)
+
+# Signals
+from manager.signals import *
+
+pre_save.connect(migrate_unsubscriptions, sender=Email)
