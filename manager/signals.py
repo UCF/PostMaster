@@ -8,5 +8,5 @@ def migrate_unsubscriptions(sender, instance, raw, using, **kwargs):
     if instance and instance.id:
         old_instance = Email.objects.get(pk=instance.pk)
 
-        if old_instance.subscription_category is None:
+        if old_instance.subscription_category is None and instance.unsubscriptions is not None:
             instance.subscription_category.unsubscriptions.add(*instance.unsubscriptions.all())
