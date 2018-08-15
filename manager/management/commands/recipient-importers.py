@@ -13,7 +13,7 @@ class Command(BaseCommand):
 		Runs a specified recipient importer.
 	'''
 
-	# Recipient importers that are available.a
+	# Recipient importers that are available.
 	importers = (
 		'GMUCFImporter',
 		'AllStudentsImporter',
