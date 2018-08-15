@@ -95,7 +95,7 @@ class GMUCFImporter(Importer):
 		log.info('RDS Wharehouse index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.SMCA_GMUCF ADD INDEX `email` (`email`)' % self.rds_wharehouse_db_name)
-			transaction.commit_unless_managed()
+			transaction.commit()
 
 		# Make sure there is an index on the manager_recipient.email_address column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.manager_recipient WHERE Key_name=\'email_address\'' % self.postmaster_db_name)
@@ -103,7 +103,7 @@ class GMUCFImporter(Importer):
 		log.info('Postmaster index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.manager_recipient ADD INDEX `email_address` (`email_address`)' % self.postmaster_db_name)
-			transaction.commit_unless_managed()
+			transaction.commit()
 
 		# Make sure there is a significant number of emails in the RDS warehouse before proceeding
 		self.postmaster_cursor.execute('SELECT COUNT(email) FROM %s.SMCA_GMUCF' % self.rds_wharehouse_db_name)
@@ -133,7 +133,7 @@ class GMUCFImporter(Importer):
 				self.rds_wharehouse_db_name,
 				self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			DELETE FROM
@@ -157,7 +157,7 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			INSERT IGNORE INTO
@@ -177,7 +177,7 @@ class GMUCFImporter(Importer):
 			self.rds_wharehouse_db_name,
 			self.postmaster_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 
 		self.postmaster_cursor.execute('''
@@ -201,7 +201,7 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			INSERT INTO
@@ -232,7 +232,7 @@ class GMUCFImporter(Importer):
 			self.postmaster_db_name,
 			self.gmucf_recipient_group.id
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 class AllStudentsImporter(Importer):
 	'''
@@ -267,7 +267,7 @@ class AllStudentsImporter(Importer):
 		log.info('RDS Wharehouse index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.ENRL_STDNT_LIST ADD INDEX `email` (`email`)' % self.rds_wharehouse_db_name)
-			transaction.commit_unless_managed()
+			transaction.commit()
 
 		# Make sure there is an index on the manager_recipient.email_address column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.manager_recipient WHERE Key_name=\'email_address\'' % self.postmaster_db_name)
@@ -275,7 +275,7 @@ class AllStudentsImporter(Importer):
 		log.info('Postmaster index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.manager_recipient ADD INDEX `email_address` (`email_address`)' % self.postmaster_db_name)
-			transaction.commit_unless_managed()
+			transaction.commit()
 
 		# Make sure there is a significant number of emails in the RDS warehouse before proceeding
 		self.postmaster_cursor.execute('SELECT COUNT(email) FROM %s.ENRL_STDNT_LIST' % self.rds_wharehouse_db_name)
@@ -306,7 +306,7 @@ class AllStudentsImporter(Importer):
 				self.rds_wharehouse_db_name,
 				self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			DELETE FROM
@@ -330,7 +330,7 @@ class AllStudentsImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			INSERT IGNORE INTO
@@ -350,7 +350,7 @@ class AllStudentsImporter(Importer):
 			self.rds_wharehouse_db_name,
 			self.postmaster_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 
 		self.postmaster_cursor.execute('''
@@ -374,7 +374,7 @@ class AllStudentsImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			INSERT INTO
@@ -405,7 +405,7 @@ class AllStudentsImporter(Importer):
 			self.postmaster_db_name,
 			self.all_students_recipient_group_name.id
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 class AllStaffImporter(Importer):
 	'''
@@ -440,7 +440,7 @@ class AllStaffImporter(Importer):
 		log.info('RDS Wharehouse index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.ACTV_EMPL_LIST ADD INDEX `email` (`email`)' % self.rds_wharehouse_db_name)
-			transaction.commit_unless_managed()
+			transaction.commit()
 
 		# Make sure there is an index on the manager_recipient.email_address column
 		self.postmaster_cursor.execute('SHOW INDEX FROM %s.manager_recipient WHERE Key_name=\'email_address\'' % self.postmaster_db_name)
@@ -448,7 +448,7 @@ class AllStaffImporter(Importer):
 		log.info('Postmaster index result count: %d' % len(results))
 		if len(results) == 0:
 			self.postmaster_cursor.execute('ALTER TABLE %s.manager_recipient ADD INDEX `email_address` (`email_address`)' % self.postmaster_db_name)
-			transaction.commit_unless_managed()
+			transaction.commit()
 
 		# Make sure there is a significant number of emails in the RDS warehouse before proceeding
 		self.postmaster_cursor.execute('SELECT COUNT(email) FROM %s.ACTV_EMPL_LIST' % self.rds_wharehouse_db_name)
@@ -479,7 +479,7 @@ class AllStaffImporter(Importer):
 				self.rds_wharehouse_db_name,
 				self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			DELETE FROM
@@ -503,7 +503,7 @@ class AllStaffImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			INSERT IGNORE INTO
@@ -523,7 +523,7 @@ class AllStaffImporter(Importer):
 			self.rds_wharehouse_db_name,
 			self.postmaster_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 
 		self.postmaster_cursor.execute('''
@@ -547,7 +547,7 @@ class AllStaffImporter(Importer):
 			self.postmaster_db_name,
 			self.rds_wharehouse_db_name
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
 
 		self.postmaster_cursor.execute('''
 			INSERT INTO
@@ -578,4 +578,4 @@ class AllStaffImporter(Importer):
 			self.postmaster_db_name,
 			self.all_staff_recipient_group_name.id
 		))
-		transaction.commit_unless_managed()
+		transaction.commit()
