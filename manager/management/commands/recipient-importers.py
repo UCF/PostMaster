@@ -13,33 +13,37 @@ class Command(BaseCommand):
 		Runs a specified recipient importer.
 	'''
 
-	args = '<importer>'
-	help = 'Run a specific recipient importer.'
-
-	# Recipient importers that are available.
+	# Recipient importers that are available.a
 	importers = (
 		'GMUCFImporter',
 		'AllStudentsImporter',
 		'AllStaffImporter'
 	)
 
+	def add_arguments(self, parser):
+		parser.add_argument(
+			'importer',
+			type=str,
+			help="The importer to run"
+		)
+
 
 	def handle(self, *args, **kwargs):
-		if len(args) != 1 or args[0] not in self.importers:
-			print 'You must specify an importer to run. Example command:'
-			print 'python manage.py recipient-importer <importer-name>'
-			print 'Available importers are:'
-			for importer in self.importers:
-				print importer
-		else:
-			cls  = eval(args[0])
+		self.importer = kwargs['importer']
+
+		if self.importer:
+			cls = eval(self.importer)
 			inst = cls()
 			inst.setup()
 			inst.do_import()
+		else:
+			print 'You must specify an importer to run. Example command:'
+			print 'python manage.py recipient-importer <importer-name>'
+			print 'Available importers are:'
 
 class Importer(object):
 	'''
-		Base importer class. Any functionality that should be 
+		Base importer class. Any functionality that should be
 		shared between all importers should be implemented
 		or stubbed here.
 	'''
@@ -108,7 +112,7 @@ class GMUCFImporter(Importer):
 		if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
 			log.error('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
 			raise self.ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
-			
+
 	def do_import(self):
 		'''
 			1. Remove any recipients from the Good Morning UCF group who are no longer
@@ -122,7 +126,7 @@ class GMUCFImporter(Importer):
 		self.postmaster_cursor.execute('''
 			UPDATE
 				%s.SMCA_GMUCF
-			SET 
+			SET
 				%s.SMCA_GMUCF.email = LOWER(%s.SMCA_GMUCF.email)
 			''' % (
 				self.rds_wharehouse_db_name,
@@ -130,7 +134,7 @@ class GMUCFImporter(Importer):
 				self.rds_wharehouse_db_name
 		))
 		transaction.commit_unless_managed()
-		
+
 		self.postmaster_cursor.execute('''
 			DELETE FROM
 				%s.manager_recipientgroup_recipients
@@ -141,7 +145,7 @@ class GMUCFImporter(Importer):
 						recipient.id
 					FROM
 						%s.manager_recipient recipient
-					LEFT JOIN 
+					LEFT JOIN
 						%s.SMCA_GMUCF ikm
 					ON
 						recipient.email_address = ikm.email
@@ -177,10 +181,10 @@ class GMUCFImporter(Importer):
 
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO 
+			INSERT INTO
 				%s.manager_recipientattribute(recipient_id, name, value)
 			(
-				SELECT 
+				SELECT
 					recipient.id AS recipient_id,
 					'Preferred Name' AS name,
 					gmucf.first_name AS value
@@ -200,7 +204,7 @@ class GMUCFImporter(Importer):
 		transaction.commit_unless_managed()
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO 
+			INSERT INTO
 				%s.manager_recipientgroup_recipients(recipientgroup_id, recipient_id)
 			(
 				SELECT DISTINCT
@@ -283,19 +287,19 @@ class AllStudentsImporter(Importer):
 
 	def do_import(self):
 		'''
-			1. Remove any recipients from the All Students - Updated Daily IKM Data 
+			1. Remove any recipients from the All Students - Updated Daily IKM Data
 				group who are no longer in the RDS wharehouse data.
 			2. Create any recipients who are in the the RDS wharehouse data but not
 				in the recipients table.
 			3. Update any Recipient attributes
-			4. Add any newly created recipients to the All Students - Updated Daily 
+			4. Add any newly created recipients to the All Students - Updated Daily
 				IKM Data group
 		'''
 
 		self.postmaster_cursor.execute('''
 			UPDATE
 				%s.ENRL_STDNT_LIST
-			SET 
+			SET
 				%s.ENRL_STDNT_LIST.email = LOWER(%s.ENRL_STDNT_LIST.email)
 			''' % (
 				self.rds_wharehouse_db_name,
@@ -303,7 +307,7 @@ class AllStudentsImporter(Importer):
 				self.rds_wharehouse_db_name
 		))
 		transaction.commit_unless_managed()
-		
+
 		self.postmaster_cursor.execute('''
 			DELETE FROM
 				%s.manager_recipientgroup_recipients
@@ -314,7 +318,7 @@ class AllStudentsImporter(Importer):
 						recipient.id
 					FROM
 						%s.manager_recipient recipient
-					LEFT JOIN 
+					LEFT JOIN
 						%s.ENRL_STDNT_LIST ikm
 					ON
 						recipient.email_address = ikm.email
@@ -350,10 +354,10 @@ class AllStudentsImporter(Importer):
 
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO 
+			INSERT INTO
 				%s.manager_recipientattribute(recipient_id, name, value)
 			(
-				SELECT 
+				SELECT
 					recipient.id AS recipient_id,
 					'Preferred Name' AS name,
 					enrl_stdnt.first_name AS value
@@ -373,7 +377,7 @@ class AllStudentsImporter(Importer):
 		transaction.commit_unless_managed()
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO 
+			INSERT INTO
 				%s.manager_recipientgroup_recipients(recipientgroup_id, recipient_id)
 			(
 				SELECT DISTINCT
@@ -456,19 +460,19 @@ class AllStaffImporter(Importer):
 
 	def do_import(self):
 		'''
-			1. Remove any recipients from the All Faculty-Staff - Updated Daily IKM Data 
+			1. Remove any recipients from the All Faculty-Staff - Updated Daily IKM Data
 				group who are no longer in the RDS wharehouse data.
 			2. Create any recipients who are in the the RDS wharehouse data but not
 				in the recipients table.
 			3. Update any Recipient attributes
-			4. Add any newly created recipients to the All Faculty-Staff - Updated Daily 
+			4. Add any newly created recipients to the All Faculty-Staff - Updated Daily
 				IKM Data group
 		'''
 
 		self.postmaster_cursor.execute('''
 			UPDATE
 				%s.ACTV_EMPL_LIST
-			SET 
+			SET
 				%s.ACTV_EMPL_LIST.email = LOWER(%s.ACTV_EMPL_LIST.email)
 			''' % (
 				self.rds_wharehouse_db_name,
@@ -476,7 +480,7 @@ class AllStaffImporter(Importer):
 				self.rds_wharehouse_db_name
 		))
 		transaction.commit_unless_managed()
-		
+
 		self.postmaster_cursor.execute('''
 			DELETE FROM
 				%s.manager_recipientgroup_recipients
@@ -487,7 +491,7 @@ class AllStaffImporter(Importer):
 						recipient.id
 					FROM
 						%s.manager_recipient recipient
-					LEFT JOIN 
+					LEFT JOIN
 						%s.ACTV_EMPL_LIST ikm
 					ON
 						recipient.email_address = ikm.email
@@ -523,10 +527,10 @@ class AllStaffImporter(Importer):
 
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO 
+			INSERT INTO
 				%s.manager_recipientattribute(recipient_id, name, value)
 			(
-				SELECT 
+				SELECT
 					recipient.id AS recipient_id,
 					'Preferred Name' AS name,
 					allempl.first_name AS value
@@ -546,7 +550,7 @@ class AllStaffImporter(Importer):
 		transaction.commit_unless_managed()
 
 		self.postmaster_cursor.execute('''
-			INSERT INTO 
+			INSERT INTO
 				%s.manager_recipientgroup_recipients(recipientgroup_id, recipient_id)
 			(
 				SELECT DISTINCT
