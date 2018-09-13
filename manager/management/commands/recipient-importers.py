@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandErrormake_option
+from django.core.management.base import BaseCommand, CommandError
 from manager.models              import Recipient, RecipientGroup
 from django.conf                 import settings
 from django.db                   import connections, transaction
