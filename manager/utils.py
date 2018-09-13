@@ -145,7 +145,7 @@ class CSVImport:
 
                             try:
                                 attribute_first_name.save()
-                            except Exeception, e:
+                            except Exception, e:
                                 print 'Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))
 
                         if last_name is not None:
