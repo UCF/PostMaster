@@ -4,6 +4,10 @@
 
 .send-progress {
   margin: 10px 0 30px;
+
+  .progress-bar {
+    transition: width ease .5s;
+  }
 }
 
 

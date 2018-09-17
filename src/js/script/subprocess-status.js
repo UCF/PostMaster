@@ -7,74 +7,66 @@
     $progressBar,
     $badge,
     $completed,
-    error = false;
+    $error;
 
   function getProgress() {
-    if (error) {
+    $.ajax({
+      url: JSON_URL + id
+    }).done(function (data) {
+      var percentage = Math.round(data.current_unit / data.total_units * 100);
+      if (typeof percentage === 'number') {
+        percentage = percentage + '%';
+      } else {
+        percentage = '0%';
+      }
+
+      $progressBar
+        .css('width', percentage)
+        .text(percentage);
+      $completed
+        .text(data.current_unit + ' of ' + data.total_units);
+
+      if (data.status === 'Completed') {
+        updateStatus(
+          'info',
+          'success',
+          data.status,
+          ''
+        );
+      }
+
+      if (data.status === 'Error') {
+        updateStatus(
+          'info',
+          'danger',
+          'Error',
+          'Error: ' + data.error
+        );
+      }
+    }).fail(function () {
       clearInterval(intervalId);
       $progressBar
         .parents('.alert')
-        .removeClass('alert-info')
-        .addClass('alert-danger');
-      $progressBar
-        .parent()
-        .replaceWith('<strong>Error: The subprocess has failed.');
-      $badge
-        .removeClass('badge-info')
-        .addClass('badge-error')
-        .text('Error');
-    } else {
-      $.ajax({
-        url: JSON_URL + id
-      }).done(function (data) {
-        if (data.status === 'Completed') {
-          clearInterval(intervalId);
-          $progressBar
-            .parents('.alert')
-            .removeClass('alert-info')
-            .addClass('alert-success');
-          $badge
-            .removeClass('badge-info')
-            .addClass('badge-success')
-            .text('Completed');
+        .text('Error retrieving subprocess status data.');
+    });
+  }
 
-            return;
-        }
+  function updateStatus(themeBefore, themeAfter, badgeText, message) {
+    clearInterval(intervalId);
 
-        if (data.status === 'Error') {
-          clearInterval(intervalId);
-          $progressBar
-            .parents('.alert')
-            .removeClass('alert-info')
-            .addClass('alert-danger');
-          $progressBar
-            .parent()
-            .replaceWith('<p>Error: ' + data.error + '</p>');
-          $badge
-            .removeClass('badge-info')
-            .addClass('badge-danger')
-            .text('Error');
-        }
+    // Update progress bar styles
+    $progressBar
+      .parents('.alert')
+      .removeClass('alert-' + themeBefore)
+      .addClass('alert-' + themeAfter);
 
-        var percentage = Math.round(data.current_unit / data.total_units * 100);
-        if (typeof percentage === 'number') {
-          percentage = percentage + '%';
-        } else {
-          percentage = '0%';
-        }
+    $error
+      .text(message);
 
-        $progressBar
-          .css('width', percentage)
-          .text(percentage);
-        $completed
-          .text(data.current_unit + ' of ' + data.total_units);
-      }).fail(function () {
-        clearInterval(intervalId);
-        $progressBar
-          .parents('.alert')
-          .text('Error retrieving subprocess status data.');
-      });
-    }
+    $badge
+      .removeClass('badge-' + themeBefore)
+      .addClass('badge-' + themeAfter)
+      .text(badgeText);
   }
 
   function init() {
@@ -85,6 +77,7 @@
     $progressBar = $('.progress-bar');
     $completed = $('.completed');
     $badge = $('.badge');
+    $error = $('.error-text');
     id = POSTMASTER_SUBPROCESS.id;
     if ($progressBar.length) {
       intervalId = setInterval(getProgress, 2000);

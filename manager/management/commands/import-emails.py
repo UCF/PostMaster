@@ -48,8 +48,8 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '--track-progress',
-            dest='track_progress',
+            '--subprocess',
+            dest='subprocess',
             type=int,
             help='The primary key of the Subprocess to track. Do not use when calling this from a terminal.',
             default=None
@@ -60,14 +60,11 @@ class Command(BaseCommand):
         group_name = options['group_name']
         columns = list(col.strip() for col in options['columns'].split(','))
         ignore_first_row = options['ignore_first_row']
+        subprocess = options['subprocess']
         remove_file = options['remove_file']
-        track_progress = options['track_progress']
 
-        importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, remove_file, track_progress)
+        importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess)
         try:
             importer.import_emails()
         except Exception, e:
             print "Error importing recipients: %s" % str(e)
-
-        if importer.remove_file:
-            importer.delete_file(filename)

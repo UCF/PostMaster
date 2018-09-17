@@ -5,6 +5,7 @@ from boto.s3.key import Key
 import csv
 from datetime import datetime
 import logging
+import math
 import os
 import re
 import smtplib
@@ -37,10 +38,10 @@ class CSVImport:
     recipient_group_name = ''
     skip_first_row = False
     column_order = 'email,preferred_name'
-    remove_file = False
-    track_progress = None
+    subprocess = None
+    update_factor = 1
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, remove_file, track_progress):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess):
         if csv_file:
             self.csv_file = csv_file
         else:
@@ -59,8 +60,7 @@ class CSVImport:
         if column_order:
             self.column_order = column_order
 
-        self.remove_file = remove_file
-        self.track_progress = track_progress
+        self.subprocess = subprocess
 
     def import_emails(self):
 
@@ -78,10 +78,15 @@ class CSVImport:
             group = RecipientGroup(name=self.recipient_group_name)
             group.save()
 
-        if self.track_progress:
-            self.tracker = SubprocessStatus.objects.get(pk=self.track_progress)
+        if self.subprocess:
+            self.tracker = SubprocessStatus.objects.get(pk=self.subprocess)
             self.tracker.total_units = self.get_line_count()
             self.tracker.save()
+
+            # Update the update_factor to prevent a save every time it loops through
+            # By default we wait until 1% of the file has been processed before
+            # writing to the database.
+            self.update_factor = math.ceil( self.tracker.total_units * .01 )
 
         # Make sure the file is back at the beginning
         self.csv_file.seek(0)
@@ -124,10 +129,7 @@ class CSVImport:
                 except IndexError:
                     print 'Malformed row at line %d' % row_num
                     self.revert()
-                    if self.track_progress:
-                        self.tracker.status = 'Error'
-                        self.tracker.error = 'There is a malformed row at line %d' % row_num
-                        self.tracker.save()
+                    self.update_status("Error", "There is a malformed row at line %d" % row_num, row_num)
                     raise Exception('There is a malformed row at line %d' % row_num)
                 else:
                     if email_address == '':
@@ -207,12 +209,21 @@ class CSVImport:
                             except Exception, e:
                                 print 'Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
             row_num += 1
-            if self.track_progress:
-                self.tracker.current_unit = row_num
-                self.tracker.save()
+            # Increment
+            self.update_status("In Progress", "", row_num)
 
-        if self.track_progress:
-            self.tracker.status = 'Completed'
+        self.update_status("Completed", "", row_num)
+
+        if self.subprocess:
+            self.delete_file(self.csv_file.name)
+
+    def update_status(self, status, error, current_unit):
+        if (self.subprocess and
+            (current_unit % self.update_factor == 0
+            or current_unit == self.tracker.total_units)):
+            self.tracker.status = status
+            self.tracker.error = error
+            self.tracker.current_unit = current_unit
             self.tracker.save()
 
     def delete_file(self, filename):
