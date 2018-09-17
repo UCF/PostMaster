@@ -10,6 +10,8 @@ from util import calc_url_mac
 import urllib
 import urlparse
 import json
+import subprocess
+import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -57,6 +59,7 @@ from manager.models import RecipientAttribute
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import Setting
+from manager.models import SubprocessStatus
 from manager.models import SubscriptionCategory
 from manager.models import URL
 from manager.models import URLClick
@@ -1085,7 +1088,8 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
                 existing_group_name = form.cleaned_data['existing_group_name'].name
 
             new_group_name = form.cleaned_data['new_group_name']
-            column_order = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
+            columns = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
+            column_order = ','.join(columns)
             skip_first_row = form.cleaned_data['skip_first_row']
             csv_file = form.cleaned_data['csv_file']
 
@@ -1095,19 +1099,45 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
             else:
                 group = new_group_name
 
-            try:
-                importer = CSVImport(csv_file, group, skip_first_row, column_order)
-                importer.import_emails()
-            except Exception, e:
-                form._errors['__all__'] = ErrorList([str(e)])
-                return super(RecipientCSVImportView, self).form_invalid(form)
+            filename = settings.UPLOAD_DIR + "/" +  csv_file.name
 
-            messages.success(self.request, 'Emails successfully imported.')
+            with open(filename, 'wb+') as dest:
+                for chunk in csv_file.chunks():
+                    dest.write(chunk)
+
+            tracker = SubprocessStatus.objects.create(
+                name="Importing {0} into \"{1}\"...".format(csv_file.name, group),
+                current_unit=1,
+                total_units=1,
+                unit_name='recipients'
+            )
+
+            self.tracker_pk = tracker.pk
+
+            command = [
+                sys.executable,
+                'manage.py',
+                'import-emails',
+                filename,
+                '--group-name={0}'.format(group),
+                '--ignore-first-row={0}'.format(skip_first_row),
+                '--column-order={0}'.format(column_order),
+                '--remove-file=True',
+                '--track-progress={0}'.format(self.tracker_pk)
+            ]
+
+            subprocess.Popen(command, close_fds=True)
+
+            # messages.success(self.request, 'Emails successfully imported.')
             return super(RecipientCSVImportView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('manager-recipientgroups')
+        return reverse('subprocess-status-detail-view', kwargs={ 'pk': self.tracker_pk })
 
+
+class SubprocessStatusDetailView(DetailView):
+    model = SubprocessStatus
+    template_name = 'manager/subprocess-status.html'
 
 def instance_json_feed(request):
     retval = {}
@@ -1133,6 +1163,25 @@ def instance_json_feed(request):
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
 
+def subprocess_status_json_feed(request):
+    retval = {}
+
+    if request.GET.get('pk'):
+        pk = request.GET.get('pk')
+
+        try:
+            sp = SubprocessStatus.objects.get(pk=pk)
+
+            retval['current_unit'] = sp.current_unit
+            retval['total_units'] = sp.total_units
+            retval['unit_name'] = sp.unit_name
+            retval['status'] = sp.status
+            retval['error'] = sp.error
+        except SubprocessStatus.DoesNotExist:
+            retval['error'] = 'Error getting Subprocess Status'
+            pass
+
+    return HttpResponse(json.dumps(retval), content_type='application/json')
 
 def recipient_json_feed(request):
     search_term = ''

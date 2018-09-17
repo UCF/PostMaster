@@ -22,6 +22,7 @@ from manager.models import Instance
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
+from manager.models import SubprocessStatus
 
 
 log = logging.getLogger(__name__)
@@ -36,8 +37,10 @@ class CSVImport:
     recipient_group_name = ''
     skip_first_row = False
     column_order = 'email,preferred_name'
+    remove_file = False
+    track_progress = None
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, remove_file, track_progress):
         if csv_file:
             self.csv_file = csv_file
         else:
@@ -56,6 +59,9 @@ class CSVImport:
         if column_order:
             self.column_order = column_order
 
+        self.remove_file = remove_file
+        self.track_progress = track_progress
+
     def import_emails(self):
 
         columns = self.column_order
@@ -71,6 +77,14 @@ class CSVImport:
             print 'Recipient group does not exist. Creating...'
             group = RecipientGroup(name=self.recipient_group_name)
             group.save()
+
+        if self.track_progress:
+            self.tracker = SubprocessStatus.objects.get(pk=self.track_progress)
+            self.tracker.total_units = self.get_line_count()
+            self.tracker.save()
+
+        # Make sure the file is back at the beginning
+        self.csv_file.seek(0)
 
         csv_reader = csv.reader(self.csv_file)
         email_adress_index = columns.index('email')
@@ -110,6 +124,10 @@ class CSVImport:
                 except IndexError:
                     print 'Malformed row at line %d' % row_num
                     self.revert()
+                    if self.track_progress:
+                        self.tracker.status = 'Error'
+                        self.tracker.error = 'There is a malformed row at line %d' % row_num
+                        self.tracker.save()
                     raise Exception('There is a malformed row at line %d' % row_num)
                 else:
                     if email_address == '':
@@ -189,6 +207,19 @@ class CSVImport:
                             except Exception, e:
                                 print 'Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
             row_num += 1
+            if self.track_progress:
+                self.tracker.current_unit = row_num
+                self.tracker.save()
+
+        if self.track_progress:
+            self.tracker.status = 'Completed'
+            self.tracker.save()
+
+    def delete_file(self, filename):
+        os.remove(filename)
+
+    def remove_tracker(self, tracker_pk):
+        self.tracker.delete()
 
     def revert(self):
         try:
@@ -198,6 +229,18 @@ class CSVImport:
         else:
             recipient_group.delete()
 
+    def get_line_count(self):
+        f = self.csv_file
+        lines = 1
+        buf_size = 1024 * 1024
+        read_f = f.read
+
+        buf = read_f(buf_size)
+        while buf:
+            lines += buf.count('\n')
+            buf = read_f(buf_size)
+
+        return lines
 
 class EmailSender:
     '''
