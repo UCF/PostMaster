@@ -21,6 +21,8 @@ import threading
 import requests
 import random
 
+from bs4 import BeautifulSoup
+
 from manager.litmusapi import LitmusApi
 
 log = logging.getLogger(__name__)
@@ -577,7 +579,12 @@ class Email(models.Model):
                 msg['From'] = self.smtp_from_address
                 msg['To'] = recipient
 
-                msg.attach(MIMEText(html_explanation + html,
+                soup = BeautifulSoup(html, 'html.parser')
+                explanation = BeautifulSoup(html_explanation, 'html.parser')
+                soup.body.insert(0, explanation)
+                html = soup.prettify()
+
+                msg.attach(MIMEText(html,
                                     'html',
                                     _charset='us-ascii'))
 
