@@ -118,6 +118,8 @@ STATICFILES_DIRS = [
     os.path.join(PROJECT_FOLDER, "static")
 ]
 
+UPLOAD_DIR = os.path.join(PROJECT_FOLDER, 'uploads')
+
 # Logging
 LOGGING = {
     'version': 1,
