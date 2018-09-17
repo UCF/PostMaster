@@ -1071,6 +1071,15 @@ class Setting(models.Model):
     name = models.CharField(max_length=80)
     value = models.CharField(max_length=200)
 
+
+class SubprocessStatus(models.Model):
+    name = models.CharField(max_length=200)
+    unit_name = models.CharField(max_length=200)
+    current_unit = models.IntegerField()
+    total_units = models.IntegerField()
+    status = models.CharField(max_length=12, default='In Progress')
+    error = models.CharField(max_length=1000)
+
 # Signals
 from manager.signals import *
 

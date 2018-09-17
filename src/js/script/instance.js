@@ -82,6 +82,11 @@
   }
 
   function init() {
+    id = $('input.email-instance-id').val();
+    if ( ! id ) {
+      return;
+    }
+
     var current_hash = window.location.hash.replace('#', '');
     $cancelForm = $('.cancel-instance-form');
     $progressBar = $('.progress-bar');
@@ -91,7 +96,6 @@
       cancelButtonHandler();
     }
 
-    id = $('input.email-instance-id').val();
     if ($progressBar.length) {
       $sent = $('.sent');
       intervalId = setInterval(getProgress, 2000);
