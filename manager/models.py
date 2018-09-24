@@ -543,6 +543,11 @@ class Email(models.Model):
         except self.TextContentMissingException:
             text = None
 
+        soup = BeautifulSoup(html, 'html.parser')
+        explanation = BeautifulSoup(html_explanation, 'html.parser')
+        soup.body.insert(0, explanation)
+        html = soup.prettify('us-ascii')
+
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
@@ -578,11 +583,6 @@ class Email(models.Model):
                 msg['subject'] = self.subject + ' **PREVIEW**'
                 msg['From'] = self.smtp_from_address
                 msg['To'] = recipient
-
-                soup = BeautifulSoup(html, 'html.parser')
-                explanation = BeautifulSoup(html_explanation, 'html.parser')
-                soup.body.insert(0, explanation)
-                html = soup.prettify()
 
                 msg.attach(MIMEText(html,
                                     'html',
