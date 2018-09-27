@@ -220,7 +220,8 @@ class CSVImport:
     def update_status(self, status, error, current_unit):
         if (self.subprocess and
             (current_unit % self.update_factor == 0
-            or current_unit == self.tracker.total_units)):
+            or current_unit == self.tracker.total_units)
+            or error != ""):
             self.tracker.status = status
             self.tracker.error = error
             self.tracker.current_unit = current_unit
