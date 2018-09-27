@@ -21,6 +21,8 @@ import threading
 import requests
 import random
 
+from bs4 import BeautifulSoup
+
 from manager.litmusapi import LitmusApi
 
 log = logging.getLogger(__name__)
@@ -541,6 +543,11 @@ class Email(models.Model):
         except self.TextContentMissingException:
             text = None
 
+        soup = BeautifulSoup(html, 'html.parser')
+        explanation = BeautifulSoup(html_explanation, 'html.parser')
+        soup.body.insert(0, explanation)
+        html = soup.prettify('us-ascii')
+
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
         recipients = [r.strip() for r in self.preview_recipients.split(',')]
@@ -577,7 +584,7 @@ class Email(models.Model):
                 msg['From'] = self.smtp_from_address
                 msg['To'] = recipient
 
-                msg.attach(MIMEText(html_explanation + html,
+                msg.attach(MIMEText(html,
                                     'html',
                                     _charset='us-ascii'))
 
