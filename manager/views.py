@@ -1092,10 +1092,12 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
             column_order = ','.join(columns)
             skip_first_row = form.cleaned_data['skip_first_row']
             csv_file = form.cleaned_data['csv_file']
+            existing_group_id = None
 
             group = ""
             if existing_group_name is not None:
                 group = existing_group_name
+                existing_group_id = form.cleaned_data['existing_group_name'].pk
             else:
                 group = new_group_name
 
@@ -1105,11 +1107,18 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
                 for chunk in csv_file.chunks():
                     dest.write(chunk)
 
+            if (existing_group_id):
+                success_url = reverse('manager-recipientgroup-update', kwargs={'pk': existing_group_id})
+            else:
+                success_url = None
+
             tracker = SubprocessStatus.objects.create(
                 name="Importing {0} into \"{1}\"...".format(csv_file.name, group),
                 current_unit=1,
                 total_units=1,
-                unit_name='recipients'
+                unit_name='recipients',
+                success_url=success_url,
+                back_url=reverse('manager-recipients-csv-import')
             )
 
             self.tracker_pk = tracker.pk
@@ -1176,6 +1185,8 @@ def subprocess_status_json_feed(request):
             retval['unit_name'] = sp.unit_name
             retval['status'] = sp.status
             retval['error'] = sp.error
+            retval['success_url'] = sp.success_url
+            retval['back_url'] = sp.back_url
         except SubprocessStatus.DoesNotExist:
             retval['error'] = 'Error getting Subprocess Status'
             pass

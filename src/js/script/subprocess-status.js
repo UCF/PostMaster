@@ -7,6 +7,7 @@
     $progressBar,
     $badge,
     $completed,
+    $actionBtn,
     $error;
 
   function getProgress() {
@@ -33,6 +34,12 @@
           data.status,
           ''
         );
+
+        $actionBtn
+          .addClass('btn-success')
+          .removeClass('d-none')
+          .text('View Group')
+          .attr('href', data.success_url);
       }
 
       if (data.status === 'Error') {
@@ -42,6 +49,12 @@
           'Error',
           'Error: ' + data.error
         );
+
+        $actionBtn
+          .addClass('btn-danger')
+          .removeClass('d-none')
+          .text('Back to Import')
+          .attr('href', data.success_url);
       }
     }).fail(function () {
       clearInterval(intervalId);
@@ -78,6 +91,7 @@
     $completed = $('.completed');
     $badge = $('.badge');
     $error = $('.error-text');
+    $actionBtn = $('#action-button');
     id = POSTMASTER_SUBPROCESS.id;
     if ($progressBar.length) {
       intervalId = setInterval(getProgress, 2000);

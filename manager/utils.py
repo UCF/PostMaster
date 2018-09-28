@@ -4,6 +4,7 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 import csv
 from datetime import datetime
+from django.core.urlresolvers import reverse
 import logging
 import math
 import os
@@ -70,17 +71,21 @@ class CSVImport:
             print 'email is a required column for import'
             return
 
+        new_group = False
         group = None
         try:
             group = RecipientGroup.objects.get(name=self.recipient_group_name)
         except RecipientGroup.DoesNotExist:
             print 'Recipient group does not exist. Creating...'
             group = RecipientGroup(name=self.recipient_group_name)
+            new_group = True
             group.save()
 
         if self.subprocess:
             self.tracker = SubprocessStatus.objects.get(pk=self.subprocess)
             self.tracker.total_units = self.get_line_count()
+            if new_group:
+                self.tracker.success_url = reverse('manager-recipientgroup-update', kwargs={'pk': group.pk})
             self.tracker.save()
 
             # Update the update_factor to prevent a save every time it loops through

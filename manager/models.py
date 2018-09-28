@@ -1086,6 +1086,8 @@ class SubprocessStatus(models.Model):
     total_units = models.IntegerField()
     status = models.CharField(max_length=12, default='In Progress')
     error = models.CharField(max_length=1000)
+    success_url = models.URLField(blank=True, null=True)
+    back_url = models.URLField(blank=True, null=True)
 
 # Signals
 from manager.signals import *
