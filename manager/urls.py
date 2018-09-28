@@ -53,6 +53,9 @@ urlpatterns = [
     url(r'^subscriptions/categories/create/$',             login_required(SubscriptionCategoryCreateView.as_view()), name='manager-subscription-categories-create'),
     url(r'^subscriptions/categories/(?P<pk>\d+)/update/$', login_required(SubscriptionCategoryUpdateView.as_view()), name='manager-subscription-categories-update'),
 
+    url(r'^subprocess/status/(?P<pk>\d+)/$',   login_required(SubprocessStatusDetailView.as_view()), name='subprocess-status-detail-view'),
+    url(r'^subprocess/json/$',                 login_required(subprocess_status_json_feed),          name='subprocess-status-json'),
+
     # S3 User File Handling
     url(r'^files/upload/$', login_required(s3_upload_user_file), name='manager-file-upload'),
 

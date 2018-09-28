@@ -4,7 +4,9 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 import csv
 from datetime import datetime
+from django.core.urlresolvers import reverse
 import logging
+import math
 import os
 import re
 import smtplib
@@ -22,6 +24,7 @@ from manager.models import Instance
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
+from manager.models import SubprocessStatus
 
 
 log = logging.getLogger(__name__)
@@ -36,8 +39,10 @@ class CSVImport:
     recipient_group_name = ''
     skip_first_row = False
     column_order = 'email,preferred_name'
+    subprocess = None
+    update_factor = 1
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess):
         if csv_file:
             self.csv_file = csv_file
         else:
@@ -56,6 +61,8 @@ class CSVImport:
         if column_order:
             self.column_order = column_order
 
+        self.subprocess = subprocess
+
     def import_emails(self):
 
         columns = self.column_order
@@ -64,13 +71,30 @@ class CSVImport:
             print 'email is a required column for import'
             return
 
+        new_group = False
         group = None
         try:
             group = RecipientGroup.objects.get(name=self.recipient_group_name)
         except RecipientGroup.DoesNotExist:
             print 'Recipient group does not exist. Creating...'
             group = RecipientGroup(name=self.recipient_group_name)
+            new_group = True
             group.save()
+
+        if self.subprocess:
+            self.tracker = SubprocessStatus.objects.get(pk=self.subprocess)
+            self.tracker.total_units = self.get_line_count()
+            if new_group:
+                self.tracker.success_url = reverse('manager-recipientgroup-update', kwargs={'pk': group.pk})
+            self.tracker.save()
+
+            # Update the update_factor to prevent a save every time it loops through
+            # By default we wait until 1% of the file has been processed before
+            # writing to the database.
+            self.update_factor = math.ceil( self.tracker.total_units * .01 )
+
+        # Make sure the file is back at the beginning
+        self.csv_file.seek(0)
 
         csv_reader = csv.reader(self.csv_file)
         email_adress_index = columns.index('email')
@@ -110,6 +134,7 @@ class CSVImport:
                 except IndexError:
                     print 'Malformed row at line %d' % row_num
                     self.revert()
+                    self.update_status("Error", "There is a malformed row at line %d" % row_num, row_num)
                     raise Exception('There is a malformed row at line %d' % row_num)
                 else:
                     if email_address == '':
@@ -189,6 +214,29 @@ class CSVImport:
                             except Exception, e:
                                 print 'Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
             row_num += 1
+            # Increment
+            self.update_status("In Progress", "", row_num)
+
+        self.update_status("Completed", "", row_num)
+
+        if self.subprocess:
+            self.delete_file(self.csv_file.name)
+
+    def update_status(self, status, error, current_unit):
+        if (self.subprocess and
+            (current_unit % self.update_factor == 0
+            or current_unit == self.tracker.total_units)
+            or error != ""):
+            self.tracker.status = status
+            self.tracker.error = error
+            self.tracker.current_unit = current_unit
+            self.tracker.save()
+
+    def delete_file(self, filename):
+        os.remove(filename)
+
+    def remove_tracker(self, tracker_pk):
+        self.tracker.delete()
 
     def revert(self):
         try:
@@ -198,6 +246,18 @@ class CSVImport:
         else:
             recipient_group.delete()
 
+    def get_line_count(self):
+        f = self.csv_file
+        lines = 1
+        buf_size = 1024 * 1024
+        read_f = f.read
+
+        buf = read_f(buf_size)
+        while buf:
+            lines += buf.count('\n')
+            buf = read_f(buf_size)
+
+        return lines
 
 class EmailSender:
     '''

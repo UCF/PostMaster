@@ -25,6 +25,7 @@
 //
 
 // =require script/instance.js
+// =require script/subprocess-status.js
 // =require script/recipients.js
 // =require script/email-createupdate.js
 // =require script/subscription-update.js
