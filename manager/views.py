@@ -48,6 +48,7 @@ from manager.forms import RecipientGroupSearchForm
 from manager.forms import RecipientGroupCreateForm
 from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
+from manager.forms import ReportDetailForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
 from manager.forms import SubscriptionCategoryForm
@@ -1076,6 +1077,24 @@ def instance_open(request):
 ##
 # Utility Views
 ##
+class ReportView(FormView):
+    template_name = 'manager/report-view.html'
+    form_class = ReportDetailForm
+
+    def get_initial(self):
+        initial = super(ReportView, self).get_initial()
+        initial = self.request.GET
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportView, self).get_context_data()
+
+        if self.request.GET['action'] is not None:
+            # Insert filtering logic here
+            pass
+
+        return context
+
 class RecipientCSVImportView(RecipientsMixin, FormView):
     template_name = 'manager/recipient-csv-import.html'
     form_class = RecipientCSVImportForm
