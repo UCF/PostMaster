@@ -1,5 +1,6 @@
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 import time
 import logging
 import os
@@ -1083,13 +1084,22 @@ class ReportView(FormView):
 
     def get_initial(self):
         initial = super(ReportView, self).get_initial()
-        initial = self.request.GET
+        initial = self.request.GET.copy()
+
+        if 'end_date' not in initial:
+            end_date = date.today()
+            initial.update({"end_date":end_date.strftime("%m/%d/%Y")})
+
+        if 'start_date' not in initial or initial['start_date'] is None:
+            start_date = end_date - timedelta(days=90)
+            initial.update({'start_date':start_date.strftime("%m/%d/%Y")})
+
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(ReportView, self).get_context_data()
 
-        if self.request.GET['action'] is not None:
+        if 'action' in self.request.GET and self.request.GET['action'] is not None:
             # Insert filtering logic here
             pass
 
