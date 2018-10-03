@@ -3,31 +3,44 @@
 {% load filters %}
 {% block page-body %}
 <h1 class="h2 heading-underline">Email Send Statistics</h1>
-<form class="form-horizontal" action="" method="get">
-	<fieldset>
-    <div class="row">
-      <div class="col-md-3">
-        <input type="hidden" name="action" value="url_report">
-        {% for error in form.non_field_errors %}
-          <div class="alert alert-error">
-            {{error}}
-          </div>
-        {% endfor %}
-        <div class="form-group">
-        {% for field in form %}
-          <label for="{{field.id}}" class="col-form-label text-left">{{field.label}} {% if field.field.required %}*{% endif %}</label>
-          {% if field.field.required %}
-            {{field|add_class:"form-control"|attr:"required"}}
-          {% else %}
-            {{field}}
-          {% endif %}
-        {% endfor %}
-          <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Filter</button>
+<div class="row">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-block">
+        <div class="card-title">
+          <h2>Report Filters</h2>
+        </div>
+        <div class="card-body">
+          <form class="form-horizontal" action="" method="get">
+              <fieldset>
+                <input type="hidden" name="action" value="url_report">
+                {% for error in form.non_field_errors %}
+                  <div class="alert alert-error">
+                    {{error}}
+                  </div>
+                {% endfor %}
+                <div class="form-group">
+                {% for field in form %}
+                  <label for="{{field.id}}" class="d-block col-form-label text-left">{{field.label}} {% if field.field.required %}*{% endif %}</label>
+                  {% if field.field.required %}
+                    {{field|add_class:"form-control"|attr:"required"}}
+                  {% else %}
+                    {{field}}
+                  {% endif %}
+                {% endfor %}
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
           </div>
         </div>
       </div>
     </div>
-	</fieldset>
-</form>
+  </div>
+  <div class="col-md-8">
+
+  </div>
+</div>
 {% endblock %}
