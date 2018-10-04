@@ -1097,6 +1097,11 @@ class ReportView(FormView):
             start_date = end_date - timedelta(days=90)
             initial.update({'start_date':start_date.strftime("%m/%d/%Y")})
 
+        if 'email_select' in initial:
+            initial.update({
+                'email_select': initial.getlist('email_select')
+            })
+
         return initial
 
     def get_context_data(self, **kwargs):
