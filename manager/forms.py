@@ -1,6 +1,8 @@
 from django import forms
 from django.forms.models import inlineformset_factory
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from datetime import date
+from datetime import timedelta
 
 from manager.models import Email
 from manager.models import PreviewInstance
@@ -201,11 +203,13 @@ class ReportDetailForm(forms.Form):
 
     start_date = forms.DateField(
         help_text='The start date to pull data from.',
-        required=True)
+        required=True,
+        initial=date.today() - timedelta(days=90))
 
     end_date = forms.DateField(
         help_text='The end date to pull data from.',
-        required=True)
+        required=True,
+        initial=date.today().strftime("%m/%d/%Y"))
 
     days_of_week = (
         (None, " --- Select Day of Week --- "),

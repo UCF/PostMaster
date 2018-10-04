@@ -1089,14 +1089,6 @@ class ReportView(FormView):
         initial = super(ReportView, self).get_initial()
         initial = self.request.GET.copy()
 
-        if 'end_date' not in initial:
-            end_date = date.today()
-            initial.update({"end_date":end_date.strftime("%m/%d/%Y")})
-
-        if 'start_date' not in initial or initial['start_date'] is None:
-            start_date = end_date - timedelta(days=90)
-            initial.update({'start_date':start_date.strftime("%m/%d/%Y")})
-
         if 'email_select' in initial:
             initial.update({
                 'email_select': initial.getlist('email_select')
