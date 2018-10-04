@@ -94,6 +94,10 @@
                     <span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
                 </div>
               </li>
+              <!-- Reports -->
+              <li class="nav-item {% if request.resolver_match.url_name == 'manager-report-view' %} active{% endif %}">
+                <a href="{% url 'manager-report-view' %}" class="nav-link">Reports</a>
+              </li>
             </ul>
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
