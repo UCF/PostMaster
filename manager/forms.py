@@ -193,6 +193,45 @@ class SubscriptionCategoryForm(forms.ModelForm):
             'applies_to'
         )
 
+class ReportDetailForm(forms.Form):
+    email_select = forms.ModelMultipleChoiceField(
+        queryset=Email.objects.all(),
+        help_text='Select the emails which data will be aggregegated from.',
+        to_field_name='pk')
+
+    start_date = forms.DateField(
+        help_text='The start date to pull data from.',
+        required=True)
+
+    end_date = forms.DateField(
+        help_text='The end date to pull data from.',
+        required=True)
+
+    days_of_week = (
+        (None, " --- Select Day of Week --- "),
+        (1, "Monday"),
+        (2, "Tuesday"),
+        (3, "Wednesday"),
+        (4, "Thursday"),
+        (5, "Friday"),
+        (6, "Saturday"),
+        (7, "Sunday")
+    )
+
+    day_of_week = forms.ChoiceField(
+        choices=days_of_week,
+        help_text='The day of week the emails were sent',
+        required=False)
+
+    url_filter = forms.CharField(
+        help_text='Include only urls with this text in it',
+        required=False)
+
+    email_domain = forms.CharField(
+        help_text='Include click from recipients email addresses than end in this string',
+        required=False)
+
+
 class SettingCreateUpdateForm(forms.ModelForm):
 
     class Meta:
