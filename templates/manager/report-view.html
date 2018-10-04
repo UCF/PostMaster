@@ -39,10 +39,16 @@
     </div>
   </div>
   <div class="col-md-8">
+    {% if not action %}
+      {% include 'manager/reports/instructions.html' %}
+    {% endif %}
     {% if data.all %}
-
+      {% include templates.stats %}
+      {% include templates.data %}
     {% else %}
-      {% include templates.instructions %}
+      <div class="alert alert-info">
+        <span class="mr-2 fa fa-info-circle"></span> No results found
+      </div>
     {% endif %}
   </div>
 </div>

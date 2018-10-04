@@ -1105,18 +1105,14 @@ class ReportView(FormView):
             form = ReportDetailForm(self.request.GET)
 
             if form.is_valid():
-                print form.cleaned_data
                 stats, data = get_report(action, **form.cleaned_data)
                 context['action'] = action
                 context['stats'] = stats
                 context['data'] = data
                 context['templates'] = {
-                    'instructions': 'manager/reports/' + action + '_instructions.html',
                     'stats': 'manager/reports/' + action + '_stats.html',
                     'data': 'manager/reports/' + action + '_data.html'
                 }
-
-        print context
 
         return context
 
