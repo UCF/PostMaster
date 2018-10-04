@@ -540,3 +540,40 @@ def flush_transaction():
     this function at the appropriate moment
     """
     transaction.commit()
+
+
+def report_filter(report_name, **kwargs):
+    """
+    TODO: Description here
+    """
+    instances = Instance.objects.all()
+    # get instances from given email id(s)
+    if 'email_select' in kwargs:
+        email_select = kwargs.get("email_select")
+        instances = instances.filter(email__pk__in=email_ids)
+    # filter instances from given start_date and end_date
+    if 'start_date' and 'end_date' in kwargs:
+        start_date = kwargs.get("start_date")
+        end_date = kwargs.get("end_date")
+        instances = instances.filter(requested_start__range=[start_date, end_date])
+    # filter instances from given week_day
+    if 'day_of_week' in kwargs:
+        day_of_week = kwargs.get("day_of_week")
+        # ^ Takes an integer value representing the day of week from 1 (Sunday) to 7 (Saturday).
+        instances = instances.filter(requested_start__week_day=day_of_week)
+    # filter instances' urls from string input in url_filter (ex this could be set to 'today.ucf.edu')
+    if 'url_filter' in kwargs:
+        url_filter = kwargs.get("url_filter")
+        instance_ids = instances.values_list('id', flat=True) # get the ids from the current instance objects that are in 'instances' and then insert those ids below
+        urls = URL.objects.filter(instance__pk__in=instance_ids) #get the URLs that are in current filtered through 'instances'
+        filtered_urls = urls.filter(name__contains=url_filter) #filter URLs that have that filter in them
+
+        # how to make same urls grouped and make sure the count clicks are added together
+        URL.objects.values('name').annotate(Sum('clicks'))
+
+        # and 'match' the filtered urls back up to/in the instances object?
+
+    # filter instances' email_address (endswith) with given input
+    if 'email_domain' in kwargs:
+        email_domain = kwargs.get("email_domain")
+        instances = instances.filter(recipients__email_address__endswith=email_domain)
