@@ -69,6 +69,7 @@ from manager.litmusapi import LitmusApi
 from manager.utils import CSVImport
 from manager.utils import EmailSender
 from manager.utils import AmazonS3Helper
+from manager.utils import get_report
 
 
 log = logging.getLogger(__name__)
@@ -1100,8 +1101,22 @@ class ReportView(FormView):
         context = super(ReportView, self).get_context_data()
 
         if 'action' in self.request.GET and self.request.GET['action'] is not None:
-            # Insert filtering logic here
-            pass
+            action = self.request.GET['action']
+            form = ReportDetailForm(self.request.GET)
+
+            if form.is_valid():
+                print form.cleaned_data
+                stats, data = get_report(action, **form.cleaned_data)
+                context['action'] = action
+                context['stats'] = stats
+                context['data'] = data
+                context['templates'] = {
+                    'instructions': 'manager/reports/' + action + '_instructions.html',
+                    'stats': 'manager/reports/' + action + '_stats.html',
+                    'data': 'manager/reports/' + action + '_data.html'
+                }
+
+        print context
 
         return context
 

@@ -209,13 +209,13 @@ class ReportDetailForm(forms.Form):
 
     days_of_week = (
         (None, " --- Select Day of Week --- "),
-        (1, "Monday"),
-        (2, "Tuesday"),
-        (3, "Wednesday"),
-        (4, "Thursday"),
-        (5, "Friday"),
-        (6, "Saturday"),
-        (7, "Sunday")
+        (1, "Sunday"),
+        (2, "Monday"),
+        (3, "Tuesday"),
+        (4, "Wednesday"),
+        (5, "Thursday"),
+        (6, "Friday"),
+        (7, "Saturday")
     )
 
     day_of_week = forms.ChoiceField(
@@ -231,6 +231,20 @@ class ReportDetailForm(forms.Form):
         help_text='Include click from recipients email addresses than end in this string',
         required=False)
 
+    def clean(self):
+        cleaned_data = super(ReportDetailForm, self).clean()
+        if cleaned_data['day_of_week'] == '':
+            cleaned_data['day_of_week'] = None
+        else:
+            cleaned_data['day_of_week'] = int(cleaned_data['day_of_week'])
+
+        if cleaned_data['url_filter'] == '':
+            cleaned_data['url_filter'] = None
+
+        if cleaned_data['email_domain'] == '':
+            cleaned_data['email_domain'] = None
+
+        return cleaned_data
 
 class SettingCreateUpdateForm(forms.ModelForm):
 

@@ -586,7 +586,7 @@ def url_report(**kwargs):
     # Get instance stats
     instances_stats = {}
     if email_select is not None:
-        instances = instances.filter(email__id__in=email_select)
+        instances = instances.filter(email__in=email_select)
 
     if start_date and end_date is not None:
         instances = instances.filter(requested_start__range=[start_date, end_date])
@@ -600,7 +600,10 @@ def url_report(**kwargs):
     avg_opens = instances.annotate(num_opens=Count('opens')).aggregate(avg_opens=Round(Avg('num_opens'), 0))
     avg_opens = avg_opens['avg_opens']
 
-    avg_open_rate = (avg_opens / avg_recipients) * 100
+    if avg_opens and avg_recipients is not None:
+        avg_open_rate = (avg_opens / avg_recipients) * 100
+    else:
+        avg_open_rate = None
 
     instances_stats.update({
         'avg_recipients': avg_recipients,
@@ -610,7 +613,7 @@ def url_report(**kwargs):
 
     # Get URL Stats
     if email_select is not None:
-        urls = urls.filter(instance__email__id__in=email_select)
+        urls = urls.filter(instance__email__in=email_select)
 
     if start_date and end_date is not None:
         urls = urls.filter(instance__requested_start__range=[start_date, end_date])
