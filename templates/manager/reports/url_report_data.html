@@ -1,3 +1,55 @@
-{% for url in data %}
-  {{ url.name }} - {{ url.total_clicks }}
-{% endfor %}
+<div class="card-header mt-5">
+  <div class="row">
+    <div class="col-md-10">
+      <h2 class="h6 mb-0">URL</h2>
+    </div>
+    <div class="col-md-2">
+      <h2 class="h6 text-center mb-0">Clicks</h2>
+    </div>
+  </div>
+</div>
+<div id="accordion" role="tablist" class="mb-2">
+  {% for url in data %}
+  <div class="card border-0">
+    <div class="card-header bg-secondary border-0" role="tab" id="heading{{ url.id }}">
+      <a class="collapsed" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}">
+        <div class="row">
+          <div class="col-md-10">
+            {{ url.name }}
+          </div>
+          <div class="col-md-2 text-center">{{ url.total_clicks }}</div>
+        </div>
+      </a>
+    </div>
+
+    <div id="collapse{{ url.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ url.id }}" data-parent="#accordion">
+      <div class="card-block pt-0">
+        <div class="card card-block">
+          <dl class="row mb-0">
+            <dt class="col-sm-3">Email Title</dt>
+            <dd class="col-sm-9">{{ url.instance.email.title }}</dd>
+
+            <dt class="col-sm-3">Instance Subject</dt>
+            <dd class="col-sm-9">{{ url.instance.subject }}</dd>
+
+            <dt class="col-sm-3">Opens</dt>
+            <dd class="col-sm-9">{{ url.instance.total_opens }}</dd>
+
+            <dt class="col-sm-3">Initial Opens</dt>
+            <dd class="col-sm-9">{{ url.instance.initial_opens }}</dd>
+
+            <dt class="col-sm-3">Reopens</dt>
+            <dd class="col-sm-9">{{ url.instance.re_opens }}</dd>
+
+            <dt class="col-sm-3">Send Time</dt>
+            <dd class="col-sm-9">{{ url.instance.start }}</dd>
+
+            <dt class="col-sm-3">Day of the Week</dt>
+            <dd class="col-sm-9">TODO</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
