@@ -1,3 +1,4 @@
+{% load filters %}
 <div class="card-header mt-5">
   <div class="row">
     <div class="col-md-10">
@@ -42,10 +43,10 @@
             <dd class="col-sm-9">{{ url.instance.re_opens }}</dd>
 
             <dt class="col-sm-3">Send Time</dt>
-            <dd class="col-sm-9">{{ url.instance.start }}</dd>
+            <dd class="col-sm-9">{{ url.instance.requested_start }}</dd>
 
             <dt class="col-sm-3">Day of the Week</dt>
-            <dd class="col-sm-9">TODO</dd>
+            <dd class="col-sm-9">{{ url.instance.requested_start|to_day_of_week }}</dd>
           </dl>
         </div>
       </div>
