@@ -625,6 +625,6 @@ def url_report(**kwargs):
         urls = urls.filter(clicks__recipient__email_address__contains=email_domain)
 
     # Add click count
-    urls = urls.annotate(total_clicks=Count('clicks'))
+    urls = urls.annotate(total_clicks=Count('clicks')).order_by('-total_clicks')
 
     return (instances_stats, urls)
