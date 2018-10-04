@@ -42,9 +42,32 @@
     {% if not action %}
       {% include 'manager/reports/instructions.html' %}
     {% endif %}
-    {% if data.all %}
+    {% if data.object_list.count %}
       {% include templates.stats %}
       {% include templates.data %}
+      {% if data.has_other_pages %}
+        <nav aria-label="Email instances list pagination">
+          <ul class="pagination pagination-sm">
+            {% if data.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{{current_url}}&page={{data.previous_page_number}}">
+                <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
+              </a>
+            </li>
+            {% endif %}
+            <li class="disabled page-item">
+              <a class="page-link" href="#">Page {{data.number}} of {{data.paginator.num_pages}}</a>
+            </li>
+            {% if data.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{{current_url}}&page={{data.next_page_number}}" class="next">
+                Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
     {% else %}
       <div class="alert alert-info">
         <span class="mr-2 fa fa-info-circle"></span> No results found

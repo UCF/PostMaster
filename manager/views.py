@@ -13,6 +13,7 @@ import urlparse
 import json
 import subprocess
 import sys
+from math import ceil
 
 from django.conf import settings
 from django.contrib import messages
@@ -1082,6 +1083,7 @@ def instance_open(request):
 class ReportView(FormView):
     template_name = 'manager/report-view.html'
     form_class = ReportDetailForm
+    paginate_by = 20
 
     def get_initial(self):
         initial = super(ReportView, self).get_initial()
@@ -1106,8 +1108,25 @@ class ReportView(FormView):
 
             if form.is_valid():
                 stats, data = get_report(action, **form.cleaned_data)
+                params = self.request.GET.copy()
+                page = params.pop('page', 1)
+
+                # Correct for page being returned as a list
+                if type(page) != int:
+                    page = int(page[0])
+
+                paginator = Paginator(data, self.paginate_by)
+
+                try:
+                    data = paginator.page(page)
+                except PageNotAnInteger:
+                    data = paginator.page(1)
+                except EmptyPage:
+                    data = paginator.page(paginator.num_pages)
+
                 context['action'] = action
                 context['stats'] = stats
+                context['current_url'] = params.urlencode()
                 context['data'] = data
                 context['templates'] = {
                     'stats': 'manager/reports/' + action + '_stats.html',
