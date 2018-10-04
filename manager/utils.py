@@ -18,6 +18,9 @@ from email.mime.text import MIMEText
 from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
+from django.db.models import Avg
+from django.db.models import Func
 
 from manager.models import Email
 from manager.models import Instance
@@ -25,9 +28,14 @@ from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
 from manager.models import SubprocessStatus
+from manager.models import URL
 
 
 log = logging.getLogger(__name__)
+
+class Round(Func):
+    function = 'ROUND'
+    arity = 2
 
 
 class CSVImport:
@@ -542,38 +550,81 @@ def flush_transaction():
     transaction.commit()
 
 
-def report_filter(report_name, **kwargs):
+def get_report(name, **kwargs):
     """
-    TODO: Description here
+    Returns report data
+
+    :param name: The name of the report to run
+    :param **kwargs: The reports keyword arguments
+    :returns: A tuple of aggregated stat data and a QuerySet of data
     """
+    if name == 'url_report':
+        return url_report(**kwargs)
+
+    return (None, None)
+
+def url_report(**kwargs):
+    """
+    Returns aggregated instance data and a QuerySet of URLs
+
+    :param **kwargs: A Dictionary of arguments for the report
+    """
+    urls = URL.objects.all()
     instances = Instance.objects.all()
-    # get instances from given email id(s)
-    if 'email_select' in kwargs:
-        email_select = kwargs.get("email_select")
-        instances = instances.filter(email__pk__in=email_ids)
-    # filter instances from given start_date and end_date
-    if 'start_date' and 'end_date' in kwargs:
-        start_date = kwargs.get("start_date")
-        end_date = kwargs.get("end_date")
+
+    email_select = kwargs['email_select'] if 'email_select' in kwargs else None
+    start_date = kwargs['start_date'] if 'start_date' in kwargs else None
+    end_date = kwargs['end_date'] if 'end_date' in kwargs else None
+    day_of_week = kwargs['day_of_week'] if 'day_of_week' in kwargs else None
+    url_filter = kwargs['url_filter'] if 'url_filter' in kwargs else None
+    email_domain = kwargs['email_domain'] if 'email_domain' in kwargs else None
+
+    # Short curcuit the whole thing if required fields aren't set
+    if email_select is None:
+        return (None, None)
+
+    # Get instance stats
+    instances_stats = {}
+    if email_select is not None:
+        instances = instances.filter(email__id__in=email_select)
+
+    if start_date and end_date is not None:
         instances = instances.filter(requested_start__range=[start_date, end_date])
-    # filter instances from given week_day
-    if 'day_of_week' in kwargs:
-        day_of_week = kwargs.get("day_of_week")
-        # ^ Takes an integer value representing the day of week from 1 (Sunday) to 7 (Saturday).
+
+    if day_of_week is not None:
         instances = instances.filter(requested_start__week_day=day_of_week)
-    # filter instances' urls from string input in url_filter (ex this could be set to 'today.ucf.edu')
-    if 'url_filter' in kwargs:
-        url_filter = kwargs.get("url_filter")
-        instance_ids = instances.values_list('id', flat=True) # get the ids from the current instance objects that are in 'instances' and then insert those ids below
-        urls = URL.objects.filter(instance__pk__in=instance_ids) #get the URLs that are in current filtered through 'instances'
-        filtered_urls = urls.filter(name__contains=url_filter) #filter URLs that have that filter in them
 
-        # how to make same urls grouped and make sure the count clicks are added together
-        URL.objects.values('name').annotate(Sum('clicks'))
+    avg_recipients = instances.annotate(num_recipients=Count('recipients')).aggregate(avg_recipients=Round(Avg('num_recipients'), 0))
+    avg_recipients = avg_recipients['avg_recipients']
 
-        # and 'match' the filtered urls back up to/in the instances object?
+    avg_opens = instances.annotate(num_opens=Count('opens')).aggregate(avg_opens=Round(Avg('num_opens'), 0))
+    avg_opens = avg_opens['avg_opens']
 
-    # filter instances' email_address (endswith) with given input
-    if 'email_domain' in kwargs:
-        email_domain = kwargs.get("email_domain")
-        instances = instances.filter(recipients__email_address__endswith=email_domain)
+    avg_open_rate = (avg_opens / avg_recipients) * 100
+
+    instances_stats.update({
+        'avg_recipients': avg_recipients,
+        'avg_opens': avg_opens,
+        'avg_open_rate': avg_open_rate
+    })
+
+    # Get URL Stats
+    if email_select is not None:
+        urls = urls.filter(instance__email__id__in=email_select)
+
+    if start_date and end_date is not None:
+        urls = urls.filter(instance__requested_start__range=[start_date, end_date])
+
+    if day_of_week is not None:
+        urls = urls.filter(instance__requested_start__week_day=day_of_week)
+
+    if url_filter is not None:
+        urls = urls.filter(name__contains=url_filter)
+
+    if email_domain is not None:
+        urls = urls.filter(clicks__recipient__email_address__contains=email_domain)
+
+    # Add click count
+    urls = urls.annotate(total_clicks=Count('clicks'))
+
+    return (instances_stats, urls)
