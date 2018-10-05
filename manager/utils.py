@@ -588,7 +588,7 @@ def url_report(**kwargs):
     if email_select is not None:
         instances = instances.filter(email__in=email_select)
 
-    if start_date and end_date is not None:
+    if start_date is not None and end_date is not None:
         instances = instances.filter(requested_start__range=[start_date, end_date])
 
     if day_of_week is not None:
