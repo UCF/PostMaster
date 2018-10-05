@@ -196,17 +196,17 @@ class SubscriptionCategoryForm(forms.ModelForm):
         )
 
 class ReportDetailForm(forms.Form):
-    email_select = forms.ModelMultipleChoiceField(
+    email_select = forms.ModelMultipleChoiceField(label="Email(s)",
         queryset=Email.objects.all(),
         help_text='Select the emails which data will be aggregegated from.',
         to_field_name='pk')
 
-    start_date = forms.DateField(
+    start_date = forms.DateField(label="Start Date",
         help_text='The start date to pull data from.',
         required=True,
         initial=date.today() - timedelta(days=90))
 
-    end_date = forms.DateField(
+    end_date = forms.DateField(label="End Date",
         help_text='The end date to pull data from.',
         required=True,
         initial=date.today().strftime("%m/%d/%Y"))
@@ -222,16 +222,16 @@ class ReportDetailForm(forms.Form):
         (7, "Saturday")
     )
 
-    day_of_week = forms.ChoiceField(
+    day_of_week = forms.ChoiceField(label="Day of Week",
         choices=days_of_week,
         help_text='The day of week the emails were sent',
         required=False)
 
-    url_filter = forms.CharField(
+    url_filter = forms.CharField(label="URL Filter",
         help_text='Include only urls with this text in it',
         required=False)
 
-    email_domain = forms.CharField(
+    email_domain = forms.CharField(label="Email Domain",
         help_text='Include click from recipients email addresses than end in this string',
         required=False)
 
