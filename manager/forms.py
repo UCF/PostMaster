@@ -198,7 +198,7 @@ class SubscriptionCategoryForm(forms.ModelForm):
 class ReportDetailForm(forms.Form):
     email_select = forms.ModelMultipleChoiceField(label="Email(s)",
         queryset=Email.objects.all(),
-        help_text='Select the emails which data will be aggregegated from.',
+        help_text='Select the emails which data will be aggregated from.',
         to_field_name='pk')
 
     start_date = forms.DateField(label="Start Date",
