@@ -2,25 +2,25 @@
 <div class="card-header mt-4 bg-secondary mb-2 border-0">
   <div class="row">
     <div class="col-9">
-     <h2 class="h6 mb-0">URL</h2>
+     <h3 class="h6 mb-0">URL</h3>
     </div>
     <div class="col-2">
-      <h2 class="h6 text-center mb-0">Clicks</h2>
+      <h3 class="h6 text-center mb-0">Clicks</h3>
     </div>
   </div>
 </div>
-<div id="accordion" role="tablist" class="mb-2">
+<div id="accordion" role="tablist" class="mb-3">
   {% for url in data %}
-    <div class="card mb-1 small">
+    <div class="report-data-card card mb-1">
       <div class="card-header bg-secondary" role="tab" id="heading{{ url.id }}">
         <a class="collapsed text-secondary" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}">
-          <div class="row" data-link-url="{{ url.name }}">
-            <div class="col-9">
-              {{ url.name }} <a class="text-default" href="{{ url.name }}" target="_blank"><span class="fas fa-external-link-alt ml-2" aria-hidden="true"></span></a>
+          <div class="row">
+            <div class="report-data-url col-9">
+              {{ url.name }}<a class="text-default ml-2" href="{{ url.name }}" target="_blank"><span class="fas fa-external-link-alt" aria-hidden="true"></span></a>
             </div>
             <div class="col-2 text-center">{{ url.total_clicks }}</div>
             <div class="col-1">
-              <span class="fas fa-chevron-down" aria-hidden="true"></span>
+              <a class="collapsed text-secondary" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}"><span class="fas fa-chevron-down" aria-hidden="true"></span></a>
             </div>
           </div>
         </a>
@@ -31,30 +31,34 @@
             <div class="row mb-3">
               <div class="col-6">
                 <div class="text-default">Email Title</div>
-                <div class="h6">{{ url.instance.email.title }}</div>
-                
+                <h4 class="h5">{{ url.instance.email.title }}</h4>
                 <div class="text-default mt-2">Instance Subject</div>
-                <div class="h6">{{ url.instance.subject }}</div>
+                <h4 class="h5">{{ url.instance.subject }}</h4>
               </div>
               <div class="col-6">
-                <dl class="row mb-0">
-                  <dt class="col-sm-3">Opens</dt>
-                  <dd class="col-sm-9">{{ url.instance.total_opens }}</dd>
-      
-                  <dt class="col-sm-3">Initial Opens</dt>
-                  <dd class="col-sm-9">{{ url.instance.initial_opens }}</dd>
-      
-                  <dt class="col-sm-3">Reopens</dt>
-                  <dd class="col-sm-9">{{ url.instance.re_opens }}</dd>
-      
-                  <dt class="col-sm-3">Open Rate</dt>
-                  <dd class="col-sm-9">{{ url.instance.open_rate }}</dd>
-                </dl>
+                <div class="row mb-0">
+                  <div class="col-6">
+                    <div class="text-default">Opens</div>
+                    <div class="h3">{{ url.instance.total_opens }}</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-default">Initial Opens</div>
+                    <div class="h3">{{ url.instance.initial_opens }}</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-default">Reopens</div>
+                    <div class="h3">{{ url.instance.re_opens }}</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-default">Open Rate</div>
+                    <div class="h3">{{ url.instance.open_rate }}%</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              Started on {{ url.instance.requested_start|to_day_of_week }}, {{ url.instance.requested_start }} Ended on {{ url.instance.end|to_day_of_week }}, {{ url.instance.end }}
-            </div>
+            <p class="report-data-start-end mb-0">
+              Started on <span class="font-weight-bold">{{ url.instance.requested_start|to_day_of_week }}, {{ url.instance.requested_start }}</span> Ended on <span class="font-weight-bold">{{ url.instance.end|to_day_of_week }}, {{ url.instance.end }}</span>
+            </p>
           </div>
         </div>
       </div>
