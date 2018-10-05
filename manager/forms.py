@@ -232,7 +232,7 @@ class ReportDetailForm(forms.Form):
         required=False)
 
     email_domain = forms.CharField(label="Email Domain",
-        help_text='Include click from recipients email addresses than end in this string',
+        help_text='Include clicks from recipients email addresses that end in this string',
         required=False)
 
     def clean(self):
