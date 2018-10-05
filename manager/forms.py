@@ -204,7 +204,7 @@ class ReportDetailForm(forms.Form):
     start_date = forms.DateField(label="Start Date",
         help_text='The start date to pull data from.',
         required=True,
-        initial=date.today() - timedelta(days=90))
+        initial=(date.today() - timedelta(days=90)).strftime("%m/%d/%Y"))
 
     end_date = forms.DateField(label="End Date",
         help_text='The end date to pull data from.',
