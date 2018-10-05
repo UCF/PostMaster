@@ -1,56 +1,63 @@
 {% load filters %}
-<div class="card-header mt-5">
+<div class="card-header mt-4 bg-secondary mb-2 border-0">
   <div class="row">
-    <div class="col-md-10">
-      <h2 class="h6 mb-0">URL</h2>
+    <div class="col-9">
+     <h2 class="h6 mb-0">URL</h2>
     </div>
-    <div class="col-md-2">
+    <div class="col-2">
       <h2 class="h6 text-center mb-0">Clicks</h2>
     </div>
   </div>
 </div>
 <div id="accordion" role="tablist" class="mb-2">
   {% for url in data %}
-  <div class="card border-0">
-    <div class="card-header bg-secondary border-0" role="tab" id="heading{{ url.id }}">
-      <a class="collapsed" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}">
-        <div class="row">
-          <div class="col-md-10">
-            {{ url.name }}
+    <div class="card mb-1 small">
+      <div class="card-header bg-secondary" role="tab" id="heading{{ url.id }}">
+        <a class="collapsed text-secondary" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}">
+          <div class="row" data-link-url="{{ url.name }}">
+            <div class="col-9">
+              {{ url.name }} <a class="text-default" href="{{ url.name }}" target="_blank"><span class="fas fa-external-link-alt ml-2" aria-hidden="true"></span></a>
+            </div>
+            <div class="col-2 text-center">{{ url.total_clicks }}</div>
+            <div class="col-1">
+              <span class="fas fa-chevron-down" aria-hidden="true"></span>
+            </div>
           </div>
-          <div class="col-md-2 text-center">{{ url.total_clicks }}</div>
-        </div>
-      </a>
-    </div>
-
-    <div id="collapse{{ url.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ url.id }}" data-parent="#accordion">
-      <div class="card-block pt-0">
-        <div class="card card-block">
-          <dl class="row mb-0">
-            <dt class="col-sm-3">Email Title</dt>
-            <dd class="col-sm-9">{{ url.instance.email.title }}</dd>
-
-            <dt class="col-sm-3">Instance Subject</dt>
-            <dd class="col-sm-9">{{ url.instance.subject }}</dd>
-
-            <dt class="col-sm-3">Opens</dt>
-            <dd class="col-sm-9">{{ url.instance.total_opens }}</dd>
-
-            <dt class="col-sm-3">Initial Opens</dt>
-            <dd class="col-sm-9">{{ url.instance.initial_opens }}</dd>
-
-            <dt class="col-sm-3">Reopens</dt>
-            <dd class="col-sm-9">{{ url.instance.re_opens }}</dd>
-
-            <dt class="col-sm-3">Send Time</dt>
-            <dd class="col-sm-9">{{ url.instance.requested_start }}</dd>
-
-            <dt class="col-sm-3">Day of the Week</dt>
-            <dd class="col-sm-9">{{ url.instance.requested_start|to_day_of_week }}</dd>
-          </dl>
+        </a>
+      </div>
+      <div id="collapse{{ url.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ url.id }}" data-parent="#accordion">
+        <div class="pt-0">
+          <div class="bg-faded card-block">
+            <div class="row mb-3">
+              <div class="col-6">
+                <div class="text-default">Email Title</div>
+                <div class="h6">{{ url.instance.email.title }}</div>
+                
+                <div class="text-default mt-2">Instance Subject</div>
+                <div class="h6">{{ url.instance.subject }}</div>
+              </div>
+              <div class="col-6">
+                <dl class="row mb-0">
+                  <dt class="col-sm-3">Opens</dt>
+                  <dd class="col-sm-9">{{ url.instance.total_opens }}</dd>
+      
+                  <dt class="col-sm-3">Initial Opens</dt>
+                  <dd class="col-sm-9">{{ url.instance.initial_opens }}</dd>
+      
+                  <dt class="col-sm-3">Reopens</dt>
+                  <dd class="col-sm-9">{{ url.instance.re_opens }}</dd>
+      
+                  <dt class="col-sm-3">Open Rate</dt>
+                  <dd class="col-sm-9">{{ url.instance.open_rate }}</dd>
+                </dl>
+              </div>
+            </div>
+            <div>
+              Started on {{ url.instance.requested_start|to_day_of_week }}, {{ url.instance.requested_start }} Ended on {{ url.instance.end|to_day_of_week }}, {{ url.instance.end }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   {% endfor %}
 </div>
