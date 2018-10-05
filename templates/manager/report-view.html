@@ -27,6 +27,7 @@
                 {% else %}
                   {{field|add_class:"form-control"}}
                 {% endif %}
+                <small class="form-text text-muted">{{field.help_text}}</small>
               {% endfor %}
                 <div class="mt-3">
                   <button type="submit" class="btn btn-primary">Filter</button>
