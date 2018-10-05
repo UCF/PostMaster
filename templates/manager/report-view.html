@@ -51,7 +51,7 @@
           <ul class="pagination pagination-sm">
             {% if data.has_previous %}
             <li class="page-item">
-              <a class="page-link" href="?{{current_url}}&page={{data.previous_page_number}}">
+              <a class="page-link" href="?{{current_query_params}}&page={{data.previous_page_number}}">
                 <span class="fas fa-chevron-left" aria-hidden="true"></span> Previous
               </a>
             </li>
@@ -61,7 +61,7 @@
             </li>
             {% if data.has_next %}
             <li class="page-item">
-              <a class="page-link" href="?{{current_url}}&page={{data.next_page_number}}" class="next">
+              <a class="page-link" href="?{{current_query_params}}&page={{data.next_page_number}}" class="next">
                 Next <span class="fas fa-chevron-right" aria-hidden="true"></span>
               </a>
             </li>

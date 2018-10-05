@@ -1123,7 +1123,7 @@ class ReportView(FormView):
 
                 context['action'] = action
                 context['stats'] = stats
-                context['current_url'] = params.urlencode()
+                context['current_query_params'] = params.urlencode()
                 context['data'] = data
                 context['templates'] = {
                     'stats': 'manager/reports/' + action + '_stats.html',
