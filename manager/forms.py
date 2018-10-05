@@ -1,6 +1,8 @@
 from django import forms
 from django.forms.models import inlineformset_factory
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from datetime import date
+from datetime import timedelta
 
 from manager.models import Email
 from manager.models import PreviewInstance
@@ -192,6 +194,61 @@ class SubscriptionCategoryForm(forms.ModelForm):
             'cannot_unsubscribe',
             'applies_to'
         )
+
+class ReportDetailForm(forms.Form):
+    email_select = forms.ModelMultipleChoiceField(label="Email(s)",
+        queryset=Email.objects.all(),
+        help_text='Select the emails which data will be aggregated from.',
+        to_field_name='pk')
+
+    start_date = forms.DateField(label="Start Date",
+        help_text='The start date to pull data from.',
+        required=True,
+        initial=(date.today() - timedelta(days=90)).strftime("%m/%d/%Y"))
+
+    end_date = forms.DateField(label="End Date",
+        help_text='The end date to pull data from.',
+        required=True,
+        initial=date.today().strftime("%m/%d/%Y"))
+
+    days_of_week = (
+        (None, " --- Select Day of Week --- "),
+        (1, "Sunday"),
+        (2, "Monday"),
+        (3, "Tuesday"),
+        (4, "Wednesday"),
+        (5, "Thursday"),
+        (6, "Friday"),
+        (7, "Saturday")
+    )
+
+    day_of_week = forms.ChoiceField(label="Day of Week",
+        choices=days_of_week,
+        help_text='The day of week the emails were sent',
+        required=False)
+
+    url_filter = forms.CharField(label="URL Filter",
+        help_text='Include only urls with this text in it',
+        required=False)
+
+    email_domain = forms.CharField(label="Email Domain",
+        help_text='Include clicks from recipients email addresses that end in this string',
+        required=False)
+
+    def clean(self):
+        cleaned_data = super(ReportDetailForm, self).clean()
+        if cleaned_data['day_of_week'] == '':
+            cleaned_data['day_of_week'] = None
+        else:
+            cleaned_data['day_of_week'] = int(cleaned_data['day_of_week'])
+
+        if cleaned_data['url_filter'] == '':
+            cleaned_data['url_filter'] = None
+
+        if cleaned_data['email_domain'] == '':
+            cleaned_data['email_domain'] = None
+
+        return cleaned_data
 
 class SettingCreateUpdateForm(forms.ModelForm):
 

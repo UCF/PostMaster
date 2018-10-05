@@ -35,3 +35,7 @@ def can_unsubscribe(category, email_address):
         return False
 
     return True
+
+@register.filter
+def to_day_of_week(field):
+    return field.strftime('%A')

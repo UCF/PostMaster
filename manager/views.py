@@ -1,5 +1,6 @@
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 import time
 import logging
 import os
@@ -12,6 +13,7 @@ import urlparse
 import json
 import subprocess
 import sys
+from math import ceil
 
 from django.conf import settings
 from django.contrib import messages
@@ -48,6 +50,7 @@ from manager.forms import RecipientGroupSearchForm
 from manager.forms import RecipientGroupCreateForm
 from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
+from manager.forms import ReportDetailForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
 from manager.forms import SubscriptionCategoryForm
@@ -67,6 +70,7 @@ from manager.litmusapi import LitmusApi
 from manager.utils import CSVImport
 from manager.utils import EmailSender
 from manager.utils import AmazonS3Helper
+from manager.utils import get_report
 
 
 log = logging.getLogger(__name__)
@@ -1076,6 +1080,58 @@ def instance_open(request):
 ##
 # Utility Views
 ##
+class ReportView(FormView):
+    template_name = 'manager/report-view.html'
+    form_class = ReportDetailForm
+    paginate_by = 20
+
+    def get_initial(self):
+        initial = super(ReportView, self).get_initial()
+        initial = self.request.GET.copy()
+
+        if 'email_select' in initial:
+            initial.update({
+                'email_select': initial.getlist('email_select')
+            })
+
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportView, self).get_context_data()
+
+        if 'action' in self.request.GET and self.request.GET['action'] is not None:
+            action = self.request.GET['action']
+            form = ReportDetailForm(self.request.GET)
+
+            if form.is_valid():
+                stats, data = get_report(action, **form.cleaned_data)
+                params = self.request.GET.copy()
+                page = params.pop('page', 1)
+
+                # Correct for page being returned as a list
+                if type(page) != int:
+                    page = int(page[0])
+
+                paginator = Paginator(data, self.paginate_by)
+
+                try:
+                    data = paginator.page(page)
+                except PageNotAnInteger:
+                    data = paginator.page(1)
+                except EmptyPage:
+                    data = paginator.page(paginator.num_pages)
+
+                context['action'] = action
+                context['stats'] = stats
+                context['current_query_params'] = params.urlencode()
+                context['data'] = data
+                context['templates'] = {
+                    'stats': 'manager/reports/' + action + '_stats.html',
+                    'data': 'manager/reports/' + action + '_data.html'
+                }
+
+        return context
+
 class RecipientCSVImportView(RecipientsMixin, FormView):
     template_name = 'manager/recipient-csv-import.html'
     form_class = RecipientCSVImportForm

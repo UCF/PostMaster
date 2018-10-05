@@ -42,6 +42,9 @@ urlpatterns = [
     url(r'^recipient/(?P<pk>\d+)/update/$',           login_required(RecipientUpdateView.as_view()),             name='manager-recipient-update'),
     url(r'^recipient/(?P<pk>\d+)/subscriptions/$',    RecipientSubscriptionsUpdateView.as_view(),                name='manager-recipient-subscriptions'),
 
+    # Reports
+    url(r'^reporting/$', login_required(ReportView.as_view()), name='manager-report-view'),
+
     # Settings
     url(r'^setting/create/$',                      login_required(SettingCreateView.as_view()),      name='manager-setting-create'),
     url(r'^setting/(?P<pk>\d+)/delete/$',          login_required(SettingDeleteView.as_view()),      name='manager-setting-delete'),
