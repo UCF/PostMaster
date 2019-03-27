@@ -8,7 +8,6 @@
     <span class="text-default">Not available</span>
   {% endif %}
 </p>
-<p class="mb-1">Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</p>
   {% if instance.in_progress %}
     <div class="alert alert-info">
       <p>This instance is in progress: <span class="sent">0 of 0</span> emails sent.</p>
@@ -32,31 +31,10 @@
       <strong>Note:</strong> This instance was cancelled manually. <span class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before emails were sent to all recipients."></span>
     </div>
   {% endif %}
-  <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
   <div class="row">
     <div class="col-lg-7 col-sm-12 mb-3">
-      <section class="left-section previews">
-        <h3>Previews</h3>
-        {% if instance.litmus_id %}
-        <div class="row">
-          {% if desktop_thumbnail_image %}
-          <div class="col-md-3">
-            <h4 class="h5">Desktop</h4>
-            <a href="//{{ desktop_full_image }}"><img src="//{{ desktop_thumbnail_image }}" /></a>
-          </div>
-          {% endif %}
-          {% if mobile_thumbnail_image %}
-          <div class="col-md-3">
-            <h4 class="h5">Mobile</h4>
-            <a href="//{{ mobile_full_image }}"><img src="//{{ mobile_thumbnail_image }}" /></a>
-          </div>
-          {% endif %}
-        </div>
-        <a href="https://litmus.com/tests/{{ instance.litmus_id }}">View all previews</a>
-        {% else %}
-        <h4 class="h5">No Previews available</h4>
-        {% endif %}
-      </section>
+      <p class="mb-1">Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</p>
+      <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
     </div>
     <div class="col-lg-5 col-sm-12 mb-3">
       <div class="card">

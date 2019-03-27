@@ -187,18 +187,5 @@ LOGGING = {
     }
 }
 
-LITMUS_USER = 'user'
-LITMUS_PASS = 'pass'
-LITMUS_BASE_URL = 'https://ucf.litmus.com/'
-# SNI is not native to python 2.6.6. The link below indicates options that
-# don't seem to work. Python 2.6.6 with pyOpenSSL causes a
-# "data must be a byte string" error. Sugget using python 2.7.9 or later
-# which has native SNI.
-# http://stackoverflow.com/questions/29134512/insecureplatformwarning-a-true-sslcontext-object-is-not-available-this-prevent
-LITMUS_VERIFY = False
-# Litmus takes a long time to respond. Giving it a solid 10secs.
-# 5secs was not enough.
-LITMUS_TIMEOUT = 10
-
 # License for Froala editor.  Can leave blank for local development
 FROALA_EDITOR_LICENSE = ''
