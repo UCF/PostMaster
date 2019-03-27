@@ -4,4 +4,16 @@
 
 .report-data-card {
   font-size: .9rem;
+
+  .collapse-icon {
+    span:before {
+      content: "\f077";
+    }
+    &.collapsed {
+      span:before {
+        content: "\f078";
+      }
+    }
+  }
 }
+

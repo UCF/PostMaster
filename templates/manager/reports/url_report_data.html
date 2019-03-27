@@ -20,7 +20,9 @@
             </div>
             <div class="col-2 text-center">{{ url.total_clicks }}</div>
             <div class="col-1">
-              <a class="collapsed text-secondary" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}"><span class="fas fa-chevron-down" aria-hidden="true"></span></a>
+              <a class="collapse-icon collapsed text-secondary" data-toggle="collapse" href="#collapse{{ url.id }}" aria-expanded="false" aria-controls="collapse{{ url.id }}">
+                <span class="fas" aria-hidden="true"></span>
+              </a>
             </div>
           </div>
         </a>
@@ -34,7 +36,13 @@
                 <div class="text-default">Email Title</div>
                 <h4 class="h5">{{ url.instance.email.title }}</h4>
                 <div class="text-default mt-2">Instance Subject</div>
-                <h4 class="h5">{{ url.instance.subject }}</h4>
+                <h4 class="h5">
+                  {% if url.instance.subject %}
+                    {{ url.instance.subject }}
+                  {% else %}
+                    <span class="font-italic">Not available</span>
+                  {% endif %}
+                </h4>
               </div>
               <div class="col-6">
                 <div class="row mb-0">
