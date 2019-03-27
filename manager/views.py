@@ -63,7 +63,6 @@ from manager.models import SubprocessStatus
 from manager.models import SubscriptionCategory
 from manager.models import URL
 from manager.models import URLClick
-from manager.litmusapi import LitmusApi
 from manager.utils import CSVImport
 from manager.utils import EmailSender
 from manager.utils import AmazonS3Helper
@@ -439,35 +438,6 @@ class InstanceDetailView(EmailsMixin, DetailView):
     model = Instance
     template_name = 'manager/email-instance.html'
     context_object_name = 'instance'
-
-    def get_context_data(self, **kwargs):
-        """
-        Add the thumbnail preview to the context data
-        """
-        context = super(InstanceDetailView, self).get_context_data(**kwargs)
-        if self.object.litmus_id:
-            litmus = LitmusApi(settings.LITMUS_BASE_URL,
-                               settings.LITMUS_USER,
-                               settings.LITMUS_PASS,
-                               settings.LITMUS_TIMEOUT,
-                               settings.LITMUS_VERIFY)
-            xml_test = litmus.get_test(self.object.litmus_id)
-            desktop_images = litmus.get_image_urls('ol2015',
-                                                   xml=xml_test)
-            mobile_images = litmus.get_image_urls('iphone6',
-                                                  xml=xml_test)
-            if desktop_images is not None:
-                context['desktop_thumbnail_image'] = desktop_images['thumbnail_url']
-                context['desktop_full_image'] = desktop_images['full_url']
-
-            if mobile_images is not None:
-                context['mobile_thumbnail_image'] = mobile_images['thumbnail_url']
-                context['mobile_full_image'] = mobile_images['full_url']
-
-            context['litmus_url'] = settings.LITMUS_BASE_URL + \
-                LitmusApi.TESTS + self.object.litmus_id
-
-        return context
 
 
 def instance_cancel(request, pk):
