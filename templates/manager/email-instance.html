@@ -24,27 +24,27 @@
       <strong>Note:</strong> This instance was cancelled manually. <span class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before emails were sent to all recipients."></span>
     </div>
   {% endif %}
-  <div class="row align-content-center">
+  <div class="row">
     <div class="col-lg-7 col-sm-12 mb-3">
       <dl class="row">
-        <dd class="col-md-4">Instance Subject</dd>
+        <dd class="col-md-4 mb-0 mb-md-2">Instance Subject</dd>
         {% if instance.subject %}
-        <dt class="col-md-8">{{instance.subject}}</dt>
+        <dt class="col-md-8 mb-3 mb-md-0">{{instance.subject}}</dt>
         {% else %}
-        <dt class="col-md-8 text-default">Not available</dt>
+        <dt class="col-md-8 mb-3 mb-md-0">Not available</dt>
         {% endif %}
-        <dd class="col-md-4">Start Time</dd>
-        <dt class="col-md-8">{{instance.start}}</dt>
+        <dd class="col-md-4 mb-0 mb-md-2">Start Time</dd>
+        <dt class="col-md-8 mb-3 mb-md-0">{{instance.start}}</dt>
         {% if not instance.in_progress %}
-        <dd class="col-md-4">End Time</dd>
-        <dt class="col-md-8">{{instance.end}}</dt>
-        <dd class="col-md-4">Total Send Time</dd>
-        <dt class="col-md-8">{{instance.total_time}}</dt>
+        <dd class="col-md-4 mb-0 mb-md-2">End Time</dd>
+        <dt class="col-md-8 mb-3 mb-md-0">{{instance.end}}</dt>
+        <dd class="col-md-4 mb-0 mb-md-2">Total Send Time</dd>
+        <dt class="col-md-8 mb-3 mb-md-0">{{instance.total_time}}</dt>
         {% endif %}
-        <dd class="col-md-4">Recipients</dd>
-        <dt class="col-md-8">{{instance.recipient_details.count}}</dt>
-        <dd class="col-md-4">Emails Sent</dd>
-        <dt class="col-md-8">{{instance.sent_count}}</dt>
+        <dd class="col-md-4 mb-0 mb-md-2">Recipients</dd>
+        <dt class="col-md-8 mb-3 mb-md-0">{{instance.recipient_details.count}}</dt>
+        <dd class="col-md-4 mb-0 mb-md-2">Emails Sent</dd>
+        <dt class="col-md-8 mb-3 mb-md-0">{{instance.sent_count}}</dt>
       </dl>
     </div>
     <div class="col-lg-5 col-sm-12 mb-3">
