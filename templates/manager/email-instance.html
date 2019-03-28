@@ -1,13 +1,6 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">{{instance.email.title}} Instance</h1>
-<p class="lead">Email subject:
-  {% if instance.subject %}
-    <span class="font-weight-bold">{{instance.subject}}</span>
-  {% else %}
-    <span class="text-default">Not available</span>
-  {% endif %}
-</p>
   {% if instance.in_progress %}
     <div class="alert alert-info">
       <p>This instance is in progress: <span class="sent">0 of 0</span> emails sent.</p>
@@ -31,10 +24,26 @@
       <strong>Note:</strong> This instance was cancelled manually. <span class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="This instance was cancelled before emails were sent to all recipients."></span>
     </div>
   {% endif %}
-  <div class="row">
+  <div class="row align-content-center">
     <div class="col-lg-7 col-sm-12 mb-3">
-      <p class="mb-1">Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</p>
-      <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
+      <dl class="row">
+        <dd class="col-md-4">Instance Subject</dd>
+        {% if instance.subject %}
+        <dt class="col-md-8 font-weight-bold">{{instance.subject}}</dt>
+        {% else %}
+        <dt class="col-md-8 text-default">Not available</dt>
+        {% endif %}
+        <dd class="col-md-4">Start Time</dd>
+        <dt class="col-md-8 font-weight-bold">{{instance.start}}</dt>
+        {% if not instance.in_progress %}
+        <dd class="col-md-4">End Time</dd>
+        <dt class="col-md-8 font-weight-bold">{{instance.end}}</dt>
+        {% endif %}
+        <dd class="col-md-4">Recipients</dd>
+        <dt class="col-md-8 font-weight-bold">{{instance.recipient_details.count}}</dt>
+        <dd class="col-md-4">Emails Sent</dd>
+        <dt class="col-md-8">{{instance.sent_count}}</dt>
+      </dl>
     </div>
     <div class="col-lg-5 col-sm-12 mb-3">
       <div class="card">
