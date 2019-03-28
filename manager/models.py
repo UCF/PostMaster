@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
+from django.utils.timesince import timesince
 from itertools import chain
 import logging
 import smtplib
@@ -948,6 +949,10 @@ class Instance(models.Model):
                     name     = href,
                     position = URL.objects.filter(instance=self, name=href).count())[0])
         return urls
+
+    @property
+    def total_time(self):
+        return timesince(self.start, self.end)
 
     class Meta:
         ordering = ('-start',)

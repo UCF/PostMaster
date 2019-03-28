@@ -29,18 +29,20 @@
       <dl class="row">
         <dd class="col-md-4">Instance Subject</dd>
         {% if instance.subject %}
-        <dt class="col-md-8 font-weight-bold">{{instance.subject}}</dt>
+        <dt class="col-md-8">{{instance.subject}}</dt>
         {% else %}
         <dt class="col-md-8 text-default">Not available</dt>
         {% endif %}
         <dd class="col-md-4">Start Time</dd>
-        <dt class="col-md-8 font-weight-bold">{{instance.start}}</dt>
+        <dt class="col-md-8">{{instance.start}}</dt>
         {% if not instance.in_progress %}
         <dd class="col-md-4">End Time</dd>
-        <dt class="col-md-8 font-weight-bold">{{instance.end}}</dt>
+        <dt class="col-md-8">{{instance.end}}</dt>
+        <dd class="col-md-4">Total Send Time</dd>
+        <dt class="col-md-8">{{instance.total_time}}</dt>
         {% endif %}
         <dd class="col-md-4">Recipients</dd>
-        <dt class="col-md-8 font-weight-bold">{{instance.recipient_details.count}}</dt>
+        <dt class="col-md-8">{{instance.recipient_details.count}}</dt>
         <dd class="col-md-4">Emails Sent</dd>
         <dt class="col-md-8">{{instance.sent_count}}</dt>
       </dl>
