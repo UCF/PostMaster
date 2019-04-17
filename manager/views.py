@@ -1216,14 +1216,15 @@ def create_recipient_group_email_opens(request):
     email_instance = Instance.objects.get(pk=email_instance_id)
     recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
 
+    recipients = [recipient[0] for recipient in recipients]
+
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
-        recipient_group.name = recipient_group.name + ' - 1'
+        recipient_group.name = recipient_group.name + '-1'
 
     recipient_group.save()
 
-    for recipient in recipients:
-        recipient_group.recipients.add(recipient[0])
+    recipient_group.recipients.add(*recipients)
 
     recipient_group.save()
 
@@ -1248,12 +1249,11 @@ def create_recipient_group_url_clicks(request):
     recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     recipient_group.save()
 
-    for url_click in url_clicks:
-        for click in url_click:
-            if click.recipient not in recipient_group.recipients.all():
-                recipient_group.recipients.add(click.recipient)
+    recipients = [click.recipient for click in url_click for url_click in url_clicks]
 
-    #recipient_group.save()
+    recipient_group.recipients.add(*recipients)
+
+    recipient_group.save()
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(
