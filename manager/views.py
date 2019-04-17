@@ -1249,7 +1249,11 @@ def create_recipient_group_url_clicks(request):
     recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     recipient_group.save()
 
-    recipients = [click.recipient for click in url_click for url_click in url_clicks]
+    recipients = []
+
+    for url_click in url_clicks:
+        for click in url_click:
+            recipients.append(click.recipient)
 
     recipient_group.recipients.add(*recipients)
 
