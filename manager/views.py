@@ -1249,12 +1249,11 @@ def create_recipient_group_url_clicks(request):
     recipient_group = RecipientGroup(name='URL Click Recipient Group - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     recipient_group.save()
 
-    for url_click in url_clicks:
-        for click in url_click:
-            if click.recipient not in recipient_group.recipients.all():
-                recipient_group.recipients.add(click.recipient)
+    recipients = [click.recipient for click in url_click for url_click in url_clicks]
 
-    #recipient_group.save()
+    recipient_group.recipients.add(*recipients)
+
+    recipient_group.save()
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
     return HttpResponseRedirect(
