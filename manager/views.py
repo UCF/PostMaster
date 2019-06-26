@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
@@ -949,10 +950,13 @@ def redirect(request):
     recipient_id = request.GET.get('recipient', None)
     mac = request.GET.get('mac', None)
 
-    if not url_string:
-        pass  # Where do we go?
+    if not url_string or not position or not recipient_id or not mac or not instance_id:
+        raise Http404("Poll does not exist")
     else:
         url_string = urllib.unquote(url_string)
+
+        if not URL.objects.filter(name=url_string).exists():
+            raise Http404("Poll does not exist")
         # No matter what happens, make sure the redirection works
         try:
             if position and recipient_id and mac and instance_id:
