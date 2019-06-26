@@ -950,13 +950,12 @@ def redirect(request):
     recipient_id = request.GET.get('recipient', None)
     mac = request.GET.get('mac', None)
 
-    if not url_string:
-        pass  # Where do we go?
+    if not url_string or not position or not recipient_id or not mac or not instance_id:
+        raise Http404("Poll does not exist")
     else:
         url_string = urllib.unquote(url_string)
-        url_count = URL.objects.filter(name=url_string).count()
 
-        if (url_count < 1):
+        if not URL.objects.filter(name=url_string).exists():
             raise Http404("Poll does not exist")
         # No matter what happens, make sure the redirection works
         try:
