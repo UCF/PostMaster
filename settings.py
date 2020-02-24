@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.forms',
     'widget_tweaks',
+    'sns',
     'manager',
 )
 
