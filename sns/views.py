@@ -1,7 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+try:
+    import urllib2 as urllib
+except ImportError:
+    import urllib
+
+try:
+    # Python 3
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2.7
+    from urllib import urlopen
+
 import logging
+import six
 
 from django.http import HttpResponseBadRequest, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
@@ -26,10 +39,6 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 class Endpoint(View):
-    VITAL_NOTIFICATION_FIELDS = [
-        'notificationType'
-    ]
-
     ALLOWED_TYPES = [
         'Bounce', 'Complaint'
     ]
@@ -56,10 +65,9 @@ class Endpoint(View):
             logger.warning('Notification Not Valid JSON: {}'.format(request_body))
             return HttpResponseBadRequest('Not Valid JSON')
 
-        # Make sure we have all the fields we need to verify
-        if not set(self.VITAL_NOTIFICATION_FIELDS) <= set(data):
-            logger.warning('Request Missing Necessary Keys')
-            return HttpResponseBadRequest('Request Missing Necessary Keys')
+        if 'Type' in data and data['Type'] == 'SubscriptionConfirmation':
+            return self.process_subscription(data)
+
 
         # Make sure this is a notification type we can handle
         if not data['notificationType'] in self.ALLOWED_TYPES:
@@ -155,3 +163,18 @@ class Endpoint(View):
             )
 
         return HttpResponse('Complaint Processed')
+
+    def process_subscription(self, data):
+        """
+        Process to verify SNS subscription
+        """
+        url = data['SubscribeURL']
+
+        try:
+            result = urlopen(url).read()
+            logger.info('Subscription Request Sent %s', url)
+        except urllib.HTTPError as error:
+            result = error.read()
+            logger.warning('HTTP Error Creating Subscription %s', str(result))
+
+        return HttpResponse(six.u(result))
