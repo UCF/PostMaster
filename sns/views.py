@@ -83,6 +83,11 @@ class Endpoint(View):
         mail = data['mail']
         bounce = data['bounce']
 
+        if 'commonHeaders' in mail:
+            subject = mail['commonHeaders']['subject']
+        else:
+            subject = None
+
         bounces = []
         for recipient in bounce['bouncedRecipients']:
             bounces += [Bounce.objects.create(
@@ -99,7 +104,8 @@ class Endpoint(View):
                 reporting_mta=bounce.get('reportingMTA'),
                 action=recipient.get('action'),
                 status=recipient.get('status'),
-                diagnostic_code=recipient.get('diagnosticCode')
+                diagnostic_code=recipient.get('diagnosticCode'),
+                subject=subject
             )]
 
         for bounce in bounces:
@@ -114,6 +120,11 @@ class Endpoint(View):
     def process_complaint(self, data, request):
         mail = data['mail']
         complaint = data['complaint']
+
+        if 'commonHeaders' in mail:
+            subject = mail['commonHeaders']['subject']
+        else:
+            subject = None
 
         if 'arrivalDate' in complaint:
             arrival_date = clean_time(complaint['arrivalDate'])
@@ -132,7 +143,8 @@ class Endpoint(View):
                 feedback_timestamp=clean_time(complaint['timestamp']),
                 user_agent=complaint.get('userAgent'),
                 feedback_type=complaint.get('complaintFeedbackType'),
-                arrival_date=arrival_date
+                arrival_date=arrival_date,
+                subject=subject
             )]
 
         for complaint in complaints:

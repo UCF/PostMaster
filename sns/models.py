@@ -12,6 +12,7 @@ class Feedback(models.Model):
     mail_id = models.CharField(max_length=100)
     mail_from = models.EmailField()
     address = models.EmailField()
+    subject = models.CharField(max_length=255, null=True, blank=True)
     feedback_id = models.CharField(max_length=100, null=True, blank=True)
     feedback_timestamp = models.DateTimeField(verbose_name="Feedback Time", null=True, blank=True)
 
