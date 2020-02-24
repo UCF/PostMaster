@@ -87,7 +87,6 @@ class Endpoint(View):
         for recipient in bounce['bouncedRecipients']:
             bounces += [Bounce.objects.create(
                 sns_topic=mail['sourceArn'],
-                sns_message_id=mail['messageId'],
                 mail_timestamp=clean_time(mail['timestamp']),
                 mail_id=mail['messageId'],
                 mail_from=mail['source'],
@@ -125,7 +124,6 @@ class Endpoint(View):
         for recipient in complaint['complainedRecipients']:
             complaints += [Complaint.objects.create(
                 sns_topic=mail['sourceArn'],
-                sns_message_id=mail['messageId'],
                 mail_timestamp=clean_time(mail['timestamp']),
                 mail_id=mail['messageId'],
                 mail_from=mail['source'],

@@ -8,7 +8,6 @@ class Feedback(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     sns_topic = models.CharField(max_length=350)
-    sns_message_id = models.CharField(max_length=100)
     mail_timestamp = models.DateTimeField()
     mail_id = models.CharField(max_length=100)
     mail_from = models.EmailField()
