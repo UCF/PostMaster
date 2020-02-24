@@ -10,8 +10,8 @@ from manager.models import Recipient
 
 logger = logging.getLogger(__name__)
 
-notification = Signal(providing_args=['notification', 'request'])
-
+# Signal that is fired when a feedback object is created
+# This can be a Bounce or Complaint that is processed.
 feedback = Signal(providing_args=['instance', 'message'])
 
 @receiver(post_save, sender=Bounce)
