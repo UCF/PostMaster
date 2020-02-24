@@ -52,3 +52,9 @@ class Complaint(Feedback):
         return "%s Complaint (email sender: from %s)" % (
             self.address, self.mail_from
         )
+
+# Signals
+from sns.signals import *
+
+post_save.connect(maybe_disable_bounce, sender=Bounce)
+post_save.connect(maybe_disable_complaint, sender=Complaint)

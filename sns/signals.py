@@ -1,6 +1,7 @@
 import logging
 from django.dispatch import Signal
 from django.dispatch import receiver
+from django.conf import settings
 from django.db.models.signals import post_save
 
 from sns.models import Bounce, Complaint
@@ -32,7 +33,7 @@ def maybe_disable_bounce(sender, instance, raw, using, **kwargs):
             recipient.save()
 
 @receiver(post_save, sender=Complaint)
-def maybe_disable_bounce(sender, instance, raw, using, **kwargs):
+def maybe_disable_complaint(sender, instance, raw, using, **kwargs):
     try:
         recipient = Recipient.objects.get(email_address=instance.address.lower())
     except Recipient.DoesNotExist:
