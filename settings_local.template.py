@@ -189,3 +189,5 @@ LOGGING = {
 
 # License for Froala editor.  Can leave blank for local development
 FROALA_EDITOR_LICENSE = ''
+
+MAX_BOUNCE_COUNT = 3
