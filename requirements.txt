@@ -3,7 +3,6 @@ boto==2.49.0
 certifi==2018.4.16
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.8
 Django==1.11.12
 django-background-tasks==1.1.13
 django-compat==1.0.15
