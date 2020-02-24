@@ -3,7 +3,7 @@ from django.dispatch import Signal
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from sns.models import Bounce
+from sns.models import Bounce, Complaint
 
 from manager.models import Recipient
 
@@ -30,3 +30,16 @@ def maybe_disable_bounce(sender, instance, raw, using, **kwargs):
         if bounce_count > settings.MAX_BOUNCE_COUNT:
             recipient.disable = True
             recipient.save()
+
+@receiver(post_save, sender=Complaint)
+def maybe_disable_bounce(sender, instance, raw, using, **kwargs):
+    try:
+        recipient = Recipient.objects.get(email_address=instance.address.lower())
+    except Recipient.DoesNotExist:
+        logger.warning("The recipient %s could not be found during a disable recipient hook.", instance.address)
+        return
+
+    if recipient:
+        recipient.disable = True
+        recipient.save()
+

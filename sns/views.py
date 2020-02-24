@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.views.generic import View
 
 from sns import signals
-from sns.models import Bounce
+from sns.models import Bounce, Complaint
 from sns.utils import clean_time
 
 import json
@@ -113,6 +113,35 @@ class Endpoint(View):
         return HttpResponse('Bounce Processed')
 
     def process_complaint(self, data, request):
-        print data
+        mail = data['mail']
+        complaint = data['complaint']
+
+        if 'arrivalDate' in complaint:
+            arrival_date = clean_time(complaint['arrivalDate'])
+        else:
+            arrival_date = None
+
+        complaints = []
+        for recipient in complaint['complainedRecipients']:
+            complaints += [Complaint.objects.create(
+                sns_topic=mail['sourceArn'],
+                sns_message_id=mail['messageId'],
+                mail_timestamp=clean_time(mail['timestamp']),
+                mail_id=mail['messageId'],
+                mail_from=mail['source'],
+                address=recipient['emailAddress'],
+                feedback_id=complaint['feedbackId'],
+                feedback_timestamp=clean_time(complaint['timestamp']),
+                user_agent=complaint.get('userAgent'),
+                feedback_type=complaint.get('complaintFeedbackType'),
+                arrival_date=arrival_date
+            )]
+
+        for complaint in complaints:
+            signals.feedback.send(
+                sender=Complaint,
+                instance=complaint,
+                message=data
+            )
 
         return HttpResponse('Complaint Processed')
