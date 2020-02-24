@@ -16,6 +16,14 @@ feedback = Signal(providing_args=['instance', 'message'])
 
 @receiver(post_save, sender=Bounce)
 def maybe_disable_bounce(sender, instance, raw, using, **kwargs):
+    """
+    Hooked function for when Bounce objects are created.
+    When the object is created, this function checks to see
+    if this is a hard bounce or not. If it is a hard bounce,
+    the receipient is always disabled. For soft bounces,
+    the MAX_BOUNCE_COUNT setting is used to determine if
+    the recipient should be disabled.
+    """
     try:
         recipient = Recipient.objects.get(email_address=instance.address.lower())
     except Recipient.DoesNotExist:
@@ -34,6 +42,11 @@ def maybe_disable_bounce(sender, instance, raw, using, **kwargs):
 
 @receiver(post_save, sender=Complaint)
 def maybe_disable_complaint(sender, instance, raw, using, **kwargs):
+    """
+    Hooked function for when Complaint objects are created.
+    If the recpient that issued the complain can be found,
+    that recipient is disabled.
+    """
     try:
         recipient = Recipient.objects.get(email_address=instance.address.lower())
     except Recipient.DoesNotExist:
