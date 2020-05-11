@@ -118,6 +118,20 @@ class SortSearchMixin(object):
         context['sort'] = self._sort
         context['order'] = self._order
         context['search_query'] = self._search_query
+
+        if 'page_obj' in context:
+            page = context['page_obj']
+
+        if page in context and page.has_previous():
+            url = '?page=' + str(page.previous_page_number())
+            url += '&search_query=' + self._search_query if self._search_query != '' else ''
+            context['previous_url'] = url
+
+        if page and page.has_next():
+            url = '?page=' + str(page.next_page_number())
+            url += '&search_query=' + self._search_query if self._search_query != '' else ''
+            context['next_url'] = url
+
         return context
 
 class EmailsMixin(object):
