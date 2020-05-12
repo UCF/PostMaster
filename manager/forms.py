@@ -167,7 +167,7 @@ RecipientAttributeFormSet = inlineformset_factory(Recipient, RecipientAttribute,
 
 
 class RecipientSearchForm(forms.Form):
-    email_address = forms.CharField(widget=forms.TextInput())
+    search_query = forms.CharField(widget=forms.TextInput())
 
 
 class RecipientSubscriptionsForm(forms.ModelForm):

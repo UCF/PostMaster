@@ -16,7 +16,7 @@
           Showing {{ page_obj.paginator.count }} search result{% if page_obj.paginator.count > 1 %}s{% endif %} for <span class="text-complementary font-weight-bold">&ldquo;{{ search_query }}&rdquo;</span>
         </p>
       {% endif %}
-      <form class="form-inline float-right" action="{% url 'manager-recipientgroups' %}" method="get">
+      <form class="form-inline float-right" action="{% if preview %}{% url 'manager-recipientgroups-previewgroups' %}{% else %}{% url 'manager-recipientgroups-previewgroups' %}{% endif %}" method="get">
         <div class="form-group">
           <div class="input-group">
             {{search_form.search_query|add_class:"form-control form-control-sm search-query"|attr:"required"|attr:"placeholder:Search for..."|attr:"aria-label:Search for..."}}

@@ -77,7 +77,7 @@ log = logging.getLogger(__name__)
 ##
 class SortSearchMixin(object):
     def get_queryset(self):
-        queryset = super(SortSearchMixin, self).get_queryset();
+        queryset = super(SortSearchMixin, self).get_queryset()
 
         # sort parameter
         self._sort = 'asc'
@@ -118,6 +118,20 @@ class SortSearchMixin(object):
         context['sort'] = self._sort
         context['order'] = self._order
         context['search_query'] = self._search_query
+
+        if 'page_obj' in context:
+            page = context['page_obj']
+
+        if page and page.has_previous():
+            url = '?page=' + str(page.previous_page_number())
+            url += '&search_query=' + self._search_query if self._search_query != '' else ''
+            context['previous_url'] = url
+
+        if page and page.has_next():
+            url = '?page=' + str(page.next_page_number())
+            url += '&search_query=' + self._search_query if self._search_query != '' else ''
+            context['next_url'] = url
+
         return context
 
 class EmailsMixin(object):
@@ -611,17 +625,21 @@ class RecipientGroupDeleteView(RecipientGroupsMixin, DeleteView):
 ##
 # Recipients
 ##
-class RecipientListView(RecipientsMixin, ListView):
+class RecipientListView(RecipientsMixin, SortSearchMixin, ListView):
     model = Recipient
     template_name = 'manager/recipients.html'
     context_object_name = 'recipients'
     paginate_by = 20
 
     def get_queryset(self):
+        self.search_field = 'email_address'
+        self.search_form = EmailSearchForm(self.request.GET)
+        super(RecipientListView, self).get_queryset()
+
         self._search_form = RecipientSearchForm(self.request.GET)
         self._search_valid = self._search_form.is_valid()
         if self._search_valid:
-            return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['email_address'])
+            return Recipient.objects.filter(email_address__icontains=self._search_form.cleaned_data['search_query'])
         else:
             return Recipient.objects.all().order_by('disable', 'email_address')
 
@@ -629,7 +647,7 @@ class RecipientListView(RecipientsMixin, ListView):
         context = super(RecipientListView, self).get_context_data(**kwargs)
         context['search_form'] = self._search_form
         context['search_valid'] = self._search_valid
-        context['search_query'] = self._search_form.cleaned_data['email_address'] if self._search_valid else ''
+        context['search_query'] = self._search_form.cleaned_data['search_query'] if self._search_valid else ''
         return context
 
 
