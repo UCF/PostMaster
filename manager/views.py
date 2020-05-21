@@ -1083,6 +1083,7 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
             columns = list(col.strip() for col in form.cleaned_data['column_order'].split(','))
             column_order = ','.join(columns)
             skip_first_row = form.cleaned_data['skip_first_row']
+            remove_stale = form.cleaned_data['remove_stale']
             csv_file = form.cleaned_data['csv_file']
             existing_group_id = None
 
@@ -1123,7 +1124,8 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
                 '--group-name={0}'.format(group),
                 '--ignore-first-row={0}'.format(skip_first_row),
                 '--column-order={0}'.format(column_order),
-                '--subprocess={0}'.format(self.tracker_pk)
+                '--subprocess={0}'.format(self.tracker_pk),
+                '--remove-stale={0}'.format(remove_stale)
             ]
 
             subprocess.Popen(command, close_fds=True)
