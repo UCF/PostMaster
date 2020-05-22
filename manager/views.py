@@ -1301,12 +1301,12 @@ def create_recipient_group_email_unopens(request, email_instance):
     that did not open the email
     POST only
     '''
-    recipients = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient')
+    recipients = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk')
 
-    recipients = [recipient[0] for recipient in recipients]
+    recipients_pks = [recipient[0] for recipient in recipients]
 
     # Remove all the opens from the sent recipients
-    recipients = email_instance.recipients.exclude(pk__in=recipients)
+    recipients = email_instance.recipients.exclude(pk__in=recipients_pks)
 
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group - Unopens - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
