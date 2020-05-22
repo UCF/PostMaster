@@ -1289,10 +1289,10 @@ def create_recipient_group_email_unopens(request):
     email_instance = Instance.objects.get(pk=email_instance_id)
     recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
 
+    recipients = [recipient[0] for recipient in recipients]
+
     # Remove all the opens from the sent recipients
     recipients = email_instance.recipients.exclude(pk__in=recipients)
-
-    recipients = [recipient[0] for recipient in recipients]
 
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group - Unopens - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
