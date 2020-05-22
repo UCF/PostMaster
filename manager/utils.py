@@ -41,8 +41,9 @@ class CSVImport:
     column_order = 'email,preferred_name'
     subprocess = None
     update_factor = 1
+    remove_stale = False
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False):
         if csv_file:
             self.csv_file = csv_file
         else:
@@ -60,6 +61,8 @@ class CSVImport:
 
         if column_order:
             self.column_order = column_order
+
+        self.remove_stale = remove_stale
 
         self.subprocess = subprocess
 
@@ -80,6 +83,9 @@ class CSVImport:
             group = RecipientGroup(name=self.recipient_group_name)
             new_group = True
             group.save()
+
+        if self.remove_stale:
+            group.recipients.clear()
 
         if self.subprocess:
             self.tracker = SubprocessStatus.objects.get(pk=self.subprocess)
@@ -223,6 +229,12 @@ class CSVImport:
             self.delete_file(self.csv_file.name)
 
     def update_status(self, status, error, current_unit):
+        if (self.subprocess and status == "Completed") :
+            self.tracker.status = "Completed"
+            self.tracker.error = ""
+            self.tracker.current_unit = self.tracker.total_units
+            self.tracker.save()
+
         if (self.subprocess and
             (current_unit % self.update_factor == 0
             or current_unit == self.tracker.total_units)

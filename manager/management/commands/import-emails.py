@@ -55,6 +55,14 @@ class Command(BaseCommand):
             default=None
         )
 
+        parser.add_argument(
+            '--remove-stale',
+            dest='remove_stale',
+            type=bool,
+            help='If True, will remove recipients not found in the file from an existing recipient group.',
+            default=False
+        )
+
     def handle(self, *args, **options):
         filename = options['csv']
         group_name = options['group_name']
@@ -62,8 +70,9 @@ class Command(BaseCommand):
         ignore_first_row = options['ignore_first_row']
         subprocess = options['subprocess']
         remove_file = options['remove_file']
+        remove_stale = options['remove_stale']
 
-        importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess)
+        importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess, remove_stale)
         try:
             importer.import_emails()
         except Exception, e:
