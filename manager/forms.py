@@ -132,6 +132,7 @@ class RecipientCSVImportForm(forms.Form):
     column_order = forms.CharField(
         help_text='Enter, seperated by commas, the name of the columns in your CSV (i.e. first_name,last_name,email,preferred_name).')
     skip_first_row = forms.BooleanField(help_text='Check if you have column names in your first row.', required=False)
+    remove_stale = forms.BooleanField(help_text='Check if you want to remove recipients not listed in the CSV. (Only applies to existing groups with recipients)', label="Remove missing recipients", required=False)
     csv_file = forms.FileField()
 
     def clean(self):
