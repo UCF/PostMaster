@@ -72,6 +72,11 @@
           <button type="submit" class="btn btn-primary">Create Recipient Group</button>
           <p class="small mt-2">Creates a Recipient Group based on recipients who opened this email.</p>
         </form>
+        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-unopens' %}" method="post">
+          <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
+          <button type="submit" class="btn btn-default">Create Unopen Recipient Group</button>
+          <p class="small mt-2">Creates a Recipient Group based on recipients who <em>did not</em> open this email.</p>
+        </form>
         {% endif %}
         </div>
       </div>
