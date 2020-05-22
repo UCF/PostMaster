@@ -29,6 +29,9 @@
             <a href="{% url 'manager-recipientgroup-delete' pk=recipientgroup.id %}" class="float-right btn btn-danger">
               <span class="fas fa-trash" aria-hidden="true"></span> Delete
             </a>
+            <a href="{% url 'manager-recipientgroup-export' pk=recipientgroup.id %}" class="float-right btn btn-default mr-1">
+              <span class="fa fa-list-alt" aria-hidden="true"></span> Export
+            </a>
           </div>
         </div>
     </fieldset>

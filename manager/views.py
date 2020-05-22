@@ -12,6 +12,7 @@ import urlparse
 import json
 import subprocess
 import sys
+import csv
 
 from django.conf import settings
 from django.contrib import messages
@@ -1289,6 +1290,28 @@ def create_recipient_group_url_clicks(request):
         )
     )
 
+def csv_export_recipient_group(request, pk):
+    try:
+        group = RecipientGroup.objects.get(pk=pk)
+    except RecipientGroup.DoesNotExist:
+        return HttpResponse(
+            '<h1>The recipient group does not exist.</h1>',
+            status=400
+        )
+
+    filename = "{0}-export.csv".format(group.name)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+
+    writer = csv.writer(response)
+
+    writer.writerow(['email'])
+
+    for recipient in group.recipients.all():
+        writer.writerow([recipient.email_address])
+
+    return response
 
 def s3_upload_user_file(request):
     """
