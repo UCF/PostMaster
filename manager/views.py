@@ -104,12 +104,10 @@ class SortSearchMixin(object):
 
         if self._sort and self._order == 'des':
             self._order = 'asc'
-            queryset.order_by(self._sort)
-
-            return queryset
+            return queryset.order_by('-{0}'.format(self._sort))
         elif self._sort and self._order == 'asc':
             self._order = 'des'
-            return queryset.order_by('-' + self._sort)
+            return queryset.order_by(self._sort)
         else:
             return queryset
 
