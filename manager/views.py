@@ -80,7 +80,7 @@ class SortSearchMixin(object):
         queryset = super(SortSearchMixin, self).get_queryset()
 
         # sort parameter
-        self._sort = 'asc'
+        self._sort = None
         self._order = 'asc'
         self._search_query = ''
 
@@ -102,14 +102,14 @@ class SortSearchMixin(object):
             }
             queryset = queryset.filter(**kwargs)
 
-        if self._sort:
+        if self._sort and self._order == 'des':
+            self._order = 'asc'
             queryset.order_by(self._sort)
-            if self._order == 'des':
-                self._order = 'asc'
-                return queryset.reverse()
-            else:
-                self._order = 'des'
-                return queryset
+
+            return queryset
+        elif self._sort and self._order == 'asc':
+            self._order = 'des'
+            return queryset.order_by('-' + self._sort)
         else:
             return queryset
 
