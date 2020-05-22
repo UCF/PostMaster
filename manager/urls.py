@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^recipientgroup/create/url-clicks/$',       login_required(create_recipient_group_url_clicks),         name='manager-recipientgroup-create-url-clicks'),
     url(r'^recipientgroup/(?P<pk>\d+)/update/$',      login_required(RecipientGroupUpdateView.as_view()),        name='manager-recipientgroup-update'),
     url(r'^recipientgroup/(?P<pk>\d+)/delete/$',      login_required(RecipientGroupDeleteView.as_view()),        name='manager-recipientgroup-delete'),
+    url(r'^recipientgroup/(?P<pk>\d+)/export/$',      login_required(csv_export_recipient_group),                name='manager-recipientgroup-export'),
     url(r'^recipients/$',                             login_required(RecipientListView.as_view()),               name='manager-recipients'),
     url(r'^recipients/json/$',                        login_required(recipient_json_feed),                       name='manager-recipients-json'),
     url(r'^recipients/csv-import/$',                  login_required(RecipientCSVImportView.as_view()),          name='manager-recipients-csv-import'),
