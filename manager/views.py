@@ -81,7 +81,8 @@ class SortSearchMixin(object):
 
         # sort parameter
         self._sort = None
-        self._order = 'asc'
+        self._order = None
+        self._order_change = 'asc'
         self._search_query = ''
 
         if self.request.GET.get('sort'):
@@ -103,32 +104,50 @@ class SortSearchMixin(object):
             queryset = queryset.filter(**kwargs)
 
         if self._sort and self._order == 'des':
-            self._order = 'asc'
+            self._order_change = 'asc'
             return queryset.order_by('-{0}'.format(self._sort))
         elif self._sort and self._order == 'asc':
-            self._order = 'des'
+            self._order_change = 'des'
             return queryset.order_by(self._sort)
         else:
             return queryset
 
+    def generate_query_params(self, page, previous = True):
+        query_mappings = {}
+
+        if previous and page and page.has_previous():
+            query_mappings['page'] = page.previous_page_number()
+
+        if not previous and page and page.has_next():
+            query_mappings['page'] = page.next_page_number()
+
+        if self._search_query and self._search_query != '':
+            query_mappings['search_query'] = self._search_query
+
+        if self._sort and self._sort != '':
+            query_mappings['sort'] = self._sort
+
+        if self._order and self._order != '':
+            query_mappings['order'] = self._order
+
+        return '?{0}'.format(urllib.urlencode(query_mappings))
+
     def get_context_data(self, **kwargs):
         context = super(SortSearchMixin, self).get_context_data(**kwargs)
         context['sort'] = self._sort
-        context['order'] = self._order
+        context['order_change'] = self._order_change
         context['search_query'] = self._search_query
+
+        query_mapping = {}
 
         if 'page_obj' in context:
             page = context['page_obj']
 
-        if page and page.has_previous():
-            url = '?page=' + str(page.previous_page_number())
-            url += '&search_query=' + self._search_query if self._search_query != '' else ''
-            context['previous_url'] = url
+            if page and page.has_previous():
+                context['previous_url'] = self.generate_query_params(page, True)
 
-        if page and page.has_next():
-            url = '?page=' + str(page.next_page_number())
-            url += '&search_query=' + self._search_query if self._search_query != '' else ''
-            context['next_url'] = url
+            if page and page.has_next():
+                context['next_url'] = self.generate_query_params(page, False)
 
         return context
 
