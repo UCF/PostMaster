@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^recipientgroup/create/email-opens/$',      login_required(create_recipient_group_email_opens),        name='manager-recipientgroup-create-email-opens'),
     url(r'^recipientgroup/create/email-unopens/$',    login_required(create_recipient_group_email_unopens),      name='manager-recipientgroup-create-email-unopens'),
     url(r'^recipientgroup/create/url-clicks/$',       login_required(create_recipient_group_url_clicks),         name='manager-recipientgroup-create-url-clicks'),
+    url(r'^recipientgroup/create/no-clicks/$',        login_required(create_recipient_group_no_clicks),          name='manager-recipientgroup-create-no-clicks'),
     url(r'^recipientgroup/(?P<pk>\d+)/update/$',      login_required(RecipientGroupUpdateView.as_view()),        name='manager-recipientgroup-update'),
     url(r'^recipientgroup/(?P<pk>\d+)/delete/$',      login_required(RecipientGroupDeleteView.as_view()),        name='manager-recipientgroup-delete'),
     url(r'^recipients/$',                             login_required(RecipientListView.as_view()),               name='manager-recipients'),

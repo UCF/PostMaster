@@ -67,15 +67,21 @@
         {% if instance.in_progress %}
         <div class="alert alert-info">This instance is still in progress.</div>
         {% else %}
+        <h3>Create Recipient Groups</h3>
         <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-opens' %}" method="post">
           <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-          <button type="submit" class="btn btn-primary">Create Recipient Group</button>
+          <button type="submit" class="btn btn-primary">Opens</button>
           <p class="small mt-2">Creates a Recipient Group based on recipients who opened this email.</p>
         </form>
         <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-unopens' %}" method="post">
           <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-          <button type="submit" class="btn btn-default">Create Unopen Recipient Group</button>
+          <button type="submit" class="btn btn-default">Unopens</button>
           <p class="small mt-2">Creates a Recipient Group based on recipients who <em>did not</em> open this email.</p>
+        </form>
+        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-no-clicks' %}" method="post">
+          <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
+          <button type="submit" class="btn btn-default">No Clicks</button>
+          <p class="small mt-2">Creates a Recipient Group based on recipients who <em>did not</em> click on a link in this email.</p>
         </form>
         {% endif %}
         </div>
