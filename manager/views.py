@@ -1272,9 +1272,7 @@ def create_recipient_group_email_opens(request, email_instance):
     Creates a recipient group based on email opens.
     POST only
     '''
-    recipients = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk')
-
-    recipients_pks = [recipient[0] for recipient in recipients]
+    recipients_pks = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk', flat=True)
     recipients = Recipient.objects.filter(pk__in=recipients_pks)
 
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
@@ -1301,9 +1299,7 @@ def create_recipient_group_email_unopens(request, email_instance):
     that did not open the email
     POST only
     '''
-    recipients = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk')
-
-    recipients_pks = [recipient[0] for recipient in recipients]
+    recipients_pks = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk', flat=True)
 
     # Remove all the opens from the sent recipients
     recipients = email_instance.recipients.exclude(pk__in=recipients_pks)
