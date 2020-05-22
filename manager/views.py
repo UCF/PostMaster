@@ -1249,16 +1249,31 @@ def recipient_json_feed(request):
 # Creates a recipient group based on email opens.
 # POST only
 ##
-def create_recipient_group_email_opens(request):
+def create_recipient_group_action(request):
+    action = request.POST.get('group-create-action')
+
+    email_instance_id = request.POST.get('email-instance-id')
+    email_instance = Instance.objects.get(pk=email_instance_id)
+
+    if (action == 'opens'):
+        return create_recipient_group_email_opens(request, email_instance)
+    elif (action == 'unopens'):
+        return create_recipient_group_email_unopens(request, email_instance)
+    elif (action == 'no-clicks'):
+        return create_recipient_group_no_clicks(request, email_instance)
+    else:
+        return HttpResponse(
+            '<h1>Invalid Action</h1>',
+            status=400
+        )
+
+def create_recipient_group_email_opens(request, email_instance):
     '''
     Creates a recipient group based on email opens.
     POST only
     '''
-    email_instance_id = request.POST.get('email-instance-id')
-    email_instance = Instance.objects.get(pk=email_instance_id)
-    recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
-
-    recipients = [recipient[0] for recipient in recipients]
+    recipients_pks = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk', flat=True)
+    recipients = Recipient.objects.filter(pk__in=recipients_pks)
 
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
@@ -1271,6 +1286,67 @@ def create_recipient_group_email_opens(request):
     recipient_group.save()
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-update',
+            args=(),
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+def create_recipient_group_email_unopens(request, email_instance):
+    '''
+    Creates a recipient group based on emails
+    that did not open the email
+    POST only
+    '''
+    recipients_pks = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk', flat=True)
+
+    # Remove all the opens from the sent recipients
+    recipients = email_instance.recipients.exclude(pk__in=recipients_pks)
+
+    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group - Unopens - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
+        recipient_group.name = recipient_group.name + '-1'
+
+    recipient_group.save()
+
+    recipient_group.recipients.add(*recipients)
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+    return HttpResponseRedirect(
+        reverse('manager-recipientgroup-update',
+            args=(),
+            kwargs={'pk': recipient_group.pk}
+        )
+    )
+
+def create_recipient_group_no_clicks(request, email_instance):
+    '''
+    Creates a recipient group with recipients
+    who did not click on any links for a
+    particular email instance.
+    '''
+    recipients = email_instance.recipients.all()
+
+    recipient_clicks = URLClick.objects.filter(url__in=email_instance.urls.all()).values('recipient__id').distinct()
+    recipient_clicks = Recipient.objects.filter(id__in=recipient_clicks)
+
+    recipients = list(set(recipients) - set(recipient_clicks))
+
+    recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group - No Clicks - ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
+    if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
+        recipient_group.name = recipient_group.name + '-1'
+
+    recipient_group.save()
+
+    recipient_group.recipients.add(*recipients)
+
+    recipient_group.save()
+
+    messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+
     return HttpResponseRedirect(
         reverse('manager-recipientgroup-update',
             args=(),
