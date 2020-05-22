@@ -1302,7 +1302,8 @@ def create_recipient_group_no_clicks(request):
     email_instance = Instance.objects.get(pk=email_instance_id)
     recipients = email_instance.recipients.all()
 
-    recipient_clicks = URLClick.objects.filter(url__in=email_instance.urls.all()).values('recipient').distinct()
+    recipient_clicks = URLClick.objects.filter(url__in=email_instance.urls.all()).values('recipient__id').distinct()
+    recipient_clicks = Recipient.objects.filter(id__in=recipient_clicks)
 
     recipients = list(set(recipients) - set(recipient_clicks))
 
