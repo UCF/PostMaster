@@ -67,7 +67,7 @@
         {% if instance.in_progress %}
         <div class="alert alert-info">This instance is still in progress.</div>
         {% else %}
-        <h3>Create Recipient Groups</h3>
+        <h3>Create Recipient Group</h3>
         <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-action' %}" method="post">
           <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
           <select class="form-control mb-2" id="group-create-action" name="group-create-action">
