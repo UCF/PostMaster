@@ -68,20 +68,15 @@
         <div class="alert alert-info">This instance is still in progress.</div>
         {% else %}
         <h3>Create Recipient Groups</h3>
-        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-opens' %}" method="post">
+        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-action' %}" method="post">
           <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-          <button type="submit" class="btn btn-primary">Opens</button>
-          <p class="small mt-2">Creates a Recipient Group based on recipients who opened this email.</p>
-        </form>
-        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-email-unopens' %}" method="post">
-          <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-          <button type="submit" class="btn btn-default">Unopens</button>
-          <p class="small mt-2">Creates a Recipient Group based on recipients who <em>did not</em> open this email.</p>
-        </form>
-        <form class="form-horizontal" action="{% url 'manager-recipientgroup-create-no-clicks' %}" method="post">
-          <input type="hidden" name="email-instance-id" value="{{ instance.pk }}" />
-          <button type="submit" class="btn btn-default">No Clicks</button>
-          <p class="small mt-2">Creates a Recipient Group based on recipients who <em>did not</em> click on a link in this email.</p>
+          <select class="form-control mb-2" id="group-create-action" name="group-create-action">
+            <option value="opens">Opens</option>
+            <option value="unopens">Non-opens</option>
+            <option value="no-clicks">No Clicks</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Create</button>
+          <p class="small mt-2">Creates a Recipient Group based on the selected criteria.</p>
         </form>
         {% endif %}
         </div>

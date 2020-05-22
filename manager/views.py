@@ -1229,16 +1229,33 @@ def recipient_json_feed(request):
 # Creates a recipient group based on email opens.
 # POST only
 ##
-def create_recipient_group_email_opens(request):
+def create_recipient_group_action(request):
+    action = request.POST.get('group-create-action')
+
+    email_instance_id = request.POST.get('email-instance-id')
+    email_instance = Instance.objects.get(pk=email_instance_id)
+
+    if (action == 'opens'):
+        return create_recipient_group_email_opens(request, email_instance)
+    elif (action == 'unopens'):
+        return create_recipient_group_email_unopens(request, email_instance)
+    elif (action == 'no-clicks'):
+        return create_recipient_group_no_clicks(request, email_instance)
+    else:
+        return HttpResponse(
+            '<h1>Invalid Action</h1>',
+            status=400
+        )
+
+def create_recipient_group_email_opens(request, email_instance):
     '''
     Creates a recipient group based on email opens.
     POST only
     '''
-    email_instance_id = request.POST.get('email-instance-id')
-    email_instance = Instance.objects.get(pk=email_instance_id)
-    recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
+    recipients = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk')
 
-    recipients = [recipient[0] for recipient in recipients]
+    recipients_pks = [recipient[0] for recipient in recipients]
+    recipients = Recipient.objects.filter(pk__in=recipients_pks)
 
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
@@ -1258,16 +1275,13 @@ def create_recipient_group_email_opens(request):
         )
     )
 
-def create_recipient_group_email_unopens(request):
+def create_recipient_group_email_unopens(request, email_instance):
     '''
     Creates a recipient group based on emails
     that did not open the email
     POST only
     '''
-
-    email_instance_id = request.POST.get('email-instance-id')
-    email_instance = Instance.objects.get(pk=email_instance_id)
-    recipients = InstanceOpen.objects.filter(instance=email_instance_id).values_list('recipient')
+    recipients = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient')
 
     recipients = [recipient[0] for recipient in recipients]
 
@@ -1292,14 +1306,12 @@ def create_recipient_group_email_unopens(request):
         )
     )
 
-def create_recipient_group_no_clicks(request):
+def create_recipient_group_no_clicks(request, email_instance):
     '''
     Creates a recipient group with recipients
     who did not click on any links for a
     particular email instance.
     '''
-    email_instance_id = request.POST.get('email-instance-id')
-    email_instance = Instance.objects.get(pk=email_instance_id)
     recipients = email_instance.recipients.all()
 
     recipient_clicks = URLClick.objects.filter(url__in=email_instance.urls.all()).values('recipient__id').distinct()
@@ -1318,6 +1330,7 @@ def create_recipient_group_no_clicks(request):
     recipient_group.save()
 
     messages.success(request, 'Recipient group successfully created. Please remember to update the name to something unique.')
+
     return HttpResponseRedirect(
         reverse('manager-recipientgroup-update',
             args=(),
