@@ -123,13 +123,13 @@ UPLOAD_DIR = os.path.join(PROJECT_FOLDER, 'uploads')
 # Logging
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'filters': {
         'require_debug_true': {
-            '()': 'logs.RequiredDebugTrue',
+            '()': 'django.utils.log.RequireDebugTrue',
         },
         'require_debug_false': {
-            '()': 'logs.RequiredDebugFalse',
+            '()': 'django.utils.log.RequireDebugFalse',
         }
     },
     'formatters': {
@@ -154,8 +154,8 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(PROJECT_FOLDER,'logs', 'application.log'),
-            'formatter': 'concise',
+            'filename': os.path.join(PROJECT_FOLDER, 'logs', 'application.log'),
+            'formatter': 'talkative',
             'filters': ['require_debug_false']
         }
     },
@@ -166,7 +166,7 @@ LOGGING = {
             'level': 'WARNING'
         },
         'django': {
-            'handlers': ['discard'],
+            'handlers': ['console', 'file'],
             'propogate': True,
             'level': 'WARNING'
         },
