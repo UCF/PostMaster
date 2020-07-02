@@ -544,7 +544,7 @@ class Email(models.Model):
         soup = BeautifulSoup(html, 'html.parser')
         explanation = BeautifulSoup(html_explanation, 'html.parser')
         soup.body.insert(0, explanation)
-        html = soup.prettify('us-ascii')
+        html = str(soup.encode('us-ascii'))
 
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
