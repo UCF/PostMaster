@@ -117,6 +117,7 @@ class RecipientGroup(models.Model):
         Recipient objects directly. They are associated to each other via RecipientGroup.
     '''
     name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True, help_text='Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
     recipients = models.ManyToManyField(Recipient, related_name='groups')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -544,7 +545,7 @@ class Email(models.Model):
         soup = BeautifulSoup(html, 'html.parser')
         explanation = BeautifulSoup(html_explanation, 'html.parser')
         soup.body.insert(0, explanation)
-        html = soup.prettify('us-ascii')
+        html = str(soup.encode('us-ascii'))
 
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
