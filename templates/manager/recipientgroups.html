@@ -73,6 +73,7 @@
   	<thead>
   		<tr>
         <th scope="col"><a href="?status={{status}}&sort=name&order={{order_change}}&search_query={{search_query}}">Name</a></th>
+        <th scope="col">Description</th>
         <th scope="col">Status</th>
   			<th scope="col"><a href="?status={{status}}&sort=updated_at&order={{order_change}}&search_query={{search_query}}">Modified Date</a></th>
   			<th scope="col" class="text-center">No. of Recipients</th>
@@ -82,6 +83,7 @@
       {% for group in groups %}
       <tr data-link-url="{% url 'manager-recipientgroup-update' group.pk %}">
         <td>{{group.name}}</td>
+        <td>{% if group.description %}{{group.description|truncatewords:20}}{% else %}n/a{% endif %}</td>
         <td>{% if group.archived %}Archived{% else %}Active{% endif %}</td>
         <td>{{group.updated_at}}</td>
         <td class="text-center">{{group.recipients.count}}</td>
