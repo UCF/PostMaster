@@ -990,8 +990,9 @@ def redirect(request):
         raise Http404("Poll does not exist")
     else:
         url_string = urllib.unquote(url_string)
+        url_string = url_string.split('?')[0]
 
-        if not URL.objects.filter(name=url_string).exists():
+        if not URL.objects.filter(name__startswith=url_string).exists():
             raise Http404("Poll does not exist")
         # No matter what happens, make sure the redirection works
         try:
