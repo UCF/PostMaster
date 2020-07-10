@@ -993,7 +993,7 @@ class Instance(models.Model):
         at least one URL in the email.
         """
         if self.click_recipient_count > 0 and self.sent_count > 0:
-            return float(self.click_recipient_count) / float(self.sent_count) * 100
+            return round(float(self.click_recipient_count) / float(self.sent_count) * 100, 2)
 
         return 0
 
