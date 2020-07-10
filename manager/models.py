@@ -957,7 +957,7 @@ class Instance(models.Model):
         """
         click_pks = []
 
-        for url in self.urls.filter(clicks__count__gt=0):
+        for url in self.urls.filter(clicks__gt=0):
             click_pks.extend(url.clicks.all().values_list('pk', flat=True))
 
         return URLClick.objects.filter(pk__in=click_pks)
