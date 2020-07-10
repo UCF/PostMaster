@@ -992,7 +992,10 @@ class Instance(models.Model):
         The percentage of recipients who clicked on
         at least one URL in the email.
         """
-        return float(self.click_recipient_count) / float(self.sent_count) * 100
+        if self.click_recipient_count > 0 and self.sent_count > 0:
+            return float(self.click_recipient_count) / float(self.sent_count) * 100
+
+        return 0
 
     class Meta:
         ordering = ('-start',)
