@@ -183,9 +183,13 @@ class EmailManager(models.Manager):
 
         return Email.objects.filter(
             Q(
+                # One-time
                 Q(Q(recurrence=self.model.Recurs.never) & Q(start_date__gte=today, start_date__lte=end_of_week)) |
-                Q(Q(recurrence=self.model.Recurs.daily) & Q(start_date__lte=today)) |
+                # Daily
+                Q(Q(recurrence=self.model.Recurs.daily) & Q(start_date__lte=end_of_week)) |
+                # Weekly
                 Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day__gte=today.isoweekday() % 7 + 1, start_date__week_day__lte=end_of_week.isoweekday() % 7 + 1)) |
+                # Monthly
                 Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day__gte=today.day, start_date__day__lte=end_of_week.day))
             ),
             active=True
