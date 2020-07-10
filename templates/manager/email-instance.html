@@ -60,7 +60,9 @@
                 <strong class="lead font-weight-black">{{instance.open_rate}}%</strong>
               </div>
             </div>
-            <p class="small pt-3 mb-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
+            <div class="alert alert-info">
+              <p class="small pt-3 mb-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
+            </div>
             <div class="row">
               <div class="col-4">
                 <div class="center">
@@ -80,6 +82,9 @@
                   <strong class="lead font-weight-black">{{instance.click_rate}}%</strong>
                 </div>
               </div>
+            </div>
+            <div class="alert alert-info">
+              <p class="small pt-3 mb-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.click_recipient_count}}</strong> clicked on a link. An click rate of <strong>{{instance.click_rate}}%</strong>.</p>
             </div>
           {% else %}
             <p>Opens were not tracked for this instance.</p>
