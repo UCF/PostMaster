@@ -195,6 +195,24 @@ class EmailManager(models.Manager):
             active=True
         )
 
+    def sending_this_week(self, now=None):
+        """
+        Returns a dictionary of emails sending in
+        the 7 days following the date supplied
+        """
+        if now is None:
+            now = datetime.now()
+
+        emails = {}
+
+        for x in xrange(0, 6):
+            day = now + timedelta(days=x)
+
+            e = self.sending_today(day)
+            emails[str(day.date)] = e
+
+        return emails
+
     def sending_today(self, now=None):
         if now is None:
             now = datetime.now()
