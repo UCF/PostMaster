@@ -205,13 +205,15 @@ class EmailManager(models.Manager):
 
         emails = {}
 
-        for x in xrange(0, 6):
+        for x in xrange(1, 6):
             day = now + timedelta(days=x)
 
             e = self.sending_today(day)
-            emails[str(day.date())] = e
+            if e.count() > 0:
+                emails[day.date()] = e
 
-        return emails
+        # Ensure dates are sorted correctly
+        return sorted(emails)
 
     def sending_today(self, now=None):
         if now is None:
