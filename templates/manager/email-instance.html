@@ -32,40 +32,58 @@
     </div>
   {% endif %}
   <div class="row">
-    <div class="col-lg-7 col-sm-12 mb-3">
+    <div class="col-lg-8 col-sm-12 mb-3">
       <p class="mb-1">Started on {{instance.start}}{% if not instance.in_progress %} Ended on {{instance.end}}{% endif %}</p>
       <p>This instance was scheduled to go to <strong>{{instance.recipient_details.count}}</strong> recipients. <strong>{{instance.sent_count}}</strong> were actually sent.</p>
     </div>
-    <div class="col-lg-5 col-sm-12 mb-3">
+  </div>
+  <div class="row">
+    <div class="col-lg-7 col-sm-12 mb-3">
       {% if instance.in_progress %}
       <div class="alert alert-info">This instance is still in progress.</div>
       {% else %}
       <div class="card mb-3">
-        <h3 class="h6 card-header text-uppercase">Opens</h3>
+        <h3 class="h6 card-header text-uppercase">Statistics</h3>
         <div class="card-block">
           {% if instance.opens_tracked %}
             <div class="row">
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Recipients</h4>
                 <strong class="lead font-weight-black">{{instance.recipient_details.count}}</strong>
               </div>
-              <div class="col-4">
-                <div class="center">
-                  <h4 class="font-weight-bold small text-uppercase">Opened</h4>
-                  <strong class="lead font-weight-black">{{instance.initial_opens}}</strong>
-                </div>
+              <div class="col-4 d-flex flex-column justify-content-between">
+                <h4 class="font-weight-bold small text-uppercase">Opened</h4>
+                <strong class="lead font-weight-black">{{instance.initial_opens}}</strong>
               </div>
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Open Rate</h4>
-                <strong class="lead font-weight-black">{{instance.open_rate}}%</strong>
+                <strong class="lead font-weight-black text-info-aw">{{instance.open_rate}}%</strong>
               </div>
             </div>
-            <p class="small pt-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
+            <p class="small pt-3 mb-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
+            <hr class="my-4">
+            <div class="row">
+              <div class="col-4 d-flex flex-column justify-content-between">
+                <h4 class="font-weight-bold small text-uppercase">Total Clicks</h4>
+                <strong class="lead font-weight-black">{{instance.click_count}}</strong>
+              </div>
+              <div class="col-4 d-flex flex-column justify-content-between">
+                <h4 class="font-weight-bold small text-uppercase">Recipients Who Clicked</h4>
+                <strong class="lead font-weight-black">{{instance.click_recipient_count}}</strong>
+              </div>
+              <div class="col-4 d-flex flex-column justify-content-between">
+                <h4 class="font-weight-bold small text-uppercase">Click Rate</h4>
+                <strong class="lead font-weight-black text-info-aw">{{instance.click_rate}}%</strong>
+              </div>
+            </div>
+            <p class="small pt-3 mb-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.click_recipient_count}}</strong> clicked on a link. A click rate of <strong>{{instance.click_rate}}%</strong>.</p>
           {% else %}
             <p>Opens were not tracked for this instance.</p>
           {% endif %}
         </div>
       </div>
+    </div>
+    <div class="col-lg-5 col-sm-12 mb-3">
       <div class="card">
         <h3 class="h6 card-header text-uppercase">Behavior-based Recipient Groups</h3>
         <div class="card-block">

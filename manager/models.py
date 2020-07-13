@@ -950,6 +950,53 @@ class Instance(models.Model):
                     position = URL.objects.filter(instance=self, name=href).count())[0])
         return urls
 
+    @property
+    def clicks(self):
+        """
+        Returns the click objects
+        """
+        click_pks = []
+
+        for url in self.urls.filter(clicks__gt=0):
+            click_pks.extend(url.clicks.all().values_list('pk', flat=True))
+
+        return URLClick.objects.filter(pk__in=click_pks)
+
+    @property
+    def click_count(self):
+        """
+        Returns the total count of clicks
+        """
+        return self.clicks.count()
+
+    @property
+    def click_recipients(self):
+        """
+        The recipients who clicked on
+        at least one URL in the email.
+        """
+        recipient_pks = self.clicks.values_list('recipient__pk', flat=True)
+        return Recipient.objects.filter(pk__in=recipient_pks)
+
+    @property
+    def click_recipient_count(self):
+        """
+        The number of recipients who clicked on
+        at least one URL in the email.
+        """
+        return self.click_recipients.count()
+
+    @property
+    def click_rate(self):
+        """
+        The percentage of recipients who clicked on
+        at least one URL in the email.
+        """
+        if self.click_recipient_count > 0 and self.sent_count > 0:
+            return round(float(self.click_recipient_count) / float(self.sent_count) * 100, 2)
+
+        return 0
+
     class Meta:
         ordering = ('-start',)
 
