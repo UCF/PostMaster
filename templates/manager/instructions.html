@@ -114,7 +114,31 @@
   <p class="font-weight-bold">No emails are scheduled to send today.</p>
   {% endif %}
   <hr>
-
+  <p class="lead">Looking Ahead</p>
+  {% if upcoming_emails %}
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Email Name</th>
+        <th scope="col">Req. Send Time</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for date in upcoming_emails %}
+      <td colspan="3" class="bg-inverse text-inverse">{{date | date:"l n/j"}}</td>
+      {% for email in emails %}
+      <tr data-link-url="{% url 'manager-email-update' email.pk %}">
+        <td>{{email.title}}</td>
+        <td>{{email.send_time}}</td>
+      </tr>
+      {% endfor %}
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="font-weight-bold">There are no upcoming emails</p>
+  {% endif %}
+  <hr>
   <p>The Postmaster Emailer has two parts: <strong>recipients</strong> and <strong>emails</strong>.</p>
 
   <h3>Recipients</h3>
