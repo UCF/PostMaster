@@ -211,7 +211,8 @@ class EmailManager(models.Manager):
             e = self.sending_today(day)
             emails[str(day.date())] = e
 
-        return emails
+        # Ensure dates are sorted correctly
+        return sorted(emails)
 
     def sending_today(self, now=None):
         if now is None:
