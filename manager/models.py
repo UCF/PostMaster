@@ -209,7 +209,7 @@ class EmailManager(models.Manager):
             day = now + timedelta(days=x)
 
             e = self.sending_today(day)
-            emails[str(day.date)] = e
+            emails[str(day.date())] = e
 
         return emails
 
