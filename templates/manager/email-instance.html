@@ -47,15 +47,15 @@
         <div class="card-block">
           {% if instance.opens_tracked %}
             <div class="row">
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Recipients</h4>
                 <strong class="lead font-weight-black">{{instance.recipient_details.count}}</strong>
               </div>
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Opened</h4>
                 <strong class="lead font-weight-black">{{instance.initial_opens}}</strong>
               </div>
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Open Rate</h4>
                 <strong class="lead font-weight-black text-info-aw">{{instance.open_rate}}%</strong>
               </div>
@@ -63,15 +63,15 @@
             <p class="small pt-3 mb-3">Of the <strong>{{instance.recipient_details.count}}</strong> recipients, <strong >{{instance.initial_opens}}</strong> opened the email. An open rate of <strong>{{instance.open_rate}}%</strong>.</p>
             <hr class="my-4">
             <div class="row">
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Total Clicks</h4>
                 <strong class="lead font-weight-black">{{instance.click_count}}</strong>
               </div>
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Recipients Who Clicked</h4>
                 <strong class="lead font-weight-black">{{instance.click_recipient_count}}</strong>
               </div>
-              <div class="col-4">
+              <div class="col-4 d-flex flex-column justify-content-between">
                 <h4 class="font-weight-bold small text-uppercase">Click Rate</h4>
                 <strong class="lead font-weight-black text-info-aw">{{instance.click_rate}}%</strong>
               </div>
