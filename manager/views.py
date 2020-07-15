@@ -1039,6 +1039,9 @@ def redirect(request):
         except Exception, e:
             log.error(str(e))
             pass
+        # Decode any encoded characters to ensure things like
+        # UTM params work appropriately
+        url_string = urllib.unquote(url_string)
         return HttpResponseRedirect(url_string)
 
 
