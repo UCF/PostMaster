@@ -13,6 +13,7 @@ import json
 import subprocess
 import sys
 import csv
+import HTMLParser
 
 from django.conf import settings
 from django.contrib import messages
@@ -988,6 +989,7 @@ def redirect(request):
     position = request.GET.get('position', None)
     recipient_id = request.GET.get('recipient', None)
     mac = request.GET.get('mac', None)
+    parser = HTMLParser.HTMLParser()
 
     if not url_string or not position or not recipient_id or not mac or not instance_id:
         raise Http404("Poll does not exist")
@@ -1044,7 +1046,8 @@ def redirect(request):
             pass
         # Decode any encoded characters to ensure things like
         # UTM params work appropriately
-        url_string = urllib.unquote(url_string)
+
+        url_string = parser.unescape(url_string)
         return HttpResponseRedirect(url_string)
 
 
