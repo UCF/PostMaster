@@ -118,8 +118,8 @@
   {% if upcoming_emails %}
     {% for date, emails in upcoming_emails.items %}
     <div class="row">
-      <div class="col-12 col-lg-auto">
-        <p class="h5 text-uppercase mt-5">{{date | date:"l n/j"}}</p>
+      <div class="col-12 col-lg-2">
+        <p class="h5 mt-5">{{date | date:"l n/j"}}</p>
       </div>
       <div class="col-12 col-lg">
         <table class="table table-striped table-hover">
