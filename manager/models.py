@@ -20,6 +20,7 @@ import Queue
 import threading
 import requests
 import random
+from collections import OrderedDict
 
 from bs4 import BeautifulSoup
 
@@ -182,7 +183,7 @@ class EmailManager(models.Manager):
         if now is None:
             now = datetime.now()
 
-        emails = {}
+        emails = OrderedDict()
 
         for x in xrange(1, 6):
             day = now + timedelta(days=x)
@@ -191,8 +192,7 @@ class EmailManager(models.Manager):
             if e.count() > 0:
                 emails[day.date()] = e
 
-        # Ensure dates are sorted correctly
-        return sorted(emails)
+        return emails
 
     def sending_today(self, now=None):
         if now is None:
