@@ -117,29 +117,23 @@
   <h2 class="h4 heading-underline">Looking Ahead</h2>
   {% if upcoming_emails %}
     {% for date, emails in upcoming_emails.items %}
-    <div class="row">
-      <div class="col-12 col-lg-2">
-        <p class="h5 mt-5">{{date | date:"l n/j"}}</p>
-      </div>
-      <div class="col-12 col-lg">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Email Name</th>
-              <th scope="col">Req. Send Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for email in emails %}
-            <tr data-link-url="{% url 'manager-email-update' email.pk %}">
-              <td>{{email.title}}</td>
-              <td>{{email.send_time}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <p class="h5 mt-3">{{date | date:"l n/j"}}</p>
+    <table class="table table-striped table-hover mb-3">
+      <thead>
+        <tr>
+          <th scope="col">Email Name</th>
+          <th scope="col">Req. Send Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in emails %}
+        <tr data-link-url="{% url 'manager-email-update' email.pk %}">
+          <td>{{email.title}}</td>
+          <td>{{email.send_time}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     <hr>
     {% endfor %}
   {% else %}
