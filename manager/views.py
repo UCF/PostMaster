@@ -219,6 +219,9 @@ class OverviewListView(ListView):
 
         context['instances'] = instances
 
+        upcoming_emails = Email.objects.sending_this_week()
+        context['upcoming_emails'] = upcoming_emails
+
         return context
 
 

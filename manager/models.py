@@ -20,6 +20,7 @@ import Queue
 import threading
 import requests
 import random
+from collections import OrderedDict
 
 from bs4 import BeautifulSoup
 
@@ -173,6 +174,25 @@ class EmailManager(models.Manager):
         processing interval and preview lead time.
     '''
     processing_interval_duration = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
+
+    def sending_this_week(self, now=None):
+        """
+        Returns a dictionary of emails sending in
+        the 7 days following the date supplied
+        """
+        if now is None:
+            now = datetime.now()
+
+        emails = OrderedDict()
+
+        for x in xrange(1, 6):
+            day = now + timedelta(days=x)
+
+            e = self.sending_today(day)
+            if e.count() > 0:
+                emails[day.date()] = e
+
+        return emails
 
     def sending_today(self, now=None):
         if now is None:
