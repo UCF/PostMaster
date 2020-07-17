@@ -49,7 +49,7 @@
 {% endif %}
 
 <hr>
-<p class="lead">Today's email overview:</p>
+<h2 class="h4 heading-underline">Today's email overview:</h2>
   {% if emails %}
   <div class="table-responsive">
     <table class="table table-striped table-hover">
@@ -114,31 +114,38 @@
   <p class="font-weight-bold">No emails are scheduled to send today.</p>
   {% endif %}
   <hr>
-  <p class="lead">Looking Ahead</p>
+  <h2 class="h4 heading-underline">Looking Ahead</h2>
   {% if upcoming_emails %}
-  <table class="table table-striped table-hover">
-    <thead>
-      <tr>
-        <th scope="col">Email Name</th>
-        <th scope="col">Req. Send Time</th>
-      </tr>
-    </thead>
-    <tbody>
     {% for date in upcoming_emails %}
-      <td colspan="3" class="bg-inverse text-inverse">{{date | date:"l n/j"}}</td>
-      {% for email in emails %}
-      <tr data-link-url="{% url 'manager-email-update' email.pk %}">
-        <td>{{email.title}}</td>
-        <td>{{email.send_time}}</td>
-      </tr>
-      {% endfor %}
+    <div class="row">
+      <div class="col-12 col-lg-auto">
+        <p class="h5 text-uppercase mt-5">{{date | date:"l n/j"}}</p>
+      </div>
+      <div class="col-12 col-lg">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Email Name</th>
+              <th scope="col">Req. Send Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for email in emails %}
+            <tr data-link-url="{% url 'manager-email-update' email.pk %}">
+              <td>{{email.title}}</td>
+              <td>{{email.send_time}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <hr>
     {% endfor %}
-    </tbody>
-  </table>
   {% else %}
   <p class="font-weight-bold">There are no upcoming emails</p>
-  {% endif %}
   <hr>
+  {% endif %}
   <p>The Postmaster Emailer has two parts: <strong>recipients</strong> and <strong>emails</strong>.</p>
 
   <h3>Recipients</h3>
