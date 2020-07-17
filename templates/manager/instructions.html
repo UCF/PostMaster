@@ -116,7 +116,7 @@
   <hr>
   <h2 class="h4 heading-underline">Looking Ahead</h2>
   {% if upcoming_emails %}
-    {% for date in upcoming_emails %}
+    {% for date, emails in upcoming_emails.items %}
     <div class="row">
       <div class="col-12 col-lg-auto">
         <p class="h5 text-uppercase mt-5">{{date | date:"l n/j"}}</p>
