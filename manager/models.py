@@ -975,12 +975,7 @@ class Instance(models.Model):
         """
         Returns the click objects
         """
-        click_pks = []
-
-        for url in self.urls.filter(clicks__gt=0):
-            click_pks.extend(url.clicks.all().values_list('pk', flat=True))
-
-        return URLClick.objects.filter(pk__in=click_pks)
+        return URLClick.objects.filter(url__in=self.urls.all())
 
     @property
     def click_count(self):
@@ -995,8 +990,7 @@ class Instance(models.Model):
         The recipients who clicked on
         at least one URL in the email.
         """
-        recipient_pks = self.clicks.values_list('recipient__pk', flat=True)
-        return Recipient.objects.filter(pk__in=recipient_pks)
+        return Recipient.objects.filter(pk__in=self.clicks.values_list('recipient__pk', flat=True))
 
     @property
     def click_recipient_count(self):
