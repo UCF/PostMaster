@@ -87,7 +87,7 @@ class Command(BaseCommand):
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
 
-            limit = 20
+            limit = 5
             offset = 0
             count = 0
 
