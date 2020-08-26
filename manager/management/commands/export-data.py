@@ -6,6 +6,8 @@ from manager.models import Email, Instance
 import csv
 from datetime import datetime
 
+from tqdm import tqdm
+
 class Command(BaseCommand):
     help = 'Exports email data to a csv'
 
@@ -71,7 +73,7 @@ class Command(BaseCommand):
             offset = 0
             count = 0
 
-            for record in records:
+            for record in tqdm(records):
                 count += 1
                 instances = record.instances.all()
 
@@ -81,8 +83,6 @@ class Command(BaseCommand):
                 instance_count = instances.count()
 
                 email_title = record.title
-
-                print("On record {0}/{1}. Record has {1} instances...".format(count, record_count, instance_count))
 
                 for x in xrange(instances.count() / limit):
                     offset = x * limit
