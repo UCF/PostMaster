@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
+from django.db.models import Count
 
 from manager.models import Email, Instance
 
@@ -10,6 +11,11 @@ from tqdm import tqdm
 
 class Command(BaseCommand):
     help = 'Exports email data to a csv'
+
+    filename = ''
+    before = None
+    remove_exported = False
+    instances_to_remove = []
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -26,27 +32,39 @@ class Command(BaseCommand):
             default=None
         )
 
+        parser.add_argument(
+            '--remove-exported',
+            dest='remove_exported',
+            type=bool,
+            help='Remove the exported records',
+            default=False
+        )
+
     def handle(self, *args, **options):
-        filename = options['output']
-        before = options['before_date']
+        self.filename = options['output']
+        self.before = options['before_date']
+        self.remove_exported = options['remove_exported']
 
-        records = self.get_records(before)
-        self.write_records(records, filename, before)
+        records = self.get_records()
+        self.write_records(records)
 
-    def get_records(self, before=None):
+        if self.remove_exported:
+            self.remove_records()
+
+    def get_records(self):
         retval = Email.objects.all()
 
-        if before:
+        if self.before:
             retval = retval.filter(
-                instances__end__lt=before
+                instances__end__lt=self.before
             )
 
         return retval.distinct()
 
-    def write_records(self, records, filename, before=None):
+    def write_records(self, records):
         record_count = records.count()
 
-        with open(filename, 'w') as file:
+        with open(self.filename, 'w') as file:
             fieldnames = [
                 'Email ID',
                 'Instance ID',
@@ -73,38 +91,53 @@ class Command(BaseCommand):
             offset = 0
             count = 0
 
-            for record in tqdm(records):
-                count += 1
-                instances = record.instances.all()
+            total_instances = Instance.objects.filter(email__in=records).count()
 
-                if before:
-                    instances = instances.filter(end__lt=before)
+            with tqdm(total=total_instances) as pbar:
+                for record in records:
+                    count += 1
+                    instances = record.instances.all()
 
-                instance_count = instances.count()
+                    if self.before:
+                        instances = instances.filter(end__lt=self.before)
 
-                email_title = record.title
+                    instance_count = instances.count()
 
-                for x in xrange(instances.count() / limit):
-                    offset = x * limit
-                    for instance in instances.all()[offset:offset + limit]:
-                        line = {
-                            'Email ID': record.id,
-                            'Instance ID': instance.id,
-                            'Title': email_title,
-                            'Subject': instance.subject,
-                            'URL': record.source_html_uri,
-                            'From': record.from_email_address,
-                            'Friendly': record.from_friendly_name,
-                            'Start': instance.start,
-                            'End': instance.end,
-                            'Recipients': instance.recipients.count(),
-                            'Sent': instance.sent_count,
-                            'Opens': instance.initial_opens,
-                            'Open Rate': instance.open_rate,
-                            'Clicks': instance.click_count,
-                            'Recipients who clicked': instance.click_recipient_count,
-                            'Click Rate': instance.click_rate
-                        }
+                    email_title = record.title
 
-                        writer.writerow(line)
+                    for x in xrange(instances.count() / limit):
+                        offset = x * limit
+                        for instance in instances.all()[offset:offset + limit]:
+                            line = {
+                                'Email ID': record.id,
+                                'Instance ID': instance.id,
+                                'Title': email_title,
+                                'Subject': instance.subject,
+                                'URL': record.source_html_uri,
+                                'From': record.from_email_address,
+                                'Friendly': record.from_friendly_name,
+                                'Start': instance.start,
+                                'End': instance.end,
+                                'Recipients': instance.recipients.count(),
+                                'Sent': instance.sent_count,
+                                'Opens': instance.initial_opens,
+                                'Open Rate': instance.open_rate,
+                                'Clicks': instance.click_count,
+                                'Recipients who clicked': instance.click_recipient_count,
+                                'Click Rate': instance.click_rate
+                            }
+
+                            writer.writerow(line)
+
+                            if self.remove_exported:
+                                self.instances_to_remove.append(instance.pk)
+
+                            pbar.update(1)
+
+    def remove_records(self):
+        records = Instance.objects.filter(pk__in=self.instance_to_remove)
+        try:
+            records.delete()
+        except:
+            raise CommandError("There was a problem deleting the old records.")
 
