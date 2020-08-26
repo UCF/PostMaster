@@ -140,7 +140,7 @@ class Command(BaseCommand):
                             pbar.update(1)
 
     def remove_records(self):
-        records = Instance.objects.filter(pk__in=self.instance_to_remove)
+        records = Instance.objects.filter(pk__in=self.instances_to_remove)
         try:
             records.delete()
         except:
