@@ -14,8 +14,6 @@ class Command(BaseCommand):
 
     filename = ''
     before = None
-    remove_exported = False
-    instances_to_remove = []
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -32,24 +30,12 @@ class Command(BaseCommand):
             default=None
         )
 
-        parser.add_argument(
-            '--remove-exported',
-            dest='remove_exported',
-            type=bool,
-            help='Remove the exported records',
-            default=False
-        )
-
     def handle(self, *args, **options):
         self.filename = options['output']
         self.before = options['before_date']
-        self.remove_exported = options['remove_exported']
 
         records = self.get_records()
         self.write_records(records)
-
-        if self.remove_exported:
-            self.remove_records()
 
     def get_records(self):
         retval = Email.objects.all()
@@ -134,15 +120,5 @@ class Command(BaseCommand):
 
                             writer.writerow(line)
 
-                            if self.remove_exported:
-                                self.instances_to_remove.append(instance.pk)
-
                             pbar.update(1)
-
-    def remove_records(self):
-        records = Instance.objects.filter(pk__in=self.instances_to_remove)
-        try:
-            records.delete()
-        except:
-            raise CommandError("There was a problem deleting the old records.")
 
