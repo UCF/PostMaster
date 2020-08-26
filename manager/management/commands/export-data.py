@@ -87,7 +87,7 @@ class Command(BaseCommand):
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
 
-            limit = 5
+            limit = 20
             offset = 0
             count = 0
 
@@ -105,7 +105,12 @@ class Command(BaseCommand):
 
                     email_title = record.title
 
-                    for x in xrange(instances.count() / limit):
+                    pages = instance_count / limit
+
+                    if pages < 1:
+                        pages = 1
+
+                    for x in xrange(pages):
                         offset = x * limit
                         for instance in instances.all()[offset:offset + limit]:
                             line = {
