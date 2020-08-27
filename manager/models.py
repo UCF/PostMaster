@@ -1118,8 +1118,8 @@ class SubprocessStatus(models.Model):
 
 
 class StaleRecord(models.Model):
-    removal_hash = models.CharField(max_length=56)
-    instances = models.ManyToManyField(Instance, default=create_hash, related_name='stale_record')
+    removal_hash = models.CharField(max_length=56, default=create_hash)
+    instances = models.ManyToManyField(Instance, related_name='stale_record')
 
     @property
     def emails(self):
@@ -1129,7 +1129,7 @@ class StaleRecord(models.Model):
             if instance.email.pk not in email_pks:
                 email_pks.append(instance.email.pk)
 
-        emails = Email.objects.filter(email__pk__in=email_pks)
+        emails = Email.objects.filter(pk__in=email_pks)
 
         return emails
 
