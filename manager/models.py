@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from datetime import datetime, timedelta, date
 from django.db.models import Q
-from util import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
+from util import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, create_hash
 from django.core.urlresolvers import reverse
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -11,6 +11,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from itertools import chain
+import hashlib
 import logging
 import smtplib
 import re
@@ -1115,6 +1116,23 @@ class SubprocessStatus(models.Model):
     error = models.CharField(max_length=1000)
     success_url = models.URLField(blank=True, null=True)
     back_url = models.URLField(blank=True, null=True)
+
+
+class StaleRecord(models.Model):
+    removal_hash = models.CharField(max_length=56)
+    instances = models.ManyToManyField(Instance, default=create_hash, related_name='stale_record')
+
+    @property
+    def emails(self):
+        email_pks = []
+
+        for instance in self.instances.all():
+            if instance.email.pk not in email_pks:
+                email_pks.append(instance.email.pk)
+
+        emails = Email.objects.filter(email__pk__in=email_pks)
+
+        return emails
 
 # Signals
 from manager.signals import *
