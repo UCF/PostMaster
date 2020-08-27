@@ -14,7 +14,7 @@ class Command(BaseCommand):
         parser.add_argument(
             'record_hash',
             type=str,
-            help='The has of the StaleRecord to remove',
+            help='The unique hash of the StaleRecord to remove',
             default=None
         )
 
