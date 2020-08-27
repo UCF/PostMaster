@@ -11,7 +11,6 @@ from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from itertools import chain
-import hashlib
 import logging
 import smtplib
 import re
