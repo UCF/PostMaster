@@ -3,6 +3,8 @@ import hmac
 import logging
 import ldap
 import base64
+from datetime import datetime
+import uuid
 
 def calc_url_mac(url, position, recipient, instance_id):
 	mash = ''.join([str(url), str(position), str(recipient), str(instance_id)])
@@ -20,12 +22,15 @@ def calc_unsubscribe_mac_old(recipient_id, email_id):
 	mash = ''.join([str(recipient_id), str(email_id)])
 	return hmac.new(settings.SECRET_KEY, mash).hexdigest()
 
+def create_hash():
+    return uuid.uuid4()
+
 class LDAPHelper(object):
-		
+
 	class LDAPHelperException(Exception):
 		def __init__(self, error = 'No addtional information'):
 			logging.error(': '.join([str(self.__doc__),str(error)]))
-			
+
 	class UnableToConnect(LDAPHelperException):
 		'''Unable to Connect'''
 		pass
@@ -50,7 +55,7 @@ class LDAPHelper(object):
 
 	def __init__(self):
 		self.connection = LDAPHelper.connect()
-		
+
 	@classmethod
 	def connect(cls):
 		try:
@@ -60,14 +65,14 @@ class LDAPHelper(object):
 			return ldap.initialize(settings.LDAP_NET_HOST)
 		except ldap.LDAPError, e:
 			raise LDAPHelper.UnableToConnect(e)
-	
+
 	@classmethod
 	def bind(cls,connection,username,password):
 		try:
 			connection.simple_bind_s(username + settings.LDAP_NET_USER_SUFFIX,password)
 		except ldap.LDAPError, e:
 			raise LDAPHelper.UnableToBind(e)
-	
+
 	@classmethod
 	def search_single(cls, *args, **kwargs):
 		results = LDAPHelper.search(*args, **kwargs)
@@ -115,19 +120,19 @@ class LDAPHelper(object):
 	@classmethod
 	def extract_guid(cls,ldap_user):
 		return base64.b64encode(LDAPHelper._extract_attribute(ldap_user,'objectGUID'))
-	
+
 	@classmethod
 	def extract_firstname(cls,ldap_user):
 		return LDAPHelper._extract_attribute(ldap_user,'givenName',single=True)
-		
+
 	@classmethod
 	def extract_lastname(cls,ldap_user):
 		return LDAPHelper._extract_attribute(ldap_user,'sn',single=True)
-		
+
 	@classmethod
 	def extract_email(cls,ldap_user):
 		return LDAPHelper._extract_attribute(ldap_user,'mail',single=True)
-	
+
 	@classmethod
 	def extract_username(cls,ldap_user):
 		return LDAPHelper._extract_attribute(ldap_user,'cn',single=True)
