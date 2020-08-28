@@ -50,9 +50,9 @@
 {% else %}
 {% if not hash %}
 <p class="lead">This page is not accessible without a record cleanup key.</p>
-<p><a href="{% url 'manager-home' %}">Return Home</a></p>
 {% else %}
 <p class="lead">An export cleanup record with the hash provided could not be found.</p>
 {% endif %}
+<p><a class="btn btn-primary" href="{% url 'manager-home' %}">Return Home</a></p>
 {% endif %}
 {% endblock %}
