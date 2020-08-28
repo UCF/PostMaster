@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.utils.six.moves import input
 
-from manager.models import Email, Instance, StaleRecord
+from manager.models import Email, Instance, StaleRecord, SubprocessStatus
 
 class Command(BaseCommand):
     help = 'Removes stale records from the database'
@@ -34,10 +34,27 @@ class Command(BaseCommand):
             default=False
         )
 
+        parser.add_argument(
+            '--subprocess',
+            dest='subprocess',
+            type=int,
+            help='When provided, a subprocess record will be updated on each tick of the progress bar',
+            default=None
+        )
+
     def handle(self, *args, **options):
         self.record_hash = options['record_hash']
         self.remove_emails = options['remove_empty_emails']
         self.quiet = options['quiet']
+        self.subprocess = options['subprocess']
+
+        if self.subprocess:
+            try:
+                tracker = SubprocessStatus.objects.get(pk=self.subprocess)
+                self.tracker = tracker
+            except SubprocessStatus.DoesNotExist:
+                raise CommandError("The subprocess provided does not exist")
+
 
         self.clean()
 
@@ -50,13 +67,20 @@ class Command(BaseCommand):
         instances = stale.instances.all()
         emails = Email.objects.filter(instances__in=instances)
 
+        if self.subprocess:
+            self.tracker.total_units = instances.count()
+            self.tracker.status = 'In Progress'
+            self.tracker.save()
+
         if not self.quiet:
             delete = self.confirm("Delete {0} instances? [Y/n]: ".format(instances.count()), True)
 
             if delete == False:
                 return
 
-        instances.delete()
+        for idx, instance in enumerate(instances.all()):
+            instance.delete()
+            self.update_status('In Progress', '', idx + 1)
 
         if self.remove_emails:
             emails = emails.filter(instances=0)
@@ -67,8 +91,22 @@ class Command(BaseCommand):
                 if delete == False:
                     return
 
+        self.update_status('Complete', '', self.tracker.total_units)
 
-            emails.delete()
+
+    def update_status(self, status, error, current_unit):
+        if (self.subprocess and status == "Completed") :
+            self.tracker.status = "Completed"
+            self.tracker.error = ""
+            self.tracker.current_unit = self.tracker.total_units
+            self.tracker.save()
+
+        if (self.subprocess
+            or error != ""):
+            self.tracker.status = status
+            self.tracker.error = error
+            self.tracker.current_unit = current_unit
+            self.tracker.save()
 
     def confirm(self, message, default=None):
         result = input('%s ' % message)

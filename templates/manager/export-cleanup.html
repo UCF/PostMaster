@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h1 class="h2 headling-underline">Export Clean Up</h1>
+{% if stale %}
+<p class="lead">Are you sure you want to delete the following records?</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Instances</th>
+      <th>Emails (optional)</th>
+      {% if earliest %}
+      <th>Earliest Instance</th>
+      {% endif %}
+      {% if latest %}
+      <th>Latest Instance</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ stale.instances.count }}</td>
+      <td>{{ stale.emails.count }}</td>
+      {% if earliest %}
+      <td>{{ earliest }}</td>
+      {% endif %}
+      {% if latest %}
+      <td>{{ latest }}</td>
+      {% endif %}
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+<form class="form-horizontal" action="" method="post">
+  <fieldset>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-error">
+        {{error}}
+      </div>
+    {% endfor %}
+    {% for field in form %}
+      {% include 'form-control-group.html' %}
+    {% endfor %}
+  </fieldset>
+  <div class="form-group row">
+    <div class="offset-sm-3 col-sm-9">
+      <button type="submit" class="btn btn-danger"><span class="fas fa-trash" aria-hidden="true"></span> Delete</button>
+      <a href="{% url 'manager-home' %}" class="btn btn-default"><span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
+    </div>
+  </div>
+</form>
+{% endblock %}
