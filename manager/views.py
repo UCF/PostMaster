@@ -1212,7 +1212,8 @@ class ExportCleanupView(FormView):
                 'manage.py',
                 'remove-stale',
                 removal_hash,
-                '--quiet=True'
+                '--quiet=True',
+                '--subprocess={0}'.format(tracker.pk)
             ]
 
             if remove_emails:
