@@ -304,7 +304,7 @@
         <tr>
         <td class="ccollapse100" style="font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; font-size: 32px; line-height: 1.5; padding-top: 32px;">
           <table class="paragraphtable" style="width: 100%;"><tbody><tr><td style="width: 100%; font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; padding: 0px 0px 16px 0px; margin: 0; text-align: center;">
-            <a href="{{ project_url }}{% url 'manager-remove-stale' %}?hash={{removal_hash}}">Remove Records</a>
+            <a href="{{ project_url }}{% url 'manager-export-cleanup' %}?hash={{removal_hash}}">Remove Records</a>
 	      </td>
 				</tr></tbody></table>                  </td></tr>
         {% endif %}

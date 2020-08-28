@@ -1193,12 +1193,17 @@ class ExportCleanupView(FormView):
     def form_valid(self, form):
         if form.is_valid:
             removal_hash = self.request.GET.get('hash')
-            remove_emails = form.cleaned_data['removal_emails']
+
+            if 'remove_emails' in form.cleaned_data:
+                remove_emails = form.cleaned_data['remove_emails']
+            else:
+                remove_emails = False
+
 
             success_url = reverse('manager-home')
             back_url = reverse('manager-export-cleanup')
 
-            tracker = SubprocessStatus.objects.create(
+            self.tracker = SubprocessStatus.objects.create(
                 name="Deleting stale records...",
                 current_unit=1,
                 total_units=1,
@@ -1213,15 +1218,18 @@ class ExportCleanupView(FormView):
                 'remove-stale',
                 removal_hash,
                 '--quiet=True',
-                '--subprocess={0}'.format(tracker.pk)
+                '--subprocess={0}'.format(self.tracker.pk)
             ]
 
             if remove_emails:
-                command.append('--remove-emails=True')
+                command.append('--remove-empty-emails=True')
 
             subprocess.Popen(command, close_fds=True)
 
             return super(ExportCleanupView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('subprocess-status-detail-view', kwargs={ 'pk': self.tracker.pk })
 
 class SubprocessStatusDetailView(DetailView):
     model = SubprocessStatus

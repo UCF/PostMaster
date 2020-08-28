@@ -150,7 +150,6 @@ class RecipientCSVImportForm(forms.Form):
             return cleaned_data
 
 class ExportCleanupForm(forms.Form):
-    stale_record = forms.CharField(widget=forms.HiddenInput)
     remove_emails = forms.BooleanField(help_text='When checked, any emails with 0 instances after the cleanup will be removed.')
 
 

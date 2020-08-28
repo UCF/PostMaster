@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.utils.six.moves import input
 
-from manager.models import Email, Instance, StaleRecord
+from manager.models import Email, Instance, StaleRecord, SubprocessStatus
 
 class Command(BaseCommand):
     help = 'Removes stale records from the database'
@@ -51,7 +51,7 @@ class Command(BaseCommand):
         if self.subprocess:
             try:
                 tracker = SubprocessStatus.objects.get(pk=self.subprocess)
-                self.subprocess = tracker
+                self.tracker = tracker
             except SubprocessStatus.DoesNotExist:
                 raise CommandError("The subprocess provided does not exist")
 
@@ -68,9 +68,9 @@ class Command(BaseCommand):
         emails = Email.objects.filter(instances__in=instances)
 
         if self.subprocess:
-            self.subprocess.total_units = instances.count()
-            self.subprocess.status = 'In Progress'
-            self.subprocess.status.save()
+            self.tracker.total_units = instances.count()
+            self.tracker.status = 'In Progress'
+            self.tracker.save()
 
         if not self.quiet:
             delete = self.confirm("Delete {0} instances? [Y/n]: ".format(instances.count()), True)
@@ -91,7 +91,7 @@ class Command(BaseCommand):
                 if delete == False:
                     return
 
-        self.update_status('Complete', '')
+        self.update_status('Complete', '', self.tracker.total_units)
 
 
     def update_status(self, status, error, current_unit):
@@ -101,9 +101,7 @@ class Command(BaseCommand):
             self.tracker.current_unit = self.tracker.total_units
             self.tracker.save()
 
-        if (self.subprocess and
-            (current_unit % self.update_factor == 0
-            or current_unit == self.tracker.total_units)
+        if (self.subprocess
             or error != ""):
             self.tracker.status = status
             self.tracker.error = error

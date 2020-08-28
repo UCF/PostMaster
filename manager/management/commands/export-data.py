@@ -194,6 +194,8 @@ class Command(BaseCommand):
 
         if instances:
             emails = Email.objects.filter(instances__end__lt=self.before).annotate(count_instances=Count('instances'))
+        else:
+            emails = None
 
         context = {
             'sent_time': datetime.now(),
