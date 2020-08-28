@@ -22,6 +22,7 @@ from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
+from django.db.models import Max, Min
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -41,6 +42,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
+from manager.forms import ExportCleanupForm
 from manager.forms import PreviewInstanceLockForm
 from manager.forms import RecipientAttributeCreateForm
 from manager.forms import RecipientAttributeUpdateForm
@@ -62,6 +64,7 @@ from manager.models import RecipientAttribute
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import Setting
+from manager.models import StaleRecord
 from manager.models import SubprocessStatus
 from manager.models import SubscriptionCategory
 from manager.models import URL
@@ -134,7 +137,7 @@ class SortSearchMixin(object):
 
         return '?{0}'.format(urllib.urlencode(query_mappings))
 
-    def get_context_data(self, **kwargs):
+    def back_url_data(self, **kwargs):
         context = super(SortSearchMixin, self).get_context_data(**kwargs)
         context['sort'] = self._sort
         context['order_change'] = self._order_change
@@ -1165,6 +1168,60 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
         return reverse('subprocess-status-detail-view', kwargs={ 'pk': self.tracker_pk })
 
 
+class ExportCleanupView(FormView):
+    template_name = 'manager/export-cleanup.html'
+    form_class = ExportCleanupForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ExportCleanupView, self).get_context_data(**kwargs)
+
+        removal_hash = self.request.GET.get('hash', None)
+
+        if removal_hash:
+            try:
+                stale = StaleRecord.objects.get(removal_hash=removal_hash)
+                earliest = stale.instances.aggregate(Min('end'))
+                latest = stale.instances.aggregate(Max('end'))
+                context['stale'] = stale
+                context['earliest'] = earliest['end__min'] if 'end__min' in earliest else None
+                context['latest'] = latest['end__max'] if 'end__max' in latest else None
+            except StaleRecord.DoesNotExist:
+                context['stale'] = None
+
+        return context
+
+    def form_valid(self, form):
+        if form.is_valid:
+            removal_hash = self.request.GET.get('hash')
+            remove_emails = form.cleaned_data['removal_emails']
+
+            success_url = reverse('manager-home')
+            back_url = reverse('manager-export-cleanup')
+
+            tracker = SubprocessStatus.objects.create(
+                name="Deleting stale records...",
+                current_unit=1,
+                total_units=1,
+                unit_name='records',
+                success_url=success_url,
+                back_url=back_url
+            )
+
+            command = [
+                sys.executable,
+                'manage.py',
+                'remove-stale',
+                removal_hash,
+                '--quiet=True'
+            ]
+
+            if remove_emails:
+                command.append('--remove-emails=True')
+
+            subprocess.Popen(command, close_fds=True)
+
+            return super(ExportCleanupView, self).form_valid(form)
+
 class SubprocessStatusDetailView(DetailView):
     model = SubprocessStatus
     template_name = 'manager/subprocess-status.html'
@@ -1417,6 +1474,37 @@ def csv_export_recipient_group(request, pk):
         writer.writerow([recipient.email_address])
 
     return response
+
+def stale_record_action(request):
+    removal_hash = request.GET.get('hash')
+
+    try:
+        record = StaleRecord.objects.get(removal_hash=removal_hash)
+    except StaleRecord.DoesNotExist:
+        return HttpResponse(
+            '<h1>The recipient group does not exist.</h1>',
+            status=400
+        )
+
+    command = [
+        sys.executable,
+        'manage.py',
+        'remove-stale',
+        record.removal_hash,
+        '--remove-empty-emails=True',
+        '--quiet=True'
+    ]
+
+    subprocess.Popen(command, close_fds=True)
+
+    messages.success(request, 'Records removed.')
+
+    return HttpResponseRedirect(
+        reverse('manager-home',
+            args=()
+        )
+    )
+
 
 def s3_upload_user_file(request):
     """
