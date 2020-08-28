@@ -1176,6 +1176,7 @@ class ExportCleanupView(FormView):
         context = super(ExportCleanupView, self).get_context_data(**kwargs)
 
         removal_hash = self.request.GET.get('hash', None)
+        context['hash'] = removal_hash
 
         if removal_hash:
             try:
