@@ -140,9 +140,6 @@ class Command(BaseCommand):
             instances = instances.filter(end__lt=self.before)
 
         with tqdm(total=instances.count()) as pbar:
-            if self.before:
-                instances = instances.filter(end__lt=self.before)
-
             for instance in instances.all():
                 line = {
                     'Email ID': instance.email.id,
