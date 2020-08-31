@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="viewport" content="initial-scale=1.0">
+
+  <title>
+    Email Export  </title>
+
+  <style type="text/css">
+  @font-face {
+    font-family: "UCF-Sans-Serif-Alt";
+    font-style: normal;
+    font-weight: 400;
+    src: url('https://s3.amazonaws.com/web.ucf.edu/email/common-assets/fonts/ucfsansserifalt-medium-webfont.woff2') format("woff2"),
+	  url('https://s3.amazonaws.com/web.ucf.edu/email/common-assets/fonts/ucfsansserifalt-medium-webfont.woff') format("woff");
+	mso-font-alt: 'Arial';
+  }
+  @font-face {
+    font-family: "UCF-Sans-Serif-Alt";
+    font-style: normal;
+    font-weight: 500;
+    src: url('https://s3.amazonaws.com/web.ucf.edu/email/common-assets/fonts/ucfsansserifalt-semibold-webfont.woff2') format("woff2"),
+	  url('https://s3.amazonaws.com/web.ucf.edu/email/common-assets/fonts/ucfsansserifalt-semibold-webfont.woff') format("woff");
+	mso-font-alt: 'Arial';
+  }
+  @font-face {
+    font-family: "UCF-Sans-Serif-Alt";
+    font-style: normal;
+    font-weight: 700;
+    src: url('https://s3.amazonaws.com/web.ucf.edu/email/common-assets/fonts/ucfsansserifalt-bold-webfont.woff2') format("woff2"),
+	  url('https://s3.amazonaws.com/web.ucf.edu/email/common-assets/fonts/ucfsansserifalt-bold-webfont.woff') format("woff");
+	mso-font-alt: 'Arial';
+  }
+
+
+  /* CSS Resets */
+
+  .ReadMsgBody {
+    width: 100%;
+    background-color: #ffffff;
+  }
+
+  .ExternalClass {
+    width: 100%;
+    background-color: #ffffff;
+  }
+
+  .ExternalClass,
+  .ExternalClass p,
+  .ExternalClass span,
+  .ExternalClass font,
+  .ExternalClass td,
+  .ExternalClass div {
+    line-height: 100%;
+  }
+
+  * {
+    zoom: 1;
+  }
+
+  body {
+    -webkit-text-size-adjust: none; /* ios likes to enforce a minimum font size of 13px; kill it with this */
+    -ms-text-size-adjust: none;
+	margin: 0;
+    padding: 0;
+  }
+
+  table {
+    border-spacing: 0;
+  }
+
+  table td {
+    border-collapse: collapse;
+  }
+
+  a {
+    color: #006699;
+  }
+
+  @media all and (min-width: 641px) {
+      td.text-right-desktop,
+      th.text-right-desktop {
+          text-align: right !important;
+      }
+
+      td.text-left-desktop,
+      th.text-left-desktop {
+          text-align: left !important;
+      }
+  }
+
+  @media all and (max-width: 640px) {
+
+  /* The outermost wrapper table */
+	table[class="wrapperOuter"] {
+		margin: 10px 0 0 !important;
+		width: 100% !important;
+	}
+
+	/* The firstmost inner tables, which should be padded at mobile sizes */
+	table[class="wrapperInner"] {
+		border-left: 0px solid transparent !important;
+		border-right: 0px solid transparent !important;
+		margin: 0 !important;
+		padding-left: 15px;
+		padding-right: 15px;
+		width: 100% !important;
+	}
+
+    /* The outermost wrapper table */
+    table.t640 {
+      width: 100% !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+      margin: 0 !important;
+    }
+
+    /* The firstmost inner tables, which should be padded at mobile sizes */
+    table.t564 {
+      width: 100% !important;
+      padding-left: 15px;
+      padding-right: 15px;
+      padding-top: 15px !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+      margin: 0 !important;
+    }
+
+    /* Generic class for a table column that should collapse to 100% width at mobile sizes (with bottom padding) */
+    td.ccollapse100pb {
+      display: block !important;
+      overflow: hidden;
+      width: 100% !important;
+      float: left;
+      clear: both;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-bottom: 20px !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+    }
+
+    /* Generic class for a table column that should collapse to 100% width at mobile sizes (with top padding) */
+    td.ccollapse100pt {
+      display: block !important;
+      overflow: hidden;
+      width: 100% !important;
+      float: left;
+      clear: both;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-top: 20px !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+    }
+
+    /* Generic class for a table column that should collapse to 50% width at mobile sizes (with bottom padding) */
+    td.ccollapse50pb {
+      display: block !important;
+      overflow: hidden;
+      width: 50% !important;
+      float: left;
+      clear: both;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-bottom: 20px !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+    }
+
+    /* Generic class for a table column that should collapse to 100% width at mobile sizes */
+    td.ccollapse100 {
+      display: block !important;
+      overflow: hidden;
+      clear: both;
+      width: 100% !important;
+      float: left !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+    }
+
+    /* Generic class for a table within a column that should be forced to 100% width at mobile sizes */
+    table.tcollapse100 {
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      border-left: 0px solid transparent !important;
+      border-right: 0px solid transparent !important;
+    }
+
+    /* Forces an image to fit 100% width of its parent */
+    img.responsiveimg {
+      max-width: none !important;
+      width: 100% !important;
+    }
+
+    img.responsiveimgmw {
+      max-width: 100% !important;
+    }
+
+    /* remove padding since 100% width */
+    img.responsiveimgpb {
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-bottom: 20px !important;
+    }
+  }
+</style>
+</head>
+
+<body style="background-color: #ffffff;">
+<table width="100%" align="center" style="width: 100% !important; table-layout: fixed; background-color: #f1f1f1;">
+    <tbody>
+      <tr>
+        <td align="center" style="padding: 0;">
+          <table class="wrapperOuter" width="640" align="center" style="background-color: #ffffff; width: 640px; margin-top: 0 !important; margin-bottom: 0; border-spacing: 0; border-collapse: collapse;">
+            <tbody>
+              <tr>
+                <td align="center" style="padding: 0;">
+                  <table class="wrapperInner" width="600" align="center" style="border-spacing: 0; border-collapse: collapse;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0;">
+                          <table class="t640" width="640" align="center">
+                            <tbody>
+                              <tr>
+                                <td style="padding: 0;">
+                                  <img src="https://s3.amazonaws.com/web.ucf.edu/email/postmaster-templates/pro-banner.png" alt="UCF banner" class="responsiveimg">                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <table class="t564" width="564" align="center" style="padding-top: 15px;">
+                                  <tbody>
+                                    <tr>
+                                      <td style="padding-bottom: 0;">
+
+<table class="tcollapse100" width="564" border="0" align="center">
+  <tbody>
+    <tr>
+    <td style="padding-left: 0; padding-right: 0; font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; font-size: 35px; font-weight: bold; padding-top: 20px; padding-bottom: 12px; line-height: 1.1; color: #000; text-align: left; border-bottom: 1px solid #fc0;" align="left">Postmaster Data Export</td>
+  </tr>
+    <tr>
+      <td style="padding-left: 0; padding-right: 0; font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; font-size: 24px; font-weight: bold; padding-top: 12px; padding-bottom: 30px; line-height: 1.1; color: #777; text-align: left; text-transform: uppercase;" align="left">{{ sent_time }}</td>
+    </tr>
+    <tr>
+    <td class="ccollapse100" style="width: 100%;">
+    <table class="tcollapse100" align="center" style="width: 100%;">
+      <tbody>
+      <tr>
+        <td class="ccollapse100" style="font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.5;">
+          <table class="paragraphtable" style="width: 100%;"><tbody><tr><td style="width: 100%; font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; padding: 0px 0px 16px 0px; margin: 0;">
+            An export of instance data{% if before %} up to {{ before }}{% endif %} has completed and is attached. The attachment contains {{ record_count }} instance records.
+	      </td>
+        </tr></tbody></table>                  </td></tr>
+        {% if prepare_removal %}
+        <tr>
+          <td class="ccollapse100" style="font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.5;">
+            <table class="paragraphtable" style="width: 100%;"><tbody><tr><td style="width: 100%; font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; padding: 0px 0px 16px 0px; margin: 0;">
+              The following email instances have been prepared for removal following the export. Please review the records and then click the link below to remove them.
+          </td>
+          </tr></tbody></table>                  </td></tr>
+        <tr>
+          <td class="ccollapse100" style="margin-bottom: 20px;">
+            {% if instances %}
+            <table style="width: 100%">
+              <thead>
+                <tr>
+                  <th style="padding: 10px; border: 1px solid black; border-collapse: collapse;">Email Name</th>
+                  <th style="padding: 10px; border: 1px solid black; border-collapse: collapse;">Instance Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for email in instances %}
+                <tr>
+                  <td style="padding: 10px; border: 1px solid black; border-collapse: collapse;">{{ email.title }}</td>
+                  <td style="padding: 10px; border: 1px solid black; border-collapse: collapse; text-align: right;">{{ email.count_instances }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+        <td class="ccollapse100" style="font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; font-size: 32px; line-height: 1.5; padding-top: 32px;">
+          <table class="paragraphtable" style="width: 100%;"><tbody><tr><td style="width: 100%; font-family: 'UCF-Sans-Serif-Alt', Helvetica, Arial, sans-serif; padding: 0px 0px 16px 0px; margin: 0; text-align: center;">
+            <a href="{{ project_url }}{% url 'manager-export-cleanup' %}?hash={{removal_hash}}">Remove Records</a>
+	      </td>
+				</tr></tbody></table>                  </td></tr>
+        {% endif %}
+      </tr>
+      </tbody>
+    </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0;">
+                                                                                    </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

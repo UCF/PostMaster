@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^email/instance/(?P<pk>\d+)/cancel/$',    login_required(instance_cancel),                                     name='manager-instance-cancel'),
     url(r'^instance/json/$',                        login_required(instance_json_feed),                         name='manager-instance-json'),
     url(r'^emails/$',                               login_required(EmailListView.as_view()),                    name='manager-emails'),
+    url(r'^export-cleanup/$',                        login_required(ExportCleanupView.as_view()),                        name='manager-export-cleanup'),
 
     # Recipients
     url(r'^recipientgroups/$',                        login_required(RecipientGroupLiveListView.as_view()),      name='manager-recipientgroups'),

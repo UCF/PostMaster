@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
+from django.template import loader
 from django.db.models import Count
 from manager.models import Email, Instance, StaleRecord
 
@@ -20,7 +21,11 @@ class Command(BaseCommand):
     filename = ''
     before = None
     prepare_removal = False
+    removal_hash = None
     exported = []
+
+    # Stats
+    processed = 0
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -129,50 +134,48 @@ class Command(BaseCommand):
             email_writer = csv.DictWriter(email_handler, fieldnames=fieldnames)
             email_writer.writeheader()
 
-        total_instances = Instance.objects.filter(email__in=records).count()
+        instances = Instance.objects.filter(email__in=records)
 
-        with tqdm(total=total_instances) as pbar:
-            for record in records:
-                instances = record.instances.all()
+        if self.before:
+            instances = instances.filter(end__lt=self.before)
 
-                if self.before:
-                    instances = instances.filter(end__lt=self.before)
+        with tqdm(total=instances.count()) as pbar:
+            for instance in instances.all():
+                line = {
+                    'Email ID': instance.email.id,
+                    'Instance ID': instance.id,
+                    'Title': instance.email.title,
+                    'Subject': instance.subject,
+                    'URL': instance.email.source_html_uri,
+                    'From': instance.email.from_email_address,
+                    'Friendly': instance.email.from_friendly_name,
+                    'Start': instance.start,
+                    'End': instance.end,
+                    'Recipients': instance.recipients.count(),
+                    'Sent': instance.sent_count,
+                    'Opens': instance.initial_opens,
+                    'Open Rate': instance.open_rate,
+                    'Clicks': instance.click_count,
+                    'Recipients who clicked': instance.click_recipient_count,
+                    'Click Rate': instance.click_rate
+                }
 
-                email_title = record.title
+                if file_handler and file_writer:
+                    try:
+                        file_writer.writerow(line)
+                    except Exception as e:
+                        file_writer.close()
+                        raise e
 
-                for instance in instances.all():
-                    line = {
-                        'Email ID': record.id,
-                        'Instance ID': instance.id,
-                        'Title': email_title,
-                        'Subject': instance.subject,
-                        'URL': record.source_html_uri,
-                        'From': record.from_email_address,
-                        'Friendly': record.from_friendly_name,
-                        'Start': instance.start,
-                        'End': instance.end,
-                        'Recipients': instance.recipients.count(),
-                        'Sent': instance.sent_count,
-                        'Opens': instance.initial_opens,
-                        'Open Rate': instance.open_rate,
-                        'Clicks': instance.click_count,
-                        'Recipients who clicked': instance.click_recipient_count,
-                        'Click Rate': instance.click_rate
-                    }
+                if email_handler and email_writer:
+                    email_writer.writerow(line)
 
-                    if file_handler and file_writer:
-                        try:
-                            file_writer.writerow(line)
-                        except Exception as e:
-                            file_writer.close()
-                            raise e
+                self.exported.append(instance)
+                self.processed += 1
+                pbar.update(1)
 
-                    if email_handler and email_writer:
-                        email_writer.writerow(line)
-
-                    self.exported.append(instance)
-
-                    pbar.update(1)
+        if self.prepare_removal:
+            self.prepare_stale_record()
 
         # Make sure we close the file since we're
         # handling this manually
@@ -180,24 +183,35 @@ class Command(BaseCommand):
             file_handler.close()
 
         if email_handler:
-            self.send_email(email_handler)
+            self.send_email(email_handler, instances)
 
 
-    def send_email(self, io_stream=None):
+    def send_email(self, io_stream=None, instances=None):
+        template = loader.get_template('email/export-email.html')
+
+        if instances:
+            emails = Email.objects.filter(instances__end__lt=self.before).annotate(count_instances=Count('instances'))
+        else:
+            emails = None
+
+        context = {
+            'sent_time': datetime.now(),
+            'before': self.before,
+            'record_count': self.processed,
+            'prepare_removal': self.prepare_removal,
+            'removal_hash': self.removal_hash,
+            'instances': emails,
+            'project_url': settings.PROJECT_URL
+        }
+
+        text = template.render(context)
+
         try:
             amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
             amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
         except:
             raise Exception("Unable to connect to amazon")
         else:
-            text = '''
-<html>
-  <head></head>
-  <body>
-    <p>The attached export is all done!</p>
-  </body>
-</html>
-            '''
 
             msg = MIMEMultipart('alternative')
             msg['subject'] = 'Data Export {0}'.format(datetime.now())
@@ -234,3 +248,5 @@ class Command(BaseCommand):
         stale.save()
 
         stale.instances.add(*self.exported)
+
+        self.removal_hash = stale.removal_hash
