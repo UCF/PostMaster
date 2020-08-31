@@ -91,6 +91,8 @@ class Command(BaseCommand):
                 if delete == False:
                     return
 
+            emails.delete()
+
         self.update_status('Complete', '', self.tracker.total_units)
 
 
