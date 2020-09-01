@@ -4,7 +4,7 @@ from django.template import loader
 from django.db.models import Count
 from manager.models import Email, Instance, StaleRecord
 
-import csv
+import unicodecsv as csv
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -164,7 +164,7 @@ class Command(BaseCommand):
                     try:
                         file_writer.writerow(line)
                     except Exception as e:
-                        file_writer.close()
+                        file_handler.close()
                         raise e
 
                 if email_handler and email_writer:
