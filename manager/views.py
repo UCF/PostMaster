@@ -137,7 +137,7 @@ class SortSearchMixin(object):
 
         return '?{0}'.format(urllib.urlencode(query_mappings))
 
-    def back_url_data(self, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(SortSearchMixin, self).get_context_data(**kwargs)
         context['sort'] = self._sort
         context['order_change'] = self._order_change
