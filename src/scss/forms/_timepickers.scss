@@ -2,7 +2,7 @@
 // Overrides for jQuery timepicker lib widgets
 //
 
-// scss-lint:disable QualifyingElement
+// sass-lint:disable no-qualifying-elements
 
 .ui-timepicker-wrapper {
   max-height: 200px;
@@ -30,4 +30,4 @@
   }
 }
 
-// scss-lint:enable QualifyingElement
+// sass-lint:enable no-qualifying-elements
