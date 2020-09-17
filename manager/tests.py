@@ -10,7 +10,7 @@ from manager.models           import *
 from django.conf              import settings
 from datetime                 import datetime, timedelta
 from util                     import calc_url_mac, calc_open_mac, calc_unsubscribe_mac
-from django.core.urlresolvers import reverse
+from django.urls              import reverse
 from django.http              import HttpResponseRedirect
 from django.core.exceptions   import SuspiciousOperation
 import urllib

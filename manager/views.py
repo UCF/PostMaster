@@ -8,12 +8,12 @@ from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
 from util import calc_url_mac
 import urllib
-import urlparse
+from urllib.parse import urlparse
 import json
 import subprocess
 import sys
 import csv
-import HTMLParser
+from html.parser import HTMLParser
 
 from django.conf import settings
 from django.contrib import messages
@@ -21,7 +21,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Max, Min
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -376,7 +376,7 @@ class EmailInstantSendView(EmailsMixin, FormView):
 
         try:
             sender.send()
-        except Exception, e:
+        except Exception as e:
             form._errors['__all__'] = ErrorList([str(e)])
             return super(EmailInstantSendView, self).form_invalid(form)
         else:
@@ -620,7 +620,7 @@ class RecipientGroupUpdateView(RecipientGroupsMixin, UpdateView):
                 recipient_group.save()
                 messages.success(self.request, 'Recipient %s successfully created and added to %s.' % (recipient_email, recipient_group.name))
                 return super(RecipientGroupUpdateView, self).form_valid(form)
-            except Exception, e:
+            except Exception as e:
                 message.errors(self.request, 'An error occurred: %s', e.strerror)
                 return super(RecipientGroupUpdateView, self).form_invalid(form)
 
@@ -1044,7 +1044,7 @@ def redirect(request):
                         log.error('wrong mac')
             else:
                 log.error('something none')
-        except Exception, e:
+        except Exception as e:
             log.error(str(e))
             pass
         # Decode any encoded characters to ensure things like
@@ -1556,14 +1556,14 @@ def s3_upload_user_file(request):
                     file_prefix=file_prefix,
                     extension_groupname=extension_groupname
                 )
-            except AmazonS3Helper.KeyCreateError, e:
+            except AmazonS3Helper.KeyCreateError as e:
                 response_data['error'] = 'Failed to upload file.'
             except PermissionDenied:
                 response_data['error'] = 'Cannot upload this type of file.'
 
             try:
                 url = keyobj.generate_url(0, query_auth=False, force_http=True)
-            except Exception, e:
+            except Exception as e:
                 response_data['error'] = 'Failed to generate url for file.'
 
             if url:

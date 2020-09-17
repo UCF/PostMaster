@@ -3,7 +3,7 @@ from django.conf import settings
 from datetime import datetime, timedelta, date
 from django.db.models import Q
 from util import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, create_hash
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
@@ -16,7 +16,7 @@ import smtplib
 import re
 import urllib
 import time
-import Queue
+from queue import Queue
 import threading
 import requests
 import random
@@ -100,11 +100,11 @@ class RecipientAttribute(models.Model):
         Describes an attribute of a recipient. The purpose of this class is
         to allow a large amount of flexibility about what attributes are associated
         with a recipient (other than email address). The __getattr__ on Recipient
-        is overriden to check for a RecipientAttribute of the same name and return
+        is overridden to check for a RecipientAttribute of the same name and return
         it's value. This table is populated by the custom import script for each
         data source.
     '''
-    recipient = models.ForeignKey(Recipient, related_name='attributes')
+    recipient = models.ForeignKey(Recipient, related_name='attributes', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     value = models.CharField(max_length=1000,blank=True)
 
@@ -185,7 +185,7 @@ class EmailManager(models.Manager):
 
         emails = OrderedDict()
 
-        for x in xrange(1, 6):
+        for x in range(1, 6):
             day = now + timedelta(days=x)
 
             e = self.sending_today(day)
@@ -375,7 +375,7 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
-    creator = models.ForeignKey(User, related_name='created_email', null=True)
+    creator = models.ForeignKey(User, related_name='created_email', null=True, on_delete=models.CASCADE) #TODO should on_delete be SET_NULL instead?
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=mark_safe(_HELP_TEXT['source_html_uri']))
@@ -397,7 +397,7 @@ class Email(models.Model):
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True)
+    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.CASCADE) #TODO should on_delete be SET_NULL instead?
 
     class Meta:
             ordering = ["title"]
@@ -483,7 +483,7 @@ class Email(models.Model):
                 #http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
                 request = requests.get(self.source_html_uri, verify=False)
                 return (request.status_code, request.text.encode('ascii', 'xmlcharrefreplace'))
-            except IOError, e:
+            except IOError as e:
                 log.exception('Unable to fetch email html')
                 raise self.EmailException()
 
@@ -522,7 +522,7 @@ class Email(models.Model):
                 page = urllib.urlopen(self.source_text_uri)
                 content = page.read()
                 return content.encode('ascii', 'ignore')
-            except IOError, e:
+            except IOError as e:
                 log.exception('Unable to fetch email text')
                 raise self.EmailException()
 
@@ -583,7 +583,7 @@ class Email(models.Model):
                                       settings.AMAZON_SMTP['port'])
             amazon.login(settings.AMAZON_SMTP['username'],
                          settings.AMAZON_SMTP['password'])
-        except smtplib.SMTPException, e:
+        except smtplib.SMTPException as e:
             log.exception('Unable to connect to Amazon')
             raise self.AmazonConnectionException()
         else:
@@ -616,7 +616,7 @@ class Email(models.Model):
                     amazon.sendmail(self.from_email_address,
                                     recipient,
                                     msg.as_string())
-                except smtplib.SMTPException, e:
+                except smtplib.SMTPException as e:
                     log.exception('Unable to send email.')
             amazon.quit()
 
@@ -753,7 +753,7 @@ class Email(models.Model):
                         log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
                         try:
                             amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
-                        except smtplib.SMTPResponseException, e:
+                        except smtplib.SMTPResponseException as e:
                             if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
                                 recipient_details_queue.put(recipient_details)
                                 log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
@@ -770,7 +770,7 @@ class Email(models.Model):
                             recipient_details.when = datetime.now()
                         finally:
                             recipient_details.save()
-                    except Exception, e:
+                    except Exception as e:
                         if error_counter == SendingThread._ERROR_THRESHOLD:
                             recipient_details_queue.task_done()
                             log.debug('%s, reached error threshold, exiting')
@@ -877,7 +877,7 @@ class Email(models.Model):
         terminate_thread.daemon = True
         terminate_thread.start()
 
-        for i in xrange(0, settings.AMAZON_SMTP['rate'] - 1):
+        for i in range(0, settings.AMAZON_SMTP['rate'] - 1):
             sending_thread = SendingThread()
             sending_thread.daemon = True
             sending_thread.start()
@@ -896,7 +896,7 @@ class Instance(models.Model):
     '''
         Describes what happens when an email is actual sent.
     '''
-    email = models.ForeignKey(Email, related_name='instances')
+    email = models.ForeignKey(Email, related_name='instances', on_delete=models.CASCADE)
     subject = models.TextField(null=True, max_length=998)
     sent_html = models.TextField()
     requested_start = models.DateTimeField()
@@ -1019,7 +1019,7 @@ class PreviewInstance(models.Model):
     '''
         Record that a preview was sent
     '''
-    email = models.ForeignKey(Email, related_name='previews')
+    email = models.ForeignKey(Email, related_name='previews', on_delete=models.CASCADE)
     sent_html = models.TextField()
     recipients = models.TextField()
     requested_start = models.DateTimeField()
@@ -1060,8 +1060,8 @@ class InstanceRecipientDetails(models.Model):
         recipient.
     '''
 
-    recipient      = models.ForeignKey(Recipient, related_name='instance_receipts')
-    instance       = models.ForeignKey(Instance, related_name='recipient_details')
+    recipient      = models.ForeignKey(Recipient, related_name='instance_receipts', on_delete=models.CASCADE)
+    instance       = models.ForeignKey(Instance, related_name='recipient_details', on_delete=models.CASCADE)
     when           = models.DateTimeField(null=True)
     exception_msg  = models.TextField(null=True, blank=True)
 
@@ -1070,7 +1070,7 @@ class URL(models.Model):
     '''
         Describes a particular URL in email content
     '''
-    instance = models.ForeignKey(Instance, related_name='urls')
+    instance = models.ForeignKey(Instance, related_name='urls', on_delete=models.CASCADE)
     name     = models.CharField(max_length=2000)
     created  = models.DateTimeField(auto_now_add=True)
 
@@ -1086,8 +1086,8 @@ class URLClick(models.Model):
     '''
         Describes a recipient's clicking of a URL
     '''
-    recipient = models.ForeignKey(Recipient, related_name='urls_clicked')
-    url       = models.ForeignKey(URL, related_name='clicks')
+    recipient = models.ForeignKey(Recipient, related_name='urls_clicked', on_delete=models.CASCADE)
+    url       = models.ForeignKey(URL, related_name='clicks', on_delete=models.CASCADE)
     when      = models.DateTimeField(auto_now_add=True)
 
 
@@ -1095,8 +1095,8 @@ class InstanceOpen(models.Model):
     '''
         Describes a recipient's opening of an email
     '''
-    recipient = models.ForeignKey(Recipient, related_name='instances_opened')
-    instance  = models.ForeignKey(Instance, related_name='opens')
+    recipient = models.ForeignKey(Recipient, related_name='instances_opened', on_delete=models.CASCADE)
+    instance  = models.ForeignKey(Instance, related_name='opens', on_delete=models.CASCADE)
     when      = models.DateTimeField(auto_now_add=True)
     is_reopen = models.BooleanField(default=False)
 

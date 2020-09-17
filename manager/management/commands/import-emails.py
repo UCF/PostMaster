@@ -75,5 +75,5 @@ class Command(BaseCommand):
         importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess, remove_stale)
         try:
             importer.import_emails()
-        except Exception, e:
+        except Exception as e:
             print "Error importing recipients: %s" % str(e)

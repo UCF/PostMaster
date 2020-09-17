@@ -4,9 +4,9 @@ import os
 import sys
 from django.contrib.messages import constants as message_constants
 
-PROJECT_FOLDER    = os.path.dirname(os.path.abspath(__file__))
-APP_FOLDER        = os.path.join(PROJECT_FOLDER, 'apps')
-INC_FOLDER        = os.path.join(PROJECT_FOLDER, 'third-party')
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+APP_FOLDER        = os.path.join(BASE_DIR, 'apps')
+INC_FOLDER        = os.path.join(BASE_DIR, 'third-party')
 ROOT_URLCONF      = "urls"
 
 TIME_ZONE          = 'America/New_York'
@@ -23,18 +23,18 @@ TIME_INPUT_FORMATS = [
 
 LOGIN_REDIRECT_URL = '/'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-)
+]
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(PROJECT_FOLDER, 'templates')
+            os.path.join(BASE_DIR, 'templates')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -50,7 +50,7 @@ TEMPLATES = [
 
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -59,11 +59,11 @@ INSTALLED_APPS = (
     'django.forms',
     'widget_tweaks',
     'manager',
-)
+]
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'manager.auth.Backend',
-)
+]
 
 MESSAGE_TAGS = {
     message_constants.DEBUG   : '',
@@ -76,7 +76,7 @@ MESSAGE_TAGS = {
 WSGI_APPLICATION = 'wsgi.application'
 
 DOT = ''
-with open(os.path.join(PROJECT_FOLDER, 'static', 'img', 'dot.png'), 'rb') as dot:
+with open(os.path.join(BASE_DIR, 'static', 'img', 'dot.png'), 'rb') as dot:
     DOT = dot.read()
 
 try:

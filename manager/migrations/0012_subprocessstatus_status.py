@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subprocessstatus',
             name='status',
-            field=models.CharField(default=b'In Progress', max_length=12),
+            field=models.CharField(default='In Progress', max_length=12),
         ),
     ]

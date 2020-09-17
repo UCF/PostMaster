@@ -16,6 +16,6 @@ urlpatterns = [
 if settings.LOCAL_DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-handler403 = lambda r: url(r, TemplateView.as_view(template_name='403.html'))
-handler404 = lambda r: url(r, TemplateView.as_view(template_name='404.html'))
+handler403 = lambda r, e: url(r, TemplateView.as_view(template_name='403.html'))
+handler404 = lambda r, e: url(r, TemplateView.as_view(template_name='404.html'))
 handler500 = lambda r: url(r, TemplateView.as_view(template_name='500.html'))

@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='recipientgroup',
             name='description',
-            field=models.TextField(blank=True, help_text=b'Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.', null=True),
+            field=models.TextField(blank=True, help_text='Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.', null=True),
         ),
     ]
