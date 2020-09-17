@@ -52,7 +52,7 @@ class Recipient(models.Model):
         except RecipientAttribute.DoesNotExist:
             raise AttributeError
         else:
-            return attribute.value.encode('ascii', 'ignore')
+            return attribute.value.encode('ascii', 'ignore').decode('ascii')
 
     @property
     def hmac_hash(self):
@@ -478,11 +478,13 @@ class Email(models.Model):
                 # Warm the cache
                 requests.get(self.source_html_uri, verify=False)
 
+                request = requests.get(self.source_html_uri, verify=False)
+
                 # Get the email html
                 # This must be encoded in ASCII format due to Amazon SES limitations:
-                #http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
-                request = requests.get(self.source_html_uri, verify=False)
-                return (request.status_code, request.text.encode('ascii', 'xmlcharrefreplace'))
+                # http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
+                html = request.text.encode('ascii', 'xmlcharrefreplace').decode('ascii')
+                return (request.status_code, html)
             except IOError as e:
                 log.exception('Unable to fetch email html')
                 raise self.EmailException()
