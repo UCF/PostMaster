@@ -9,7 +9,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
-from StringIO import StringIO
+from io import StringIO
 
 from tqdm import tqdm
 

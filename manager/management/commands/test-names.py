@@ -8,4 +8,4 @@ class Command(BaseCommand):
 		recipients = Recipient.objects.all()
 
 		for recipient in recipients:
-			print('\t\t\t\t'.join([recipient.preferred_first_name, recipient.preferred_name, recipient.first_name, recipient.last_name]))
+			print(('\t\t\t\t'.join([recipient.preferred_first_name, recipient.preferred_name, recipient.first_name, recipient.last_name])))
