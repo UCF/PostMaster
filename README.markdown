@@ -54,7 +54,7 @@ An application for sending emails with remote content to arbitrary recipients. U
 		python manage.py deploy
 
 	This command runs migrations and any other general setup steps.
-9. Set the default value for `Recipient.disable` in your `default` database to `False` (https://code.djangoproject.com/ticket/470)
+9. Set the default value for `manager_recipient.disable` in your `default` database to `False` (https://code.djangoproject.com/ticket/470)
 10. **Production only:** Schedule management commands to run on regular intervals via automation/cron:
 	- Schedule the `mailer-process` management command to run based on the `PROCESSING_INTERVAL_DURATION` setting
 	- Schedule the `recipient-importers` management command to run based on the availability of their external data sources
