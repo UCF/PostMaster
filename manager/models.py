@@ -564,10 +564,10 @@ class Email(models.Model):
         except self.TextContentMissingException:
             text = None
 
-        soup = BeautifulSoup(html, 'html.parser')
-        explanation = BeautifulSoup(html_explanation, 'html.parser')
+        soup = BeautifulSoup(html.encode('ascii'), 'html.parser')
+        explanation = BeautifulSoup(html_explanation.encode('ascii'), 'html.parser')
         soup.body.insert(0, explanation)
-        html = str(soup.encode('us-ascii'))
+        html = soup.decode('us-ascii')
 
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
@@ -776,9 +776,10 @@ class Email(models.Model):
                         if error_counter == SendingThread._ERROR_THRESHOLD:
                             recipient_details_queue.task_done()
                             log.debug('%s, reached error threshold, exiting')
-                            with recipient_details_queue.mutex:
-                                recipient_details_queue.queue.clear()
-                                return
+                            # TODO mutex is deprecated in Python 3
+                            # with recipient_details_queue.mutex:
+                            #     recipient_details_queue.queue.clear()
+                            #     return
                         error_counter += 1
                         log.exception('%s exception' % self.name)
 
@@ -843,7 +844,7 @@ class Email(models.Model):
         subject                 = self.subject + str(additional_subject)
         display_from            = self.smtp_from_address
         real_from               = self.from_email_address
-        recipient_details_queue = Queue.Queue()
+        recipient_details_queue = Queue()
         sender_stop             = threading.Event()
         success                 = True
         recipient_attributes    = {}
