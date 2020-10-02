@@ -1159,7 +1159,11 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
                 '--remove-stale={0}'.format(remove_stale)
             ]
 
-            subprocess.Popen(command, close_fds=True)
+            subprocess.Popen(
+                command,
+                close_fds=True,
+                cwd=settings.BASE_DIR
+            )
 
             # messages.success(self.request, 'Emails successfully imported.')
             return super(RecipientCSVImportView, self).form_valid(form)
@@ -1225,7 +1229,11 @@ class ExportCleanupView(FormView):
             if remove_emails:
                 command.append('--remove-empty-emails=True')
 
-            subprocess.Popen(command, close_fds=True)
+            subprocess.Popen(
+                command,
+                close_fds=True,
+                cwd=settings.BASE_DIR
+            )
 
             return super(ExportCleanupView, self).form_valid(form)
 
@@ -1505,7 +1513,11 @@ def stale_record_action(request):
         '--quiet=True'
     ]
 
-    subprocess.Popen(command, close_fds=True)
+    subprocess.Popen(
+        command,
+        close_fds=True,
+        cwd=settings.BASE_DIR
+    )
 
     messages.success(request, 'Records removed.')
 
