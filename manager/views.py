@@ -972,7 +972,7 @@ class SettingUpdateView(SettingsMixin, UpdateView):
 
 class SettingDeleteView(SettingsMixin, DeleteView):
     model = Setting
-    template_name = 'manager/setting-delete.html'
+    template_name = 'manager/setting-delete-confirm.html'
     template_name_suffix = '-delete-confirm'
 
     def get_success_url(self):
