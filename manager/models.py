@@ -904,7 +904,7 @@ class Instance(models.Model):
     requested_start = models.DateTimeField()
     start = models.DateTimeField(auto_now_add=True)
     end = models.DateTimeField(null=True)
-    success = models.NullBooleanField(default=None)
+    success = models.BooleanField(default=None, null=True)
     recipients = models.ManyToManyField(Recipient,
                                         through='InstanceRecipientDetails')
     opens_tracked = models.BooleanField(default=False)
