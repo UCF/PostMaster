@@ -76,4 +76,4 @@ class Command(BaseCommand):
         try:
             importer.import_emails()
         except Exception as e:
-            print "Error importing recipients: %s" % str(e)
+            print("Error importing recipients: %s" % str(e))

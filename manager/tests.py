@@ -13,7 +13,7 @@ from util                     import calc_url_mac, calc_open_mac, calc_unsubscri
 from django.urls              import reverse
 from django.http              import HttpResponseRedirect
 from django.core.exceptions   import SuspiciousOperation
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 class RecipientTestCase(TestCase):
 	def setUp(self):
@@ -108,10 +108,10 @@ class EmailTestCase(TestCase):
 
 			response = client.get('?'.join([
 				reverse('manager-email-redirect'),
-				urllib.urlencode({
+				urllib.parse.urlencode({
 					'instance'  :instance.pk,
 					'recipient' :self.recipient.pk,
-					'url'       :urllib.quote(test_url.name),
+					'url'       :urllib.parse.quote(test_url.name),
 					'position'  :test_url.position,
 					'mac'       :calc_url_mac(test_url.name, test_url.position, self.recipient.pk, instance.pk)
 				})
@@ -128,7 +128,7 @@ class EmailTestCase(TestCase):
 		client   = Client()
 		response = client.get('?'.join([
 			reverse('manager-email-open'),
-			urllib.urlencode({
+			urllib.parse.urlencode({
 				'recipient':self.recipient.pk,
 				'instance' :instance.pk,
 				'mac'      :calc_open_mac(self.recipient.pk, instance.pk)
@@ -145,7 +145,7 @@ class EmailTestCase(TestCase):
 		client   = Client()
 		response = client.get('?'.join([
 			reverse('manager-email-unsubscribe'),
-			urllib.urlencode({
+			urllib.parse.urlencode({
 				'recipient':self.recipient.pk,
 				'email'    :self.email.pk,
 				'mac'      :calc_unsubscribe_mac(self.recipient.pk, self.email.pk)

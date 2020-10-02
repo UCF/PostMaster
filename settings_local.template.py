@@ -93,9 +93,6 @@ LDAP_NET_SEARCH_USER = ''
 LDAP_NET_SEARCH_PASS = ''
 LDAP_NET_SEARCH_SIZELIMIT = 5
 
-# Limit the user search results to 5 people
-USER_SEARCHLIMIT = 5
-
 # NID of users who are allowed to manage Postmaster. Tuple format ('NID', 'NID1', 'NID2')
 MANAGERS = ()
 

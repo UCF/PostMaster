@@ -10,7 +10,7 @@ import math
 import os
 import re
 import smtplib
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse
 
 from email.mime.multipart import MIMEMultipart
@@ -138,13 +138,13 @@ class CSVImport:
                     else:
                         preferred_name = row[preferred_name_index]
                 except IndexError:
-                    print('Malformed row at line %d' % row_num)
+                    print(('Malformed row at line %d' % row_num))
                     self.revert()
                     self.update_status("Error", "There is a malformed row at line %d" % row_num, row_num)
                     raise Exception('There is a malformed row at line %d' % row_num)
                 else:
                     if email_address == '':
-                        print('Empty email address at line %d' % row_num)
+                        print(('Empty email address at line %d' % row_num))
                     else:
                         created = False
                         try:
@@ -158,9 +158,9 @@ class CSVImport:
                         try:
                             recipient.save()
                         except Exception as e:
-                            print('Error saving recipient at line %d: %s' % (row_num, str(e)))
+                            print(('Error saving recipient at line %d: %s' % (row_num, str(e))))
                         else:
-                            print('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated'))
+                            print(('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')))
 
                         if first_name is not None:
                             try:
@@ -177,7 +177,7 @@ class CSVImport:
                             try:
                                 attribute_first_name.save()
                             except Exception as e:
-                                print('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e)))
+                                print(('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))))
 
                         if last_name is not None:
                             try:
@@ -194,7 +194,7 @@ class CSVImport:
                             try:
                                 attribute_last_name.save()
                             except Exception as e:
-                                print('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e)))
+                                print(('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))))
 
                         if preferred_name is not None:
                             try:
@@ -212,13 +212,13 @@ class CSVImport:
                             try:
                                 attribute_preferred_name.save()
                             except Exception as e:
-                                print('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e)))
+                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))))
 
                         if group is not None:
                             try:
                                 group.recipients.add(recipient)
                             except Exception as e:
-                                print('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e)))
+                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))))
             row_num += 1
             # Increment
             self.update_status("In Progress", "", row_num)
@@ -290,7 +290,7 @@ class EmailSender:
     def placeholders(self):
         delimiter = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.html)
-        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+        return [p for p in placeholders if p.lower() != 'unsubscribe']
 
     def get_attributes(self, recipient):
         attributes = {}

@@ -14,7 +14,7 @@ from itertools import chain
 import logging
 import smtplib
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import time
 from queue import Queue
 import threading
@@ -86,7 +86,7 @@ class Recipient(models.Model):
         # have no concept of get_script_prefix().
         return '?'.join([
             settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}),
-            urllib.urlencode({
+            urllib.parse.urlencode({
                 'mac'      :calc_unsubscribe_mac(self.pk)
             })
         ])
@@ -346,7 +346,7 @@ class Email(models.Model):
         pass
 
     class Recurs:
-        never, daily, weekly, biweekly, monthly = range(0, 5)
+        never, daily, weekly, biweekly, monthly = list(range(0, 5))
         choices = (
             (never, 'Never'),
             (daily, 'Daily'),
@@ -493,7 +493,7 @@ class Email(models.Model):
     def placeholders(self):
         delimiter    = self.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.html[1])
-        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+        return [p for p in placeholders if p.lower() != 'unsubscribe']
 
     @property
     def recipients(self):
@@ -518,10 +518,10 @@ class Email(models.Model):
         else:
             try:
                 # Warm the cache
-                urllib.urlopen(self.source_text_uri)
+                urllib.request.urlopen(self.source_text_uri)
 
                 # Get the email text
-                page = urllib.urlopen(self.source_text_uri)
+                page = urllib.request.urlopen(self.source_text_uri)
                 content = page.read()
                 return content.encode('ascii', 'ignore')
             except IOError as e:
@@ -712,10 +712,10 @@ class Email(models.Model):
                             for url in tracking_urls:
                                 tracking_url = '?'.join([
                                     settings.PROJECT_URL + reverse('manager-email-redirect'),
-                                    urllib.urlencode({
+                                    urllib.parse.urlencode({
                                         'instance'  :recipient_details.instance.pk,
                                         'recipient' :recipient_details.recipient.pk,
-                                        'url'       :urllib.quote(url.name),
+                                        'url'       :urllib.parse.quote(url.name),
                                         'position'  :url.position,
                                         # The mac uniquely identifies the recipient and acts as a secure integrity check
                                         'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
@@ -731,7 +731,7 @@ class Email(models.Model):
                         if recipient_details.instance.opens_tracked:
                             customized_html += '<img src="%s" />' % '?'.join([
                                 settings.PROJECT_URL + reverse('manager-email-open'),
-                                urllib.urlencode({
+                                urllib.parse.urlencode({
                                     'recipient':recipient_details.recipient.pk,
                                     'instance' :recipient_details.instance.pk,
                                     'mac'      :calc_open_mac(recipient_details.recipient.pk, recipient_details.instance.pk)
@@ -946,7 +946,7 @@ class Instance(models.Model):
     def placeholders(self):
         delimiter    = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.sent_html)
-        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+        return [p for p in placeholders if p.lower() != 'unsubscribe']
 
     @property
     def tracking_urls(self):

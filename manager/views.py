@@ -7,7 +7,7 @@ from util import calc_open_mac
 from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
 from util import calc_url_mac
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse
 import json
 import subprocess
@@ -135,7 +135,7 @@ class SortSearchMixin(object):
         if self._order and self._order != '':
             query_mappings['order'] = self._order
 
-        return '?{0}'.format(urllib.urlencode(query_mappings))
+        return '?{0}'.format(urllib.parse.urlencode(query_mappings))
 
     def get_context_data(self, **kwargs):
         context = super(SortSearchMixin, self).get_context_data(**kwargs)
@@ -813,7 +813,7 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
         except RecipientAttribute.DoesNotExist:
             pass
         else:
-            form._errors['name'] = ErrorList([u'A attribute with that name already exists for this recipient.'])
+            form._errors['name'] = ErrorList(['A attribute with that name already exists for this recipient.'])
             return super(RecipientAttributeCreateView, self).form_invalid(form)
 
         return super(RecipientAttributeCreateView, self).form_valid(form)
@@ -972,7 +972,7 @@ class SettingUpdateView(SettingsMixin, UpdateView):
 
 class SettingDeleteView(SettingsMixin, DeleteView):
     model = Setting
-    template_name = 'manager/setting-delete.html'
+    template_name = 'manager/setting-delete-confirm.html'
     template_name_suffix = '-delete-confirm'
 
     def get_success_url(self):
@@ -997,7 +997,7 @@ def redirect(request):
     if not url_string or not position or not recipient_id or not mac or not instance_id:
         raise Http404("Poll does not exist")
     else:
-        url_string = urllib.unquote(url_string)
+        url_string = urllib.parse.unquote(url_string)
         url_part    = url_string.split('?')[0]
 
         if not URL.objects.filter(name__startswith=url_part).exists():
