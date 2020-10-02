@@ -13,9 +13,6 @@ urlpatterns = [
 	url(r'^robots.txt', lambda x: HttpResponse('User-Agent: *\nDisallow: /', content_type='text/plain'), name='robots_file'),
 ]
 
-if settings.LOCAL_DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
 handler403 = lambda r, e: url(r, TemplateView.as_view(template_name='403.html'))
 handler404 = lambda r, e: url(r, TemplateView.as_view(template_name='404.html'))
 handler500 = lambda r: url(r, TemplateView.as_view(template_name='500.html'))
