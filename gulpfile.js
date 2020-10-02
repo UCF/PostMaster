@@ -127,7 +127,7 @@ function serverServe(done) {
 
 // Copy Font Awesome files
 gulp.task('move-components-fontawesome-fonts', (done) => {
-  gulp.src(config.packagesPath + '/@fortawesome/fontawesome-free/webfonts/**/*')
+  gulp.src(`${config.packagesPath}/@fortawesome/fontawesome-free/webfonts/**/*`)
     .pipe(gulp.dest(`${config.dist.fontPath}/fontawesome`));
   done();
 });
