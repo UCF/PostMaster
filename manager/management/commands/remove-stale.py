@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
-from django.utils.six.moves import input
 
 from manager.models import Email, Instance, StaleRecord, SubprocessStatus
 
