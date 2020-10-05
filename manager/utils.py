@@ -4,14 +4,14 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 import csv
 from datetime import datetime
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import logging
 import math
 import os
 import re
 import smtplib
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+from urllib.parse import urlparse
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -47,7 +47,7 @@ class CSVImport:
         if csv_file:
             self.csv_file = csv_file
         else:
-            print 'csv_file is null or empty string'
+            print('csv_file is null or empty string')
             raise Exception('csv_file must not be null')
 
         if recipient_group_name:
@@ -71,7 +71,7 @@ class CSVImport:
         columns = self.column_order
 
         if 'email' not in columns:
-            print 'email is a required column for import'
+            print('email is a required column for import')
             return
 
         new_group = False
@@ -79,7 +79,7 @@ class CSVImport:
         try:
             group = RecipientGroup.objects.get(name=self.recipient_group_name)
         except RecipientGroup.DoesNotExist:
-            print 'Recipient group does not exist. Creating...'
+            print('Recipient group does not exist. Creating...')
             group = RecipientGroup(name=self.recipient_group_name)
             new_group = True
             group.save()
@@ -138,13 +138,13 @@ class CSVImport:
                     else:
                         preferred_name = row[preferred_name_index]
                 except IndexError:
-                    print 'Malformed row at line %d' % row_num
+                    print(('Malformed row at line %d' % row_num))
                     self.revert()
                     self.update_status("Error", "There is a malformed row at line %d" % row_num, row_num)
                     raise Exception('There is a malformed row at line %d' % row_num)
                 else:
                     if email_address == '':
-                        print 'Empty email address at line %d' % row_num
+                        print(('Empty email address at line %d' % row_num))
                     else:
                         created = False
                         try:
@@ -157,10 +157,10 @@ class CSVImport:
                             created = True
                         try:
                             recipient.save()
-                        except Exception, e:
-                            print 'Error saving recipient at line %d: %s' % (row_num, str(e))
+                        except Exception as e:
+                            print(('Error saving recipient at line %d: %s' % (row_num, str(e))))
                         else:
-                            print 'Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')
+                            print(('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')))
 
                         if first_name is not None:
                             try:
@@ -176,8 +176,8 @@ class CSVImport:
 
                             try:
                                 attribute_first_name.save()
-                            except Exception, e:
-                                print 'Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))
+                            except Exception as e:
+                                print(('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))))
 
                         if last_name is not None:
                             try:
@@ -193,14 +193,14 @@ class CSVImport:
 
                             try:
                                 attribute_last_name.save()
-                            except Exception, e:
-                                print 'Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))
+                            except Exception as e:
+                                print(('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))))
 
                         if preferred_name is not None:
                             try:
                                 attribute_preferred_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Preferred Name')
                             except:
-                                print 'Preferred Name attribute does not exist'
+                                print('Preferred Name attribute does not exist')
                                 attribute_preferred_name = RecipientAttribute(
                                     recipient = recipient,
                                     name = 'Preferred Name',
@@ -211,14 +211,14 @@ class CSVImport:
 
                             try:
                                 attribute_preferred_name.save()
-                            except Exception, e:
-                                print 'Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))
+                            except Exception as e:
+                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))))
 
                         if group is not None:
                             try:
                                 group.recipients.add(recipient)
-                            except Exception, e:
-                                print 'Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))
+                            except Exception as e:
+                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))))
             row_num += 1
             # Increment
             self.update_status("In Progress", "", row_num)
@@ -290,7 +290,7 @@ class EmailSender:
     def placeholders(self):
         delimiter = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.html)
-        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+        return [p for p in placeholders if p.lower() != 'unsubscribe']
 
     def get_attributes(self, recipient):
         attributes = {}
@@ -331,7 +331,7 @@ class EmailSender:
                 msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
                 try:
                     amazon.sendmail(self.email.from_email_address, recipient.email_address, msg.as_string())
-                except smtplib.SMTPException, e:
+                except smtplib.SMTPException as e:
                     log.exception('Unable to send email.')
             amazon.quit()
 
@@ -394,7 +394,7 @@ class AmazonS3Helper:
             self.bucket = self.connection.get_bucket(
                 settings.AMAZON_S3['bucket']
             )
-        except Exception, e:
+        except Exception as e:
             raise AmazonS3Helper.S3ConnectionError(e)
 
     def get_extensions_by_groupname(self, groupname):
@@ -412,7 +412,7 @@ class AmazonS3Helper:
     def get_base_key_path_url(self):
         try:
             keyobj = self.bucket.get_key(self.base_key_path, validate=True)
-        except Exception, e:
+        except Exception as e:
             raise AmazonS3Helper.InvalidKeyError(e)
 
         url = keyobj.generate_url(
@@ -448,7 +448,7 @@ class AmazonS3Helper:
             file_list_unfiltered = self.bucket.list(
                 prefix=self.base_key_path + file_prefix
             )
-        except Exception, e:
+        except Exception as e:
             raise AmazonS3Helper.KeylistFetchError(e)
 
         if file_list_unfiltered:
@@ -512,7 +512,7 @@ class AmazonS3Helper:
                 keyobj = Key(self.bucket)
                 keyobj.key = keyname
                 keyobj.set_contents_from_file(fp=file, policy='public-read')
-            except Exception, e:
+            except Exception as e:
                 raise AmazonS3Helper.KeyCreateError(e)
 
         return keyobj
@@ -524,7 +524,7 @@ class AmazonS3Helper:
         # Find the existing key in the bucket
         try:
             keyobj = self.bucket.get_key(keyname, validate=True)
-        except Exception, e:
+        except Exception as e:
             raise AmazonS3Helper.KeyFetchError(e)
 
         if keyobj is None:
@@ -536,7 +536,7 @@ class AmazonS3Helper:
         else:
             try:
                 keyobj = self.bucket.delete_key(keyobj)
-            except Exception, e:
+            except Exception as e:
                 raise AmazonS3Helper.KeyDeleteError(e)
         return keyobj
 

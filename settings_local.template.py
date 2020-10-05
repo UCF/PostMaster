@@ -16,7 +16,7 @@ ADMINS = (
 # can't be used because there is no request object (e.g. management commands)
 # No trailing slash
 PROJECT_URL = 'http://127.0.0.1:8000'
-PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 LOGIN_URL = '/login'
 LOGOUT_URL = '/logout'
@@ -89,6 +89,9 @@ LDAP_NET_ATTR_MAP    = { # LDAP Object -> User Object
     'sn': 'sn',
     'mail': 'email'
 }
+LDAP_NET_SEARCH_USER = ''
+LDAP_NET_SEARCH_PASS = ''
+LDAP_NET_SEARCH_SIZELIMIT = 5
 
 # NID of users who are allowed to manage Postmaster. Tuple format ('NID', 'NID1', 'NID2')
 MANAGERS = ()
@@ -113,12 +116,12 @@ TEST_EMAIL_SOURCE_HTML_URI = ''
 TEST_EMAIL_SOURCE_TEXT_URI = ''
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(PROJECT_FOLDER, "static") # Comment out when using locally
+# STATIC_ROOT = os.path.join(BASE_DIR, "static") # Comment out when using locally
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_FOLDER, "static")
+    os.path.join(BASE_DIR, "static")
 ]
 
-UPLOAD_DIR = os.path.join(PROJECT_FOLDER, 'uploads')
+UPLOAD_DIR = os.path.join(BASE_DIR, 'uploads')
 
 # Logging
 LOGGING = {
@@ -154,7 +157,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(PROJECT_FOLDER, 'logs', 'application.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'application.log'),
             'formatter': 'talkative',
             'filters': ['require_debug_false']
         }
@@ -187,5 +190,3 @@ LOGGING = {
     }
 }
 
-# License for Froala editor.  Can leave blank for local development
-FROALA_EDITOR_LICENSE = ''
