@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
-from django.utils.six.moves import input
 
 from manager.models import Email, Instance, StaleRecord, SubprocessStatus
 
@@ -93,7 +92,7 @@ class Command(BaseCommand):
 
             emails.delete()
 
-        self.update_status('Complete', '', self.tracker.total_units)
+        self.update_status('Completed', '', self.tracker.total_units)
 
 
     def update_status(self, status, error, current_unit):

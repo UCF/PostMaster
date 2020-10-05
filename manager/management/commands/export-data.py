@@ -9,7 +9,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
-from io import StringIO
+from io import BytesIO
 
 from tqdm import tqdm
 
@@ -122,7 +122,7 @@ class Command(BaseCommand):
         email_handler = None
 
         if self.filename:
-            file_handler = open(self.filename, 'w')
+            file_handler = open(self.filename, 'wb')
             try:
                 file_writer = csv.DictWriter(file_handler, fieldnames=fieldnames)
                 file_writer.writeheader()
@@ -130,7 +130,7 @@ class Command(BaseCommand):
                 file_handler.close()
 
         if self.email:
-            email_handler = StringIO()
+            email_handler = BytesIO()
             email_writer = csv.DictWriter(email_handler, fieldnames=fieldnames)
             email_writer.writeheader()
 
@@ -225,7 +225,10 @@ class Command(BaseCommand):
                 )
             )
 
-            attachment = MIMEText(io_stream.getvalue(), _subtype='csv')
+            byte_str = io_stream.getvalue()
+            text_str = byte_str.decode('utf-8')
+
+            attachment = MIMEText(text_str, _subtype='csv')
             attachment.add_header('Content-Disposition', 'attachment', filename='instance-export-{0}.csv'.format(datetime.now()))
 
             # Close out our io_stream
