@@ -92,7 +92,7 @@ class Command(BaseCommand):
 
             emails.delete()
 
-        self.update_status('Complete', '', self.tracker.total_units)
+        self.update_status('Completed', '', self.tracker.total_units)
 
 
     def update_status(self, status, error, current_unit):
