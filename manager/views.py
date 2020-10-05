@@ -7,7 +7,7 @@ from util import calc_open_mac
 from util import calc_unsubscribe_mac
 from util import calc_unsubscribe_mac_old
 from util import calc_url_mac
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse
 import json
 import subprocess
@@ -135,7 +135,7 @@ class SortSearchMixin(object):
         if self._order and self._order != '':
             query_mappings['order'] = self._order
 
-        return '?{0}'.format(urllib.urlencode(query_mappings))
+        return '?{0}'.format(urllib.parse.urlencode(query_mappings))
 
     def get_context_data(self, **kwargs):
         context = super(SortSearchMixin, self).get_context_data(**kwargs)
@@ -329,8 +329,8 @@ class EmailPlaceholderVerificationView(EmailsMixin, DetailView):
         context['attributes'] = []
         for placeholder in placeholders:
             emails = self.object.recipients.exclude(attributes__name=placeholder)
-            if emails.count > 0:
-                context['attributes'].append((placeholder, emails[:10], emails.count))
+            if len(emails) > 0:
+                context['attributes'].append((placeholder, emails[:10], len(emails)))
         return context
 
 
@@ -813,7 +813,7 @@ class RecipientAttributeCreateView(RecipientsMixin, CreateView):
         except RecipientAttribute.DoesNotExist:
             pass
         else:
-            form._errors['name'] = ErrorList([u'A attribute with that name already exists for this recipient.'])
+            form._errors['name'] = ErrorList(['A attribute with that name already exists for this recipient.'])
             return super(RecipientAttributeCreateView, self).form_invalid(form)
 
         return super(RecipientAttributeCreateView, self).form_valid(form)
@@ -972,7 +972,7 @@ class SettingUpdateView(SettingsMixin, UpdateView):
 
 class SettingDeleteView(SettingsMixin, DeleteView):
     model = Setting
-    template_name = 'manager/setting-delete.html'
+    template_name = 'manager/setting-delete-confirm.html'
     template_name_suffix = '-delete-confirm'
 
     def get_success_url(self):
@@ -992,12 +992,12 @@ def redirect(request):
     position = request.GET.get('position', None)
     recipient_id = request.GET.get('recipient', None)
     mac = request.GET.get('mac', None)
-    parser = HTMLParser.HTMLParser()
+    parser = HTMLParser()
 
     if not url_string or not position or not recipient_id or not mac or not instance_id:
         raise Http404("Poll does not exist")
     else:
-        url_string = urllib.unquote(url_string)
+        url_string = urllib.parse.unquote(url_string)
         url_part    = url_string.split('?')[0]
 
         if not URL.objects.filter(name__startswith=url_part).exists():
@@ -1159,7 +1159,11 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
                 '--remove-stale={0}'.format(remove_stale)
             ]
 
-            subprocess.Popen(command, close_fds=True)
+            subprocess.Popen(
+                command,
+                close_fds=True,
+                cwd=settings.BASE_DIR
+            )
 
             # messages.success(self.request, 'Emails successfully imported.')
             return super(RecipientCSVImportView, self).form_valid(form)
@@ -1225,7 +1229,11 @@ class ExportCleanupView(FormView):
             if remove_emails:
                 command.append('--remove-empty-emails=True')
 
-            subprocess.Popen(command, close_fds=True)
+            subprocess.Popen(
+                command,
+                close_fds=True,
+                cwd=settings.BASE_DIR
+            )
 
             return super(ExportCleanupView, self).form_valid(form)
 
@@ -1505,7 +1513,11 @@ def stale_record_action(request):
         '--quiet=True'
     ]
 
-    subprocess.Popen(command, close_fds=True)
+    subprocess.Popen(
+        command,
+        close_fds=True,
+        cwd=settings.BASE_DIR
+    )
 
     messages.success(request, 'Records removed.')
 

@@ -14,7 +14,7 @@ from itertools import chain
 import logging
 import smtplib
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import time
 from queue import Queue
 import threading
@@ -86,7 +86,7 @@ class Recipient(models.Model):
         # have no concept of get_script_prefix().
         return '?'.join([
             settings.PROJECT_URL + reverse('manager-recipient-subscriptions', kwargs={'pk':self.pk}),
-            urllib.urlencode({
+            urllib.parse.urlencode({
                 'mac'      :calc_unsubscribe_mac(self.pk)
             })
         ])
@@ -346,7 +346,7 @@ class Email(models.Model):
         pass
 
     class Recurs:
-        never, daily, weekly, biweekly, monthly = range(0, 5)
+        never, daily, weekly, biweekly, monthly = list(range(0, 5))
         choices = (
             (never, 'Never'),
             (daily, 'Daily'),
@@ -375,7 +375,7 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
-    creator = models.ForeignKey(User, related_name='created_email', null=True, on_delete=models.CASCADE) #TODO should on_delete be SET_NULL instead?
+    creator = models.ForeignKey(User, related_name='created_email', null=True, on_delete=models.SET_NULL)
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=mark_safe(_HELP_TEXT['source_html_uri']))
@@ -397,7 +397,7 @@ class Email(models.Model):
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.CASCADE) #TODO should on_delete be SET_NULL instead?
+    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.SET_NULL)
 
     class Meta:
             ordering = ["title"]
@@ -493,7 +493,7 @@ class Email(models.Model):
     def placeholders(self):
         delimiter    = self.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.html[1])
-        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+        return [p for p in placeholders if p.lower() != 'unsubscribe']
 
     @property
     def recipients(self):
@@ -518,10 +518,10 @@ class Email(models.Model):
         else:
             try:
                 # Warm the cache
-                urllib.urlopen(self.source_text_uri)
+                urllib.request.urlopen(self.source_text_uri)
 
                 # Get the email text
-                page = urllib.urlopen(self.source_text_uri)
+                page = urllib.request.urlopen(self.source_text_uri)
                 content = page.read()
                 return content.encode('ascii', 'ignore')
             except IOError as e:
@@ -564,10 +564,10 @@ class Email(models.Model):
         except self.TextContentMissingException:
             text = None
 
-        soup = BeautifulSoup(html, 'html.parser')
-        explanation = BeautifulSoup(html_explanation, 'html.parser')
+        soup = BeautifulSoup(html.encode(), 'html.parser')
+        explanation = BeautifulSoup(html_explanation.encode(), 'html.parser')
         soup.body.insert(0, explanation)
-        html = str(soup.encode('us-ascii'))
+        html = soup.decode('us-ascii', formatter='html')
 
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
@@ -712,10 +712,10 @@ class Email(models.Model):
                             for url in tracking_urls:
                                 tracking_url = '?'.join([
                                     settings.PROJECT_URL + reverse('manager-email-redirect'),
-                                    urllib.urlencode({
+                                    urllib.parse.urlencode({
                                         'instance'  :recipient_details.instance.pk,
                                         'recipient' :recipient_details.recipient.pk,
-                                        'url'       :urllib.quote(url.name),
+                                        'url'       :urllib.parse.quote(url.name),
                                         'position'  :url.position,
                                         # The mac uniquely identifies the recipient and acts as a secure integrity check
                                         'mac'       :calc_url_mac(url.name, url.position, recipient_details.recipient.pk, recipient_details.instance.pk)
@@ -731,7 +731,7 @@ class Email(models.Model):
                         if recipient_details.instance.opens_tracked:
                             customized_html += '<img src="%s" />' % '?'.join([
                                 settings.PROJECT_URL + reverse('manager-email-open'),
-                                urllib.urlencode({
+                                urllib.parse.urlencode({
                                     'recipient':recipient_details.recipient.pk,
                                     'instance' :recipient_details.instance.pk,
                                     'mac'      :calc_open_mac(recipient_details.recipient.pk, recipient_details.instance.pk)
@@ -776,9 +776,8 @@ class Email(models.Model):
                         if error_counter == SendingThread._ERROR_THRESHOLD:
                             recipient_details_queue.task_done()
                             log.debug('%s, reached error threshold, exiting')
-                            with recipient_details_queue.mutex:
-                                recipient_details_queue.queue.clear()
-                                return
+                            recipient_details_queue.queue.clear()
+                            return
                         error_counter += 1
                         log.exception('%s exception' % self.name)
 
@@ -843,7 +842,7 @@ class Email(models.Model):
         subject                 = self.subject + str(additional_subject)
         display_from            = self.smtp_from_address
         real_from               = self.from_email_address
-        recipient_details_queue = Queue.Queue()
+        recipient_details_queue = Queue()
         sender_stop             = threading.Event()
         success                 = True
         recipient_attributes    = {}
@@ -904,7 +903,7 @@ class Instance(models.Model):
     requested_start = models.DateTimeField()
     start = models.DateTimeField(auto_now_add=True)
     end = models.DateTimeField(null=True)
-    success = models.NullBooleanField(default=None)
+    success = models.BooleanField(default=None, null=True)
     recipients = models.ManyToManyField(Recipient,
                                         through='InstanceRecipientDetails')
     opens_tracked = models.BooleanField(default=False)
@@ -946,7 +945,7 @@ class Instance(models.Model):
     def placeholders(self):
         delimiter    = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.sent_html)
-        return filter(lambda p: p.lower() != 'unsubscribe', placeholders)
+        return [p for p in placeholders if p.lower() != 'unsubscribe']
 
     @property
     def tracking_urls(self):
