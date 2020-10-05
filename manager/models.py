@@ -375,7 +375,7 @@ class Email(models.Model):
     }
 
     active = models.BooleanField(default=False, help_text=_HELP_TEXT['active'])
-    creator = models.ForeignKey(User, related_name='created_email', null=True, on_delete=models.CASCADE) #TODO should on_delete be SET_NULL instead?
+    creator = models.ForeignKey(User, related_name='created_email', null=True, on_delete=models.SET_NULL)
     title = models.CharField(blank=False, max_length=100, help_text=_HELP_TEXT['title'])
     subject = models.CharField(max_length=998, help_text=_HELP_TEXT['subject'])
     source_html_uri = models.URLField(help_text=mark_safe(_HELP_TEXT['source_html_uri']))
@@ -397,7 +397,7 @@ class Email(models.Model):
     unsubscriptions = models.ManyToManyField(Recipient, related_name='unsubscriptions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.CASCADE) #TODO should on_delete be SET_NULL instead?
+    subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.SET_NULL)
 
     class Meta:
             ordering = ["title"]
@@ -776,10 +776,8 @@ class Email(models.Model):
                         if error_counter == SendingThread._ERROR_THRESHOLD:
                             recipient_details_queue.task_done()
                             log.debug('%s, reached error threshold, exiting')
-                            # TODO mutex is deprecated in Python 3
-                            # with recipient_details_queue.mutex:
-                            #     recipient_details_queue.queue.clear()
-                            #     return
+                            recipient_details_queue.queue.clear()
+                            return
                         error_counter += 1
                         log.exception('%s exception' % self.name)
 
