@@ -2,7 +2,7 @@
 // Overrides for select2.js multiselect widgets
 //
 
-// scss-lint:disable SelectorFormat NestingDepth
+// sass-lint:disable class-name-format
 
 .select2-container--default {
   &.select2-container--focus .select2-selection--multiple {
@@ -107,7 +107,7 @@
   }
 }
 
-// scss-lint:enable SelectorFormat NestingDepth
+// sass-lint:enable class-name-format
 
 .select2-option-icon {
   @include fa-icon;
