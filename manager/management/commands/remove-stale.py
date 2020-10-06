@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
-from django.utils.six.moves import input
 
 from manager.models import Email, Instance, StaleRecord, SubprocessStatus
 
@@ -93,7 +92,7 @@ class Command(BaseCommand):
 
             emails.delete()
 
-        self.update_status('Complete', '', self.tracker.total_units)
+        self.update_status('Completed', '', self.tracker.total_units)
 
 
     def update_status(self, status, error, current_unit):
@@ -111,9 +110,9 @@ class Command(BaseCommand):
             self.tracker.save()
 
     def confirm(self, message, default=None):
-        result = input('%s ' % message)
+        result = eval(input('%s ' % message))
         if not result and default is not None:
             return default
         while len(result) < 1 or result[0].lower() not in 'yn':
-            result = input("Please answer yes or no: ")
+            result = eval(input("Please answer yes or no: "))
         return result[0].lower() == 'y'
