@@ -91,6 +91,8 @@ An application for sending emails with remote content to arbitrary recipients. U
 
 ## Upgrading
 
+- To **v3.0.0**
+	- If you have an existing virtual environment created using python 2.7, delete this environment - `rm -rf virtualenv-directory/` - and run through the installation instructions above.
 - To **v2.0.0**
 	- Ensure virtual environment is using python 2.7+
 	- Pull down 2.0.0 code

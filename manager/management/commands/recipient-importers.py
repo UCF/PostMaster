@@ -194,7 +194,7 @@ class GMUCFImporter(Importer):
 				ON
 					recipient.email_address = gmucf.email
 			)
-			ON DUPLICATE KEY UPDATE value=value
+			ON DUPLICATE KEY UPDATE value = VALUES(value)
 		''' % (
 			self.postmaster_db_name,
 			self.postmaster_db_name,
@@ -367,7 +367,7 @@ class AllStudentsImporter(Importer):
 				ON
 					recipient.email_address = enrl_stdnt.email
 			)
-			ON DUPLICATE KEY UPDATE value=value
+			ON DUPLICATE KEY UPDATE value = VALUES(value)
 		''' % (
 			self.postmaster_db_name,
 			self.postmaster_db_name,
@@ -540,7 +540,7 @@ class AllStaffImporter(Importer):
 				ON
 					recipient.email_address = allempl.email
 			)
-			ON DUPLICATE KEY UPDATE value=value
+			ON DUPLICATE KEY UPDATE value = VALUES(value)
 		''' % (
 			self.postmaster_db_name,
 			self.postmaster_db_name,
