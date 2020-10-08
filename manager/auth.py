@@ -7,9 +7,9 @@ from util                         import LDAPHelper
 import logging
 
 class Backend(ModelBackend):
-	
-	def authenticate(self, username=None, password=None):
-		
+
+	def authenticate(self, request, username=None, password=None):
+
 		if username not in settings.MANAGERS:
 			return None
 
@@ -17,7 +17,7 @@ class Backend(ModelBackend):
 			ldap_helper = LDAPHelper()
 			LDAPHelper.bind(ldap_helper.connection,username,password)
 			ldap_user = LDAPHelper.search_single(ldap_helper.connection,username)
-		except LDAPHelper.LDAPHelperException, e:
+		except LDAPHelper.LDAPHelperException as e:
 			logging.error('LDAP Error: %s' % e)
 			return None
 		else:
@@ -39,14 +39,14 @@ class Backend(ModelBackend):
 					user.email = LDAPHelper.extract_email(ldap_user)
 				except LDAPHelper.MissingAttribute:
 					pass
-				
+
 				try:
 					user.save()
-				except Exception, e:
+				except Exception as e:
 					logging.error('Unable to save user `%s`: %s' % (username,str(e)))
 					return None
 		return user
-		
+
 	def get_user(self, user_id):
 		try:
 			return User.objects.get(pk=user_id)

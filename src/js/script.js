@@ -3,21 +3,21 @@
 //
 
 // Athena
-// =require ./ucf-athena-framework/dist/js/framework.min.js
+// =require ucf-athena-framework/dist/js/framework.min.js
 
 // Typeaheads
-// =require ./corejs-typeahead/dist/typeahead.bundle.js
+// =require corejs-typeahead/dist/typeahead.bundle.js
 
 // Multiselect widgets
-// =require ./select2/dist/js/select2.js
+// =require select2/dist/js/select2.js
 
 // Datepickers
-// =require ./moment/moment.js
-// =require ./pikaday/pikaday.js
-// =require ./pikaday/plugins/pikaday.jquery.js
+// =require moment/moment.js
+// =require pikaday/pikaday.js
+// =require pikaday/plugins/pikaday.jquery.js
 
 // Timepickers
-// =require ./timepicker/jquery.timepicker.js
+// =require timepicker/jquery.timepicker.js
 
 
 //

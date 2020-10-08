@@ -36,9 +36,9 @@ class Command(BaseCommand):
 			inst.setup()
 			inst.do_import()
 		else:
-			print 'You must specify an importer to run. Example command:'
-			print 'python manage.py recipient-importer <importer-name>'
-			print 'Available importers are:'
+			print('You must specify an importer to run. Example command:')
+			print('python manage.py recipient-importer <importer-name>')
+			print('Available importers are:')
 
 class Importer(object):
 	'''
