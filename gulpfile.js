@@ -127,7 +127,7 @@ function serverServe(done) {
 
 // Copy Font Awesome files
 gulp.task('move-components-fontawesome-fonts', (done) => {
-  gulp.src(config.packagesPath + '/@fortawesome/fontawesome-free/webfonts/**/*')
+  gulp.src(`${config.packagesPath}/@fortawesome/fontawesome-free/webfonts/**/*`)
     .pipe(gulp.dest(`${config.dist.fontPath}/fontawesome`));
   done();
 });
@@ -151,12 +151,12 @@ gulp.task('components', gulp.parallel(
 //
 
 // Lint all project scss files
-gulp.task('scss-lint', (done) => {
+gulp.task('scss-lint', () => {
   return lintSCSS(`${config.src.scssPath}/*.scss`);
 });
 
 // Compile project stylesheet
-gulp.task('scss-build-proj', (done) => {
+gulp.task('scss-build-proj', () => {
   return buildCSS(`${config.src.scssPath}/style.scss`);
 });
 
