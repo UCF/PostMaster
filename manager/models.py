@@ -21,8 +21,9 @@ import threading
 import requests
 import random
 from collections import OrderedDict
-
+from unidecode import unidecode
 from bs4 import BeautifulSoup
+
 
 log = logging.getLogger(__name__)
 
@@ -481,9 +482,7 @@ class Email(models.Model):
                 request = requests.get(self.source_html_uri, verify=False)
 
                 # Get the email html
-                # This must be encoded in ASCII format due to Amazon SES limitations:
-                # http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
-                html = request.text.encode('ascii', 'xmlcharrefreplace').decode('ascii')
+                html = self.sanitize_html(request.text.encode())
                 return (request.status_code, html)
             except IOError as e:
                 log.exception('Unable to fetch email html')
@@ -528,6 +527,26 @@ class Email(models.Model):
                 log.exception('Unable to fetch email text')
                 raise self.EmailException()
 
+    def sanitize_html(self, html):
+        """
+        Returns email HTML as a string, suitable for sending via SES in
+        ASCII format.  More info:
+        http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
+
+        BS4 decodes existing HTML entities, then re-generates them during
+        this step.  Other characters outside of the ASCII range are replaced
+        with placeholder characters.
+        """
+        if isinstance(html, BeautifulSoup):
+            soup = html
+        else:
+            soup = BeautifulSoup(html, 'html.parser')
+
+        html = soup.decode(eventual_encoding='ascii', formatter='html')
+        html = unidecode(html)
+
+        return html
+
     def send_preview(self):
         '''
             Send preview emails
@@ -567,7 +586,7 @@ class Email(models.Model):
         soup = BeautifulSoup(html.encode(), 'html.parser')
         explanation = BeautifulSoup(html_explanation.encode(), 'html.parser')
         soup.body.insert(0, explanation)
-        html = soup.decode('us-ascii', formatter='html')
+        html = self.sanitize_html(soup)
 
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
