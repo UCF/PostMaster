@@ -775,7 +775,7 @@ class Email(models.Model):
                         try:
                             amazon.sendmail(real_from, recipient_details.recipient.email_address, msg.as_string())
                         except smtplib.SMTPResponseException as e:
-                            if e.smtp_error.find('Maximum sending rate exceeded') >= 0:
+                            if e.smtp_error.find('Maximum sending rate exceeded'.encode()) >= 0:
                                 recipient_details_queue.put(recipient_details)
                                 log.debug('thread %s, maximum sending rate exceeded, sleeping for a bit')
                                 time.sleep(float(1) + random.random())
