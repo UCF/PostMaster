@@ -1037,8 +1037,7 @@ def redirect(request):
                             log.error('bad instance')
                             pass
                         else:
-                            url_click = URLClick(recipient=recipient, url=url)
-                            url_click.save()
+                            url_click, created = URLClick.objects.get_or_create(recipient=recipient, url=url)
                             log.debug('url click saved')
                     else:
                         log.error('wrong mac')
