@@ -124,19 +124,19 @@ class CSVImport:
                 continue
             else:
                 try:
-                    email_address = row[email_address_index].replace('\xEF\xBB\xBF', '')
+                    email_address = row[email_address_index]
                     if first_name_index is None:
                         first_name = None
                     else:
-                        first_name = row[first_name_index].replace('\xEF\xBB\xBF', '')
+                        first_name = row[first_name_index]
                     if last_name_index is None:
                         last_name = None
                     else:
-                        last_name = row[last_name_index].replace('\xEF\xBB\xBF', '')
+                        last_name = row[last_name_index]
                     if preferred_name_index is None:
                         preferred_name = None
                     else:
-                        preferred_name = row[preferred_name_index].replace('\xEF\xBB\xBF', '')
+                        preferred_name = row[preferred_name_index]
                 except IndexError:
                     print(f'Malformed row at line {row_num}')
                     self.revert()
