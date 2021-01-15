@@ -64,7 +64,7 @@ class Command(BaseCommand):
         filename = options['csv']
         group_name = options['group_name']
         columns = list(col.strip() for col in options['columns'].split(','))
-        ignore_first_row = options['ignore_first_row'] ## if change this to False, it works. so it's always sending a True val here no matter the checkbox val
+        ignore_first_row = options['ignore_first_row']
         subprocess = options['subprocess']
         remove_file = options['remove_file']
         remove_stale = options['remove_stale']
