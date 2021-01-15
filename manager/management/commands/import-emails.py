@@ -42,7 +42,7 @@ class Command(BaseCommand):
             '--remove-file',
             dest='remove_file',
             action='store_true',
-            help='If True, the file will be removed after the emails are imported'
+            help='If True, the file will be removed after the emails are imported.'
         )
 
         parser.add_argument(
