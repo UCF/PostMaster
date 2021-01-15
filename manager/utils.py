@@ -53,11 +53,16 @@ class CSVImport:
         if recipient_group_name:
             self.recipient_group_name = recipient_group_name
         else:
-            raise Exception('Receipient Group Name is null or empty string')
+            raise Exception('Recipient Group Name is null or empty string')
             return
+
+        print(('Skip first row set1 to %s' % (self.skip_first_row))) # set to false here no matter val of box
+        print(('skip_first_row only, no self set to %s' % (skip_first_row))) # Always set to TRUE
 
         if skip_first_row:
             self.skip_first_row = skip_first_row
+
+        print(('Skip first row set2 to %s' % (skip_first_row))) # set to true here no matter val of box
 
         if column_order:
             self.column_order = column_order
@@ -103,7 +108,7 @@ class CSVImport:
         self.csv_file.seek(0)
 
         csv_reader = csv.reader(self.csv_file)
-        email_adress_index = columns.index('email')
+        email_address_index = columns.index('email')
         try:
             first_name_index = columns.index('first_name')
         except ValueError:
@@ -124,7 +129,7 @@ class CSVImport:
                 continue
             else:
                 try:
-                    email_address = row[email_adress_index]
+                    email_address = row[email_address_index]
                     if first_name_index is None:
                         first_name = None
                     else:
