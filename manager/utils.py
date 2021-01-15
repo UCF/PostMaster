@@ -144,7 +144,7 @@ class CSVImport:
                     raise Exception(f'There is a malformed row at line {row_num}')
                 else:
                     if email_address == '':
-                        print(('Empty email address at line %d' % idx + 1))
+                        print(('Empty email address at line %d' % row_num))
                     else:
                         created = False
                         try:
@@ -158,7 +158,7 @@ class CSVImport:
                         try:
                             recipient.save()
                         except Exception as e:
-                            print(('Error saving recipient at line %d: %s' % (idx + 1, str(e))))
+                            print(('Error saving recipient at line %d: %s' % (row_num, str(e))))
                         else:
                             print(('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')))
 
@@ -177,7 +177,7 @@ class CSVImport:
                             try:
                                 attribute_first_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attibute First Name at line %d, %s' % (idx + 1, str(e))))
+                                print(('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))))
 
                         if last_name is not None:
                             try:
@@ -194,7 +194,7 @@ class CSVImport:
                             try:
                                 attribute_last_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attribute Last Name at line %d, %s' % (idx + 1, str(e))))
+                                print(('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))))
 
                         if preferred_name is not None:
                             try:
@@ -212,15 +212,15 @@ class CSVImport:
                             try:
                                 attribute_preferred_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (idx + 1, str(e))))
+                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))))
 
                         if group is not None:
                             try:
                                 group.recipients.add(recipient)
                             except Exception as e:
-                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, idx + 1, str(e))))
+                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))))
             # Increment
-            self.update_status("In Progress", "", idx + 1)
+            self.update_status("In Progress", "", row_num)
 
         self.update_status("Completed", "", self.tracker.total_units)
 
