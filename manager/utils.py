@@ -62,7 +62,7 @@ class CSVImport:
 
         self.remove_stale = remove_stale
 
-        self.subprocess = subprocess'
+        self.subprocess = subprocess
         self.stderr = stderr
 
     def import_emails(self):
