@@ -43,18 +43,16 @@ class CSVImport:
     update_factor = 1
     remove_stale = False
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False, stderr=None):
         if csv_file:
             self.csv_file = csv_file
         else:
-            print('csv_file is null or empty string')
             raise Exception('csv_file must not be null')
 
         if recipient_group_name:
             self.recipient_group_name = recipient_group_name
         else:
             raise Exception('Recipient Group Name is null or empty string')
-            return
 
         if skip_first_row:
             self.skip_first_row = skip_first_row
@@ -64,7 +62,8 @@ class CSVImport:
 
         self.remove_stale = remove_stale
 
-        self.subprocess = subprocess
+        self.subprocess = subprocess'
+        self.stderr = stderr
 
     def import_emails(self):
 
@@ -72,7 +71,7 @@ class CSVImport:
 
         if 'email' not in columns:
             print('email is a required column for import')
-            return
+            raise Exception('email is a required column for import')
 
         new_group = False
         group = None
@@ -138,7 +137,6 @@ class CSVImport:
                     else:
                         preferred_name = row[preferred_name_index].replace('\xEF\xBB\xBF', '')
                 except IndexError:
-                    print(f'Malformed row at line {row_num}')
                     self.revert()
                     self.update_status("Error", f'There is a malformed row at line {row_num}')
                     raise Exception(f'There is a malformed row at line {row_num}')
@@ -158,7 +156,10 @@ class CSVImport:
                         try:
                             recipient.save()
                         except Exception as e:
-                            print(('Error saving recipient at line %d: %s' % (idx + 1, str(e))))
+                            if self.stderr:
+                                self.stderr.write(f'Error saving recipient at line {idx + 1}: {str(e)}')
+                            else:
+                                print(f'Error saving recipient at line {idx + 1}: {str(e)}')
                         else:
                             print(('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')))
 
@@ -177,7 +178,10 @@ class CSVImport:
                             try:
                                 attribute_first_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attibute First Name at line %d, %s' % (idx + 1, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Error saving recipient attribute First Name at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Error saving recipient attribute First Name at line {idx + 1}: {str(e)}')
 
                         if last_name is not None:
                             try:
@@ -194,7 +198,10 @@ class CSVImport:
                             try:
                                 attribute_last_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attribute Last Name at line %d, %s' % (idx + 1, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Error saving recipient attribute Last Name at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Error saving recipient attribute Last Name at line {idx + 1}: {str(e)}')
 
                         if preferred_name is not None:
                             try:
@@ -212,13 +219,19 @@ class CSVImport:
                             try:
                                 attribute_preferred_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (idx + 1, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Error saving recipient attribute Preferred Name at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Error saving recipient attribute Preferred Name at line {idx + 1}: {str(e)}')
 
                         if group is not None:
                             try:
                                 group.recipients.add(recipient)
                             except Exception as e:
-                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, idx + 1, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Failed to add {email_address} to group {group.name} at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Failed to add {email_address} to group {group.name} at line {idx + 1}: {str(e)}')
             # Increment
             self.update_status("In Progress", "", idx + 1)
 
