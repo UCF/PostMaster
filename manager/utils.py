@@ -1,3 +1,4 @@
+import enum
 import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
@@ -12,6 +13,8 @@ import re
 import smtplib
 import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse
+
+from io import StringIO
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -101,7 +104,13 @@ class CSVImport:
         # Make sure the file is back at the beginning
         self.csv_file.seek(0)
 
-        csv_reader = csv.reader(self.csv_file)
+        csv_string = self.csv_file.read()
+        csv_string = re.sub(r'[^\w\-_\s\",@\.]*', '', csv_string)
+
+        csv_stream = StringIO(csv_string)
+
+        csv_reader = csv.reader(csv_stream)
+
         email_address_index = columns.index('email')
         try:
             first_name_index = columns.index('first_name')
