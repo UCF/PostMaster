@@ -201,5 +201,11 @@ DATADOG_CONFIG = {
     'api': {
         'api_key': None, # The API key to use for the datadog API.
         'app_key': None  # The app key to use when reporting datadog stats to the API.
-    }
+    },
+    'tags': [
+        'env:{environment}', # Replace with the environment
+        'fn:web', # Function of the service
+        'loc:{location}', # DSO or wherever
+        'stack:{eduapp or whatevs}' # The particular stack this is running on.
+    ]
 }
