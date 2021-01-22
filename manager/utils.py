@@ -74,7 +74,7 @@ class CSVImport:
         self.stderr = stderr
 
     def import_emails(self):
-        tags = ['idk']
+        tags = []
 
         log_datadog_event(
             'Recipient Import (Start)',
@@ -277,7 +277,8 @@ class CSVImport:
         log_datadog_event(
             'Recipient Import (Completed)',
             f'The CSV file {os.path.basename(self.csv_file)} finished importing.',
-            tags
+            tags,
+            'success'
         )
 
         if self.subprocess:
@@ -636,10 +637,13 @@ def log_datadog_event(title, text, tags, alert_type='info'):
     if is_datadog_configured == False:
         return
 
+    default_tags = settings.tags
+    default_tags.extend(tags)
+
     if settings.DATADOG_CONFIG['service'] == 'statsd':
-        statsd_log_datadog_event(title, text, tags, alert_type)
+        statsd_log_datadog_event(title, text, default_tags, alert_type)
     elif settings.DATADOG_CONFIG['service'] == 'api':
-        api_log_datadog_event(title, text, tags, alert_type)
+        api_log_datadog_event(title, text, default_tags, alert_type)
 
 
 def statsd_log_datadog_event(title, text, tags, alert_type='info'):
