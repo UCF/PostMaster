@@ -190,3 +190,16 @@ LOGGING = {
     }
 }
 
+DATADOG_CONFIG = {
+    # The service to use when reporting stats to datadog.
+    # Valid options are `statsd` or `api`.
+    'service': 'statsd',
+    'statsd': {
+        'host': None, # The host of the statsd service.
+        'port': None  # The port of the statsd service.
+    },
+    'api': {
+        'api_key': None, # The API key to use for the datadog API.
+        'app_key': None  # The app key to use when reporting datadog stats to the API.
+    }
+}
