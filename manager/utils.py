@@ -105,6 +105,10 @@ class CSVImport:
         self.csv_file.seek(0)
 
         csv_string = self.csv_file.read()
+
+        # Strips out all characters that would not be allowed in
+        # an email address. This means these characters will also
+        # be stripped from names or any other field within the CSV.
         csv_string = re.sub(r'[^\w\-_\s\",@\.\!#\$%&\'*+\-\/\=\?\^\`\{\|\}\~]*', '', csv_string)
 
         csv_stream = StringIO(csv_string)
