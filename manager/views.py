@@ -1152,11 +1152,15 @@ class RecipientCSVImportView(RecipientsMixin, FormView):
                 'import-emails',
                 filename,
                 '--group-name={0}'.format(group),
-                '--ignore-first-row={0}'.format(skip_first_row),
                 '--column-order={0}'.format(column_order),
-                '--subprocess={0}'.format(self.tracker_pk),
-                '--remove-stale={0}'.format(remove_stale)
+                '--subprocess={0}'.format(self.tracker_pk)
             ]
+
+            if skip_first_row:
+                command.append('--ignore-first-row')
+
+            if remove_stale:
+                command.append('--remove-stale')
 
             subprocess.Popen(
                 command,

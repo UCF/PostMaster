@@ -1,3 +1,4 @@
+import enum
 import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
@@ -12,6 +13,8 @@ import re
 import smtplib
 import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse
+
+from io import StringIO
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -43,18 +46,16 @@ class CSVImport:
     update_factor = 1
     remove_stale = False
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False, stderr=None):
         if csv_file:
             self.csv_file = csv_file
         else:
-            print('csv_file is null or empty string')
             raise Exception('csv_file must not be null')
 
         if recipient_group_name:
             self.recipient_group_name = recipient_group_name
         else:
-            raise Exception('Receipient Group Name is null or empty string')
-            return
+            raise Exception('Recipient Group Name is null or empty string')
 
         if skip_first_row:
             self.skip_first_row = skip_first_row
@@ -65,6 +66,7 @@ class CSVImport:
         self.remove_stale = remove_stale
 
         self.subprocess = subprocess
+        self.stderr = stderr
 
     def import_emails(self):
 
@@ -72,7 +74,7 @@ class CSVImport:
 
         if 'email' not in columns:
             print('email is a required column for import')
-            return
+            raise Exception('email is a required column for import')
 
         new_group = False
         group = None
@@ -102,8 +104,18 @@ class CSVImport:
         # Make sure the file is back at the beginning
         self.csv_file.seek(0)
 
-        csv_reader = csv.reader(self.csv_file)
-        email_adress_index = columns.index('email')
+        csv_string = self.csv_file.read()
+
+        # Strips out all characters that would not be allowed in
+        # an email address. This means these characters will also
+        # be stripped from names or any other field within the CSV.
+        csv_string = re.sub(r'[^\w\-_\s\",@\.\!#\$%&\'*+\-\/\=\?\^\`\{\|\}\~]*', '', csv_string)
+
+        csv_stream = StringIO(csv_string)
+
+        csv_reader = csv.reader(csv_stream)
+
+        email_address_index = columns.index('email')
         try:
             first_name_index = columns.index('first_name')
         except ValueError:
@@ -117,14 +129,14 @@ class CSVImport:
         except ValueError:
             preferred_name_index = None
 
-        row_num = 1
-        for row in csv_reader:
-            if row_num == 1 and self.skip_first_row:
-                row_num = 2
+        for idx, row in enumerate(csv_reader):
+            row_num = idx + 1
+
+            if idx == 0 and self.skip_first_row == True:
                 continue
             else:
                 try:
-                    email_address = row[email_adress_index]
+                    email_address = row[email_address_index]
                     if first_name_index is None:
                         first_name = None
                     else:
@@ -138,10 +150,9 @@ class CSVImport:
                     else:
                         preferred_name = row[preferred_name_index]
                 except IndexError:
-                    print(('Malformed row at line %d' % row_num))
                     self.revert()
-                    self.update_status("Error", "There is a malformed row at line %d" % row_num, row_num)
-                    raise Exception('There is a malformed row at line %d' % row_num)
+                    self.update_status("Error", f'There is a malformed row at line {row_num}')
+                    raise Exception(f'There is a malformed row at line {row_num}')
                 else:
                     if email_address == '':
                         print(('Empty email address at line %d' % row_num))
@@ -158,7 +169,10 @@ class CSVImport:
                         try:
                             recipient.save()
                         except Exception as e:
-                            print(('Error saving recipient at line %d: %s' % (row_num, str(e))))
+                            if self.stderr:
+                                self.stderr.write(f'Error saving recipient at line {idx + 1}: {str(e)}')
+                            else:
+                                print(f'Error saving recipient at line {idx + 1}: {str(e)}')
                         else:
                             print(('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')))
 
@@ -177,7 +191,10 @@ class CSVImport:
                             try:
                                 attribute_first_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Error saving recipient attribute First Name at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Error saving recipient attribute First Name at line {idx + 1}: {str(e)}')
 
                         if last_name is not None:
                             try:
@@ -194,7 +211,10 @@ class CSVImport:
                             try:
                                 attribute_last_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Error saving recipient attribute Last Name at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Error saving recipient attribute Last Name at line {idx + 1}: {str(e)}')
 
                         if preferred_name is not None:
                             try:
@@ -212,18 +232,23 @@ class CSVImport:
                             try:
                                 attribute_preferred_name.save()
                             except Exception as e:
-                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))))
+                                if self.stderr:
+                                    self.stderr.write(f'Error saving recipient attribute Preferred Name at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Error saving recipient attribute Preferred Name at line {idx + 1}: {str(e)}')
 
                         if group is not None:
                             try:
                                 group.recipients.add(recipient)
                             except Exception as e:
-                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))))
-            row_num += 1
+                                if self.stderr:
+                                    self.stderr.write(f'Failed to add {email_address} to group {group.name} at line {idx + 1}: {str(e)}')
+                                else:
+                                    print(f'Failed to add {email_address} to group {group.name} at line {idx + 1}: {str(e)}')
             # Increment
             self.update_status("In Progress", "", row_num)
 
-        self.update_status("Completed", "", row_num)
+        self.update_status("Completed", "", self.tracker.total_units)
 
         if self.subprocess:
             self.delete_file(self.csv_file.name)
@@ -259,17 +284,7 @@ class CSVImport:
             recipient_group.delete()
 
     def get_line_count(self):
-        f = self.csv_file
-        lines = 1
-        buf_size = 1024 * 1024
-        read_f = f.read
-
-        buf = read_f(buf_size)
-        while buf:
-            lines += buf.count('\n')
-            buf = read_f(buf_size)
-
-        return lines
+        return sum(1 for line in self.csv_file)
 
 class EmailSender:
     '''

@@ -34,17 +34,15 @@ class Command(BaseCommand):
         parser.add_argument(
             '--ignore-first-row',
             dest='ignore_first_row',
-            type=bool,
-            help='If True, the first row will be skipped.',
-            default=False
+            action='store_true',
+            help='If True, the first row will be skipped.'
         )
 
         parser.add_argument(
             '--remove-file',
             dest='remove_file',
-            type=bool,
-            help='If True, the file will be removed after the emails are imported',
-            default=False
+            action='store_true',
+            help='If True, the file will be removed after the emails are imported.'
         )
 
         parser.add_argument(
@@ -58,9 +56,8 @@ class Command(BaseCommand):
         parser.add_argument(
             '--remove-stale',
             dest='remove_stale',
-            type=bool,
-            help='If True, will remove recipients not found in the file from an existing recipient group.',
-            default=False
+            action='store_true',
+            help='If True, will remove recipients not found in the file from an existing recipient group.'
         )
 
     def handle(self, *args, **options):
@@ -72,7 +69,7 @@ class Command(BaseCommand):
         remove_file = options['remove_file']
         remove_stale = options['remove_stale']
 
-        importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess, remove_stale)
+        importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess, remove_stale, self.stderr)
         try:
             importer.import_emails()
         except Exception as e:
