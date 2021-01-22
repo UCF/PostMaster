@@ -1,4 +1,5 @@
 import enum
+from settings_local import DATADOG_CONFIG
 import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
@@ -22,12 +23,16 @@ from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
+from datadog import initialize, api, statsd
+
 from manager.models import Email
 from manager.models import Instance
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
 from manager.models import SubprocessStatus
+
+import settings
 
 
 log = logging.getLogger(__name__)
@@ -69,11 +74,24 @@ class CSVImport:
         self.stderr = stderr
 
     def import_emails(self):
+        tags = ['idk']
+
+        log_datadog_event(
+            'Recipient Import (Start)',
+            f'The CSV {os.path.basename(self.csv_file)} started importing.',
+            tags
+        )
 
         columns = self.column_order
 
         if 'email' not in columns:
             print('email is a required column for import')
+            log_datadog_event(
+                'Recipient Import (Failed)',
+                f'The CSV file {os.path.basename(self.csv_file)} failed to import because the email columns was missing.',
+                tags,
+                'error'
+            )
             raise Exception('email is a required column for import')
 
         new_group = False
@@ -152,6 +170,12 @@ class CSVImport:
                 except IndexError:
                     self.revert()
                     self.update_status("Error", f'There is a malformed row at line {row_num}')
+                    log_datadog_event(
+                        'Recipient Import (Failed)',
+                        f'The CSV file {os.path.basename(self.csv_file)} failed to import as line {row_num} because there was a malformed row.',
+                        tags,
+                        'error'
+                    )
                     raise Exception(f'There is a malformed row at line {row_num}')
                 else:
                     if email_address == '':
@@ -249,6 +273,12 @@ class CSVImport:
             self.update_status("In Progress", "", row_num)
 
         self.update_status("Completed", "", self.tracker.total_units)
+
+        log_datadog_event(
+            'Recipient Import (Completed)',
+            f'The CSV file {os.path.basename(self.csv_file)} finished importing.',
+            tags
+        )
 
         if self.subprocess:
             self.delete_file(self.csv_file.name)
@@ -567,3 +597,80 @@ def flush_transaction():
     this function at the appropriate moment
     """
     transaction.commit()
+
+def is_datadog_configured():
+    """
+    Returns True if the datadog configuration
+    settings are set, either with the statsd
+    or the API service configured.
+    """
+    if not hasattr(settings, 'DATADOG_CONFIG'):
+        return False
+
+    statsd_configured = False
+    api_configured = False
+
+    if 'statsd' in settings.DATADOG_CONFIG:
+        statsd_configured = (
+            'host' in settings.DATADOG_CONFIG['statsd'] and
+            settings.DATADOG_CONFIG['statsd']['host'] and
+            'port' in settings.DATADOG_CONFIG['statsd'] and
+            settings.DATADOG_CONFIG['statsd']['port']
+        )
+
+    if 'api' in settings.DATADOG_CONFIG:
+        api_configured = (
+            'api_key' in settings.DATADOG_CONFIG['api'] and
+            settings.DATADOG_CONFIG['api']['api_key'] and
+            'app_key' in settings.DATADOG_CONFIG['api'] and
+            settings.DATADOG_CONFIG['api']['app_key']
+        )
+
+    return (statsd_configured or api_configured)
+
+def log_datadog_event(title, text, tags, alert_type='info'):
+    """
+    Logs a datadog event to the statsd or API
+    depending on the application configuration.
+    """
+    if is_datadog_configured == False:
+        return
+
+    if settings.DATADOG_CONFIG['service'] == 'statsd':
+        statsd_log_datadog_event(title, text, tags, alert_type)
+    elif settings.DATADOG_CONFIG['service'] == 'api':
+        api_log_datadog_event(title, text, tags, alert_type)
+
+
+def statsd_log_datadog_event(title, text, tags, alert_type='info'):
+    """
+    Specific logic for writing to the datadog
+    statsd service.
+    """
+    options = {
+        'statsd_host': settings.DATADOG_CONFIG['statsd']['host'],
+        'statsd_port': settings.DATADOG_CONFIG['statsd']['port']
+    }
+
+    try:
+        initialize(**options)
+        statsd.event(title, text, alert_type=alert_type, tags=tags)
+    except Exception as e:
+        log.error(f'There was an error writing to the statsd service: {e.message}')
+
+
+def api_log_datadog_event(title, text, tags, alert_type='info'):
+    """
+    Specific logic for writing to the datadog
+    API service.
+    """
+    options = {
+        'api_key': settings.DATADOG_CONFIG['api']['api_key'],
+        'app_key': settings.DATADOG_CONFIG['api']['app_key']
+    }
+
+    try:
+        initialize(**options)
+        api.Event.create(title=title, text=text, alert_type=alert_type, tags=tags)
+    except Exception as e:
+        log.error(f'There was an error writing to the datadog API: {e.message}')
