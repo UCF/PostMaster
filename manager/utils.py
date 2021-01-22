@@ -105,7 +105,7 @@ class CSVImport:
         self.csv_file.seek(0)
 
         csv_string = self.csv_file.read()
-        csv_string = re.sub(r'[^\w\-_\s\",@\.]*', '', csv_string)
+        csv_string = re.sub(r'[^\w\-_\s\",@\.\!#\$%&\'*+\-\/\=\?\^\`\{\|\}\~]*', '', csv_string)
 
         csv_stream = StringIO(csv_string)
 
