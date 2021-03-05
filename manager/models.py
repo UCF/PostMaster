@@ -444,7 +444,7 @@ class Email(models.Model):
         :return: Preview instance otherwise None
         """
         requested_start = datetime.combine(date.today(), self.send_time)
-        preview_set = self.previews.filter(requested_start=requested_start, success=True)
+        preview_set = self.previews.filter(requested_start=requested_start)
         if preview_set.exists():
             return preview_set[0]
         return None
@@ -557,7 +557,7 @@ class Email(models.Model):
             Send preview emails
         '''
         status_code, html = self.html
-        last_preview = datetime.now() - datetime.combine(datetime.now(), self.send_time) <= timedelta(seconds=settings.PREVIEW_LEAD_TIME)
+        last_preview = datetime.combine(datetime.now(), self.send_time) - datetime.now() <= timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
         if status_code != requests.codes.ok:
             if last_preview:
                 self.active = False
