@@ -557,21 +557,31 @@ class Email(models.Model):
             Send preview emails
         '''
         status_code, html = self.html
+        last_preview = datetime.combine(datetime.now(), self.send_time) - datetime.now() <= timedelta(seconds=settings.PREVIEW_LEAD_TIME)
         if status_code != requests.codes.ok:
-            log.info('Preview HTML request returned status code ' + str(status_code))
-
-            # Prepend a message to the content explaining that this is a preview
-            html_explanation = '''
+            if last_preview:
+                self.active = False
+                html_explanation = '''
                 <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px; color: #FF0000">
-                    HTML request returned status code ''' + str(status_code) + '''. Live email will NOT be sent if the error continues.
+                    HTML request returned status code ''' + str(status_code) + '''. <strong>The email has now been deactivated.</strong>
                 </div>
-                <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
-                    This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
-                    <br /><br />
-                    The content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email.
-                </div>
-            '''
-            text_explanation = 'HTML request returned status code ' + str(status_code) + '. Live email will NOT be sent if the error continues.\n\nThis is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email'
+                '''
+                text_explanation = 'HTML request returned status code ' + str(status_code) + '. The email has now been deactivate.'
+            else:
+                log.info('Preview HTML request returned status code ' + str(status_code))
+
+                # Prepend a message to the content explaining that this is a preview
+                html_explanation = '''
+                    <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px; color: #FF0000">
+                        HTML request returned status code ''' + str(status_code) + '''. Live email will NOT be sent if the error continues.
+                    </div>
+                    <div style="background-color:#000;color:#FFF;font-size:18px;padding:20px;">
+                        This is a preview of an email that will go out at approximately ''' + self.live_est_time.strftime('%I:%M %p') + '''
+                        <br /><br />
+                        The content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email.
+                    </div>
+                '''
+                text_explanation = 'HTML request returned status code ' + str(status_code) + '. Live email will NOT be sent if the error continues.\n\nThis is a preview of an email that will go out at approximately ' + self.live_est_time.strftime('%I:%M %p') + '.\n\nThe content of this email may be changed before the final email is sent. Any changes that are made to the content below will be included on the live email'
         else:
             # Prepend a message to the content explaining that this is a preview
             html_explanation = '''
@@ -1164,4 +1174,4 @@ class StaleRecord(models.Model):
 # Signals
 from manager.signals import *
 
-pre_save.connect(migrate_unsubscriptions, sender=Email)
+# pre_save.connect(migrate_unsubscriptions, sender=Email)
