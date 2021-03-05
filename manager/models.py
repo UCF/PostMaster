@@ -296,9 +296,14 @@ class EmailManager(models.Manager):
                     (candidate.send_time <= send_interval_end and candidate.send_override)) and \
                     (not candidate.preview or candidate.previews.filter(requested_start=requested_start).count()):
 
+                # There was supposed to be a preview, but a successful one never sent.
+                if candidate.preview and candidate.previews.filter(success=True).count() == 0:
+                    continue
+
                 # Email is queued to be sent so no need override the send functionality anymore
                 candidate.send_override = False
                 candidate.save()
+
                 if candidate.instances.filter(requested_start=requested_start).count() == 0:
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
@@ -318,7 +323,7 @@ class EmailManager(models.Manager):
             if (preview_interval_start <= candidate.send_time <= preview_interval_end) or \
                     (candidate.send_time <= preview_interval_end and candidate.send_override):
                 requested_start = datetime.combine(now.date(), candidate.send_time)
-                if candidate.previews.filter(requested_start=requested_start).count() == 0:
+                if candidate.previews.filter(requested_start=requested_start, success=True).count() == 0:
                     email_pks.append(candidate.pk)
         return Email.objects.filter(pk__in=email_pks)
 
@@ -608,10 +613,12 @@ class Email(models.Model):
             log.exception('Unable to connect to Amazon')
             raise self.AmazonConnectionException()
         else:
-            preview_instance = PreviewInstance.objects.create(
+            success = status_code == requests.codes.ok
+            PreviewInstance.objects.create(
                 email=self,
                 sent_html=html,
                 recipients=self.preview_recipients,
+                success=success,
                 requested_start=datetime.combine(datetime.now().today(),
                                                  self.send_time)
             )
@@ -1045,6 +1052,7 @@ class PreviewInstance(models.Model):
     requested_start = models.DateTimeField()
     when = models.DateTimeField(auto_now_add=True)
     lock_content = models.BooleanField(default=False)
+    success = models.BooleanField(default=True)
 
     @property
     def instance(self):
