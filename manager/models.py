@@ -557,7 +557,7 @@ class Email(models.Model):
             Send preview emails
         '''
         status_code, html = self.html
-        last_preview = datetime.combine(datetime.now(), self.send_time) - datetime.now() <= timedelta(seconds=settings.PREVIEW_LEAD_TIME)
+        last_preview = datetime.now() - datetime.combine(datetime.now(), self.send_time) <= timedelta(seconds=settings.PREVIEW_LEAD_TIME)
         if status_code != requests.codes.ok:
             if last_preview:
                 self.active = False
