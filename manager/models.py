@@ -444,7 +444,7 @@ class Email(models.Model):
         :return: Preview instance otherwise None
         """
         requested_start = datetime.combine(date.today(), self.send_time)
-        preview_set = self.previews.filter(requested_start=requested_start)
+        preview_set = self.previews.filter(requested_start=requested_start, success=True)
         if preview_set.exists():
             return preview_set[0]
         return None
