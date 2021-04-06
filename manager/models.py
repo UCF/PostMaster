@@ -787,6 +787,10 @@ class Email(models.Model):
                             time.sleep(float(1) + random.random())
                             recipient_details_queue.put(recipient_details)
                             reconnect = True
+                        except Exception as e:
+                            # General error
+                            log.debug('thread %s, error: %s', (self.name, str(e)))
+                            recipient_details.exception_msg = str(e)
                         else:
                             recipient_details.when = datetime.now()
                         finally:
