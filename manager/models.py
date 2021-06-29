@@ -1141,6 +1141,24 @@ class SubprocessStatus(models.Model):
     back_url = models.URLField(blank=True, null=True)
 
 
+class RecipientImporterStatus(models.Model):
+    """
+    Object for storing the status of recipient imports.
+    We can use this to determine if records have changed
+    significantly (or insignificantly) in between automated
+    imports.
+    """
+    import_name = models.CharField(max_length=255, null=False, blank=False)
+    data_hash = models.CharField(max_length=1000, null=False, blank=False)
+    row_count = models.IntegerField(null=False, blank=False)
+    import_date = models.DateField(auto_now_add=True, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.import_name} - {self.import_date}"
+
+    def __unicode__(self):
+        return f"{self.import_name} - {self.import_date}"
+
 class StaleRecord(models.Model):
     removal_hash = models.CharField(max_length=56, default=create_hash)
     instances = models.ManyToManyField(Instance, related_name='stale_record')
