@@ -4,6 +4,7 @@ from django.conf                 import settings
 from django.db                   import connections, transaction
 import logging
 import hashlib
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(results))
             if checks != "":
                 self.stdout.write(self.style.WARNING(checks))
+                sys.exit(2)
         else:
             error_msg = """
 You must specify an importer to run. Example command:
@@ -50,6 +52,7 @@ python manage.py recipient-importer <importer-name>
 Available importers are:
             """
             self.stdout.write(self.style.ERROR(error_msg))
+            sys.exit(1)
 
 class Importer(object):
     '''
