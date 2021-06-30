@@ -79,25 +79,26 @@ The {e.importer} failed to complete with the following error:
                 )
                 sys.exit(1)
 
-            try:
-                checks = inst.check_history()
-                if checks != "":
-                    self.stdout.write(self.style.WARNING(checks))
-            except ImporterHistoryException as e:
-                msg = f"""
-The history audit for {e.importer} failed with the following error:
+            if settings.DO_IMPORT_AUDIT:
+                try:
+                    checks = inst.check_history()
+                    if checks != "":
+                        self.stdout.write(self.style.WARNING(checks))
+                except ImporterHistoryException as e:
+                    msg = f"""
+    The history audit for {e.importer} failed with the following error:
 
-{str(e)}
-                """
+    {str(e)}
+                    """
 
-                sender = SimpleEmailSender(
-                    'PostMaster Importer Audit Failure',
-                    settings.DEBUG_FROM_EMAIL,
-                    settings.DEBUG_FROM_FRIENDLY,
-                    msg,
-                    settings.DEBUG_RECIPIENTS
-                )
-                sender.send()
+                    sender = SimpleEmailSender(
+                        'PostMaster Importer Audit Failure',
+                        settings.DEBUG_FROM_EMAIL,
+                        settings.DEBUG_FROM_FRIENDLY,
+                        msg,
+                        settings.DEBUG_RECIPIENTS
+                    )
+                    sender.send()
 
         else:
             error_msg = """

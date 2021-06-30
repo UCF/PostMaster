@@ -124,6 +124,8 @@ STATICFILES_DIRS = [
 UPLOAD_DIR = os.path.join(BASE_DIR, 'uploads')
 
 # Importer Audit Settings
+DO_IMPORT_AUDIT = False
+
 NUM_IMPORTS_TO_CHECK = 7
 
 # Debug Emails
