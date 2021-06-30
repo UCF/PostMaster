@@ -106,7 +106,6 @@ python manage.py recipient-importer <importer-name>
 Available importers are:
             """
             self.stdout.write(self.style.ERROR(error_msg))
-            sys.exit(1)
 
 class Importer(object):
     '''
