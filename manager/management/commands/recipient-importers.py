@@ -77,6 +77,7 @@ The {e.importer} failed to complete with the following error:
                     msg,
                     settings.DEBUG_RECIPIENTS
                 )
+                sys.exit(1)
 
             try:
                 checks = inst.check_history()
@@ -97,7 +98,6 @@ The history audit for {e.importer} failed with the following error:
                     settings.DEBUG_RECIPIENTS
                 )
                 sender.send()
-                sys.exit(1)
 
         else:
             error_msg = """
@@ -106,6 +106,7 @@ python manage.py recipient-importer <importer-name>
 Available importers are:
             """
             self.stdout.write(self.style.ERROR(error_msg))
+            sys.exit(1)
 
 class Importer(object):
     '''
