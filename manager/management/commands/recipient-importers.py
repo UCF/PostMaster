@@ -36,10 +36,20 @@ class Command(BaseCommand):
             inst = cls()
             inst.setup()
             inst.do_import()
+            inst.check_history()
+            results = inst.get_results()
+            checks  = inst.check_history()
+
+            self.stdout.write(self.style.SUCCESS(results))
+            if checks != "":
+                self.stdout.write(self.style.WARNING(checks))
         else:
-            print('You must specify an importer to run. Example command:')
-            print('python manage.py recipient-importer <importer-name>')
-            print('Available importers are:')
+            error_msg = """
+You must specify an importer to run. Example command:
+python manage.py recipient-importer <importer-name>
+Available importers are:
+            """
+            self.stdout.write(self.style.ERROR(error_msg))
 
 class Importer(object):
     '''
@@ -48,19 +58,56 @@ class Importer(object):
         or stubbed here.
     '''
     id           = None
+    name         = None
     display_name = None
 
     class ImporterException(Exception):
         pass
 
     def __init__(self, *args, **kwargs):
-        pass
+        self.current_record_count = 0
+        self.rds_record_count = 0
+        self.status_record = RecipientImporterStatus(import_name=self.name)
 
     def setup(self):
         pass
 
     def do_import(self):
         raise NotImplemented()
+
+    def get_results(self):
+        perc_change = round((self.rds_record_count / self.current_record_count * 100) - 100, 4)
+
+        message = f"""
+Record Count Prior to Import:   {self.current_record_count}
+Record Count in RDS Wharehouse: {self.rds_record_count}
+
+Percentage Change: {perc_change}%
+
+        """
+
+        return message
+
+    def check_history(self):
+        num_records = 7
+
+        status_records = RecipientImporterStatus.objects.filter(import_name=self.name).order_by('-import_date')[0:num_records]
+        if status_records.count() < num_records:
+            return f"""
+Not enough imports have occurred to perform data checking.
+Data checking will be done after {num_records} imports.
+"""
+
+        num_hashes = len(list(set(status_records.values_list('data_hash'))))
+
+        if num_hashes == 1:
+            return f"""
+The data for the {self.name} importer has not changed in the
+last {num_records} imports. Please, ensure the data is being
+properly written to the rds_wharehouse tables.
+"""
+
+        return ""
 
 class GMUCFImporter(Importer):
     '''
@@ -83,11 +130,10 @@ class GMUCFImporter(Importer):
         self.rds_wharehouse_db_name = settings.DATABASES['rds_wharehouse']['NAME']
         self.postmaster_cursor = connections['default'].cursor()
 
-        self.status_record = RecipientImporterStatus(import_name=self.name)
-
         # Check to see if the Good Morning UCF Group exists
         try:
             self.gmucf_recipient_group = RecipientGroup.objects.get(name=self.gmucf_recipient_group_name)
+            self.current_record_count = self.gmucf_recipient_group.recipients.count()
         except RecipientGroup.DoesNotExist:
             raise self.ImporterException('The Good Morning UCF recipient group doesn\'t exist. Please create it.')
 
@@ -112,6 +158,7 @@ class GMUCFImporter(Importer):
         (rds_count,) = self.postmaster_cursor.fetchone()
 
         self.status_record.row_count = rds_count
+        self.rds_record_count = rds_count
 
         log.info('RDS Warehouse row count: %d' % rds_count)
         if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
@@ -282,6 +329,7 @@ class AllStudentsImporter(Importer):
         # Check to see if the 'All Students - Updated Daily IKM Data' Group exists
         try:
             self.all_students_recipient_group_name = RecipientGroup.objects.get(name=self.all_students_recipient_group_name)
+            self.current_record_count = self.all_students_recipient_group_name.recipients.count()
         except RecipientGroup.DoesNotExist:
             raise self.ImporterException('The All Students - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
 
@@ -306,6 +354,7 @@ class AllStudentsImporter(Importer):
         (rds_count,) = self.postmaster_cursor.fetchone()
 
         self.status_record.row_count = rds_count
+        self.rds_record_count = rds_count
 
         log.info('RDS Warehouse row count: %d' % rds_count)
         if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
@@ -477,6 +526,7 @@ class AllStaffImporter(Importer):
         # Check to see if the 'All Faculty-Staff - Updated Daily IKM Data' Group exists
         try:
             self.all_staff_recipient_group_name = RecipientGroup.objects.get(name=self.all_staff_recipient_group_name)
+            self.current_record_count = self.all_staff_recipient_group_name.recipients.count()
         except RecipientGroup.DoesNotExist:
             raise self.ImporterException('The All Faculty-Staff - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
 
@@ -501,6 +551,7 @@ class AllStaffImporter(Importer):
         (rds_count,) = self.postmaster_cursor.fetchone()
 
         self.status_record.row_count = rds_count
+        self.rds_record_count = rds_count
 
         log.info('RDS Warehouse row count: %d' % rds_count)
         if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
