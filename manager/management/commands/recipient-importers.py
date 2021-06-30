@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from manager.models              import Recipient, RecipientGroup, RecipientImporterStatus
+from manager.utils               import SimpleEmailSender
 from django.conf                 import settings
 from django.db                   import connections, transaction
 import logging
@@ -9,10 +10,26 @@ import sys
 log = logging.getLogger(__name__)
 
 class ImporterException(Exception):
-    pass
+    def __init__(self, importer, e):
+        self.importer = importer
+        self.e = e
+
+    def __str__(self):
+        return str(self.e)
+
+    def __unicode__(self):
+        return str(self.e)
 
 class ImporterHistoryException(Exception):
-    pass
+    def __init__(self, importer, e):
+        self.importer = importer
+        self.e = e
+
+    def __str__(self):
+        return str(self.e)
+
+    def __unicode__(self):
+        return str(self.e)
 
 class Command(BaseCommand):
     '''
@@ -42,17 +59,45 @@ class Command(BaseCommand):
             inst = cls()
             inst.setup()
             inst.do_import()
-            results = inst.get_results()
 
-            self.stdout.write(self.style.SUCCESS(results))
+            try:
+                results = inst.get_results()
+                self.stdout.write(self.style.SUCCESS(results))
+            except ImporterException as e:
+                msg = f"""
+The {e.importer} failed to complete with the following error:
+
+{str(e)}
+                """
+
+                sender = SimpleEmailSender(
+                    'PostMaster Recipient Importer Failed',
+                    settings.DEBUG_FROM_EMAIL,
+                    settings.DEBUG_FROM_FRIENDLY,
+                    msg,
+                    settings.DEBUG_RECIPIENTS
+                )
 
             try:
                 checks = inst.check_history()
                 if checks != "":
                     self.stdout.write(self.style.WARNING(checks))
             except ImporterHistoryException as e:
-                self.stdout.write(self.style.WARNING(e))
-                sys.exit(2)
+                msg = f"""
+The history audit for {e.importer} failed with the following error:
+
+{str(e)}
+                """
+
+                sender = SimpleEmailSender(
+                    'PostMaster Importer Audit Failure',
+                    settings.DEBUG_FROM_EMAIL,
+                    settings.DEBUG_FROM_FRIENDLY,
+                    msg,
+                    settings.DEBUG_RECIPIENTS
+                )
+                sender.send()
+                sys.exit(1)
 
         else:
             error_msg = """
@@ -98,7 +143,7 @@ Percentage Change: {perc_change}%
         return message
 
     def check_history(self):
-        num_records = 7
+        num_records = settings.NUM_IMPORTS_TO_CHECK
 
         status_records = RecipientImporterStatus.objects.filter(import_name=self.name).order_by('-import_date')[0:num_records]
         if status_records.count() < num_records:
@@ -110,8 +155,8 @@ Data checking will be done after {num_records} imports.
         num_hashes = len(list(set(status_records.values_list('data_hash'))))
 
         if num_hashes == 1:
-            message = f"The data for the {self.name} importer has not changed in the last {num_records} imports. Please, ensure the data is being properly written to the rds_wharehouse tables."
-            raise ImporterHistoryException(message)
+            message = f"The data for the {self.display_name} has not changed in the last {num_records} imports. Please, ensure the data is being properly written to the rds_wharehouse tables."
+            raise ImporterHistoryException(self.display_name, message)
 
         return ""
 
@@ -128,7 +173,7 @@ class GMUCFImporter(Importer):
 
         # Check to see if the rds_wharehouse database is configured
         if 'rds_wharehouse' not in settings.DATABASES:
-            raise ImporterException('The rds_wharehouse database is not configured.')
+            raise ImporterException(self.display_name, 'The rds_wharehouse database is not configured.')
 
         self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
@@ -141,7 +186,7 @@ class GMUCFImporter(Importer):
             self.gmucf_recipient_group = RecipientGroup.objects.get(name=self.gmucf_recipient_group_name)
             self.current_record_count = self.gmucf_recipient_group.recipients.count()
         except RecipientGroup.DoesNotExist:
-            raise ImporterException('The Good Morning UCF recipient group doesn\'t exist. Please create it.')
+            raise ImporterException(self.display_name, 'The Good Morning UCF recipient group doesn\'t exist. Please create it.')
 
         # Make sure there is an index on the SMCA_GMUCF.email column
         self.postmaster_cursor.execute('SHOW INDEX FROM %s.SMCA_GMUCF WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
@@ -169,7 +214,7 @@ class GMUCFImporter(Importer):
         log.info('RDS Warehouse row count: %d' % rds_count)
         if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
             log.error('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
-            raise ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
+            raise ImporterException(self.display_name, 'Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
 
     def do_import(self):
         '''
@@ -322,7 +367,7 @@ class AllStudentsImporter(Importer):
 
         # Check to see if the rds_wharehouse database is configured
         if 'rds_wharehouse' not in settings.DATABASES:
-            raise ImporterException('The rds_wharehouse database is not configured.')
+            raise ImporterException(self.display_name, 'The rds_wharehouse database is not configured.')
 
         self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
@@ -337,7 +382,7 @@ class AllStudentsImporter(Importer):
             self.all_students_recipient_group_name = RecipientGroup.objects.get(name=self.all_students_recipient_group_name)
             self.current_record_count = self.all_students_recipient_group_name.recipients.count()
         except RecipientGroup.DoesNotExist:
-            raise ImporterException('The All Students - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
+            raise ImporterException(self.display_name, 'The All Students - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
 
         # Make sure there is an index on the ENRL_SDNT_LIST.email column
         self.postmaster_cursor.execute('SHOW INDEX FROM %s.ENRL_STDNT_LIST WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
@@ -365,7 +410,7 @@ class AllStudentsImporter(Importer):
         log.info('RDS Warehouse row count: %d' % rds_count)
         if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
             log.error('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
-            raise ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
+            raise ImporterException(self.display_name, 'Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
 
     def do_import(self):
         '''
@@ -519,7 +564,7 @@ class AllStaffImporter(Importer):
 
         # Check to see if the rds_wharehouse database is configured
         if 'rds_wharehouse' not in settings.DATABASES:
-            raise ImporterException('The rds_wharehouse database is not configured.')
+            raise ImporterException(self.display_name, 'The rds_wharehouse database is not configured.')
 
         self.MINIMUM_IMPORT_EMAIL_COUNT = settings.MINIMUM_IMPORT_EMAIL_COUNT
 
@@ -534,7 +579,7 @@ class AllStaffImporter(Importer):
             self.all_staff_recipient_group_name = RecipientGroup.objects.get(name=self.all_staff_recipient_group_name)
             self.current_record_count = self.all_staff_recipient_group_name.recipients.count()
         except RecipientGroup.DoesNotExist:
-            raise ImporterException('The All Faculty-Staff - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
+            raise ImporterException(self.display_name, 'The All Faculty-Staff - Updated Daily IKM Data recipient group doesn\'t exist. Please create it.')
 
         # Make sure there is an index on the ACTV_EMPL_LIST.email column
         self.postmaster_cursor.execute('SHOW INDEX FROM %s.ACTV_EMPL_LIST WHERE Key_name=\'email\'' % self.rds_wharehouse_db_name)
@@ -562,7 +607,7 @@ class AllStaffImporter(Importer):
         log.info('RDS Warehouse row count: %d' % rds_count)
         if rds_count < self.MINIMUM_IMPORT_EMAIL_COUNT:
             log.error('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
-            raise ImporterException('Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
+            raise ImporterException(self.display_name, 'Import failed because of the limited number of entries from rds_wharehouse database (count %d < %d).' % (rds_count, self.MINIMUM_IMPORT_EMAIL_COUNT))
 
     def do_import(self):
         '''

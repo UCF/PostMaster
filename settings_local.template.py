@@ -123,6 +123,16 @@ STATICFILES_DIRS = [
 
 UPLOAD_DIR = os.path.join(BASE_DIR, 'uploads')
 
+# Importer Audit Settings
+NUM_IMPORTS_TO_CHECK = 7
+
+# Debug Emails
+DEBUG_FROM_FRIENDLY = 'PostMaster'
+
+DEBUG_FROM_EMAIL = ''
+
+DEBUG_RECIPIENTS = []
+
 # Logging
 LOGGING = {
     'version': 1,
