@@ -77,7 +77,6 @@ The {e.importer} failed to complete with the following error:
                     msg,
                     settings.DEBUG_RECIPIENTS
                 )
-                sys.exit(1)
 
             if settings.DO_IMPORT_AUDIT:
                 try:
@@ -271,15 +270,10 @@ class GMUCFImporter(Importer):
                     email
                 FROM
                     %s.SMCA_GMUCF
-                WHERE
-                    email NOT IN (
-                        SELECT email_address FROM %s.manager_recipient
-                    )
             )
         ''' % (
             self.postmaster_db_name,
-            self.rds_wharehouse_db_name,
-            self.postmaster_db_name
+            self.rds_wharehouse_db_name
         ))
         transaction.commit()
 
@@ -468,15 +462,10 @@ class AllStudentsImporter(Importer):
                     email
                 FROM
                     %s.ENRL_STDNT_LIST
-                WHERE
-                    email NOT IN (
-                        SELECT email_address FROM %s.manager_recipient
-                    )
             )
         ''' % (
             self.postmaster_db_name,
-            self.rds_wharehouse_db_name,
-            self.postmaster_db_name
+            self.rds_wharehouse_db_name
         ))
         transaction.commit()
 
@@ -665,15 +654,10 @@ class AllStaffImporter(Importer):
                     email
                 FROM
                     %s.ACTV_EMPL_LIST
-                WHERE
-                    email NOT IN (
-                        SELECT email_address FROM %s.manager_recipient
-                    )
             )
         ''' % (
             self.postmaster_db_name,
-            self.rds_wharehouse_db_name,
-            self.postmaster_db_name
+            self.rds_wharehouse_db_name
         ))
         transaction.commit()
 
