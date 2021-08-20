@@ -101,7 +101,7 @@ class CSVImport:
             # writing to the database.
             if self.tracker.total_units < 25000:
                 self.update_factor = math.ceil(self.tracker.total_units * .01)
-            if self.tracker.total_units < 100000:
+            elif self.tracker.total_units < 100000:
                 self.update_factor = math.ceil(self.tracker.total_units * .005)
             else:
                 self.update_factor = math.ceil(self.tracker.total_units * .001)
@@ -137,10 +137,10 @@ class CSVImport:
             row_num = idx + 1
 
             try:
-                email_address = row['email'].lower()
-                first_name = row['first_name'] if 'first_name' in csv_reader.fieldnames else None
-                last_name = row['last_name'] if 'last_name' in csv_reader.fieldnames else None
-                preferred_name = row['preferred_name'] if 'preferred_name' in csv_reader.fieldnames else None
+                email_address = row['email'].lower().strip()
+                first_name = row['first_name'].strip() if 'first_name' in csv_reader.fieldnames else None
+                last_name = row['last_name'].strip() if 'last_name' in csv_reader.fieldnames else None
+                preferred_name = row['preferred_name'].strip() if 'preferred_name' in csv_reader.fieldnames else None
             except IndexError:
                 self.revert()
                 self.update_status("Error", f'There is a malformed row at line {row_num}')
