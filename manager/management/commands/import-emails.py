@@ -72,12 +72,8 @@ class Command(BaseCommand):
         remove_file = options['remove_file']
         remove_stale = options['remove_stale']
 
-        start_time = time.time()
-
         importer = CSVImport(open(filename, 'rU'), group_name, ignore_first_row, columns, subprocess, remove_stale, self.stderr)
         try:
             importer.import_emails()
         except Exception as e:
             print("Error importing recipients: %s" % str(e))
-
-        print(f"Total Time: {datetime.timedelta(seconds=(time.time() - start_time))}")
