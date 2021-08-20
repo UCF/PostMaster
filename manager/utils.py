@@ -81,7 +81,7 @@ class CSVImport:
         try:
             group = RecipientGroup.objects.get(name=self.recipient_group_name)
         except RecipientGroup.DoesNotExist:
-            print('Recipient group does not exist. Creating...')
+            log.info('Recipient group does not exist. Creating...')
             group = RecipientGroup(name=self.recipient_group_name)
             new_group = True
             group.save()
@@ -120,11 +120,25 @@ class CSVImport:
 
         csv_reader = csv.DictReader(csv_stream, fieldnames=columns)
 
+        # For duplication tracking
+        processed_emails = []
+
+        recipient_creates = []
+        recipient_updates = []
+
+        attribute_creates = []
+        attribute_updates = []
+
+        created_objs = []
+        updated_objs = []
+
         for idx, row in enumerate(csv_reader):
+            if self.skip_first_row and idx == 0: continue
+
             row_num = idx + 1
 
             try:
-                email_address = row['email']
+                email_address = row['email'].lower()
                 first_name = row['first_name'] if 'first_name' in csv_reader.fieldnames else None
                 last_name = row['last_name'] if 'last_name' in csv_reader.fieldnames else None
                 preferred_name = row['preferred_name'] if 'preferred_name' in csv_reader.fieldnames else None
@@ -136,69 +150,54 @@ class CSVImport:
                 if email_address == '':
                     log.error(('Empty email address at line %d' % row_num))
                 else:
-                    created = False
                     try:
                         recipient = Recipient.objects.get(email_address=email_address)
+                        recipient_updates.append(recipient)
+                        processed_emails.append(email_address)
                     except:
                         recipient = Recipient(
                                 email_address=email_address
                         )
 
-                        created = True
-                    try:
-                        recipient.save()
-                    except Exception as e:
-                        if self.stderr:
-                            self.stderr.write(f'Error saving recipient at line {row_num}: {str(e)}')
-                        else:
-                            log.error(f'Error saving recipient at line {row_num}: {str(e)}')
-                    else:
-                        pass
-                        log.info('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated'))
+                        # Protect against dupe insert
+                        if email_address not in processed_emails:
+                            processed_emails.append(email_address)
+                            recipient_creates.append(recipient)
+
 
                     if first_name is not None:
                         try:
                             attribute_first_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='First Name')
+                            attribute_first_name.value = first_name
+                            attribute_updates.append(attribute_first_name)
                         except:
                             attribute_first_name = RecipientAttribute(
                                 recipient = recipient,
                                 name = 'First Name',
                                 value = first_name
                             )
-                        else:
-                            attribute_first_name.value = first_name
+                            attribute_creates.append(attribute_first_name)
 
-                        try:
-                            attribute_first_name.save()
-                        except Exception as e:
-                            if self.stderr:
-                                self.stderr.write(f'Error saving recipient attribute First Name at line {row_num}: {str(e)}')
-                            else:
-                                log.warning(f'Error saving recipient attribute First Name at line {row_num}: {str(e)}')
 
                     if last_name is not None:
                         try:
                             attribute_last_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Last Name')
+                            attribute_last_name.value = last_name
+                            attribute_updates.append(attribute_last_name)
                         except:
                             attribute_last_name = RecipientAttribute(
                                 recipient = recipient,
                                 name = 'Last Name',
                                 value = last_name
                             )
-                        else:
-                            attribute_last_name.value = last_name
+                            attribute_creates.append(attribute_last_name)
 
-                        try:
-                            attribute_last_name.save()
-                        except Exception as e:
-                            if self.stderr:
-                                self.stderr.write(f'Error saving recipient attribute Last Name at line {idx + 1}: {str(e)}')
-                            else:
-                                log.warning(f'Error saving recipient attribute Last Name at line {idx + 1}: {str(e)}')
 
                     if preferred_name is not None:
                         try:
                             attribute_preferred_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Preferred Name')
+                            attribute_preferred_name.value = preferred_name
+                            attribute_updates.append(attribute_preferred_name)
                         except:
                             log.debug('Preferred Name attribute does not exist')
                             attribute_preferred_name = RecipientAttribute(
@@ -206,27 +205,21 @@ class CSVImport:
                                 name = 'Preferred Name',
                                 value = preferred_name
                             )
-                        else:
-                            attribute_preferred_name.value = preferred_name
-
-                        try:
-                            attribute_preferred_name.save()
-                        except Exception as e:
-                            if self.stderr:
-                                self.stderr.write(f'Error saving recipient attribute Preferred Name at line {row_num}: {str(e)}')
-                            else:
-                                log.warning(f'Error saving recipient attribute Preferred Name at line {row_num}: {str(e)}')
-
-                    if group is not None:
-                        try:
-                            group.recipients.add(recipient)
-                        except Exception as e:
-                            if self.stderr:
-                                self.stderr.write(f'Failed to add {email_address} to group {group.name} at line {row_num}: {str(e)}')
-                            else:
-                                log.error(f'Failed to add {email_address} to group {group.name} at line {row_num}: {str(e)}')
+                            attribute_creates.append(attribute_preferred_name)
             # Increment
             self.update_status("In Progress", "", row_num)
+
+        created_objs = Recipient.objects.bulk_create(recipient_creates, batch_size=100)
+
+        RecipientAttribute.objects.bulk_create(attribute_creates, batch_size=100)
+        RecipientAttribute.objects.bulk_update(attribute_updates, ['value'], batch_size=100)
+
+        if group is not None:
+            try:
+                all_objs = created_objs + updated_objs
+                group.recipients.add(*all_objs)
+            except Exception as e:
+                pass
 
         self.update_status("Completed", "", self.tracker.total_units)
 
