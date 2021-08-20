@@ -3,11 +3,6 @@ from util                        import LDAPHelper
 from django.conf                 import settings
 from manager.models               import Recipient, RecipientAttribute, RecipientGroup
 from manager.utils               import CSVImport
-import argparse
-import csv
-
-import time
-import datetime
 
 class Command(BaseCommand):
 
