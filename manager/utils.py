@@ -130,7 +130,6 @@ class CSVImport:
         attribute_updates = []
 
         created_objs = []
-        updated_objs = []
 
         for idx, row in enumerate(csv_reader):
             if self.skip_first_row and idx == 0: continue
@@ -216,7 +215,7 @@ class CSVImport:
 
         if group is not None:
             try:
-                all_objs = created_objs + updated_objs
+                all_objs = created_objs + recipient_updates
                 group.recipients.add(*all_objs)
             except Exception as e:
                 pass
