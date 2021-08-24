@@ -18,3 +18,5 @@ node_modules/*
 
 # developer specific settings
 gulp-config.json
+
+*.egg-info

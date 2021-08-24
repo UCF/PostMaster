@@ -1,3 +1,4 @@
+import enum
 import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
@@ -12,6 +13,8 @@ import re
 import smtplib
 import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse
+
+from io import StringIO
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -43,18 +46,16 @@ class CSVImport:
     update_factor = 1
     remove_stale = False
 
-    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False):
+    def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False, stderr=None):
         if csv_file:
             self.csv_file = csv_file
         else:
-            print('csv_file is null or empty string')
             raise Exception('csv_file must not be null')
 
         if recipient_group_name:
             self.recipient_group_name = recipient_group_name
         else:
-            raise Exception('Receipient Group Name is null or empty string')
-            return
+            raise Exception('Recipient Group Name is null or empty string')
 
         if skip_first_row:
             self.skip_first_row = skip_first_row
@@ -65,6 +66,7 @@ class CSVImport:
         self.remove_stale = remove_stale
 
         self.subprocess = subprocess
+        self.stderr = stderr
 
     def import_emails(self):
 
@@ -72,14 +74,14 @@ class CSVImport:
 
         if 'email' not in columns:
             print('email is a required column for import')
-            return
+            raise Exception('email is a required column for import')
 
         new_group = False
         group = None
         try:
             group = RecipientGroup.objects.get(name=self.recipient_group_name)
         except RecipientGroup.DoesNotExist:
-            print('Recipient group does not exist. Creating...')
+            log.info('Recipient group does not exist. Creating...')
             group = RecipientGroup(name=self.recipient_group_name)
             new_group = True
             group.save()
@@ -97,133 +99,128 @@ class CSVImport:
             # Update the update_factor to prevent a save every time it loops through
             # By default we wait until 1% of the file has been processed before
             # writing to the database.
-            self.update_factor = math.ceil( self.tracker.total_units * .01 )
+            if self.tracker.total_units < 25000:
+                self.update_factor = math.ceil(self.tracker.total_units * .01)
+            elif self.tracker.total_units < 100000:
+                self.update_factor = math.ceil(self.tracker.total_units * .005)
+            else:
+                self.update_factor = math.ceil(self.tracker.total_units * .001)
 
         # Make sure the file is back at the beginning
         self.csv_file.seek(0)
 
-        csv_reader = csv.reader(self.csv_file)
-        email_adress_index = columns.index('email')
-        try:
-            first_name_index = columns.index('first_name')
-        except ValueError:
-            first_name_index = None
-        try:
-            last_name_index = columns.index('last_name')
-        except ValueError:
-            last_name_index = None
-        try:
-            preferred_name_index = columns.index('preferred_name')
-        except ValueError:
-            preferred_name_index = None
+        csv_string = self.csv_file.read()
 
-        row_num = 1
-        for row in csv_reader:
-            if row_num == 1 and self.skip_first_row:
-                row_num = 2
-                continue
+        # Strips out all characters that would not be allowed in
+        # an email address. This means these characters will also
+        # be stripped from names or any other field within the CSV.
+        csv_string = re.sub(r'[^\w\-_\s\",@\.\!#\$%&\'*+\-\/\=\?\^\`\{\|\}\~]*', '', csv_string)
+
+        csv_stream = StringIO(csv_string)
+
+        csv_reader = csv.DictReader(csv_stream, fieldnames=columns)
+
+        # For duplication tracking
+        processed_emails = []
+
+        recipient_creates = []
+        recipient_updates = []
+
+        attribute_creates = []
+        attribute_updates = []
+
+        created_objs = []
+
+        for idx, row in enumerate(csv_reader):
+            if self.skip_first_row and idx == 0: continue
+
+            row_num = idx + 1
+
+            try:
+                email_address = row['email'].lower().strip()
+                first_name = row['first_name'].strip() if 'first_name' in csv_reader.fieldnames else None
+                last_name = row['last_name'].strip() if 'last_name' in csv_reader.fieldnames else None
+                preferred_name = row['preferred_name'].strip() if 'preferred_name' in csv_reader.fieldnames else None
+            except IndexError:
+                self.revert()
+                self.update_status("Error", f'There is a malformed row at line {row_num}')
+                raise Exception(f'There is a malformed row at line {row_num}')
             else:
-                try:
-                    email_address = row[email_adress_index]
-                    if first_name_index is None:
-                        first_name = None
-                    else:
-                        first_name = row[first_name_index]
-                    if last_name_index is None:
-                        last_name = None
-                    else:
-                        last_name = row[last_name_index]
-                    if preferred_name_index is None:
-                        preferred_name = None
-                    else:
-                        preferred_name = row[preferred_name_index]
-                except IndexError:
-                    print(('Malformed row at line %d' % row_num))
-                    self.revert()
-                    self.update_status("Error", "There is a malformed row at line %d" % row_num, row_num)
-                    raise Exception('There is a malformed row at line %d' % row_num)
+                if email_address == '':
+                    log.error(('Empty email address at line %d' % row_num))
                 else:
-                    if email_address == '':
-                        print(('Empty email address at line %d' % row_num))
-                    else:
-                        created = False
+                    try:
+                        recipient = Recipient.objects.get(email_address=email_address)
+                        recipient_updates.append(recipient)
+                        processed_emails.append(email_address)
+                    except:
+                        recipient = Recipient(
+                                email_address=email_address
+                        )
+
+                        # Protect against dupe insert
+                        if email_address not in processed_emails:
+                            processed_emails.append(email_address)
+                            recipient_creates.append(recipient)
+
+
+                    if first_name is not None:
                         try:
-                            recipient = Recipient.objects.get(email_address=email_address)
+                            attribute_first_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='First Name')
+                            attribute_first_name.value = first_name
+                            attribute_updates.append(attribute_first_name)
                         except:
-                            recipient = Recipient(
-                                    email_address=email_address
+                            attribute_first_name = RecipientAttribute(
+                                recipient = recipient,
+                                name = 'First Name',
+                                value = first_name
                             )
+                            attribute_creates.append(attribute_first_name)
 
-                            created = True
+
+                    if last_name is not None:
                         try:
-                            recipient.save()
-                        except Exception as e:
-                            print(('Error saving recipient at line %d: %s' % (row_num, str(e))))
-                        else:
-                            print(('Recipient %s successfully %s' % (email_address, 'created' if created else 'updated')))
+                            attribute_last_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Last Name')
+                            attribute_last_name.value = last_name
+                            attribute_updates.append(attribute_last_name)
+                        except:
+                            attribute_last_name = RecipientAttribute(
+                                recipient = recipient,
+                                name = 'Last Name',
+                                value = last_name
+                            )
+                            attribute_creates.append(attribute_last_name)
 
-                        if first_name is not None:
-                            try:
-                                attribute_first_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='First Name')
-                            except:
-                                attribute_first_name = RecipientAttribute(
-                                    recipient = recipient,
-                                    name = 'First Name',
-                                    value = first_name
-                                )
-                            else:
-                                attribute_first_name.value = first_name
 
-                            try:
-                                attribute_first_name.save()
-                            except Exception as e:
-                                print(('Error saving recipient attibute First Name at line %d, %s' % (row_num, str(e))))
-
-                        if last_name is not None:
-                            try:
-                                attribute_last_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Last Name')
-                            except:
-                                attribute_last_name = RecipientAttribute(
-                                    recipient = recipient,
-                                    name = 'Last Name',
-                                    value = last_name
-                                )
-                            else:
-                                attribute_last_name.value = last_name
-
-                            try:
-                                attribute_last_name.save()
-                            except Exception as e:
-                                print(('Error saving recipient attribute Last Name at line %d, %s' % (row_num, str(e))))
-
-                        if preferred_name is not None:
-                            try:
-                                attribute_preferred_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Preferred Name')
-                            except:
-                                print('Preferred Name attribute does not exist')
-                                attribute_preferred_name = RecipientAttribute(
-                                    recipient = recipient,
-                                    name = 'Preferred Name',
-                                    value = preferred_name
-                                )
-                            else:
-                                attribute_preferred_name.value = preferred_name
-
-                            try:
-                                attribute_preferred_name.save()
-                            except Exception as e:
-                                print(('Error saving recipient attribute Preferred Name at line %d, %s' % (row_num, str(e))))
-
-                        if group is not None:
-                            try:
-                                group.recipients.add(recipient)
-                            except Exception as e:
-                                print(('Failed to add %s group %s at line %d: %s' % (email_address, group.name, row_num, str(e))))
-            row_num += 1
+                    if preferred_name is not None:
+                        try:
+                            attribute_preferred_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Preferred Name')
+                            attribute_preferred_name.value = preferred_name
+                            attribute_updates.append(attribute_preferred_name)
+                        except:
+                            log.debug('Preferred Name attribute does not exist')
+                            attribute_preferred_name = RecipientAttribute(
+                                recipient = recipient,
+                                name = 'Preferred Name',
+                                value = preferred_name
+                            )
+                            attribute_creates.append(attribute_preferred_name)
             # Increment
             self.update_status("In Progress", "", row_num)
 
-        self.update_status("Completed", "", row_num)
+        created_objs = Recipient.objects.bulk_create(recipient_creates, batch_size=100)
+
+        RecipientAttribute.objects.bulk_create(attribute_creates, batch_size=100)
+        RecipientAttribute.objects.bulk_update(attribute_updates, ['value'], batch_size=100)
+
+        if group is not None:
+            try:
+                all_objs = created_objs + recipient_updates
+                group.recipients.add(*all_objs)
+            except Exception as e:
+                pass
+
+        self.update_status("Completed", "", self.tracker.total_units)
 
         if self.subprocess:
             self.delete_file(self.csv_file.name)
@@ -259,17 +256,7 @@ class CSVImport:
             recipient_group.delete()
 
     def get_line_count(self):
-        f = self.csv_file
-        lines = 1
-        buf_size = 1024 * 1024
-        read_f = f.read
-
-        buf = read_f(buf_size)
-        while buf:
-            lines += buf.count('\n')
-            buf = read_f(buf_size)
-
-        return lines
+        return sum(1 for line in self.csv_file)
 
 class EmailSender:
     '''
@@ -331,6 +318,39 @@ class EmailSender:
                 msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
                 try:
                     amazon.sendmail(self.email.from_email_address, recipient.email_address, msg.as_string())
+                except smtplib.SMTPException as e:
+                    log.exception('Unable to send email.')
+            amazon.quit()
+
+class SimpleEmailSender:
+    '''
+    Utility class for sending simple text
+    emails.
+    '''
+
+    def __init__(self, subject, from_email, from_friendly, text, recipients):
+        self.subject = subject
+        self.from_email = from_email
+        self.from_friendly = from_friendly
+        self.text = text
+        self.recipients = recipients
+
+    def send(self):
+        try:
+            amazon = smtplib.SMTP_SSL(settings.AMAZON_SMTP['host'], settings.AMAZON_SMTP['port'])
+            amazon.login(settings.AMAZON_SMTP['username'], settings.AMAZON_SMTP['password'])
+        except:
+            print('Unable to connect to amazon')
+            log.exception('Unable to connect to amazon')
+        else:
+            for recipient in self.recipients:
+                msg = MIMEText(self.text)
+                msg['subject'] = self.subject
+                msg['From'] = f"{self.from_friendly} <{self.from_email}>"
+                msg['To'] = recipient
+
+                try:
+                    amazon.sendmail(self.from_email, recipient, msg.as_string())
                 except smtplib.SMTPException as e:
                     log.exception('Unable to send email.')
             amazon.quit()
