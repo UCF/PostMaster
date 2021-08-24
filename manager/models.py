@@ -988,13 +988,6 @@ class Instance(models.Model):
         return self.opens.exclude(is_reopen=False).count()
 
     @property
-    def total_opens(self):
-        # TODO can we remove this? doesn't appear to be in use.
-        # Else, this needs to be updated to include at least 1
-        # open per unique link-clicker
-        return self.opens.count()
-
-    @property
     def placeholders(self):
         delimiter    = self.email.replace_delimiter
         placeholders = re.findall(re.escape(delimiter) + '(.+)' + re.escape(delimiter), self.sent_html)
