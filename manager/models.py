@@ -974,14 +974,14 @@ class Instance(models.Model):
         Returns the number of recipients that either opened
         or interacted with the instance at least once.
         """
-        return self.initial_opens
+        return self.open_recipients.count()
 
     @property
     def initial_opens(self):
         """
         Alias of open_recipient_count.
         """
-        return self.open_recipients.count()
+        return self.open_recipient_count
 
     @property
     def re_opens(self):
