@@ -1360,8 +1360,7 @@ def create_recipient_group_email_opens(request, email_instance):
     Creates a recipient group based on email opens.
     POST only
     '''
-    recipients_pks = InstanceOpen.objects.filter(instance=email_instance).values_list('recipient__pk', flat=True)
-    recipients = Recipient.objects.filter(pk__in=recipients_pks)
+    recipients = email_instance.open_recipients
 
     recipient_group = RecipientGroup(name=email_instance.email.title + ' Recipient Group ' + datetime.now().strftime('%m-%d-%y %I:%M %p'))
     if RecipientGroup.objects.filter(name=recipient_group.name).count() > 0:
