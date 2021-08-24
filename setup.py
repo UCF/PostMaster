@@ -32,6 +32,8 @@ setup(
         'tqdm',
         'unicodecsv',
         'Unidecode',
-        'urllib3>=1.26'
+        'urllib3>=1.26',
+        'beautifulsoup4',
+        'boto'
     ]
 )
