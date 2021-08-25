@@ -212,6 +212,15 @@ class Campaign(models.Model):
             if self.instances.count() != 0
             else 0)
 
+    def avg_click_to_open_rate(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.click_to_open_rate
+
+        return round(aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
+
 class EmailManager(models.Manager):
     '''
     A custom manager to determine when emails should be sent based on
@@ -1101,6 +1110,13 @@ class Instance(models.Model):
         """
         if self.click_recipient_count > 0 and self.sent_count > 0:
             return round(float(self.click_recipient_count) / float(self.sent_count) * 100, 2)
+
+        return 0
+
+    @property
+    def click_to_open_rate(self):
+        if self.open_recipient_count > 0 and self.click_recipient_count > 0:
+            return round(float(self.click_recipient_count) / float(self.open_recipient_count) * 100, 2)
 
         return 0
 
