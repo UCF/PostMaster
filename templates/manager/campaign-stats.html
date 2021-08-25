@@ -3,7 +3,7 @@
 <h1 class="h2 heading-underline mb-4">{{campaign.name}} Stats</h1>
 <h2 class="h3 mb-2">General Stats</h2>
 <div class="row">
-  <div class="col-6 col-lg-4">
+  <div class="col-6 col-lg-3">
     <div class="card mb-4">
       <div class="h6 card-header text-center">
         <p class="card-title">Avg. Open Rate</p>
@@ -13,7 +13,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-lg-4">
+  <div class="col-6 col-lg-3">
     <div class="card mb-4">
       <div class="h6 card-header text-center">
         <p class="card-title">Avg. Click Rate</p>
@@ -23,7 +23,17 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-lg-4">
+  <div class="col-6 col-lg-3">
+    <div class="card mb-4">
+      <div class="h6 card-header text-center">
+        <p class="card-title">Avg. Click to Open Rate</p>
+      </div>
+      <div class="card-block">
+        <p class="text-center text-secondary display-4">{{campaign.avg_click_to_open_rate}}%</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
     <div class="card mb-4">
       <div class="h6 card-header text-center">
         <p class="card-title">Avg. Recipient Count</p>
@@ -42,16 +52,18 @@
     <table class="table">
       <thead>
         <tr class="row">
-          <th scope="col" class="col-lg-6">Subject Line</th>
-          <th scope="col" class="col-lg-3">Open Rate</th>
-          <th scope="col" class="col-lg-3">Click Rate</th>
+          <th scope="col" class="col-lg-4">Subject Line</th>
+          <th scope="col" class="col">Sent</th>
+          <th scope="col" class="col">Open Rate</th>
+          <th scope="col" class="col">Click Rate</th>
+          <th scope="col" class="col">Click to Open Rate</th>
         </tr>
       </thead>
       <tbody>
         {% for instance in email.instances.all %}
         {% if instance.campaign == campaign %}
         <tr class="row">
-          <td class="col-lg-6">
+          <td class="col-lg-4">
             <a href="{% url 'manager-email-instance' instance.pk %}">
               {% if instance.subject %}
                 {{instance.subject}}
@@ -59,8 +71,10 @@
                 No Subject Line
               {% endif %}</a>
           </td>
-          <td class="col-lg-3">{{instance.open_rate}}%</td>
-          <td class="col-lg-3">{{instance.click_rate}}%</td>
+          <td class="col">{{instance.start}}</td>
+          <td class="col">{{instance.open_rate}}%</td>
+          <td class="col">{{instance.click_rate}}%</td>
+          <td class="col">{{instance.click_to_open_rate}}%</td>
         </tr>
         {% endif %}
         {% endfor %}
