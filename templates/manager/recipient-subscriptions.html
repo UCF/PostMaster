@@ -1,38 +1,57 @@
 {% extends 'base.html' %}
 {% load filters %}
 {% block header %}
-<div class="container mt-5">
-  <h1 class="h2">Manage Subscriptions for <span class="text-primary">{{recipient.email_address}}</span></h1>
+<div class="container my-5">
+  <h1 class="h3 mb-4">Manage Email Subscriptions for <span class="font-weight-normal text-primary-aw">{{recipient.email_address}}</span></h1>
+</div>
 {% endblock %}
 {% block page-body %}
-  <form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
-    <div class="row mb-4">
-      <div class="col-md-4 col-12">
-        <button id="unsubscribe-all" class="btn btn-sm btn-default" type="button">Uncheck All Subscriptions</button>
-      </div>
+<form action="{% url 'manager-recipient-subscriptions' pk=recipient.pk %}?mac={{ recipient.hmac_hash }}" method="post">
+
+  <div class="card">
+    <div class="card-header">
+      <button id="unsubscribe-all" class="btn btn-sm btn-default" type="button">
+        <span class="fa fa-minus-square mr-2" aria-hidden="true"></span>Uncheck All Subscriptions
+      </button>
     </div>
-    </div>
-    <div class="row mb-4">
-    {% with unsubscriptions=recipient.subscription_category.all %} {% for category in subscription_categories %}
-      <div class="col-sm-4">
-        <div class="card h-100">
-          <div class="card-block">
-            <h2 class="h4 card-title">{{category.name}}</h2>
-            <p class="card-text">{{category.description}}</p>
+
+    <ul class="list-group list-group-flush">
+      {% with unsubscriptions=recipient.subscription_category.all %} {% for category in subscription_categories %}
+      <li class="list-group-item py-4">
+        <div class="row no-gutters w-100 flex-nowrap">
+          <div class="col-6 col-sm-8 col-md-9 col-lg-10 flex-last">
+            <strong class="d-block h5">{{category.name}}</strong>
+            <p class="font-size-sm">{{category.description}}</p>
           </div>
-          <div class="card-footer">
-            {% if category|can_unsubscribe:recipient.email_address %}
-            <label class="form-check-label"><input class="form-check-input" type="checkbox" name="subscription_categories" value="{{category.pk}}" {% if category not in unsubscriptions %}checked="checked" {% endif %} /> Subscribe</label>
-            {% else %}
-            <label class="form-check-label"><input class="form-check-input" type="checkbox" disabled {% if category not in unsubscriptions %}checked="checked" {% endif %}><input type="hidden" name="subscription_categories" value="{{category.pk}}" /> Subscribed</label>
-            {% endif %}
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2 pr-4">
+            <label class="form-check-label">
+              {% if category|can_unsubscribe:recipient.email_address %}
+              <input class="form-check-input" type="checkbox" name="subscription_categories" value="{{category.pk}}"
+                {% if category not in unsubscriptions %}checked="checked" {% endif %} />
+              Subscribe
+              {% else %}
+              <input class="form-check-input" type="checkbox" disabled {% if category not in unsubscriptions %}checked="checked"
+                {% endif %}>
+              <input type="hidden" name="subscription_categories" value="{{category.pk}}" />
+              <span class="text-default">Subscribed*</span>
+              {% endif %}
+            </label>
           </div>
         </div>
-      </div>
-    {% endfor %} {% endwith %}
+      </li>
+      {% endfor %} {% endwith %}
+    </ul>
+
+    <div class="card-footer d-flex flex-row">
+      <button type="submit" class="btn btn-primary ml-auto">Save Changes</button>
     </div>
-    <button type="submit" class="btn btn-primary">Update Subscriptions</button>
-  </form>
-  <p class="text-center mt-5">Send us your <a href="https://www.ucf.edu/brand/contact-us/">comments &amp; feedback</a>.</p>
-</div>
+  </div>
+
+</form>
+
+<p class="small mt-3">* This subscription includes essential university messaging and cannot be unsubscribed from.</p>
+
+<hr class="w-75 my-5">
+
+<p class="text-center mt-5">Send us your <a href="https://www.ucf.edu/brand/contact-us/">comments &amp; feedback</a>.</p>
 {% endblock %}
