@@ -52,7 +52,7 @@
     <table class="table">
       <thead>
         <tr class="row">
-          <th scope="col" class="col-lg-4">Subject Line</th>
+          <th scope="col" class="col-lg-3">Subject Line</th>
           <th scope="col" class="col">Sent</th>
           <th scope="col" class="col">Open Rate</th>
           <th scope="col" class="col">Click Rate</th>
@@ -63,7 +63,7 @@
         {% for instance in email.instances.all %}
         {% if instance.campaign == campaign %}
         <tr class="row">
-          <td class="col-lg-4">
+          <td class="col-lg-3">
             <a href="{% url 'manager-email-instance' instance.pk %}">
               {% if instance.subject %}
                 {{instance.subject}}
