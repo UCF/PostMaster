@@ -55,6 +55,12 @@ urlpatterns = [
     url(r'^subscriptions/categories/create/$',             login_required(SubscriptionCategoryCreateView.as_view()), name='manager-subscription-categories-create'),
     url(r'^subscriptions/categories/(?P<pk>\d+)/update/$', login_required(SubscriptionCategoryUpdateView.as_view()), name='manager-subscription-categories-update'),
 
+    url(r'^campaigns/$',                    login_required(CampaignListView.as_view()),   name='manager-campaigns'),
+    url(r'^campaigns/create/$',             login_required(CampaignCreateView.as_view()), name='manager-campaigns-create'),
+    url(r'^campaigns/(?P<pk>\d+)/update/$', login_required(CampaignUpdateView.as_view()), name='manager-campaigns-update'),
+    url(r'^campaigns/(?P<pk>\d+)/stats/$',  login_required(CampaignStatView.as_view()),   name='manager-campaigns-stats'),
+    url(r'^campaigns/(?P<pk>\d+)/delete/$', login_required(CampaignDeleteView.as_view()), name='manager-campaigns-delete'),
+
     url(r'^subprocess/status/(?P<pk>\d+)/$',   login_required(SubprocessStatusDetailView.as_view()), name='subprocess-status-detail-view'),
     url(r'^subprocess/json/$',                 login_required(subprocess_status_json_feed),          name='subprocess-status-json'),
 

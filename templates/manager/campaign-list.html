@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block page-body %}
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="d-inline-block heading-underline h2 my-1">Campaigns</h1>
+      <a href="{% url 'manager-campaigns-create' %}" class="float-right btn btn-default"><span class="fas fa-plus" aria-hidden="true"></span> Add New</a>
+    </div>
+    <div class="col-sm-12 my-5">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for campaign in campaigns %}
+          <tr>
+            <td>{{campaign.name}}</td>
+            <td>{{campaign.description}}</td>
+            <td>
+              <a href="{% url 'manager-campaigns-update' campaign.pk %}" class="btn btn-primary">
+                <span class="fas fa-edit"></span> Edit
+              </a>
+              <a href="{% url 'manager-campaigns-stats' campaign.pk %}" class="btn btn-success">
+                <span class="fas fa-clipboard"></span> Stats
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

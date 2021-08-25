@@ -2,7 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
-from manager.models import Email
+from manager.models import Campaign, Email
 from manager.models import PreviewInstance
 from manager.models import Recipient
 from manager.models import RecipientAttribute
@@ -195,6 +195,14 @@ class SubscriptionCategoryForm(forms.ModelForm):
             'description',
             'cannot_unsubscribe',
             'applies_to'
+        )
+
+class CampaignForm(forms.ModelForm):
+    class Meta:
+        model = Campaign
+        fields = (
+            'name',
+            'description'
         )
 
 class SettingCreateUpdateForm(forms.ModelForm):

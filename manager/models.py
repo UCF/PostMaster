@@ -168,11 +168,54 @@ class SubscriptionCategory(models.Model):
 
         return False
 
+class Campaign(models.Model):
+    '''
+    Object for defining a campaign. Primarily taxonomical in nature
+    this should allow emails and instances to be grouped together logically.
+    '''
+    name = models.CharField(max_length=300, blank=False, null=False)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    @property
+    def avg_open_rate(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.open_rate
+
+        return (aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
+
+    @property
+    def avg_click_rate(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.click_rate
+
+        return (aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
+
+    @property
+    def avg_recipient_count(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.recipients.count()
+
+        return round(aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
 
 class EmailManager(models.Manager):
     '''
-        A custom manager to determine when emails should be sent based on
-        processing interval and preview lead time.
+    A custom manager to determine when emails should be sent based on
+    processing interval and preview lead time.
     '''
     processing_interval_duration = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
 
@@ -399,6 +442,7 @@ class Email(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.SET_NULL)
+    campaign = models.ForeignKey(Campaign, related_name='emails', null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
             ordering = ["title"]
@@ -832,7 +876,8 @@ class Email(models.Model):
             sent_html       = html,
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
-            urls_tracked    = self.track_urls
+            urls_tracked    = self.track_urls,
+            campaign        = self.campaign
         )
 
         recipients = Recipient.objects.filter(
@@ -932,6 +977,7 @@ class Instance(models.Model):
     opens_tracked = models.BooleanField(default=False)
     urls_tracked = models.BooleanField(default=False)
     send_terminate = models.BooleanField(default=False)
+    campaign = models.ForeignKey(Campaign, related_name='instances', null=True, on_delete=models.SET_NULL)
 
     @property
     def in_progress(self):

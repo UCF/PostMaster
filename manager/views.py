@@ -39,6 +39,7 @@ from django.views.generic.detail import DetailView
 from django.forms.utils import ErrorList
 from django.contrib.staticfiles.storage import staticfiles_storage
 
+from manager.forms import CampaignForm
 from manager.forms import EmailSearchForm
 from manager.forms import EmailCreateUpdateForm
 from manager.forms import EmailInstantSendForm
@@ -56,6 +57,7 @@ from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
 from manager.forms import SettingCreateUpdateForm
 from manager.forms import SubscriptionCategoryForm
+from manager.models import Campaign
 from manager.models import Email
 from manager.models import Instance
 from manager.models import InstanceOpen
@@ -900,6 +902,55 @@ class RecipientSubscriptionsUpdateView(UpdateView):
         messages.success(self.request,
                          'Your subscriptions have been successfully updated.')
         return self.object.unsubscribe_url
+
+class CampaignListView(ListView):
+    model = Campaign
+    template_name = 'manager/campaign-list.html'
+    context_object_name = 'campaigns'
+
+class CampaignCreateView(CreateView):
+    model = Campaign
+    template_name = 'manager/campaign-create.html'
+    form_class = CampaignForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Campaign successfully created.')
+        return super(CampaignCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-campaigns-update',
+                      args=(),
+                      kwargs={'pk': self.object.pk})
+
+class CampaignUpdateView(UpdateView):
+    model = Campaign
+    template_name = 'manager/campaign-update.html'
+    form_class = CampaignForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Campaign successfully updated.')
+        return super(CampaignUpdateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('manager-campaigns-update',
+                      args=(),
+                      kwargs={'pk': self.object.pk})
+
+class CampaignDeleteView(DeleteView):
+    model = Campaign
+    template_name = 'manager/campaign-delete.html'
+    context_object_name = 'campaign'
+
+    def get_success_url(self):
+        messages.success(self.request, 'Campaign successfully deleted.')
+        return reverse('manager-campaigns',
+                        args = (),
+                        kwargs={})
+
+class CampaignStatView(DetailView):
+    model = Campaign
+    template_name = 'manager/campaign-stats.html'
+    context_object_name = 'campaign'
 
 class SubscriptionCategoryListView(SubscriptionsMixin, ListView):
     model = SubscriptionCategory
