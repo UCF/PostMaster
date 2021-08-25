@@ -49,6 +49,7 @@
       </thead>
       <tbody>
         {% for instance in email.instances.all %}
+        {% if instance.campaign == campaign %}
         <tr class="row">
           <td class="col-lg-6">
             <a href="{% url 'manager-email-instance' instance.pk %}">
@@ -61,6 +62,7 @@
           <td class="col-lg-3">{{instance.open_rate}}%</td>
           <td class="col-lg-3">{{instance.click_rate}}%</td>
         </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
