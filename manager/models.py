@@ -168,11 +168,24 @@ class SubscriptionCategory(models.Model):
 
         return False
 
+class Campaign(models.Model):
+    '''
+    Object for defining a campaign. Primarily taxonomical in nature
+    this should allow emails and instances to be grouped together logically.
+    '''
+    name = models.CharField(max_length=300, blank=False, null=False)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 class EmailManager(models.Manager):
     '''
-        A custom manager to determine when emails should be sent based on
-        processing interval and preview lead time.
+    A custom manager to determine when emails should be sent based on
+    processing interval and preview lead time.
     '''
     processing_interval_duration = timedelta(seconds=settings.PROCESSING_INTERVAL_DURATION)
 
@@ -399,6 +412,7 @@ class Email(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     subscription_category = models.ForeignKey(SubscriptionCategory, related_name='emails', null=True, on_delete=models.SET_NULL)
+    campaign = models.ForeignKey(Campaign, related_name='emails', null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
             ordering = ["title"]
@@ -932,6 +946,7 @@ class Instance(models.Model):
     opens_tracked = models.BooleanField(default=False)
     urls_tracked = models.BooleanField(default=False)
     send_terminate = models.BooleanField(default=False)
+    campaign = models.ForeignKey(Campaign, related_name='instances', null=True, on_delete=models.SET_NULL)
 
     @property
     def in_progress(self):
