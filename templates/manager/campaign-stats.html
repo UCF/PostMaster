@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h1 class="h2 heading-underline mb-4">{{campaign.name}} Stats</h1>
+<h2 class="h3 mb-2">General Stats</h2>
+<div class="row">
+  <div class="col-6 col-lg-4">
+    <div class="card mb-4">
+      <div class="h6 card-header text-center">
+        <p class="card-title">Avg. Open Rate</p>
+      </div>
+      <div class="card-block">
+        <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_open_rate}}%</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="card mb-4">
+      <div class="h6 card-header text-center">
+        <p class="card-title">Avg. Click Rate</p>
+      </div>
+      <div class="card-block">
+        <p class="text-center text-secondary display-4">{{campaign.avg_click_rate}}%</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="card mb-4">
+      <div class="h6 card-header text-center">
+        <p class="card-title">Avg. Recipient Count</p>
+      </div>
+      <div class="card-block">
+        <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_recipient_count}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<h2 class="h3">Emails</h2>
+<hr>
+{% for email in campaign.emails.all %}
+  <div class="jumbotron m-2">
+    <h3 class="h4">{{ email.title }}</h3>
+    <table class="table">
+      <thead>
+        <tr class="row">
+          <th scope="col" class="col-lg-6">Subject Line</th>
+          <th scope="col" class="col-lg-3">Open Rate</th>
+          <th scope="col" class="col-lg-3">Click Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for instance in email.instances.all %}
+        <tr class="row">
+          <td class="col-lg-6">
+            <a href="{% url 'manager-email-instance' instance.pk %}">
+              {% if instance.subject %}
+                {{instance.subject}}
+              {% else %}
+                No Subject Line
+              {% endif %}</a>
+          </td>
+          <td class="col-lg-3">{{instance.open_rate}}%</td>
+          <td class="col-lg-3">{{instance.click_rate}}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endfor %}
+{% endblock %}

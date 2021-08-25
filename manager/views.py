@@ -947,6 +947,11 @@ class CampaignDeleteView(DeleteView):
                         args = (),
                         kwargs={})
 
+class CampaignStatView(DetailView):
+    model = Campaign
+    template_name = 'manager/campaign-stats.html'
+    context_object_name = 'campaign'
+
 class SubscriptionCategoryListView(SubscriptionsMixin, ListView):
     model = SubscriptionCategory
     template_name = 'manager/subscription-category-list.html'

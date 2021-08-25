@@ -12,13 +12,22 @@
           <tr>
             <th scope="col">Name</th>
             <th scope="col">Description</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for campaign in campaigns %}
-          <tr data-link-url="{% url 'manager-campaigns-update' campaign.pk %}">
+          <tr>
             <td>{{campaign.name}}</td>
             <td>{{campaign.description}}</td>
+            <td>
+              <a href="{% url 'manager-campaigns-update' campaign.pk %}" class="btn btn-primary">
+                <span class="fas fa-edit"></span> Edit
+              </a>
+              <a href="{% url 'manager-campaigns-stats' campaign.pk %}" class="btn btn-success">
+                <span class="fas fa-clipboard"></span> Stats
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

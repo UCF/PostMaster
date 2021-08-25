@@ -182,6 +182,36 @@ class Campaign(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def avg_open_rate(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.open_rate
+
+        return (aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
+
+    @property
+    def avg_click_rate(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.click_rate
+
+        return (aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
+
+    @property
+    def avg_recipient_count(self):
+        aggr = 0
+        for instance in self.instances.all():
+            aggr += instance.recipients.count()
+
+        return round(aggr / self.instances.count()
+            if self.instances.count() != 0
+            else 0)
+
 class EmailManager(models.Manager):
     '''
     A custom manager to determine when emails should be sent based on
@@ -846,7 +876,8 @@ class Email(models.Model):
             sent_html       = html,
             requested_start = datetime.combine(datetime.now().today(), self.send_time),
             opens_tracked   = self.track_opens,
-            urls_tracked    = self.track_urls
+            urls_tracked    = self.track_urls,
+            campaign        = self.campaign
         )
 
         recipients = Recipient.objects.filter(
