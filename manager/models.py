@@ -953,16 +953,39 @@ class Instance(models.Model):
         return self.recipient_details.exclude(when=None).count()
 
     @property
+    def open_recipients(self):
+        """
+        Returns all unique recipients that either opened or
+        interacted with the instance at least once.
+
+        Because instance opens aren't necessarily tracked
+        when a user opens an email (e.g. due to image blocking),
+        we assume a user that's clicked on at least one link in
+        the instance has opened the email, and should be included
+        in this list.
+        """
+        openers = Recipient.objects.filter(pk__in=self.opens.values_list('recipient__pk', flat=True))
+        clickers = self.click_recipients
+        return openers.union(clickers)
+
+    @property
+    def open_recipient_count(self):
+        """
+        Returns the number of recipients that either opened
+        or interacted with the instance at least once.
+        """
+        return self.open_recipients.count()
+
+    @property
     def initial_opens(self):
-        return self.opens.exclude(is_reopen=True).count()
+        """
+        Alias of open_recipient_count.
+        """
+        return self.open_recipient_count
 
     @property
     def re_opens(self):
         return self.opens.exclude(is_reopen=False).count()
-
-    @property
-    def total_opens(self):
-        return self.opens.count()
 
     @property
     def placeholders(self):
