@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block page-body %}
+<h1 class="h2 heading-underline">Update Campaign</h1>
+<form class="form-horizontal" action="{% url 'manager-campaigns-update' object.pk %}" method="post">
+  <fieldset>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{error}}
+      </div>
+    {% endfor %}
+    {% for field in form %}
+      {% include 'form-control-group.html' %}
+    {% endfor %}
+    <div class="row form-group">
+      <div class="offset-sm-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">
+          <span class="fas fa-plus" aria-hidden="true"></span> Update</button>
+        <a href="{% url 'manager-campaigns' %}" class="btn btn-default">
+          <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
+        <a href="{% url 'manager-campaigns-delete' object.pk %}" class="btn btn-danger">
+          <span class"fas fas-trash" aria-hidden="true"></span> Delete</a>
+      </div>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}
