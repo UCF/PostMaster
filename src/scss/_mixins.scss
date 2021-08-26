@@ -8,7 +8,7 @@
   stroke: $color;
   stroke-dasharray: calculate-stroke-dasharray($size, $stroke-width);
   stroke-width: $stroke-width;
-  transform: translate(($size / 2) * 1px, ($size / 2) * 1px) rotate(-90deg);
+  transform: translate(($size / 2) * 1px, ($size / 2) * 1px) rotate(-90deg) scaleY(-1);
 }
 
 @mixin generate-outer-circle($size, $stroke-width, $fill: transparent, $color: #999) {
