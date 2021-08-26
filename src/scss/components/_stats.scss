@@ -1,0 +1,41 @@
+.stat-circle {
+  @include generate-stat-circle(150, 4, transparent, $brand-primary);
+  animation: ramp-up-circle 1s linear;
+}
+
+.stat-circle-outer {
+  @include generate-outer-circle(150, 1);
+}
+
+.stat-circle-text {
+  fill: $brand-secondary;
+  font: bold 30px sans-serif;
+  transform: translate(75px, 75px);
+}
+
+.stat-circle-text-lg {
+  fill: $brand-secondary;
+  font: bold 65px sans-serif;
+  transform: translate(110px, 165px);
+}
+
+.stat-circle-lg {
+  @include generate-stat-circle(300, 10, transparent, $brand-primary);
+  animation: ramp-up-circle-lg 1s linear;
+}
+
+.stat-circle-outer-lg {
+  @include generate-outer-circle(300, 1);
+}
+
+@keyframes ramp-up-circle {
+  from {
+    stroke-dashoffset: calculate-stroke-dasharray(150, 4);
+  }
+}
+
+@keyframes ramp-up-circle-lg {
+  from {
+    stroke-dashoffset: calculate-stroke-dasharray(300, 6);
+  }
+}
