@@ -33,7 +33,7 @@
               <input class="form-check-input" type="checkbox" disabled {% if category not in unsubscriptions %}checked="checked"
                 {% endif %}>
               <input type="hidden" name="subscription_categories" value="{{category.pk}}" />
-              <span class="text-default">Subscribed*</span>
+              <span class="text-default">Subscribed</span>
               {% endif %}
             </label>
           </div>
@@ -48,8 +48,6 @@
   </div>
 
 </form>
-
-<p class="small mt-3">* This subscription includes essential university messaging and cannot be unsubscribed from.</p>
 
 <hr class="w-75 my-5">
 
