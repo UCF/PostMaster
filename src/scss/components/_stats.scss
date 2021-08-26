@@ -9,13 +9,15 @@
 
 .stat-circle-text {
   fill: $brand-secondary;
-  font: bold 30px sans-serif;
+  font-family: $font-family-sans-serif;
+  font-size: 30px;
   transform: translate(75px, 75px);
 }
 
 .stat-circle-text-lg {
   fill: $brand-secondary;
-  font: bold 65px sans-serif;
+  font-family: $font-family-sans-serif;
+  font-size: 56px;
   transform: translate(110px, 165px);
 }
 
