@@ -1,0 +1,19 @@
+@function calculate-stroke-dasharray($size, $stroke-width) {
+  $r: ($size / 2) - ($stroke-width + 1);
+  @return 2 * 3.14 * $r;
+}
+
+@mixin generate-stat-circle($size, $stroke-width, $fill: transparent, $color: #fc0) {
+  fill: $fill;
+  stroke: $color;
+  stroke-dasharray: calculate-stroke-dasharray($size, $stroke-width);
+  stroke-width: $stroke-width;
+  transform: translate(($size / 2) * 1px, ($size / 2) * 1px) rotate(-90deg);
+}
+
+@mixin generate-outer-circle($size, $stroke-width, $fill: transparent, $color: #999) {
+  fill: $fill;
+  stroke: $color;
+  stroke-width: $stroke-width;
+  transform: translate(($size / 2) * 1px, ($size / 2) * 1px);
+}

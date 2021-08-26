@@ -4,43 +4,57 @@
 <h2 class="h3 mb-2">General Stats</h2>
 <hr>
 <div class="row">
-  <div class="col-6 col-lg-3">
-    <div class="card mb-4">
-      <div class="h6 card-header text-center">
-        <p class="card-title">Avg. Open Rate</p>
-      </div>
-      <div class="card-block">
-        <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_open_rate}}%</p>
-      </div>
+  <div class="col-12 col-lg-4">
+    <div class="text-center">
+      <p class="h4 mb-4">Mailing Score</p>
+      <svg class="img-fluid" height="300" width="300">
+        <text class="stat-circle-text-lg h3">5.8</text>
+        <circle class="stat-circle-outer-lg" r="150" />
+        <circle class="stat-circle-lg" r="144" stroke-dashoffset="184" />
+      </svg>
     </div>
   </div>
-  <div class="col-6 col-lg-3">
-    <div class="card mb-4">
-      <div class="h6 card-header text-center">
-        <p class="card-title">Avg. Click Rate</p>
+  <div class="col-12 col-lg-8">
+    <div class="row">
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="h6 card-header text-center">
+            <p class="card-title">Avg. Open Rate</p>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_open_rate}}%</p>
+          </div>
+        </div>
       </div>
-      <div class="card-block">
-        <p class="text-center text-secondary display-4">{{campaign.avg_click_rate}}%</p>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="h6 card-header text-center">
+            <p class="card-title">Avg. Click Rate</p>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary display-4">{{campaign.avg_click_rate}}%</p>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="col-6 col-lg-3">
-    <div class="card mb-4">
-      <div class="h6 card-header text-center">
-        <p class="card-title">Avg. Click to Open Rate</p>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="h6 card-header text-center">
+            <p class="card-title">Avg. Click to Open Rate</p>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary display-4">{{campaign.avg_click_to_open_rate}}%</p>
+          </div>
+        </div>
       </div>
-      <div class="card-block">
-        <p class="text-center text-secondary display-4">{{campaign.avg_click_to_open_rate}}%</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-6 col-lg-3">
-    <div class="card mb-4">
-      <div class="h6 card-header text-center">
-        <p class="card-title">Avg. Recipient Count</p>
-      </div>
-      <div class="card-block">
-        <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_recipient_count}}</p>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="h6 card-header text-center">
+            <p class="card-title">Avg. Recipient Count</p>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_recipient_count}}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
