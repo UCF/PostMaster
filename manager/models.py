@@ -228,17 +228,17 @@ class Campaign(models.Model):
     @property
     def mailing_score(self):
         # Get the percentage of the goal we met and divide by 2
-        open_rate_score = (self.avg_open_rate / self.open_rate_target) / 2
+        open_rate_score = ((self.avg_open_rate / self.open_rate_target) / 2) * 100
         # Clamp it between 0 and 50
         open_rate_score = max(min(open_rate_score, 50), 0)
         # Repeat for the click to open rate
-        click_to_open_score = (self.avg_click_to_open_rate / self.click_to_open_rate_target) / 2
+        click_to_open_score = ((self.avg_click_to_open_rate / self.click_to_open_rate_target) / 2) * 100
         click_to_open_score = max(min(click_to_open_score, 50), 0)
 
         # Normalize
         mailing_score = (open_rate_score + click_to_open_score) * .1
 
-        return mailing_score
+        return round(mailing_score, 1)
 
 class EmailManager(models.Manager):
     '''

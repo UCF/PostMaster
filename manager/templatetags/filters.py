@@ -1,6 +1,6 @@
 from django import template
 from django import forms
-
+import math
 
 register = template.Library()
 
@@ -35,3 +35,12 @@ def can_unsubscribe(category, email_address):
         return False
 
     return True
+
+@register.filter
+def normalize_mailing_score(score, r=150):
+    # Find the circumference of the circle
+    circumference = round(2*math.pi*r, 0)
+    ratio = 10 / score
+    normalized_value = circumference / ratio
+    inverse_normal = circumference - normalized_value
+    return math.ceil(inverse_normal)

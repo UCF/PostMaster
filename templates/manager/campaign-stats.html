@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load filters %}
 {% block page-body %}
 <h1 class="h2 heading-underline mb-4">{{campaign.name}} Stats</h1>
 <h2 class="h3 mb-2">General Stats</h2>
@@ -8,9 +9,9 @@
     <div class="text-center">
       <p class="h4 mb-4">Mailing Score</p>
       <svg class="img-fluid" height="300" width="300">
-        <text class="stat-circle-text-lg h3">5.8</text>
+        <text class="stat-circle-text-lg h3">{{ campaign.mailing_score }}</text>
         <circle class="stat-circle-outer-lg" r="150" />
-        <circle class="stat-circle-lg" r="144" stroke-dashoffset="365" />
+        <circle class="stat-circle-lg" r="145" stroke-dashoffset="{{ campaign.mailing_score|normalize_mailing_score:145 }}" />
       </svg>
     </div>
   </div>
