@@ -1029,7 +1029,9 @@ class Instance(models.Model):
         Returns the number of recipients that either opened
         or interacted with the instance at least once.
         """
-        return self.open_recipients.count()
+        recipient_open_ids = InstanceOpen.objects.filter(instance=self).values_list('recipient_id')
+        recipient_click_ids = URLClick.objects.filter(url__instance=self).values_list('recipient_id')
+        return len(set(recipient_open_ids).union(set(recipient_click_ids)))
 
     @property
     def initial_opens(self):
@@ -1100,7 +1102,7 @@ class Instance(models.Model):
         The number of recipients who clicked on
         at least one URL in the email.
         """
-        return self.click_recipients.count()
+        return len(set(URLClick.objects.filter(url__instance=self).values_list('recipient_pk', flat=True)))
 
     @property
     def click_rate(self):
