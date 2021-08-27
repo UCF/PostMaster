@@ -1,6 +1,6 @@
 @function calculate-stroke-dasharray($size, $stroke-width) {
-  $r: ($size / 2) - ($stroke-width + 1);
-  @return 2 * 3.14 * $r;
+  $r: ($size / 2);
+  @return 2 * 3.1415926535 * $r;
 }
 
 @mixin generate-stat-circle($size, $stroke-width, $fill: transparent, $color: #fc0) {
