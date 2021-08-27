@@ -41,8 +41,12 @@
   </thead>
   <tbody>
     {% for setting in settings %}
-    <tr data-link-url="{% url 'manager-setting-update' setting.pk %}">
-      <td>{{setting.name}}</td>
+    <tr>
+      <td>
+        <a href="{% url 'manager-setting-update' setting.pk %}">
+          {{setting.name}}
+        </a>
+      </td>
       <td>{{setting.value}}</td>
     </tr>
     {% endfor %}

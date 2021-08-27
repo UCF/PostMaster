@@ -39,8 +39,12 @@
   	</thead>
   	<tbody>
   		{% for attribute in attributes %}
-  		<tr data-link-url="{% url 'manager-recipientattribute-update' attribute.pk %}">
-  			<td>{{attribute.name}}</td>
+  		<tr>
+  			<td>
+          <a href="{% url 'manager-recipientattribute-update' attribute.pk %}">
+            {{attribute.name}}
+          </a>
+        </td>
   			<td>{{attribute.value}}</td>
   		</tr>
   		{% endfor %}

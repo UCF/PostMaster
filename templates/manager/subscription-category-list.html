@@ -17,8 +17,12 @@
         </thead>
         <tbody>
           {% for category in categories %}
-          <tr data-link-url="{% url 'manager-subscription-categories-update' category.pk %}">
-            <td>{{category.name}}</td>
+          <tr>
+            <td>
+              <a href="{% url 'manager-subscription-categories-update' category.pk %}">
+                {{category.name}}
+              </a>
+            </td>
             <td>{{category.description}}</td>
             <td>{{category.unsubscriptions.count}}</td>
           </tr>
