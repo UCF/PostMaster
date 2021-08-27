@@ -63,11 +63,14 @@
       </thead>
       <tbody>
         {% for recipient in recipients %}
-          <tr data-link-url="{% url 'manager-recipient-update' recipient.pk %}" {% if recipient.disable %} class="inactive" {% endif %}>
-            <td>{{recipient.email_address}}
+          <tr {% if recipient.disable %} class="inactive" {% endif %}>
+            <td>
+              <a href="{% url 'manager-recipient-update' recipient.pk %}">
+                {{recipient.email_address}}
                 {% if recipient.disable %}
                 <span class="fa float-right fa-eye-slash"></span>
                 {% endif %}
+              </a>
             </td>
           </tr>
         {% endfor %}
