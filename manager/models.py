@@ -964,7 +964,7 @@ class Instance(models.Model):
         the instance has opened the email, and should be included
         in this list.
         """
-        openers = Recipient.objects.filter(pk__in=self.opens.values_list('recipient__pk', flat=True))
+        openers = Recipient.objects.filter(pk__in=self.opens.values_list('recipient__id', flat=True))
         clickers = self.click_recipients
         return openers.union(clickers)
 
@@ -1039,7 +1039,7 @@ class Instance(models.Model):
         The recipients who clicked on
         at least one URL in the email.
         """
-        return Recipient.objects.filter(pk__in=self.clicks.values_list('recipient__pk', flat=True))
+        return Recipient.objects.filter(pk__in=self.clicks.values_list('recipient__id', flat=True))
 
     @property
     def click_recipient_count(self):
@@ -1047,7 +1047,7 @@ class Instance(models.Model):
         The number of recipients who clicked on
         at least one URL in the email.
         """
-        return len(set(URLClick.objects.filter(url__instance=self).values_list('recipient_pk', flat=True)))
+        return len(set(URLClick.objects.filter(url__instance=self).values_list('recipient_id', flat=True)))
 
     @property
     def click_rate(self):
