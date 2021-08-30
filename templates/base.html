@@ -42,6 +42,20 @@
                   </a>
                 </div>
               </li>
+              <!-- Campaigns -->
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" id="campaign-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Campaigns
+                </a>
+                <div class="dropdown-menu" aria-labelledby="campaign-dropdown">
+                  <a class="dropdown-item" href="{% url 'manager-campaigns' %}">
+                    <span class="fas fa-list" aria-hidden="true"></span> All Campaigns
+                  </a>
+                  <a class="dropdown-item" href="{% url 'manager-campaigns-create' %}">
+                    <span class="fas fa-plus" aria-hidden="true"></span> Add New Campaign
+                  </a>
+                </div>
+              </li>
               <!-- Recipients -->
               <li class="nav-item dropdown">
                 <a href="#" class="nav-link dropdown-toggle" id="recipients-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

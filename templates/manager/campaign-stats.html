@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load filters %}
+{% block page-body %}
+<h1 class="h2 heading-underline mb-4">{{campaign.name}} Stats</h1>
+<h2 class="h3 mb-2">General Stats</h2>
+<hr>
+<div class="row">
+  <div class="col-12 col-lg-4">
+    <div class="text-center">
+      <h3 class="h4 mb-4">Mailing Score</h3>
+      <svg class="img-fluid" height="300" width="300">
+        <text class="stat-circle-text-lg h3">{{ campaign.mailing_score }}</text>
+        <circle class="stat-circle-outer-lg" r="150" />
+        <circle class="stat-circle-lg" r="145" stroke-dashoffset="{{ campaign.mailing_score|normalize_mailing_score:145 }}" />
+      </svg>
+    </div>
+  </div>
+  <div class="col-12 col-lg-8">
+    <div class="row">
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="card-header text-center">
+            <h3 class="h6 card-title mb-0">Avg. Open Rate</h3>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_open_rate}}%</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="card-header text-center">
+            <h3 class="h6 card-title mb-0">Avg. Click Rate</h3>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary display-4">{{campaign.avg_click_rate}}%</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="card-header text-center">
+            <h3 class="h6 card-title mb-0">Avg. Click to Open Rate</h3>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary display-4">{{campaign.avg_click_to_open_rate}}%</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="card-header text-center">
+            <h3 class="h6 card-title mb-0">Avg. Recipient Count</h3>
+          </div>
+          <div class="card-block">
+            <p class="text-center text-secondary text-shadow display-4">{{campaign.avg_recipient_count}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<h2 class="h3">Emails</h2>
+<hr>
+{% for email in campaign.emails.all %}
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between">
+      <span class="h4 mb-0 card-title">{{ email.title }}</span>
+      <a href="{% url 'manager-email-update' email.pk %}">
+        <span class="fas fa-edit"></span> Edit Email
+      </a>
+    </div>
+    <div class="card-block">
+      <table class="table">
+        <thead>
+          <tr class="row">
+            <th scope="col" class="col-lg-3">Subject Line</th>
+            <th scope="col" class="col">Sent</th>
+            <th scope="col" class="col">Open Rate</th>
+            <th scope="col" class="col">Click Rate</th>
+            <th scope="col" class="col">Click to Open Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for instance in email.instances.all %}
+          {% if instance.campaign == campaign %}
+          <tr class="row">
+            <td class="col-lg-3">
+              <a href="{% url 'manager-email-instance' instance.pk %}">
+                {% if instance.subject %}
+                  {{instance.subject}}
+                {% else %}
+                  No Subject Line
+                {% endif %}</a>
+            </td>
+            <td class="col">{{instance.start}}</td>
+            <td class="col">{{instance.open_rate}}%</td>
+            <td class="col">{{instance.click_rate}}%</td>
+            <td class="col">{{instance.click_to_open_rate}}%</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}
