@@ -63,7 +63,7 @@
         {% for email in emails %}
         <tr class="d-flex">
           <td class="col-sm-3">
-            <a href="{% url 'manager-email-instances' email.pk %}">
+            <a href="{% url 'manager-email-update' email.pk %}">
               {{email.title}}
             </a>
           </td>

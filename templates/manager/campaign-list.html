@@ -18,7 +18,11 @@
         <tbody>
           {% for campaign in campaigns %}
           <tr>
-            <td>{{campaign.name}}</td>
+            <td>
+              <a href="{% url 'manager-campaigns-update' campaign.pk %}">
+                {{campaign.name}}
+              </a>
+            </td>
             <td>{{campaign.description}}</td>
             <td>
               <div class="btn-group">
