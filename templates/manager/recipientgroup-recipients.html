@@ -28,22 +28,22 @@
 {% endif %}
 
   <table class="table table-hover">
-  	<thead>
-  		<tr>
-  			<th scope="col">Email Address</th>
-  		</tr>
-  	</thead>
-  	<tbody>
-  		{% for recipient in recipients %}
-  		<tr>
-  			<td>
+    <thead>
+      <tr>
+        <th scope="col">Email Address</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for recipient in recipients %}
+      <tr>
+        <td>
           <a href="{% url 'manager-recipient-update' recipient.pk %}">
             {{recipient.email_address}}
           </a>
         </td>
-  		</tr>
-  		{% endfor %}
-  	</tbody>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
 
 {% if is_paginated %}
