@@ -202,7 +202,9 @@ class CampaignForm(forms.ModelForm):
         model = Campaign
         fields = (
             'name',
-            'description'
+            'description',
+            'open_rate_target',
+            'click_to_open_rate_target'
         )
 
 class SettingCreateUpdateForm(forms.ModelForm):

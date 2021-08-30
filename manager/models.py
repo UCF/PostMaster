@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from itertools import chain
 import logging
+import math
 import smtplib
 import re
 import urllib.request, urllib.parse, urllib.error
@@ -175,6 +176,8 @@ class Campaign(models.Model):
     '''
     name = models.CharField(max_length=300, blank=False, null=False)
     description = models.TextField(blank=True, null=True)
+    open_rate_target = models.FloatField(default=25, null=False, blank=False)
+    click_to_open_rate_target = models.FloatField(default=10, null=False, blank=False)
 
     def __str__(self):
         return self.name
@@ -212,6 +215,7 @@ class Campaign(models.Model):
             if self.instances.count() != 0
             else 0)
 
+    @property
     def avg_click_to_open_rate(self):
         aggr = 0
         for instance in self.instances.all():
@@ -220,6 +224,21 @@ class Campaign(models.Model):
         return round(aggr / self.instances.count()
             if self.instances.count() != 0
             else 0)
+
+    @property
+    def mailing_score(self):
+        # Get the percentage of the goal we met and divide by 2
+        open_rate_score = ((self.avg_open_rate / self.open_rate_target) / 2) * 100
+        # Clamp it between 0 and 50
+        open_rate_score = max(min(open_rate_score, 50), 0)
+        # Repeat for the click to open rate
+        click_to_open_score = ((self.avg_click_to_open_rate / self.click_to_open_rate_target) / 2) * 100
+        click_to_open_score = max(min(click_to_open_score, 50), 0)
+
+        # Normalize
+        mailing_score = (open_rate_score + click_to_open_score) * .1
+
+        return round(mailing_score, 1)
 
 class EmailManager(models.Manager):
     '''

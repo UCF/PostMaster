@@ -29,10 +29,12 @@
 //
 
 @import 'tables';
+@import 'mixins';
 
 @import 'components/buttons';
 @import 'components/navs';
 @import 'components/dropdowns';
+@import 'components/stats';
 
 @import 'forms/base';
 @import 'forms/datepickers';
