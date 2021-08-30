@@ -32,8 +32,12 @@
       </thead>
       <tbody>
         {% for instance in instances %}
-        <tr data-link-url="{% url 'manager-email-instance' instance.pk %}">
-          <td>{{instance.email.title}}</td>
+        <tr>
+          <td>
+            <a href="{% url 'manager-email-instance' instance.pk %}">
+              {{instance.email.title}}
+            </a>
+          </td>
           <td>{{instance.start}}</td>
           <td>{{instance.run_time}}</td>
           <td>{{instance.recipients.count}}</td>
@@ -68,8 +72,12 @@
         </thead>
         <tbody>
           {% for email in emails %}
-            <tr data-link-url="{% url 'manager-email-update' email.pk %}">
-              <td>{{email.title}}</td>
+            <tr>
+              <td>
+                <a href="{% url 'manager-email-update' email.pk %}">
+                  {{email.title}}
+                </a>
+              </td>
               <td>{{ email.send_time }}</td>
               <td>
                 {% if not email.preview %}
@@ -127,8 +135,12 @@
       </thead>
       <tbody>
         {% for email in emails %}
-        <tr data-link-url="{% url 'manager-email-update' email.pk %}">
-          <td>{{email.title}}</td>
+        <tr>
+          <td>
+            <a href="{% url 'manager-email-update' email.pk %}">
+              {{email.title}}
+            </a>
+          </td>
           <td>{{email.send_time}}</td>
         </tr>
         {% endfor %}

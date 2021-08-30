@@ -81,8 +81,12 @@
   	</thead>
     <tbody>
       {% for group in groups %}
-      <tr data-link-url="{% url 'manager-recipientgroup-update' group.pk %}">
-        <td>{{group.name}}</td>
+      <tr>
+        <td>
+          <a href="{% url 'manager-recipientgroup-update' group.pk %}">
+            {{group.name}}
+          </a>
+        </td>
         <td>{% if group.description %}{{group.description|truncatewords:20}}{% else %}n/a{% endif %}</td>
         <td>{% if group.archived %}Archived{% else %}Active{% endif %}</td>
         <td>{{group.updated_at}}</td>

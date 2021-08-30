@@ -1,13 +1,6 @@
 (function() {
   'use strict';
 
-  function tableClickHandler(e) {
-    var location = $(e.target).parent().attr('data-link-url');
-    if (location) {
-      window.location = location;
-    }
-  }
-
   function formValidation() {
     $('input').on('blur', function() {
       if($(this).attr('required') && !$(this).hasClass('search-query')) {
@@ -34,8 +27,6 @@
   }
 
   function init() {
-    // Table row click handler
-    $('table').on('click', 'td:not(:has(a))', tableClickHandler);
     // initiate tooltip
     $('[data-toggle="tooltip"]').tooltip();
     // Initiate select2 on multi-select inputs

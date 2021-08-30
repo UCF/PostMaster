@@ -61,8 +61,12 @@
       </thead>
       <tbody>
         {% for email in emails %}
-        <tr class="d-flex" data-link-url="{% url 'manager-email-instances' email.pk %}">
-          <td class="col-sm-3">{{email.title}}</td>
+        <tr class="d-flex">
+          <td class="col-sm-3">
+            <a href="{% url 'manager-email-update' email.pk %}">
+              {{email.title}}
+            </a>
+          </td>
           <td class="col-sm-3">{{email.updated_at}}</td>
           <td class="col-sm-1 text-center">{{email.instances.count}}</td>
           <td class="col-sm-5 d-flex align-items-center justify-content-end">
