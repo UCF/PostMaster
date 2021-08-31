@@ -952,6 +952,16 @@ class CampaignStatView(DetailView):
     template_name = 'manager/campaign-stats.html'
     context_object_name = 'campaign'
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['instance_count'] = 0
+        campaign = ctx.get('campaign', None)
+        if campaign:
+            for email in campaign.emails.all():
+                ctx['instance_count'] += email.instances.count()
+
+        return ctx
+
 class SubscriptionCategoryListView(SubscriptionsMixin, ListView):
     model = SubscriptionCategory
     template_name = 'manager/subscription-category-list.html'
