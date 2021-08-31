@@ -191,9 +191,9 @@ class Campaign(models.Model):
         for instance in self.instances.all():
             aggr += instance.open_rate
 
-        return (aggr / self.instances.count()
+        return round(aggr / self.instances.count()
             if self.instances.count() != 0
-            else 0)
+            else 0, 2)
 
     @property
     def avg_click_rate(self):
@@ -201,9 +201,9 @@ class Campaign(models.Model):
         for instance in self.instances.all():
             aggr += instance.click_rate
 
-        return (aggr / self.instances.count()
+        return round(aggr / self.instances.count()
             if self.instances.count() != 0
-            else 0)
+            else 0, 2)
 
     @property
     def avg_recipient_count(self):

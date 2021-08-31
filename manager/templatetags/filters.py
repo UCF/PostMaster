@@ -38,6 +38,9 @@ def can_unsubscribe(category, email_address):
 
 @register.filter
 def normalize_mailing_score(score, r=150):
+    if score == 0:
+        return 0
+
     # Find the circumference of the circle
     circumference = round(2*math.pi*r, 0)
     ratio = 10 / score
