@@ -14,6 +14,7 @@
         <circle class="stat-circle-outer-lg" r="150" />
         <circle class="stat-circle-lg" r="145" stroke-dashoffset="{{ campaign.mailing_score|normalize_mailing_score:145 }}" />
       </svg>
+      <p class="small mt-2 mb-4"></p>
     </div>
   </div>
   <div class="col-12 col-lg-8">
@@ -107,6 +108,6 @@
   </div>
 {% endfor %}
 {% else %}
-<p class="my-4 lead">There are not yet any instances in this campaign. Campaign stats will appear here once there is at least one instance in the campaign.</p>
+<p class="my-4 lead">No stats available to display.  Campaign stats will appear here once an email has been sent under this campaign.</p>
 {% endif %}
 {% endblock %}
