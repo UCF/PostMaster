@@ -40,6 +40,10 @@ def can_unsubscribe(category, email_address):
 def normalize_mailing_score(score, r=150):
     # Find the circumference of the circle
     circumference = round(2*math.pi*r, 0)
+
+    if score == 0:
+        return circumference
+
     ratio = 10 / score
     normalized_value = circumference / ratio
     inverse_normal = circumference - normalized_value
