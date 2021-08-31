@@ -2,6 +2,7 @@
 {% load filters %}
 {% block page-body %}
 <h1 class="h2 heading-underline mb-4">{{campaign.name}} Stats</h1>
+{% if instance_count > 0 %}
 <h2 class="h3 mb-2">General Stats</h2>
 <hr>
 <div class="row">
@@ -105,4 +106,7 @@
     </div>
   </div>
 {% endfor %}
+{% else %}
+<p class="my-4 lead">There are not yet any instances in this campaign. Campaign stats will appear here once there is at least one instance in the campaign.</p>
+{% endif %}
 {% endblock %}
