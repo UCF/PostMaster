@@ -138,6 +138,85 @@ class RecipientGroup(models.Model):
         return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
 
+class SegmentRule(models.Model):
+    rule_types = (
+        ('include', 'Include'),
+        ('exclude', 'Exclude')
+    )
+
+    rule_fields = (
+        ('in_recipient_group', 'In recipient group'),
+        ('has_attribute', 'Has attribute'),
+        ('received_email', 'Received email'),
+        ('opened_email', 'Opened email'),
+        ('clicked_link', 'Clicked on URL'),
+        ('clicked_any_url_in_email', 'Click on any url in instance'),
+    )
+
+    rule_conditionals = (
+        ('AND', 'AND'),
+        ('OR', 'OR')
+    )
+
+    field = models.CharField(max_length=40, null=False, blank=False, choices=rule_fields)
+    conditional = models.CharField(max_length=3, null=True, blank=True, choices=rule_conditionals)
+    value = models.CharField(max_length=255, null=False, blank=False)
+    group = models.IntegerField(default=0, null=False, blank=False)
+    index = models.IntegerField(default=0, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.field} - {self.value}"
+
+    def get_query(self):
+        if self.field == 'in_recipient_group':
+            return Q(groups=int(self.value))
+        elif self.field == 'has_attribute':
+            return Q()
+        elif self.field == 'received_email':
+            return Q()
+        elif self.field == 'opened_email':
+            return Q()
+        elif self.field == 'clicked_link':
+            return Q()
+        elif self.field =='clicked_any_url_in_email':
+            return Q()
+
+        return Q()
+
+class Segment(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True, help_text='Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
+    include_rules = models.ManyToManyField(SegmentRule, blank=False, related_name='include_segments')
+    exclude_rules = models.ManyToManyField(SegmentRule, blank=True, related_name='exclude_segments')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    archived = models.BooleanField(default=False)
+    preview = models.BooleanField(
+        default=False,
+        verbose_name='Is a Preview Group',
+        help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
+    )
+
+    @property
+    def recipients(self):
+        include_filter = Q()
+        for rule in self.include_rules.all():
+            if rule.conditional == 'AND':
+                include_filter &= rule.get_query()
+            elif rule.conditional == 'OR':
+                include_filter |= rule.get_query()
+
+        if self.exclude_rules.count() > 0:
+            exclude_filter = Q()
+            for rule in self.exclude_rules.all():
+                if rule.conditional == 'AND':
+                    exclude_filter &= rule.get_query()
+                elif rule.conditional == 'OR':
+                    exclude_filter |= rule.get_query()
+
+        return Recipient.objects.filter(include_filter).exclude(exclude_filter)
+
+
 class SubscriptionCategory(models.Model):
     """
         Describes a category of email for subscription purposes.
