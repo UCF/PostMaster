@@ -171,15 +171,15 @@ class SegmentRule(models.Model):
         if self.field == 'in_recipient_group':
             return Q(groups=int(self.value))
         elif self.field == 'has_attribute':
-            return Q()
+            return Q(attributes=self.value)
         elif self.field == 'received_email':
-            return Q()
+            return Q(instances_opened=int(self.value))
         elif self.field == 'opened_email':
-            return Q()
+            return Q(instances_opened__instance__email=int(self.value))
         elif self.field == 'clicked_link':
-            return Q()
+            return Q(urls_clicked=int(self.value))
         elif self.field =='clicked_any_url_in_email':
-            return Q()
+            return Q(urls_clicked__url__instance=int(self.value))
 
         return Q()
 
