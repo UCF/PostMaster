@@ -149,6 +149,7 @@ class SegmentRule(models.Model):
         ('has_attribute', 'Has attribute'),
         ('received_email', 'Received email'),
         ('opened_email', 'Opened email'),
+        ('opened_instance', 'Opened instance'),
         ('clicked_link', 'Clicked on URL'),
         ('clicked_any_url_in_email', 'Click on any url in instance'),
     )
@@ -160,7 +161,8 @@ class SegmentRule(models.Model):
 
     field = models.CharField(max_length=40, null=False, blank=False, choices=rule_fields)
     conditional = models.CharField(max_length=3, null=True, blank=True, choices=rule_conditionals)
-    value = models.CharField(max_length=255, null=False, blank=False)
+    key = models.CharField(max_length=255, null=True, blank=True, help_text="The key within a key/value pair lookup")
+    value = models.CharField(max_length=255, null=False, blank=False, help_text="The value which to filter the segment by")
     group = models.IntegerField(default=0, null=False, blank=False)
     index = models.IntegerField(default=0, null=False, blank=False)
 
@@ -171,11 +173,13 @@ class SegmentRule(models.Model):
         if self.field == 'in_recipient_group':
             return Q(groups=int(self.value))
         elif self.field == 'has_attribute':
-            return Q(attributes=self.value)
+            return Q(attributes__name=self.key, attributes__value=self.value)
         elif self.field == 'received_email':
             return Q(instances_opened=int(self.value))
         elif self.field == 'opened_email':
             return Q(instances_opened__instance__email=int(self.value))
+        elif self.field == 'opened_instance':
+            return Q(instances_opened__instance=int(self.value))
         elif self.field == 'clicked_link':
             return Q(urls_clicked=int(self.value))
         elif self.field =='clicked_any_url_in_email':
