@@ -137,6 +137,44 @@ class RecipientGroup(models.Model):
     def __str__(self):
         return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
+class Segment(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True, help_text='Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    archived = models.BooleanField(default=False)
+    preview = models.BooleanField(
+        default=False,
+        verbose_name='Is a Preview Group',
+        help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
+    )
+
+    @property
+    def include_rules(self):
+        return self.rules.filter(rule_type='include')
+
+    @property
+    def exclude_rules(self):
+        return self.rules.filter(rule_type='exclude')
+
+    @property
+    def recipients(self):
+        include_filter = Q()
+        for rule in self.include_rules.all():
+            if rule.conditional == 'AND':
+                include_filter &= rule.get_query()
+            elif rule.conditional == 'OR':
+                include_filter |= rule.get_query()
+
+        if self.exclude_rules.count() > 0:
+            exclude_filter = Q()
+            for rule in self.exclude_rules.all():
+                if rule.conditional == 'AND':
+                    exclude_filter &= rule.get_query()
+                elif rule.conditional == 'OR':
+                    exclude_filter |= rule.get_query()
+
+        return Recipient.objects.filter(include_filter).exclude(exclude_filter)
 
 class SegmentRule(models.Model):
     rule_types = (
@@ -159,6 +197,8 @@ class SegmentRule(models.Model):
         ('OR', 'OR')
     )
 
+    segment = models.ForeignKey(Segment, related_name='rules', on_delete=models.CASCADE)
+    rule_type = models.CharField(max_length=7, null=False, blank=False, choices=rule_types)
     field = models.CharField(max_length=40, null=False, blank=False, choices=rule_fields)
     conditional = models.CharField(max_length=3, null=True, blank=True, choices=rule_conditionals)
     key = models.CharField(max_length=255, null=True, blank=True, help_text="The key within a key/value pair lookup")
@@ -186,39 +226,6 @@ class SegmentRule(models.Model):
             return Q(urls_clicked__url__instance=int(self.value))
 
         return Q()
-
-class Segment(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(null=True, blank=True, help_text='Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
-    include_rules = models.ManyToManyField(SegmentRule, blank=False, related_name='include_segments')
-    exclude_rules = models.ManyToManyField(SegmentRule, blank=True, related_name='exclude_segments')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    archived = models.BooleanField(default=False)
-    preview = models.BooleanField(
-        default=False,
-        verbose_name='Is a Preview Group',
-        help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
-    )
-
-    @property
-    def recipients(self):
-        include_filter = Q()
-        for rule in self.include_rules.all():
-            if rule.conditional == 'AND':
-                include_filter &= rule.get_query()
-            elif rule.conditional == 'OR':
-                include_filter |= rule.get_query()
-
-        if self.exclude_rules.count() > 0:
-            exclude_filter = Q()
-            for rule in self.exclude_rules.all():
-                if rule.conditional == 'AND':
-                    exclude_filter &= rule.get_query()
-                elif rule.conditional == 'OR':
-                    exclude_filter |= rule.get_query()
-
-        return Recipient.objects.filter(include_filter).exclude(exclude_filter)
 
 
 class SubscriptionCategory(models.Model):

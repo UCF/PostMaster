@@ -11,6 +11,18 @@
     {% for field in form %}
       {% include 'form-control-group.html' %}
     {% endfor %}
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title h4 text-center">Include Rules</h2>
+      </div>
+      <div class="card-block">
+        {% for rule in include_rules %}
+          {% for field in rule %}
+            {% include 'form-control-group.html' %}
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
     <div class="row form-group">
       <div class="offset-sm-3 col-sm-9">
         <button type="submit" class="btn btn-primary">

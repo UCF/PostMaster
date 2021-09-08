@@ -677,12 +677,24 @@ class SegmentCreateView(CreateView):
         else:
             data['include_rules'] = IncludeSegmentRuleFormset()
             data['exclude_rules'] = ExcludeSegmentRuleFormset()
+
         return data
 
 class SegmentUpdateView(UpdateView):
     model = Segment
     form_class = SegmentForm
     template_name = 'manager/segments-update.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(SegmentUpdateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['include_rules'] = IncludeSegmentRuleFormset(self.request.POST, instance=self.object)
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(self.request.POST, instance=self.object)
+        else:
+            data['include_rules'] = IncludeSegmentRuleFormset()
+            data['exclude_rules'] = ExcludeSegmentRuleFormset()
+
+        return data
 
 class SegmentDeleteView(DeleteView):
     model = Segment

@@ -221,8 +221,8 @@ class SegmentRuleForm(forms.ModelForm):
         ]
 
 IncludeSegmentRuleFormset = inlineformset_factory(
+    Segment,
     SegmentRule,
-    Segment.include_rules.through,
     form=SegmentRuleForm,
     extra=1,
     min_num=1,
@@ -230,8 +230,8 @@ IncludeSegmentRuleFormset = inlineformset_factory(
 )
 
 ExcludeSegmentRuleFormset = inlineformset_factory(
+    Segment,
     SegmentRule,
-    Segment.include_rules.through,
     form=SegmentRuleForm,
     extra=0,
     min_num=0,
@@ -239,12 +239,20 @@ ExcludeSegmentRuleFormset = inlineformset_factory(
 )
 
 class SegmentForm(forms.ModelForm):
+    include_rules = IncludeSegmentRuleFormset()
+    exclude_Rules = ExcludeSegmentRuleFormset()
+
     class Meta:
         model = Segment
         fields = (
             'name',
             'description'
         )
+
+    def __init__(self, *args, **kwargs):
+        super(SegmentForm, self).__init__(*args, **kwargs)
+        self.include_rules = IncludeSegmentRuleFormset()
+        self.exclude_rules = ExcludeSegmentRuleFormset()
 
 class SettingCreateUpdateForm(forms.ModelForm):
 
