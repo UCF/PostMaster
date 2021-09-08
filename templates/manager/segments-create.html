@@ -11,18 +11,36 @@
     {% for field in form %}
       {% include 'form-control-group.html' %}
     {% endfor %}
-    <div class="card">
+    <!-- Start Include Rules -->
+    <div class="card mb-2">
       <div class="card-header">
-        <h2 class="card-title h4 text-center">Include Rules</h2>
+        <h2 class="card-title h6 mb-0 text-center">Include Rules</h2>
       </div>
       <div class="card-block">
         {% for rule in include_rules %}
-          {% for field in rule %}
-            {% include 'form-control-group.html' %}
-          {% endfor %}
+          {% include 'formparts/ruleset-form.html' %}
         {% endfor %}
       </div>
+      <div class="card-footer text-right">
+        <button class="btn btn-success" type="button" id="btn-add-include">Add Include Rule</button>
+      </div>
     </div>
+    <!-- End Include Rules -->
+    <!-- Start Exclude Rules -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title h6 mb-0 text-center">Exclude Rules</h2>
+      </div>
+      <div class="card-block">
+        {% for rule in exclude_rules %}
+          {% include 'formparts/ruleset-form.html' %}
+        {% endfor %}
+      </div>
+      <div class="card-footer text-right">
+        <button class="btn btn-success" type="button" id="btn-add-exclude">Add Exclude Rule</button>
+      </div>
+    </div>
+    <!-- End Exclude Rules -->
     <div class="row form-group">
       <div class="offset-sm-3 col-sm-9">
         <button type="submit" class="btn btn-primary">

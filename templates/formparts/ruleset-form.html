@@ -1,3 +1,10 @@
 {% load widget_tweaks %}
 {% load filters %}
-
+<div class="row form-group">
+{% for field in rule %}
+  <div class="col">
+    {{field.label}}
+    {{field}}
+  </div>
+{% endfor %}
+</div>
