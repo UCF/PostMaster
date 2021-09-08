@@ -220,17 +220,19 @@ class SegmentRuleForm(forms.ModelForm):
             'value'
         ]
 
-IncludeSegmentRuleFormset = modelformset_factory(
+IncludeSegmentRuleFormset = inlineformset_factory(
     SegmentRule,
+    Segment.include_rules.through,
     form=SegmentRuleForm,
     extra=1,
     min_num=1,
     max_num=10
 )
 
-ExcludeSegmentRuleFormset = modelformset_factory(
+ExcludeSegmentRuleFormset = inlineformset_factory(
     SegmentRule,
-    fields=('field',),
+    Segment.include_rules.through,
+    form=SegmentRuleForm,
     extra=0,
     min_num=0,
     max_num=10
