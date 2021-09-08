@@ -2,9 +2,17 @@
 {% load filters %}
 <div class="row form-group">
 {% for field in rule %}
+
+  {% if not field.is_hidden %}
   <div class="col">
-    {{field.label}}
-    {{field}}
+    {{ field.label }}
+  {% endif %}
+
+    {{ field }}
+
+  {% if not field.is_hidden %}
   </div>
+  {% endif %}
+
 {% endfor %}
 </div>
