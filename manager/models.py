@@ -196,11 +196,12 @@ class SegmentRule(models.Model):
     rule_fields = (
         ('in_recipient_group', 'In recipient group'),
         ('has_attribute', 'Has attribute'),
-        ('received_email', 'Received email'),
+        ('received_instance', 'Received instance'),
         ('opened_email', 'Opened email'),
         ('opened_instance', 'Opened instance'),
         ('clicked_link', 'Clicked on URL'),
-        ('clicked_any_url_in_email', 'Click on any url in instance'),
+        ('clicked_any_url_in_email', 'Clicked on any url in instance'),
+        ('clicked_url_in_instance', 'Clicked on a specific url in an instance')
     )
 
     rule_conditionals = (
