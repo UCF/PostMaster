@@ -1,5 +1,6 @@
 from django import forms
-from django.forms.models import inlineformset_factory
+from django.db.models import fields
+from django.forms.models import inlineformset_factory, modelformset_factory
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
 from manager.models import Campaign, Email
@@ -7,6 +8,8 @@ from manager.models import PreviewInstance
 from manager.models import Recipient
 from manager.models import RecipientAttribute
 from manager.models import RecipientGroup
+from manager.models import Segment
+from manager.models import SegmentRule
 from manager.models import Setting
 from manager.models import SubscriptionCategory
 
@@ -205,6 +208,40 @@ class CampaignForm(forms.ModelForm):
             'description',
             'open_rate_target',
             'click_to_open_rate_target'
+        )
+
+class SegmentRuleForm(forms.ModelForm):
+    class Meta:
+        model = SegmentRule
+        fields = [
+            'field',
+            'conditional',
+            'key',
+            'value'
+        ]
+
+IncludeSegmentRuleFormset = modelformset_factory(
+    SegmentRule,
+    form=SegmentRuleForm,
+    extra=1,
+    min_num=1,
+    max_num=10
+)
+
+ExcludeSegmentRuleFormset = modelformset_factory(
+    SegmentRule,
+    fields=('field',),
+    extra=0,
+    min_num=0,
+    max_num=10
+)
+
+class SegmentForm(forms.ModelForm):
+    class Meta:
+        model = Segment
+        fields = (
+            'name',
+            'description'
         )
 
 class SettingCreateUpdateForm(forms.ModelForm):

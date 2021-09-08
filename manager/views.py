@@ -55,6 +55,9 @@ from manager.forms import RecipientGroupCreateForm
 from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
+from manager.forms import SegmentForm
+from manager.forms import IncludeSegmentRuleFormset
+from manager.forms import ExcludeSegmentRuleFormset
 from manager.forms import SettingCreateUpdateForm
 from manager.forms import SubscriptionCategoryForm
 from manager.models import Campaign
@@ -65,6 +68,8 @@ from manager.models import PreviewInstance
 from manager.models import RecipientAttribute
 from manager.models import Recipient
 from manager.models import RecipientGroup
+from manager.models import Segment
+from manager.models import SegmentRule
 from manager.models import Setting
 from manager.models import StaleRecord
 from manager.models import SubprocessStatus
@@ -648,6 +653,40 @@ class RecipientGroupDeleteView(RecipientGroupsMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('manager-recipientgroups')
+
+##
+# Segments
+##
+
+class SegmentListView(ListView):
+    model = Segment
+    template_name = 'manager/segments-list.html'
+    context_object_name = 'segments'
+    paginate_by = 20
+
+class SegmentCreateView(CreateView):
+    model = Segment
+    form_class = SegmentForm
+    template_name = 'manager/segments-create.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(SegmentCreateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['include_rules'] = IncludeSegmentRuleFormset(self.request.POST)
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(self.request.POST)
+        else:
+            data['include_rules'] = IncludeSegmentRuleFormset()
+            data['exclude_rules'] = ExcludeSegmentRuleFormset()
+        return data
+
+class SegmentUpdateView(UpdateView):
+    model = Segment
+    form_class = SegmentForm
+    template_name = 'manager/segments-update.html'
+
+class SegmentDeleteView(DeleteView):
+    model = Segment
+    template_name = 'manager/segments-delete.html'
 
 ##
 # Recipients
