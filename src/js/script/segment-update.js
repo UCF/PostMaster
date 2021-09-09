@@ -15,18 +15,16 @@
     }
   }
 
-  toggleEmptyMsg($('.js-ruleset-include:visible').first());
-  toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
-
   const rulesetArgs = {
     addText: '<span class="fas fa-plus mr-1" aria-hidden="true"></span>Add Rule', // Text for the add link
     deleteText: '&times;<span class="sr-only">Remove Rule</span>', // Text for the delete link
     addContainerClass: null, // Container CSS class for the add link
     deleteContainerClass: 'js-ruleset-remove-container', // Container CSS class for the delete link. TODO this doesn't work
     addCssClass: 'btn btn-sm btn-default px-3', // CSS class applied to the add link
-    deleteCssClass: 'close', // CSS class applied to the delete link
+    deleteCssClass: 'close ml-0', // CSS class applied to the delete link
     added: toggleEmptyMsg,
-    removed: toggleEmptyMsg
+    removed: toggleEmptyMsg,
+    hideLastAddForm: true // TODO would be really nice if this worked
   };
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_INCLUDE_RULES_PREFIX,
@@ -39,6 +37,9 @@
 
   $('.js-ruleset-include').formset(includeRulesetArgs);
   $('.js-ruleset-exclude').formset(excludeRulesetArgs);
+
+  toggleEmptyMsg($('.js-ruleset-include:visible').first());
+  toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
 
   // TODO add sorting/re-ordering of rule rows
 }());

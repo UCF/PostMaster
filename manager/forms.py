@@ -224,7 +224,7 @@ IncludeSegmentRuleFormset = inlineformset_factory(
     Segment,
     SegmentRule,
     form=SegmentRuleForm,
-    extra=0,
+    extra=1,
     min_num=1,
     max_num=10
 )
@@ -233,7 +233,7 @@ ExcludeSegmentRuleFormset = inlineformset_factory(
     Segment,
     SegmentRule,
     form=SegmentRuleForm,
-    extra=0,
+    extra=1,
     min_num=0,
     max_num=10
 )
