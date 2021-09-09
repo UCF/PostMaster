@@ -11,42 +11,55 @@
     {% for field in form %}
       {% include 'form-control-group.html' %}
     {% endfor %}
-    <!-- Start Include Rules -->
-    <div class="card mb-2">
-      <div class="card-header">
-        <h2 class="card-title h6 mb-0 text-center">Include Rules</h2>
+
+    <!-- START Include Rules -->
+    <div class="row my-5">
+      <div class="col-form-label col-md-3 text-left text-md-right">
+        Include rules
       </div>
-      <div class="card-block">
+      <div class="col">
+        <div class="jumbotron p-4 mb-3" id="js-include-rules-empty">
+          No include rules have been added for this segment.
+        </div>
+
         {% for rule in include_rules %}
+        <div class="js-ruleset js-ruleset-include" data-prefix="{{ include_rules.prefix }}" data-empty-msg="js-include-rules-empty">
           {% include 'formparts/ruleset-form.html' %}
+        </div>
         {% endfor %}
       </div>
-      <div class="card-footer text-right">
-        <button class="btn btn-success" type="button" id="btn-add-include">Add Include Rule</button>
-      </div>
     </div>
-    <!-- End Include Rules -->
-    <!-- Start Exclude Rules -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title h6 mb-0 text-center">Exclude Rules</h2>
+    <!-- END Include Rules -->
+
+    <!-- START Exclude Rules -->
+    <div class="row mb-5">
+      <div class="col-form-label col-md-3 text-left text-md-right">
+        Exclude rules
       </div>
-      <div class="card-block">
+      <div class="col">
+        <div class="jumbotron p-4 mb-3" id="js-exclude-rules-empty" id="js-exclude-rules-empty">
+          No exclude rules have been added for this segment.
+        </div>
+
         {% for rule in exclude_rules %}
+        <div class="js-ruleset js-ruleset-exclude" data-prefix="{{ exclude_rules.prefix }}" data-empty-msg="js-exclude-rules-empty">
           {% include 'formparts/ruleset-form.html' %}
+        </div>
         {% endfor %}
       </div>
-      <div class="card-footer text-right">
-        <button class="btn btn-success" type="button" id="btn-add-exclude">Add Exclude Rule</button>
-      </div>
     </div>
-    <!-- End Exclude Rules -->
-    <div class="row form-group">
+    <!-- END Exclude Rules -->
+
+    <div class="row form-group mt-5">
       <div class="offset-sm-3 col-sm-9">
         <button type="submit" class="btn btn-primary">
-          <span class="fas fa-plus" aria-hidden="true"></span> Create</button>
+          <span class="fas fa-plus" aria-hidden="true"></span>
+          Create
+        </button>
         <a href="{% url 'manager-segments' %}" class="btn btn-default">
-          <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
+          <span class="fas fa-minus" aria-hidden="true"></span>
+          Cancel
+        </a>
       </div>
     </div>
   </fieldset>

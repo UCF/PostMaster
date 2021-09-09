@@ -1,18 +1,34 @@
 {% load widget_tweaks %}
 {% load filters %}
-<div class="row form-group">
-{% for field in rule %}
-
-  {% if not field.is_hidden %}
-  <div class="col">
-    {{ field.label }}
-  {% endif %}
-
-    {{ field }}
-
-  {% if not field.is_hidden %}
+<div class="card d-flex flex-row flex-nowrap mb-3">
+  <div class="card-header border-bottom-0 position-relative px-2">
+    <button class="btn-link stretched-link">
+      <span class="fas fa-grip-vertical fa-lg text-default" aria-hidden="true"></span>
+      <span class="sr-only">Move rule</span>
+    </button>
   </div>
-  {% endif %}
 
-{% endfor %}
+  <div class="card-block">
+    <div class="row">
+      {% for field in rule %}
+        {% if not field.is_hidden %}
+        <div class="col-lg mb-3">
+          <label for="{{ field.id_for_label }}" class="">
+            {{ field.label }}
+          </label>
+        {% endif %}
+
+          {{ field }}
+
+        {% if not field.is_hidden %}
+        </div>
+        {% endif %}
+
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card-footer border-top-0 px-2">
+    <div class="js-ruleset-remove-container"></div>
+  </div>
 </div>

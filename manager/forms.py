@@ -224,9 +224,10 @@ IncludeSegmentRuleFormset = inlineformset_factory(
     Segment,
     SegmentRule,
     form=SegmentRuleForm,
-    extra=1,
+    extra=0,
     min_num=1,
-    max_num=10
+    max_num=10,
+    can_delete=True
 )
 
 ExcludeSegmentRuleFormset = inlineformset_factory(
@@ -235,7 +236,8 @@ ExcludeSegmentRuleFormset = inlineformset_factory(
     form=SegmentRuleForm,
     extra=0,
     min_num=0,
-    max_num=10
+    max_num=10,
+    can_delete=True
 )
 
 class SegmentForm(forms.ModelForm):
