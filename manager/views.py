@@ -672,11 +672,21 @@ class SegmentCreateView(CreateView):
     def get_context_data(self, **kwargs):
         data = super(SegmentCreateView, self).get_context_data(**kwargs)
         if self.request.POST:
-            data['include_rules'] = IncludeSegmentRuleFormset(self.request.POST)
-            data['exclude_rules'] = ExcludeSegmentRuleFormset(self.request.POST)
+            data['include_rules'] = IncludeSegmentRuleFormset(
+                self.request.POST,
+                prefix='include_rules'
+            )
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(
+                self.request.POST,
+                prefix='exclude_rules'
+            )
         else:
-            data['include_rules'] = IncludeSegmentRuleFormset()
-            data['exclude_rules'] = ExcludeSegmentRuleFormset()
+            data['include_rules'] = IncludeSegmentRuleFormset(
+                prefix='include_rules'
+            )
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(
+                prefix='exclude_rules'
+            )
 
         return data
 

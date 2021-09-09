@@ -1,3 +1,4 @@
+/* global SEGMENT_INCLUDE_RULES_PREFIX, SEGMENT_EXCLUDE_RULES_PREFIX */
 (function () {
   function toggleEmptyMsg($row) {
     if (!$row.length) {
@@ -17,8 +18,7 @@
   toggleEmptyMsg($('.js-ruleset-include:visible').first());
   toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
 
-  $('.js-ruleset').formset({
-    prefix: $(this).data('prefix'), // The form prefix for your django formset
+  const rulesetArgs = {
     addText: '<span class="fas fa-plus mr-1" aria-hidden="true"></span>Add Rule', // Text for the add link
     deleteText: '&times;<span class="sr-only">Remove Rule</span>', // Text for the delete link
     addContainerClass: null, // Container CSS class for the add link
@@ -27,7 +27,18 @@
     deleteCssClass: 'close', // CSS class applied to the delete link
     added: toggleEmptyMsg,
     removed: toggleEmptyMsg
+  };
+  const includeRulesetArgs = $.extend({}, rulesetArgs, {
+    prefix: SEGMENT_INCLUDE_RULES_PREFIX,
+    formCssClass: 'js-ruleset-include'
   });
+  const excludeRulesetArgs = $.extend({}, rulesetArgs, {
+    prefix: SEGMENT_EXCLUDE_RULES_PREFIX,
+    formCssClass: 'js-ruleset-exclude'
+  });
+
+  $('.js-ruleset-include').formset(includeRulesetArgs);
+  $('.js-ruleset-exclude').formset(excludeRulesetArgs);
 
   // TODO add sorting/re-ordering of rule rows
 }());
