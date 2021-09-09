@@ -151,11 +151,11 @@ class Segment(models.Model):
 
     @property
     def include_rules(self):
-        return self.rules.filter(rule_type='include')
+        return self.rules.filter(rule_type='include').order('-index')
 
     @property
     def exclude_rules(self):
-        return self.rules.filter(rule_type='exclude')
+        return self.rules.filter(rule_type='exclude').order('-index')
 
     @property
     def recipients(self):
@@ -165,6 +165,10 @@ class Segment(models.Model):
                 include_filter &= rule.get_query()
             elif rule.conditional == 'OR':
                 include_filter |= rule.get_query()
+            elif rule.conditional == None:
+                include_filter += rule.get_query()
+
+        exclude_filter = None
 
         if self.exclude_rules.count() > 0:
             exclude_filter = Q()
@@ -173,8 +177,15 @@ class Segment(models.Model):
                     exclude_filter &= rule.get_query()
                 elif rule.conditional == 'OR':
                     exclude_filter |= rule.get_query()
+                elif rule.conditional == None:
+                    exclude_filter += rule.get_query()
 
-        return Recipient.objects.filter(include_filter).exclude(exclude_filter)
+        retval = Recipient.objects.filter(include_filter)
+
+        if exclude_filter is not None:
+            retval = retval.exclude(exclude_filter)
+
+        return retval
 
 class SegmentRule(models.Model):
     rule_types = (
@@ -185,11 +196,12 @@ class SegmentRule(models.Model):
     rule_fields = (
         ('in_recipient_group', 'In recipient group'),
         ('has_attribute', 'Has attribute'),
-        ('received_email', 'Received email'),
+        ('received_instance', 'Received instance'),
         ('opened_email', 'Opened email'),
         ('opened_instance', 'Opened instance'),
         ('clicked_link', 'Clicked on URL'),
-        ('clicked_any_url_in_email', 'Click on any url in instance'),
+        ('clicked_any_url_in_email', 'Clicked on any url in instance'),
+        ('clicked_url_in_instance', 'Clicked on a specific url in an instance')
     )
 
     rule_conditionals = (
@@ -211,19 +223,32 @@ class SegmentRule(models.Model):
 
     def get_query(self):
         if self.field == 'in_recipient_group':
+            # If recipient is in the recipient group. Pass recipient group ID.
             return Q(groups=int(self.value))
         elif self.field == 'has_attribute':
+            # If the recipient has an attribute with a specific value. Pass
+            # attribute name as key, and desired value as value.
             return Q(attributes__name=self.key, attributes__value=self.value)
-        elif self.field == 'received_email':
-            return Q(instances_opened=int(self.value))
+        elif self.field == 'received_instance':
+            # If the recipient received a particular instance
+            return Q(instances=int(self.value))
         elif self.field == 'opened_email':
+            # TODO: See if we can map this to `open_recipients` on instances
+            # If the recipient opened any instance of an email
             return Q(instances_opened__instance__email=int(self.value))
         elif self.field == 'opened_instance':
+            # TODO: See if we can map this to `open_recipients` on instances
+            # If the recipient opened a specific instance
             return Q(instances_opened__instance=int(self.value))
         elif self.field == 'clicked_link':
-            return Q(urls_clicked=int(self.value))
+            # If the recipient clicked on a particular URL
+            return Q(urls_clicked__name=self.value)
         elif self.field =='clicked_any_url_in_email':
+            # If the recipient clicked on any URL in a particular instance
             return Q(urls_clicked__url__instance=int(self.value))
+        elif self.field == 'clicked_url_in_instance':
+            # If the recipient clicked on a specific URL string in a particular instance
+            return Q(url_clicks__name=self.key, url_clicks__url__instance=int(self.value))
 
         return Q()
 
