@@ -15,6 +15,29 @@
     }
   }
 
+  function resetRowIndexes(selector) {
+    const nameRegex = /([A-Za-z\-_]+)\d+([A-Za-z\-_]+)/i;
+
+    $.each($(selector), (idx, el) => {
+      console.log(el);
+      $(el).find('label').each((_, label) => {
+        const $label = $(label);
+        const attrFor = $label.attr('for')
+          .replace(nameRegex, `$1${idx}$2`);
+        $label.attr('for', attrFor);
+      });
+
+      $(el).find('select, input').each((_, control) => {
+        const $control = $(control);
+        const id = $control.attr('id')
+          .replace(nameRegex, `$1${idx}$2`);
+        const name = $control.attr('name')
+          .replace(nameRegex, `$1${idx}$2`);
+        $control.attr('id', id).attr('name', name);
+      });
+    });
+  }
+
   const rulesetArgs = {
     addText: '<span class="fas fa-plus mr-1" aria-hidden="true"></span>Add Rule', // Text for the add link
     deleteText: '&times;<span class="sr-only">Remove Rule</span>', // Text for the delete link
@@ -46,7 +69,7 @@
     items: '.js-ruleset-include',
     handle: '.ui-sortable-handle:first',
     update: function () {
-      console.log(this);
+      resetRowIndexes('.js-ruleset-include:not([style*="display: none"])');
     }
   });
 
@@ -54,7 +77,7 @@
     items: '.js-ruleset-exclude',
     handle: '.ui-sortable-handle:first',
     update: function () {
-      console.log(this);
+      resetRowIndexes('.js-ruleset-exclude:not([style*="display: none"])');
     }
   });
 }());
