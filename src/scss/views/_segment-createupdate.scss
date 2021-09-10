@@ -2,4 +2,9 @@
 // Segment Create/Update views
 //
 
-// TODO
+.ruleset-exclude:nth-child(2n),
+.ruleset-include:first-child {
+  .rule-group-condition {
+    display: none;
+  }
+}

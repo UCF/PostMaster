@@ -25,7 +25,7 @@
   function resetRowIndexes($target) {
     const nameRegex = /([A-Za-z\-_]+)\d+([A-Za-z\-_]+)/i;
 
-    $.each($target.find('.js-ruleset:not([style*="display: none"])'), (idx, el) => {
+    $.each($target.find('.ruleset:not([style*="display: none"])'), (idx, el) => {
       $(el).find('label').each((_, label) => {
         const $label = $(label);
         const attrFor = $label.attr('for')
@@ -48,9 +48,9 @@
   // Applies event handlers and such to new rows
   //
   function rowInit($row) {
-    // const $container = $row.parent('.js-rules-list');
-    $row.find('.js-rule-control-key, .js-rule-control-value').hide();
-    $row.find('.js-rule-control-field').on('change', handleFieldInputChange);
+    // const $container = $row.parent('.rules-list');
+    $row.find('.rule-control-key, .rule-control-value').hide();
+    $row.find('.rule-control-field').on('change', handleFieldInputChange);
   }
 
   //
@@ -73,9 +73,9 @@
   //
   function handleFieldInputChange(e) {
     const $input = $(e.target);
-    const $row = $input.parents('.js-ruleset');
-    const $keyCol = $row.find('.js-rule-group-key');
-    const $valCol = $row.find('.js-rule-group-value');
+    const $row = $input.parents('.ruleset');
+    const $keyCol = $row.find('.rule-group-key');
+    const $valCol = $row.find('.rule-group-value');
 
     $keyCol.empty();
     $valCol.empty();
@@ -124,7 +124,7 @@
     addText: '<span class="fas fa-plus mr-1" aria-hidden="true"></span>Add Rule', // Text for the add link
     deleteText: '&times;<span class="sr-only">Remove Rule</span>', // Text for the delete link
     addContainerClass: null, // Container CSS class for the add link
-    deleteContainerClass: 'js-ruleset-remove-container', // Container CSS class for the delete link.
+    deleteContainerClass: 'ruleset-remove-container', // Container CSS class for the delete link.
     addCssClass: 'btn btn-sm btn-default px-3', // CSS class applied to the add link
     deleteCssClass: 'close ml-0', // CSS class applied to the delete link
     added: handleRowAdd,
@@ -133,28 +133,28 @@
   };
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_INCLUDE_RULES_PREFIX,
-    formCssClass: 'js-ruleset-include'
+    formCssClass: 'ruleset-include'
   });
   const excludeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_EXCLUDE_RULES_PREFIX,
-    formCssClass: 'js-ruleset-exclude'
+    formCssClass: 'ruleset-exclude'
   });
 
-  $('.js-ruleset-include').formset(includeRulesetArgs);
-  $('.js-ruleset-exclude').formset(excludeRulesetArgs);
-  $('.js-ruleset').each(function() {
+  $('.ruleset-include').formset(includeRulesetArgs);
+  $('.ruleset-exclude').formset(excludeRulesetArgs);
+  $('.ruleset').each(function() {
     rowInit($(this));
   });
 
-  toggleEmptyMsg($('.js-ruleset-include:visible').first());
-  toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
+  toggleEmptyMsg($('.ruleset-include:visible').first());
+  toggleEmptyMsg($('.ruleset-exclude:visible').first());
 
   //
   // Initialize drag-and-drop and sorting of rows
   //
-  $('.js-rules-list').sortable({
-    items: '.js-ruleset',
-    handle: '.js-ruleset-grip',
+  $('.rules-list').sortable({
+    items: '.ruleset',
+    handle: '.ruleset-grip',
     update: function (evt) {
       resetRowIndexes($(evt.target));
     }
