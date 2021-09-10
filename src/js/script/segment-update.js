@@ -18,6 +18,10 @@
     }
   }
 
+  //
+  // Finds all rows in the given parent $target and
+  // resets label, input ID indexes
+  //
   function resetRowIndexes($target) {
     const nameRegex = /([A-Za-z\-_]+)\d+([A-Za-z\-_]+)/i;
 
@@ -40,6 +44,82 @@
     });
   }
 
+  //
+  // Applies event handlers and such to new rows
+  //
+  function rowInit($row) {
+    // const $container = $row.parent('.js-rules-list');
+    $row.find('.js-rule-control-key, .js-rule-control-value').hide();
+    $row.find('.js-rule-control-field').on('change', handleFieldInputChange);
+  }
+
+  //
+  // Handle when a new row is added
+  //
+  function handleRowAdd($row) {
+    toggleEmptyMsg($row);
+    rowInit($row);
+  }
+
+  //
+  // Handle when a row is deleted
+  //
+  function handleRowDelete($row) {
+    toggleEmptyMsg($row);
+  }
+
+  //
+  // Handle when a field input's value changes
+  //
+  function handleFieldInputChange(e) {
+    const $input = $(e.target);
+    const $row = $input.parents('.js-ruleset');
+    const $keyCol = $row.find('.js-rule-group-key');
+    const $valCol = $row.find('.js-rule-group-value');
+
+    $keyCol.empty();
+    $valCol.empty();
+
+    switch ($input.val()) {
+      // TODO there is probably a better way of defining
+      // how to transform these inputs in the template
+      case 'in_recipient_group':
+        // TODO init selectjs of searchable RecipientGroups on Key
+        $('<div>TODO</div>').appendTo($keyCol);
+        break;
+      case 'has_attribute':
+        // TODO init selectjs of searchable RecipientAttributes on Key; show Value text input
+        $('<div>TODO</div>').appendTo($keyCol);
+        $('<div>TODO</div>').appendTo($valCol);
+        break;
+      case 'received_instance':
+      case 'opened_instance':
+      case 'clicked_any_url_in_email':
+        // TODO init selectjs of searchable Instances on Key
+        $('<div>TODO</div>').appendTo($keyCol);
+        break;
+      case 'opened_email':
+        // TODO init selectjs of searchable Emails on Key
+        $('<div>TODO</div>').appendTo($keyCol);
+        break;
+      case 'clicked_link':
+        // TODO basic text inputs for Key and Value
+        $('<div>TODO</div>').appendTo($keyCol);
+        $('<div>TODO</div>').appendTo($valCol);
+        break;
+      case 'clicked_url_in_instance':
+        // TODO basic text input for Key; init selectjs of searchable Instances on Value
+        $('<div>TODO</div>').appendTo($keyCol);
+        $('<div>TODO</div>').appendTo($valCol);
+        break;
+      default:
+        break;
+    }
+  }
+
+  //
+  // Initialize row add/remove logic
+  //
   const rulesetArgs = {
     addText: '<span class="fas fa-plus mr-1" aria-hidden="true"></span>Add Rule', // Text for the add link
     deleteText: '&times;<span class="sr-only">Remove Rule</span>', // Text for the delete link
@@ -47,8 +127,8 @@
     deleteContainerClass: 'js-ruleset-remove-container', // Container CSS class for the delete link.
     addCssClass: 'btn btn-sm btn-default px-3', // CSS class applied to the add link
     deleteCssClass: 'close ml-0', // CSS class applied to the delete link
-    added: toggleEmptyMsg,
-    removed: toggleEmptyMsg,
+    added: handleRowAdd,
+    removed: handleRowDelete,
     hideLastAddForm: true
   };
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
@@ -62,12 +142,15 @@
 
   $('.js-ruleset-include').formset(includeRulesetArgs);
   $('.js-ruleset-exclude').formset(excludeRulesetArgs);
+  $('.js-ruleset').each(function() {
+    rowInit($(this));
+  });
 
   toggleEmptyMsg($('.js-ruleset-include:visible').first());
   toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
 
   //
-  // TODO add sorting/re-ordering of rule rows
+  // Initialize drag-and-drop and sorting of rows
   //
   $('.js-rules-list').sortable({
     items: '.js-ruleset',
