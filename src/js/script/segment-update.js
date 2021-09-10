@@ -22,7 +22,6 @@
     const nameRegex = /([A-Za-z\-_]+)\d+([A-Za-z\-_]+)/i;
 
     $.each($target.find('.js-ruleset:not([style*="display: none"])'), (idx, el) => {
-      console.log(el);
       $(el).find('label').each((_, label) => {
         const $label = $(label);
         const attrFor = $label.attr('for')
