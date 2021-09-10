@@ -690,6 +690,49 @@ class SegmentCreateView(CreateView):
 
         return data
 
+    def form_valid(self, form):
+        self.object = form.save()
+        context = self.get_context_data(form=form)
+        include_formset = context['include_rules']
+        exclude_formset = context['exclude_rules']
+
+        if include_formset.is_valid() and exclude_formset.is_valid():
+            response = super(SegmentCreateView, self).form_valid(form)
+            for idx, subform in enumerate(include_formset.forms):
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    rule = SegmentRule(
+                        segment=self.object,
+                        rule_type='include',
+                        field=cleaned_data['field'],
+                        conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                        key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        value=cleaned_data['value'],
+                        index=idx
+                    )
+                    rule.save()
+
+            for idx, subform in enumerate(exclude_formset.forms):
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    rule = SegmentRule(
+                        segment=self.object,
+                        rule_type='exclude',
+                        field=cleaned_data['field'],
+                        conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                        key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        value=cleaned_data['value'],
+                        index=idx
+                    )
+                    rule.save()
+
+            return response
+        else:
+            return super(SegmentCreateView, self).form_invalid(form)
+
+    def get_success_url(self):
+        return reverse('manager-segments-update', args=(self.object.id,))
+
 class SegmentUpdateView(UpdateView):
     model = Segment
     form_class = SegmentForm
@@ -721,6 +764,9 @@ class SegmentUpdateView(UpdateView):
 class SegmentDeleteView(DeleteView):
     model = Segment
     template_name = 'manager/segments-delete.html'
+
+    def get_success_url(self):
+        return reverse('manager-segments')
 
 ##
 # Recipients

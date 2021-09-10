@@ -2,7 +2,7 @@
 {% block page-body %}
   <h1 class="heading-underline h2">Confirm Delete Segment</h1>
   <p class="lead">Are you sure you want to delete the {{segment.name}} segment?</p>
-	<form action="{% url 'manager-campaigns-delete' object.pk %}" method="post">
+	<form action="{% url 'manager-segments-delete' object.pk %}" method="post">
 		<button type="submit" class="btn btn-danger">
       <span class="fas fa-trash" aria-hidden="true"></span> Delete
     </button>

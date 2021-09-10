@@ -151,11 +151,11 @@ class Segment(models.Model):
 
     @property
     def include_rules(self):
-        return self.rules.filter(rule_type='include').order('-index')
+        return self.rules.filter(rule_type='include').order_by('-index')
 
     @property
     def exclude_rules(self):
-        return self.rules.filter(rule_type='exclude').order('-index')
+        return self.rules.filter(rule_type='exclude').order_by('-index')
 
     @property
     def recipients(self):
