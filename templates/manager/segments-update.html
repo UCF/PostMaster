@@ -11,7 +11,60 @@
     {% for field in form %}
       {% include 'form-control-group.html' %}
     {% endfor %}
-    <div class="row form-group">
+
+    <!-- START Include Rules -->
+    <div class="row my-5">
+      <div class="col-form-label col-md-3 text-left text-md-right">
+        Include rules
+      </div>
+      <div class="col">
+        <div class="jumbotron p-4 mb-3" id="js-include-rules-empty">
+          No include rules have been added for this segment.
+        </div>
+
+        <div class="js-rules-list">
+          {% for rule in include_rules %}
+          <div class="js-ruleset js-ruleset-include" data-empty-msg="js-include-rules-empty">
+            {% include 'formparts/ruleset-form.html' %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {{ include_rules.management_form }}
+        <script>
+          var SEGMENT_INCLUDE_RULES_PREFIX = "{{ include_rules.prefix }}";
+        </script>
+      </div>
+    </div>
+    <!-- END Include Rules -->
+
+    <!-- START Exclude Rules -->
+    <div class="row mb-5">
+      <div class="col-form-label col-md-3 text-left text-md-right">
+        Exclude rules
+      </div>
+      <div class="col">
+        <div class="jumbotron p-4 mb-3" id="js-exclude-rules-empty">
+          No exclude rules have been added for this segment.
+        </div>
+
+        <div class="js-rules-list">
+        {% for rule in exclude_rules %}
+          <div class="js-ruleset js-ruleset-exclude" data-empty-msg="js-exclude-rules-empty">
+            {% include 'formparts/ruleset-form.html' %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {{ exclude_rules.management_form }}
+        <script>
+          var SEGMENT_EXCLUDE_RULES_PREFIX = "{{ exclude_rules.prefix }}";
+        </script>
+      </div>
+    </div>
+    <!-- END Exclude Rules -->
+
+    <div class="row form-group mt-5">
       <div class="offset-sm-3 col-sm-9">
         <button type="submit" class="btn btn-primary">
           <span class="fas fa-plus" aria-hidden="true"></span> Update</button>
