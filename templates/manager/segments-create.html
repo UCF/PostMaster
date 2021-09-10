@@ -17,16 +17,18 @@
       <div class="col-form-label col-md-3 text-left text-md-right">
         Include rules
       </div>
-      <div class="col include-rules">
+      <div class="col">
         <div class="jumbotron p-4 mb-3" id="js-include-rules-empty">
           No include rules have been added for this segment.
         </div>
 
-        {% for rule in include_rules %}
-        <div class="js-ruleset-include" data-empty-msg="js-include-rules-empty">
-          {% include 'formparts/ruleset-form.html' %}
+        <div class="js-rules-list">
+          {% for rule in include_rules %}
+          <div class="js-ruleset js-ruleset-include" data-empty-msg="js-include-rules-empty">
+            {% include 'formparts/ruleset-form.html' %}
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
 
         {{ include_rules.management_form }}
         <script>
@@ -41,16 +43,18 @@
       <div class="col-form-label col-md-3 text-left text-md-right">
         Exclude rules
       </div>
-      <div class="col exclude-rules">
+      <div class="col">
         <div class="jumbotron p-4 mb-3" id="js-exclude-rules-empty">
           No exclude rules have been added for this segment.
         </div>
 
+        <div class="js-rules-list">
         {% for rule in exclude_rules %}
-        <div class="js-ruleset-exclude" data-empty-msg="js-exclude-rules-empty">
-          {% include 'formparts/ruleset-form.html' %}
+          <div class="js-ruleset js-ruleset-exclude" data-empty-msg="js-exclude-rules-empty">
+            {% include 'formparts/ruleset-form.html' %}
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
 
         {{ exclude_rules.management_form }}
         <script>

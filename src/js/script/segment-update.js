@@ -1,5 +1,8 @@
 /* global SEGMENT_INCLUDE_RULES_PREFIX, SEGMENT_EXCLUDE_RULES_PREFIX */
 (function () {
+  //
+  // Show/hide empty message when a ruleset has no rules
+  //
   function toggleEmptyMsg($row) {
     if (!$row.length) {
       return;
@@ -15,16 +18,19 @@
     }
   }
 
+  //
+  // Initialize formset row add/remove logic
+  //
   const rulesetArgs = {
     addText: '<span class="fas fa-plus mr-1" aria-hidden="true"></span>Add Rule', // Text for the add link
     deleteText: '&times;<span class="sr-only">Remove Rule</span>', // Text for the delete link
     addContainerClass: null, // Container CSS class for the add link
-    deleteContainerClass: 'js-ruleset-remove-container', // Container CSS class for the delete link. TODO this doesn't work
+    deleteContainerClass: 'js-ruleset-remove-container', // Container CSS class for the delete link.
     addCssClass: 'btn btn-sm btn-default px-3', // CSS class applied to the add link
     deleteCssClass: 'close ml-0', // CSS class applied to the delete link
     added: toggleEmptyMsg,
     removed: toggleEmptyMsg,
-    hideLastAddForm: true // TODO would be really nice if this worked
+    hideLastAddForm: true
   };
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_INCLUDE_RULES_PREFIX,
@@ -41,18 +47,12 @@
   toggleEmptyMsg($('.js-ruleset-include:visible').first());
   toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
 
+  //
   // TODO add sorting/re-ordering of rule rows
-  $('.include-rules').sortable({
-    items: '.js-ruleset-include',
-    handle: '.ui-sortable-handle:first',
-    update: function () {
-      console.log(this);
-    }
-  });
-
-  $('.exclude-rules').sortable({
-    items: '.js-ruleset-exclude',
-    handle: '.ui-sortable-handle:first',
+  //
+  $('.js-rules-list').sortable({
+    items: '.js-ruleset',
+    handle: '.js-ruleset-grip',
     update: function () {
       console.log(this);
     }
