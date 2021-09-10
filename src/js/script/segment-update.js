@@ -42,4 +42,19 @@
   toggleEmptyMsg($('.js-ruleset-exclude:visible').first());
 
   // TODO add sorting/re-ordering of rule rows
+  $('.include-rules').sortable({
+    items: '.js-ruleset-include',
+    handle: '.ui-sortable-handle:first',
+    update: function () {
+      console.log(this);
+    }
+  });
+
+  $('.exclude-rules').sortable({
+    items: '.js-ruleset-exclude',
+    handle: '.ui-sortable-handle:first',
+    update: function () {
+      console.log(this);
+    }
+  });
 }());

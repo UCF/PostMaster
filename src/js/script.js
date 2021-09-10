@@ -22,6 +22,9 @@
 // Dynamic formsets
 // =require jquery.formset/src/jquery.formset.js
 
+// jQuery UI - Sortable
+// =require jquery-ui-sortable/jquery-ui.min.js
+
 
 //
 // Import our assets
