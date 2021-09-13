@@ -20,13 +20,13 @@
         Include rules
       </div>
       <div class="col">
-        <div class="jumbotron p-4 mb-3" id="js-include-rules-empty">
+        <div class="jumbotron p-4 mb-3" id="include-rules-empty">
           No include rules have been added for this segment.
         </div>
 
         <div class="rules-list">
           {% for rule in include_rules %}
-          <div class="ruleset ruleset-include" data-empty-msg="js-include-rules-empty">
+          <div class="ruleset ruleset-include" data-empty-msg="include-rules-empty">
             {% include 'formparts/ruleset-form.html' %}
           </div>
           {% endfor %}
@@ -46,13 +46,13 @@
         Exclude rules
       </div>
       <div class="col">
-        <div class="jumbotron p-4 mb-3" id="js-exclude-rules-empty">
+        <div class="jumbotron p-4 mb-3" id="exclude-rules-empty">
           No exclude rules have been added for this segment.
         </div>
 
         <div class="rules-list">
         {% for rule in exclude_rules %}
-          <div class="ruleset ruleset-exclude" data-empty-msg="js-exclude-rules-empty">
+          <div class="ruleset ruleset-exclude" data-empty-msg="exclude-rules-empty">
             {% include 'formparts/ruleset-form.html' %}
           </div>
           {% endfor %}
