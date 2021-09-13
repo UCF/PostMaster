@@ -31,7 +31,7 @@
               class="js-rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="in_recipient_group"
-              data-options-endpoint="TODO"
+              data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
               data-input-type="select2">
               <label>Recipient group</label>
               <select class="js-rule-conditional-input"></select>
@@ -40,7 +40,7 @@
               class="js-rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="has_attribute"
-              data-options-endpoint="TODO"
+              data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
               data-input-type="select2">
               <label>Recipient attribute</label>
               <select class="js-rule-conditional-input"></select>
@@ -57,7 +57,7 @@
               class="js-rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="opened_email"
-              data-options-endpoint="TODO"
+              data-options-endpoint="{% url 'manager-lookups' %}?type=email"
               data-input-type="select2">
               <label>Email</label>
               <select class="js-rule-conditional-input"></select>

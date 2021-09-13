@@ -22,7 +22,7 @@ from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
 from django.urls import reverse
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Q
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -1614,19 +1614,20 @@ def objects_as_options(request):
     object_type = request.GET.get('type', None)
     query = request.GET.get('q', None)
 
+    retval = {}
     ret_status = 200
 
     if object_type:
-        retval = []
+        results = []
 
         if object_type == 'recipientgroup':
             objects = RecipientGroup.objects.all()
             if query:
                 objects = objects.filter(name__contains=query)
-            retval = [{'name': x.name, 'value': x.id} for x in objects]
+            results = [{'text': x.name, 'id': x.id} for x in objects]
         elif object_type == 'recipientattribute':
             objects = RecipientAttribute.objects.values_list('name').distinct()
-            retval = [{'name': x[0], 'value': x[0]} for x in objects]
+            results = [{'text': x[0], 'id': x[0]} for x in objects]
         elif object_type == 'instance':
             objects = Instance.objects.all()
             if query:
@@ -1634,17 +1635,19 @@ def objects_as_options(request):
                     Q(email__title__icontains=query) |
                     Q(subject__icontains=query)
                 )
-            retval = [{'name': x.option_text, 'value': x.id} for x in objects]
+            results = [{'text': x.option_text, 'id': x.id} for x in objects]
         elif object_type == 'email':
             objects = Email.objects.all()
             if query:
                 objects = objects.filter(title__icontains=query)
-            retval = [{'name': x.title, 'value': x.id} for x in objects]
+            results = [{'text': x.title, 'id': x.id} for x in objects]
         elif object_type == 'url':
             objects = URL.objects.all()
             if query:
                 objects = objects.filter(name__iconatins=query)
-            retval = [{'name': x.name, 'value': x.id} for x in objects]
+            results = [{'text': x.name, 'id': x.id} for x in objects]
+
+        retval['results'] = results
     else:
         ret_status = 400
         retval = {
