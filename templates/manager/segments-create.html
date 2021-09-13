@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block page-body %}
 <h1 class="heading-underline">Create Segment</h1>
 <form class="form-horizontal" action="{% url 'manager-segments-create' %}" method="post">
@@ -78,4 +80,9 @@
     </div>
   </fieldset>
 </form>
+{% endblock %}
+
+{% block javascript-footer %}
+{{ block.super }}
+<script src="{% static 'js/segment-createupdate.min.js' %}"></script>
 {% endblock %}

@@ -19,12 +19,6 @@
 // Timepickers
 // =require timepicker/jquery.timepicker.js
 
-// Dynamic formsets
-// =require jquery.formset/src/jquery.formset.js
-
-// jQuery UI - Sortable
-// =require jquery-ui-sortable/jquery-ui.min.js
-
 
 //
 // Import our assets
@@ -36,5 +30,4 @@
 // =require script/email-createupdate.js
 // =require script/subscription-update.js
 // =require script/recipientgroup-update.js
-// =require script/segment-update.js
 // =require script/global.js

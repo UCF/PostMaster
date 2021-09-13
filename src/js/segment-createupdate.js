@@ -1,4 +1,12 @@
 /* global SEGMENT_INCLUDE_RULES_PREFIX, SEGMENT_EXCLUDE_RULES_PREFIX */
+
+// Dynamic formsets
+// =require jquery.formset/src/jquery.formset.js
+
+// jQuery UI - Sortable
+// =require jquery-ui-sortable/jquery-ui.min.js
+
+
 (function () {
   //
   // Show/hide empty message when a ruleset has no rules
@@ -142,7 +150,7 @@
 
   $('.ruleset-include').formset(includeRulesetArgs);
   $('.ruleset-exclude').formset(excludeRulesetArgs);
-  $('.ruleset').each(function() {
+  $('.ruleset').each(function () {
     rowInit($(this));
   });
 
