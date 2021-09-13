@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^setting/(?P<pk>\d+)/delete/$',          login_required(SettingDeleteView.as_view()),      name='manager-setting-delete'),
     url(r'^setting/(?P<pk>\d+)/update/$',          login_required(SettingUpdateView.as_view()),      name='manager-setting-update'),
     url(r'^settings/$',                            login_required(SettingListView.as_view()),        name='manager-settings'),
+    url(r'^lookup/$',                              login_required(objects_as_options),                name='manager-lookups'),
 
     # Subscriptions
     url(r'^subscriptions/categories/$',                    login_required(SubscriptionCategoryListView.as_view()),   name='manager-subscription-categories'),

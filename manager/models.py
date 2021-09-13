@@ -1256,6 +1256,13 @@ class Instance(models.Model):
 
         return 0
 
+    @property
+    def option_text(self):
+        if self.subject:
+            return f"{self.email.title}: {self.subject} ({self.start})"
+        else:
+            return f"{self.email.title} ({self.start})"
+
     class Meta:
         ordering = ('-start',)
 

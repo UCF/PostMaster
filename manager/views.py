@@ -76,7 +76,6 @@ from manager.models import SubprocessStatus
 from manager.models import SubscriptionCategory
 from manager.models import URL
 from manager.models import URLClick
-from manager.utils import CSVImport
 from manager.utils import EmailSender
 from manager.utils import AmazonS3Helper
 
@@ -1604,6 +1603,55 @@ def recipient_json_feed(request):
         retval.append(r)
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
+
+
+def objects_as_options(request):
+    """
+    Provides a simple API endpoint for retrieving
+    various postmaster objects as options for a
+    select2 control.
+    """
+    object_type = request.GET.get('type', None)
+    query = request.GET.get('q', None)
+
+    ret_status = 200
+
+    if object_type:
+        retval = []
+
+        if object_type == 'recipientgroup':
+            objects = RecipientGroup.objects.all()
+            if query:
+                objects = objects.filter(name__contains=query)
+            retval = [{'name': x.name, 'value': x.id} for x in objects]
+        elif object_type == 'recipientattribute':
+            objects = RecipientAttribute.objects.values_list('name').distinct()
+            retval = [{'name': x[0], 'value': x[0]} for x in objects]
+        elif object_type == 'instance':
+            objects = Instance.objects.all()
+            if query:
+                objects = objects.filter(
+                    Q(email__title__icontains=query) |
+                    Q(subject__icontains=query)
+                )
+            retval = [{'name': x.option_text, 'value': x.id} for x in objects]
+        elif object_type == 'email':
+            objects = Email.objects.all()
+            if query:
+                objects = objects.filter(title__icontains=query)
+            retval = [{'name': x.title, 'value': x.id} for x in objects]
+        elif object_type == 'url':
+            objects = URL.objects.all()
+            if query:
+                objects = objects.filter(name__iconatins=query)
+            retval = [{'name': x.name, 'value': x.id} for x in objects]
+    else:
+        ret_status = 400
+        retval = {
+            'error': 'You must specify an object type to query for by passing an object_type parameter.'
+        }
+
+    return HttpResponse(json.dumps(retval), content_type='application/json', status=ret_status)
 
 ##
 # Creates a recipient group based on email opens.
