@@ -9,7 +9,15 @@
   </div>
 
   <div class="card-block">
-
+    {% if rule.errors %}
+    <div class="alert alert-danger">
+      <ul>
+      {% for error in rule.errors %}
+        <li class="list-item">The field {{error.field}}must have value.</li>
+      {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
     <div class="row">
       <div class="col-lg-3 col-xl-2 form-group rule-group-condition">
         <label class="form-control-label" for="{{ rule.conditional.id_for_label }}">
@@ -26,10 +34,10 @@
         </div>
 
         <div class="row">
-          <div class="col mb-0 form-group rule-group-key">
+          <div class="col mb-0 form-group rule-group-value">
             <div
               class="js-rule-conditional-input-container"
-              data-controls="{{ rule.key.id_for_label }}"
+              data-controls="{{ rule.value.id_for_label }}"
               data-field-values="in_recipient_group"
               data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
               data-input-type="select2">
@@ -98,7 +106,7 @@
     {{ rule.key|attr:"type:hidden"|add_class:"js-rule-controlled-input" }}
     {{ rule.value|attr:"type:hidden"|add_class:"js-rule-controlled-input" }}
     {% for field in rule %}
-      {% if field.is_hidden %}
+      {% if field.is_hidden and field.name not in 'key,value' %}
         {{ field }}
       {% endif %}
     {% endfor %}
