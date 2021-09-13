@@ -765,6 +765,7 @@ class SegmentUpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
+        print(self.object)
         context = self.get_context_data(form=form)
         include_formset = context['include_rules']
         exclude_formset = context['exclude_rules']
@@ -775,7 +776,6 @@ class SegmentUpdateView(UpdateView):
         if include_formset.is_valid() and exclude_formset.is_valid():
             response = super(SegmentUpdateView, self).form_valid(form)
             for idx, subform in enumerate(include_formset.forms):
-                print(subform)
                 cleaned_data = subform.cleaned_data
                 if cleaned_data:
                     include_idxs.append(idx)
@@ -803,7 +803,6 @@ class SegmentUpdateView(UpdateView):
                         rule.save()
 
             for idx, subform in enumerate(exclude_formset.forms):
-                print(subform)
                 cleaned_data = subform.cleaned_data
                 if cleaned_data:
                     exclude_idxs.append(idx)
@@ -850,7 +849,7 @@ class SegmentUpdateView(UpdateView):
 
             return response
         else:
-            return super(SegmentCreateView, self).form_invalid(form)
+            return super(SegmentUpdateView, self).form_invalid(form)
 
     def get_success_url(self):
         return reverse('manager-segments-update', args=(self.object.id,))
