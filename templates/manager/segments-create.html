@@ -22,9 +22,9 @@
           No include rules have been added for this segment.
         </div>
 
-        <div class="js-rules-list">
+        <div class="rules-list">
           {% for rule in include_rules %}
-          <div class="js-ruleset js-ruleset-include" data-empty-msg="js-include-rules-empty">
+          <div class="ruleset ruleset-include" data-empty-msg="js-include-rules-empty">
             {% include 'formparts/ruleset-form.html' %}
           </div>
           {% endfor %}
@@ -48,9 +48,9 @@
           No exclude rules have been added for this segment.
         </div>
 
-        <div class="js-rules-list">
+        <div class="rules-list">
         {% for rule in exclude_rules %}
-          <div class="js-ruleset js-ruleset-exclude" data-empty-msg="js-exclude-rules-empty">
+          <div class="ruleset ruleset-exclude" data-empty-msg="js-exclude-rules-empty">
             {% include 'formparts/ruleset-form.html' %}
           </div>
           {% endfor %}
