@@ -26,15 +26,75 @@
         </div>
 
         <div class="row">
-          <div class="col mb-0 form-group rule-group-key"></div>
-          <div class="col mb-0 form-group rule-group-value"></div>
+          <div class="col mb-0 form-group rule-group-key">
+            <div
+              class="js-rule-conditional-input-container"
+              data-controls="{{ rule.key.id_for_label }}"
+              data-field-values="in_recipient_group"
+              data-options-endpoint="TODO"
+              data-input-type="select2">
+              <label>Recipient group</label>
+              <select class="js-rule-conditional-input"></select>
+            </div>
+            <div
+              class="js-rule-conditional-input-container"
+              data-controls="{{ rule.key.id_for_label }}"
+              data-field-values="has_attribute"
+              data-options-endpoint="TODO"
+              data-input-type="select2">
+              <label>Recipient attribute</label>
+              <select class="js-rule-conditional-input"></select>
+            </div>
+            <div
+              class="js-rule-conditional-input-container"
+              data-controls="{{ rule.key.id_for_label }}"
+              data-field-values="received_instance opened_instance clicked_any_url_in_email"
+              data-input-type="text">
+              <label>Email instance ID</label>
+              <input type="text" class="js-rule-conditional-input form-control">
+            </div>
+            <div
+              class="js-rule-conditional-input-container"
+              data-controls="{{ rule.key.id_for_label }}"
+              data-field-values="opened_email"
+              data-options-endpoint="TODO"
+              data-input-type="select2">
+              <label>Email</label>
+              <select class="js-rule-conditional-input"></select>
+            </div>
+            <div
+              class="js-rule-conditional-input-container"
+              data-controls="{{ rule.key.id_for_label }}"
+              data-field-values="clicked_link clicked_url_in_instance"
+              data-input-type="text">
+              <label>URL</label>
+              <input type="text" class="js-rule-conditional-input form-control">
+            </div>
+          </div>
+          <div class="col mb-0 form-group rule-group-value">
+            <div class="js-rule-conditional-input-container"
+              data-controls="{{ rule.value.id_for_label }}"
+              data-field-values="clicked_url_in_instance"
+              data-input-type="text">
+              <label>Email instance ID</label>
+              <input type="text" class="js-rule-conditional-input form-control">
+            </div>
+            <div
+              class="js-rule-conditional-input-container"
+              data-controls="{{ rule.value.id_for_label }}"
+              data-field-values="has_attribute"
+              data-input-type="text">
+              <label>Attribute value</label>
+              <input type="text" class="js-rule-conditional-input form-control">
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     {{ rule.DELETE }}
-    {{ rule.key|attr:"type:hidden" }}
-    {{ rule.value|attr:"type:hidden" }}
+    {{ rule.key|attr:"type:hidden"|add_class:"js-rule-controlled-input" }}
+    {{ rule.value|attr:"type:hidden"|add_class:"js-rule-controlled-input" }}
     {% for field in rule %}
       {% if field.is_hidden %}
         {{ field }}

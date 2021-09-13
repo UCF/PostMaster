@@ -58,7 +58,10 @@
   function rowInit($row) {
     // const $container = $row.parent('.rules-list');
     $row.find('.rule-control-key, .rule-control-value').hide();
-    $row.find('.rule-control-field').on('change', handleFieldInputChange);
+    $row
+      .find('.rule-control-field')
+      .on('change', handleFieldInputChange)
+      .trigger('change');
   }
 
   //
@@ -84,45 +87,73 @@
     const $row = $input.parents('.ruleset');
     const $keyCol = $row.find('.rule-group-key');
     const $valCol = $row.find('.rule-group-value');
+    const fieldVal = $input.val();
 
-    $keyCol.empty();
-    $valCol.empty();
+    // Hide all conditional inputs, and clear their values:
+    $keyCol
+      .find('.js-rule-conditional-input-container')
+      .hide()
+      .find('.js-rule-conditional-input')
+      .val('');
+    $valCol
+      .find('.js-rule-conditional-input-container')
+      .hide()
+      .find('.js-rule-conditional-input')
+      .val('');
 
-    switch ($input.val()) {
-      // TODO there is probably a better way of defining
-      // how to transform these inputs in the template
-      case 'in_recipient_group':
-        // TODO init selectjs of searchable RecipientGroups on Key
-        $('<div>TODO</div>').appendTo($keyCol);
-        break;
-      case 'has_attribute':
-        // TODO init selectjs of searchable RecipientAttributes on Key; show Value text input
-        $('<div>TODO</div>').appendTo($keyCol);
-        $('<div>TODO</div>').appendTo($valCol);
-        break;
-      case 'received_instance':
-      case 'opened_instance':
-      case 'clicked_any_url_in_email':
-        // TODO init selectjs of searchable Instances on Key
-        $('<div>TODO</div>').appendTo($keyCol);
-        break;
-      case 'opened_email':
-        // TODO init selectjs of searchable Emails on Key
-        $('<div>TODO</div>').appendTo($keyCol);
-        break;
-      case 'clicked_link':
-        // TODO basic text inputs for Key and Value
-        $('<div>TODO</div>').appendTo($keyCol);
-        $('<div>TODO</div>').appendTo($valCol);
-        break;
-      case 'clicked_url_in_instance':
-        // TODO basic text input for Key; init selectjs of searchable Instances on Value
-        $('<div>TODO</div>').appendTo($keyCol);
-        $('<div>TODO</div>').appendTo($valCol);
-        break;
-      default:
-        break;
-    }
+    // Clear key/value inputs:
+    $row.find('.js-rule-controlled-input').val('');
+
+    const $toggledInputs = $row.find(`.js-rule-conditional-input-container[data-field-values*="${fieldVal}"]`);
+    $toggledInputs.each(function () {
+      const $toggledInput = $(this);
+      const inputType = $toggledInput.data('inputType');
+      const initialized = $toggledInput.data('inputInitialized');
+
+      if (initialized !== 'true') {
+        const $controlledInput = $(`#${$toggledInput.data('controls')}`);
+
+        // Generate a "unique" ID for the new input
+        // and for its label to reference
+        const inputID = `js-rule-input-${Math.floor(Math.random() * (999999999 - 1) + 1)}`;
+
+        // Update for attr on label
+        const $label = $toggledInput.find('label');
+        $label.attr('for', inputID);
+
+        // Create + insert input
+        let $input = null;
+        switch (inputType) {
+          case 'select2':
+            $input = $toggledInput.find('select')
+              .select2({
+                // TODO this will need a callback for massaging incoming data
+                ajax: {
+                  url: $toggledInput.data('optionsEndpoint'),
+                  dataType: 'json'
+                }
+              });
+            break;
+          case 'text':
+            $input = $toggledInput.find('input[type="text"]');
+            break;
+          default:
+            break;
+        }
+        $input
+          .attr('id', inputID)
+          .on('change', function () {
+            $controlledInput.val($(this).val());
+          })
+          .appendTo($toggledInput);
+
+        // Flag input as "initialized"
+        $toggledInput.data('inputInitialized', 'true');
+      }
+
+      // Finally, display the input
+      $toggledInput.show();
+    });
   }
 
   //
