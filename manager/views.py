@@ -765,7 +765,6 @@ class SegmentUpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        print(self.object)
         context = self.get_context_data(form=form)
         include_formset = context['include_rules']
         exclude_formset = context['exclude_rules']
