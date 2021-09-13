@@ -22,7 +22,7 @@
           <label class="form-control-label" for="{{ rule.field.id_for_label }}">
             Filter recipients by...
           </label>
-          {{ rule.field|add_class:"form-control rule-control-field" }}
+          {{ rule.field|add_class:"form-control custom-select rule-control-field" }}
         </div>
 
         <div class="row">
@@ -34,7 +34,7 @@
               data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
               data-input-type="select2">
               <label>Recipient group</label>
-              <select class="js-rule-conditional-input"></select>
+              <select class="js-rule-conditional-input" data-width="100%"></select>
             </div>
             <div
               class="js-rule-conditional-input-container"
@@ -43,15 +43,16 @@
               data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
               data-input-type="select2">
               <label>Recipient attribute</label>
-              <select class="js-rule-conditional-input"></select>
+              <select class="js-rule-conditional-input" data-width="100%"></select>
             </div>
             <div
               class="js-rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="received_instance opened_instance clicked_any_url_in_email"
-              data-input-type="text">
-              <label>Email instance ID</label>
-              <input type="text" class="js-rule-conditional-input form-control">
+              data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
+              data-input-type="select2">
+              <label>Email instance</label>
+              <select class="js-rule-conditional-input" data-width="100%"></select>
             </div>
             <div
               class="js-rule-conditional-input-container"
@@ -60,7 +61,7 @@
               data-options-endpoint="{% url 'manager-lookups' %}?type=email"
               data-input-type="select2">
               <label>Email</label>
-              <select class="js-rule-conditional-input"></select>
+              <select class="js-rule-conditional-input" data-width="100%"></select>
             </div>
             <div
               class="js-rule-conditional-input-container"
@@ -75,9 +76,10 @@
             <div class="js-rule-conditional-input-container"
               data-controls="{{ rule.value.id_for_label }}"
               data-field-values="clicked_url_in_instance"
-              data-input-type="text">
-              <label>Email instance ID</label>
-              <input type="text" class="js-rule-conditional-input form-control">
+              data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
+              data-input-type="select2">
+              <label>Email instance</label>
+              <select class="js-rule-conditional-input" data-width="100%"></select>
             </div>
             <div
               class="js-rule-conditional-input-container"

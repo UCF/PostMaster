@@ -19,15 +19,23 @@
   }
 
   .select2-selection {
+    border: $border-width solid $input-border-color;
+    border-radius: $input-border-radius;
     line-height: 2.25;
     padding: .5rem;
     transition: $input-transition;
   }
 
-  .select2-selection--multiple {
-    border: $border-width solid $input-border-color;
-    border-radius: $input-border-radius;
+  .select2-selection--single {
+    @extend .custom-select;
+    height: $custom-select-height;
 
+    .select2-selection__arrow {
+      display: none;
+    }
+  }
+
+  .select2-selection--multiple {
     .select2-selection__choice {
       background-color: $gray-lighter;
       border-color: $input-border-color;
