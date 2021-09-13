@@ -754,7 +754,7 @@ class SegmentUpdateView(UpdateView):
         else:
             data['include_rules'] = IncludeSegmentRuleFormset(
                 instance=self.object,
-                prefix='exclude_rules'
+                prefix='include_rules'
             )
             data['exclude_rules'] = ExcludeSegmentRuleFormset(
                 instance=self.object,
@@ -762,6 +762,98 @@ class SegmentUpdateView(UpdateView):
             )
 
         return data
+
+    def form_valid(self, form):
+        self.object = form.save()
+        context = self.get_context_data(form=form)
+        include_formset = context['include_rules']
+        exclude_formset = context['exclude_rules']
+
+        include_idxs = []
+        exclude_idxs = []
+
+        if include_formset.is_valid() and exclude_formset.is_valid():
+            response = super(SegmentUpdateView, self).form_valid(form)
+            for idx, subform in enumerate(include_formset.forms):
+                print(subform)
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    include_idxs.append(idx)
+                    try:
+                        existing = SegmentRule(
+                            segment=self.object,
+                            rule_type='include',
+                            index=idx
+                        )
+                        existing.field = cleaned_data['field']
+                        existing.conditional='AND' if idx == 0 else cleaned_data['conditional']
+                        existing.key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        existing.value = cleaned_data['value']
+                        existing.save()
+                    except SegmentRule.DoesNotExist:
+                        rule = SegmentRule(
+                            segment=self.object,
+                            rule_type='include',
+                            field=cleaned_data['field'],
+                            conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                            key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                            value=cleaned_data['value'],
+                            index=idx
+                        )
+                        rule.save()
+
+            for idx, subform in enumerate(exclude_formset.forms):
+                print(subform)
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    exclude_idxs.append(idx)
+                    try:
+                        existing = SegmentRule(
+                            segment=self.object,
+                            rule_type='exclude',
+                            index=idx
+                        )
+                        existing.field = cleaned_data['field']
+                        existing.conditional='AND' if idx == 0 else cleaned_data['conditional']
+                        existing.key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        existing.value = cleaned_data['value']
+                        existing.save()
+                    except SegmentRule.DoesNotExist:
+                        rule = SegmentRule(
+                            segment=self.object,
+                            rule_type='exclude',
+                            field=cleaned_data['field'],
+                            conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                            key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                            value=cleaned_data['value'],
+                            index=idx
+                        )
+                        rule.save()
+
+            # Clean up rules that don't exist anymore
+            stale_includes = SegmentRule.objects.filter(
+                segment=self.object,
+                rule_type='include'
+            ).exclude(
+                index__in=include_idxs
+            )
+
+            stale_excludes = SegmentRule.objects.filter(
+                segment=self.object,
+                rule_type='exclude'
+            ).exclude(
+                index__in=exclude_idxs
+            )
+
+            stale_includes.delete()
+            stale_excludes.delete()
+
+            return response
+        else:
+            return super(SegmentCreateView, self).form_invalid(form)
+
+    def get_success_url(self):
+        return reverse('manager-segments-update', args=(self.object.id,))
 
 class SegmentDeleteView(DeleteView):
     model = Segment
