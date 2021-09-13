@@ -56,12 +56,34 @@
   // Applies event handlers and such to new rows
   //
   function rowInit($row) {
-    // const $container = $row.parent('.rules-list');
-    $row.find('.rule-control-key, .rule-control-value').hide();
+    const $keyCol = $row.find('.rule-group-key');
+    const $valCol = $row.find('.rule-group-value');
+    const fieldVal = $row.find('.rule-control-field').val();
+
+    // Hide all conditional inputs:
+    $keyCol
+      .find('.rule-conditional-input-container')
+      .hide();
+    $valCol
+      .find('.rule-conditional-input-container')
+      .hide();
+
+    // Initialize conditional inputs if `field` is set
+    // (e.g. if this is a ruleset for an existing Segment):
+    if (fieldVal) {
+      const $toggleableInputs = $row.find(`.rule-conditional-input-container[data-field-values*="${fieldVal}"]`);
+      $toggleableInputs.each(function () {
+        conditionalInputInit($(this));
+      });
+    }
+
+    // Assign event handler to `field`:
     $row
       .find('.rule-control-field')
-      .on('change', handleFieldInputChange)
-      .trigger('change');
+      .on('change', handleFieldInputChange);
+
+    // TODO add something here that hides the Condition
+    // input if this is the first visible row in the .rules-list
   }
 
   //
@@ -80,6 +102,59 @@
   }
 
   //
+  // Initializes a conditional key/value input
+  //
+  function conditionalInputInit($inputContainer) {
+    const inputType = $inputContainer.data('inputType');
+    const initialized = $inputContainer.data('inputInitialized');
+
+    if (initialized !== 'true') {
+      const $controlledInput = $(`#${$inputContainer.data('controls')}`);
+
+      // Generate a "unique" ID for the new input
+      // and for its label to reference
+      const inputID = `rule-input-${Math.floor(Math.random() * (999999999 - 1) + 1)}`;
+
+      // Update for attr on label
+      const $label = $inputContainer.find('label');
+      $label.attr('for', inputID);
+
+      // Create + insert input
+      let $input = null;
+      switch (inputType) {
+        case 'select2':
+          $input = $inputContainer.find('select');
+          $input.select2({
+            // TODO this will need a callback for massaging incoming data
+            ajax: {
+              url: $inputContainer.data('optionsEndpoint'),
+              dataType: 'json'
+            }
+          });
+          break;
+        case 'text':
+          $input = $inputContainer.find('input[type="text"]');
+          break;
+        default:
+          break;
+      }
+      $input
+        .attr('id', inputID)
+        .val($controlledInput.val()) // set initial input value based on controlled input
+        .on('change', function () {
+          $controlledInput.val($(this).val());
+        })
+        .appendTo($inputContainer);
+
+      // Flag input as "initialized"
+      $inputContainer.data('inputInitialized', 'true');
+    }
+
+    // Finally, display the input
+    $inputContainer.show();
+  }
+
+  //
   // Handle when a field input's value changes
   //
   function handleFieldInputChange(e) {
@@ -91,68 +166,22 @@
 
     // Hide all conditional inputs, and clear their values:
     $keyCol
-      .find('.js-rule-conditional-input-container')
+      .find('.rule-conditional-input-container')
       .hide()
-      .find('.js-rule-conditional-input')
+      .find('.rule-conditional-input')
       .val('');
     $valCol
-      .find('.js-rule-conditional-input-container')
+      .find('.rule-conditional-input-container')
       .hide()
-      .find('.js-rule-conditional-input')
+      .find('.rule-conditional-input')
       .val('');
 
     // Clear key/value inputs:
-    $row.find('.js-rule-controlled-input').val('');
+    $row.find('.rule-controlled-input').val('');
 
-    const $toggledInputs = $row.find(`.js-rule-conditional-input-container[data-field-values*="${fieldVal}"]`);
+    const $toggledInputs = $row.find(`.rule-conditional-input-container[data-field-values*="${fieldVal}"]`);
     $toggledInputs.each(function () {
-      const $toggledInput = $(this);
-      const inputType = $toggledInput.data('inputType');
-      const initialized = $toggledInput.data('inputInitialized');
-
-      if (initialized !== 'true') {
-        const $controlledInput = $(`#${$toggledInput.data('controls')}`);
-
-        // Generate a "unique" ID for the new input
-        // and for its label to reference
-        const inputID = `js-rule-input-${Math.floor(Math.random() * (999999999 - 1) + 1)}`;
-
-        // Update for attr on label
-        const $label = $toggledInput.find('label');
-        $label.attr('for', inputID);
-
-        // Create + insert input
-        let $input = null;
-        switch (inputType) {
-          case 'select2':
-            $input = $toggledInput.find('select')
-              .select2({
-                // TODO this will need a callback for massaging incoming data
-                ajax: {
-                  url: $toggledInput.data('optionsEndpoint'),
-                  dataType: 'json'
-                }
-              });
-            break;
-          case 'text':
-            $input = $toggledInput.find('input[type="text"]');
-            break;
-          default:
-            break;
-        }
-        $input
-          .attr('id', inputID)
-          .on('change', function () {
-            $controlledInput.val($(this).val());
-          })
-          .appendTo($toggledInput);
-
-        // Flag input as "initialized"
-        $toggledInput.data('inputInitialized', 'true');
-      }
-
-      // Finally, display the input
-      $toggledInput.show();
+      conditionalInputInit($(this));
     });
   }
 

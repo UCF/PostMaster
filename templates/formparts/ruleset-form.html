@@ -15,7 +15,7 @@
         <label class="form-control-label" for="{{ rule.conditional.id_for_label }}">
           Condition
         </label>
-        {{ rule.conditional|add_class:"form-control" }}
+        {{ rule.conditional|add_class:"form-control custom-select rule-control-condition" }}
       </div>
       <div class="col">
         <div class="form-group">
@@ -28,66 +28,66 @@
         <div class="row">
           <div class="col mb-0 form-group rule-group-key">
             <div
-              class="js-rule-conditional-input-container"
+              class="rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="in_recipient_group"
               data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
               data-input-type="select2">
               <label>Recipient group</label>
-              <select class="js-rule-conditional-input" data-width="100%"></select>
+              <select class="rule-conditional-input" data-width="100%"></select>
             </div>
             <div
-              class="js-rule-conditional-input-container"
+              class="rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="has_attribute"
               data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
               data-input-type="select2">
               <label>Recipient attribute</label>
-              <select class="js-rule-conditional-input" data-width="100%"></select>
+              <select class="rule-conditional-input" data-width="100%"></select>
             </div>
             <div
-              class="js-rule-conditional-input-container"
+              class="rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="received_instance opened_instance clicked_any_url_in_email"
               data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
               data-input-type="select2">
               <label>Email instance</label>
-              <select class="js-rule-conditional-input" data-width="100%"></select>
+              <select class="rule-conditional-input" data-width="100%"></select>
             </div>
             <div
-              class="js-rule-conditional-input-container"
+              class="rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="opened_email"
               data-options-endpoint="{% url 'manager-lookups' %}?type=email"
               data-input-type="select2">
               <label>Email</label>
-              <select class="js-rule-conditional-input" data-width="100%"></select>
+              <select class="rule-conditional-input" data-width="100%"></select>
             </div>
             <div
-              class="js-rule-conditional-input-container"
+              class="rule-conditional-input-container"
               data-controls="{{ rule.key.id_for_label }}"
               data-field-values="clicked_link clicked_url_in_instance"
               data-input-type="text">
               <label>URL</label>
-              <input type="text" class="js-rule-conditional-input form-control">
+              <input type="text" class="rule-conditional-input form-control">
             </div>
           </div>
           <div class="col mb-0 form-group rule-group-value">
-            <div class="js-rule-conditional-input-container"
+            <div class="rule-conditional-input-container"
               data-controls="{{ rule.value.id_for_label }}"
               data-field-values="clicked_url_in_instance"
               data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
               data-input-type="select2">
               <label>Email instance</label>
-              <select class="js-rule-conditional-input" data-width="100%"></select>
+              <select class="rule-conditional-input" data-width="100%"></select>
             </div>
             <div
-              class="js-rule-conditional-input-container"
+              class="rule-conditional-input-container"
               data-controls="{{ rule.value.id_for_label }}"
               data-field-values="has_attribute"
               data-input-type="text">
               <label>Attribute value</label>
-              <input type="text" class="js-rule-conditional-input form-control">
+              <input type="text" class="rule-conditional-input form-control">
             </div>
           </div>
         </div>
@@ -95,8 +95,8 @@
     </div>
 
     {{ rule.DELETE }}
-    {{ rule.key|attr:"type:hidden"|add_class:"js-rule-controlled-input" }}
-    {{ rule.value|attr:"type:hidden"|add_class:"js-rule-controlled-input" }}
+    {{ rule.key|attr:"type:hidden"|add_class:"rule-controlled-input rule-control-key" }}
+    {{ rule.value|attr:"type:hidden"|add_class:"rule-controlled-input rule-control-value" }}
     {% for field in rule %}
       {% if field.is_hidden %}
         {{ field }}
