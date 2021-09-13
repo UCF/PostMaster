@@ -1258,10 +1258,11 @@ class Instance(models.Model):
 
     @property
     def option_text(self):
+        start = self.start.strftime('%Y-%m-%d %-I:%M %p')
         if self.subject:
-            return f"{self.email.title}: {self.subject} ({self.start})"
+            return f"{self.email.title}: {self.subject} ({start})"
         else:
-            return f"{self.email.title} ({self.start})"
+            return f"{self.email.title} ({start})"
 
     class Meta:
         ordering = ('-start',)
