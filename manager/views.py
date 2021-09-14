@@ -1611,7 +1611,7 @@ def objects_as_options(request):
     else:
         ret_status = 400
         retval = {
-            'error': 'You must specify an object type to query for by passing an object_type parameter.'
+            'error': 'You must specify an object type to query for by passing a "type" parameter.'
         }
 
     return HttpResponse(json.dumps(retval), content_type='application/json', status=ret_status)

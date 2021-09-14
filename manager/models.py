@@ -237,18 +237,29 @@ class SegmentRule(models.Model):
             except:
                 return 'Not Found'
 
-        if self.field in ['opened_instance', 'clicked_any_url_in_email', 'clicked_url_in_instance']:
+        if self.field in [
+            'received_instance',
+            'opened_instance',
+            'clicked_any_url_in_email',
+            'clicked_url_in_instance'
+        ]:
             try:
                 retval = Instance.objects.get(pk=int(self.value))
                 return retval.option_text
             except:
                 return 'Not Found'
 
-        if self.field in ['has_attribute', 'clicked_link']:
-            return self.value
+        return self.value
 
     @property
     def key_as_option(self):
+        if self.field == 'has_attribute':
+            try:
+                retval = RecipientAttribute.objects.get(pk=int(self.key))
+                return retval.name
+            except:
+                return 'Not Found'
+
         return self.key
 
     def get_query(self):

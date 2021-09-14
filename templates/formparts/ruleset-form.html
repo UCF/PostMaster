@@ -35,31 +35,32 @@
 
         <div class="row">
           <!-- START key inputs -->
-          <div class="col mb-0 form-group rule-group-key rule-conditional-input-container"
+          <div
+            class="col mb-0 form-group rule-group-key rule-conditional-input-container"
             data-controls="{{ rule.key.id_for_label }}"
             data-field-values="clicked_url_in_instance"
-            data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
-            data-input-type="select2">
-            <label>Email instance</label>
-            <select class="rule-conditional-input" data-width="100%">
+            data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
+            data-input-type="text">
+            <label>URL</label>
+            <input
+              type="text"
+              class="rule-conditional-input form-control"
               {% if rule.field.value == 'clicked_url_in_instance' and rule.key.value %}
-              <option value="{{ rule.key.value }}" selected>{{ rule.instance.key_as_option }}</option>
+              value="{{ rule.instance.key_as_option }}"
               {% endif %}
-            </select>
+              >
           </div>
           <div
             class="col mb-0 form-group rule-group-key rule-conditional-input-container"
             data-controls="{{ rule.key.id_for_label }}"
             data-field-values="has_attribute"
-            data-input-type="text">
-            <label>Attribute value</label>
-            <input
-              type="text"
-              class="rule-conditional-input form-control"
-              {% if rule.field.value == '' and rule.key.value %}
-              value="{{ rule.instance.key_as_option }}"
+            data-input-type="select2">
+            <label>Attribute name</label>
+            <select class="rule-conditional-input" data-width="100%">
+              {% if rule.field.value == 'has_attribute' and rule.key.value %}
+              <option value="{{ rule.key.value }}" selected>{{ rule.instance.key_as_option }}</option>
               {% endif %}
-              >
+            </select>
           </div>
           <!-- END key inputs -->
 
@@ -81,24 +82,25 @@
             class="col mb-0 form-group rule-group-value rule-conditional-input-container"
             data-controls="{{ rule.value.id_for_label }}"
             data-field-values="has_attribute"
-            data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
-            data-input-type="select2">
-            <label>Recipient attribute</label>
-            <select class="rule-conditional-input" data-width="100%">
+            data-input-type="text">
+            <label>Attribute value</label>
+            <input
+              type="text"
+              class="rule-conditional-input form-control"
               {% if rule.field.value == 'has_attribute' and rule.value.value %}
-              <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
+              value="{{ rule.instance.value_as_option }}"
               {% endif %}
-            </select>
+              >
           </div>
           <div
             class="col mb-0 form-group rule-group-value rule-conditional-input-container"
             data-controls="{{ rule.value.id_for_label }}"
-            data-field-values="received_instance opened_instance clicked_any_url_in_email"
+            data-field-values="received_instance opened_instance clicked_any_url_in_email clicked_url_in_instance"
             data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
             data-input-type="select2">
             <label>Email instance</label>
             <select class="rule-conditional-input" data-width="100%">
-              {% if rule.field.value == 'received_instance' or rule.field.value == 'opened_instance' or rule.field.value == 'clicked_any_url_in_email' %}
+              {% if rule.field.value == 'received_instance' or rule.field.value == 'opened_instance' or rule.field.value == 'clicked_any_url_in_email' or rule.field.value == 'clicked_url_in_instance' %}
                 {% if rule.value.value %}
                 <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
                 {% endif %}
@@ -121,16 +123,14 @@
           <div
             class="col mb-0 form-group rule-group-value rule-conditional-input-container"
             data-controls="{{ rule.value.id_for_label }}"
-            data-field-values="clicked_link clicked_url_in_instance"
+            data-field-values="clicked_link"
             data-input-type="text">
             <label>URL</label>
             <input
               type="text"
               class="rule-conditional-input form-control"
-              {% if rule.field.value == 'clicked_link' or rule.field.value == 'clicked_link' %}
-                {% if rule.value.value %}
-                value="{{ rule.instance.value_as_option }}"
-                {% endif %}
+              {% if rule.field.value == 'clicked_link' and rule.value.value %}
+              value="{{ rule.instance.value_as_option }}"
               {% endif %}
               >
           </div>
