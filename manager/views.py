@@ -774,7 +774,7 @@ class SegmentUpdateView(UpdateView):
             self.object.include_rules.delete()
             self.object.exclude_rules.delete()
 
-            for idx, subform in enumerate(include_formset.forms):
+            for idx, subform in enumerate(include_formset.ordered_forms):
                 cleaned_data = subform.cleaned_data
                 if cleaned_data:
                     rule = SegmentRule(
@@ -788,7 +788,7 @@ class SegmentUpdateView(UpdateView):
                     )
                     rule.save()
 
-            for idx, subform in enumerate(exclude_formset.forms):
+            for idx, subform in enumerate(exclude_formset.ordered_forms):
                 cleaned_data = subform.cleaned_data
                 if cleaned_data:
                     rule = SegmentRule(
