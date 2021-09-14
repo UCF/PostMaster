@@ -37,7 +37,6 @@
             class="col mb-0 form-group rule-group-key rule-conditional-input-container"
             data-controls="{{ rule.key.id_for_label }}"
             data-field-values="clicked_url_in_instance"
-            data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
             data-input-type="text">
             <label>URL</label>
             <input
@@ -52,6 +51,7 @@
             class="col mb-0 form-group rule-group-key rule-conditional-input-container"
             data-controls="{{ rule.key.id_for_label }}"
             data-field-values="has_attribute"
+            data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
             data-input-type="select2">
             <label>Attribute name</label>
             <select class="rule-conditional-input" data-width="100%">
