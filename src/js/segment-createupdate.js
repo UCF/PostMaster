@@ -8,6 +8,8 @@
 
 
 (function () {
+  const nameRegex = /([A-Za-z\-_]+)(\d+)([A-Za-z\-_]+)/i;
+
   //
   // Show/hide empty message when a ruleset has no rules
   //
@@ -27,28 +29,57 @@
   }
 
   //
+  // Hide the Condition input for the first row in
+  // a list of rules
+  //
+  function toggleConditionInput($row) {
+    const $conditionInput = $row.find('.rule-group-condition');
+
+    if ($row.is(':visible:first-child')) {
+      $conditionInput.find('select').val('');
+      $conditionInput.hide();
+    } else {
+      $conditionInput.show();
+    }
+  }
+
+  //
   // Finds all rows in the given parent $target and
   // resets label, input ID indexes
   //
-  function resetRowIndexes($target) {
-    const nameRegex = /([A-Za-z\-_]+)\d+([A-Za-z\-_]+)/i;
-
-    $.each($target.find('.ruleset:not([style*="display: none"])'), (idx, el) => {
-      $(el).find('label').each((_, label) => {
-        const $label = $(label);
-        const attrFor = $label.attr('for')
-          .replace(nameRegex, `$1${idx}$2`);
+  function resetRowIndexes($row, idx) {
+    $row.find('label').each((_, label) => {
+      const $label = $(label);
+      let attrFor = $label.attr('for');
+      if (attrFor) {
+        attrFor = attrFor.replace(nameRegex, `$1${idx}$3`);
         $label.attr('for', attrFor);
-      });
+      }
+    });
 
-      $(el).find('select, input').each((_, control) => {
-        const $control = $(control);
-        const id = $control.attr('id')
-          .replace(nameRegex, `$1${idx}$2`);
-        const name = $control.attr('name')
-          .replace(nameRegex, `$1${idx}$2`);
-        $control.attr('id', id).attr('name', name);
-      });
+    $row.find('select, input').each((_, control) => {
+      const $control = $(control);
+
+      let id = $control.attr('id');
+      if (id) {
+        id = id.replace(nameRegex, `$1${idx}$3`);
+        $control.attr('id', id);
+      }
+
+      let name = $control.attr('name');
+      if (name) {
+        name = name.replace(nameRegex, `$1${idx}$3`);
+        $control.attr('name', name);
+      }
+    });
+
+    $row.find('.rule-conditional-input-container').each((_, container) => {
+      const $container = $(container);
+      let dataControls = $container.attr('data-controls');
+      if (dataControls) {
+        dataControls = dataControls.replace(nameRegex, `$1${idx}$3`);
+      }
+      $container.attr('data-controls', dataControls);
     });
   }
 
@@ -77,8 +108,9 @@
       .find('.rule-control-field')
       .on('change', handleFieldInputChange);
 
-    // TODO add something here that hides the Condition
-    // input if this is the first visible row in the .rules-list
+    // Make sure the condition input is hidden if this
+    // is the first row in its list:
+    toggleConditionInput($row);
   }
 
   //
@@ -87,6 +119,15 @@
   function handleRowAdd($row) {
     toggleEmptyMsg($row);
     rowInit($row);
+
+    // TODO this winds up doing some redundant logic.
+    // Consider splitting out `.rule-conditional-input-container`
+    // data-controls attr updates into a separate function
+    const fieldID = $row.find('.rule-control-field').attr('id');
+    const idx = fieldID.match(nameRegex)[2] || null;
+    if (idx) {
+      resetRowIndexes($row, idx);
+    }
   }
 
   //
@@ -212,8 +253,13 @@
   $('.rules-list').sortable({
     items: '.ruleset',
     handle: '.ruleset-grip',
-    update: function (evt) {
-      resetRowIndexes($(evt.target));
+    update: function (e) {
+      const $list = $(e.target);
+      $.each($list.find('.ruleset:visible'), (idx, el) => {
+        const $row = $(el);
+        resetRowIndexes($row, idx);
+        toggleConditionInput($row);
+      });
     }
   });
 }());
