@@ -161,24 +161,20 @@ class Segment(models.Model):
     def recipients(self):
         include_filter = Q()
         for rule in self.include_rules.all():
-            if rule.conditional == 'AND':
+            if rule.conditional in ['AND', None]:
                 include_filter &= rule.get_query()
             elif rule.conditional == 'OR':
                 include_filter |= rule.get_query()
-            elif rule.conditional == None:
-                include_filter += rule.get_query()
 
         exclude_filter = None
 
         if self.exclude_rules.count() > 0:
             exclude_filter = Q()
             for rule in self.exclude_rules.all():
-                if rule.conditional == 'AND':
+                if rule.conditional in ['AND', None]:
                     exclude_filter &= rule.get_query()
                 elif rule.conditional == 'OR':
                     exclude_filter |= rule.get_query()
-                elif rule.conditional == None:
-                    exclude_filter += rule.get_query()
 
         retval = Recipient.objects.filter(include_filter)
 
