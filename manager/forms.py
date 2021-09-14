@@ -239,21 +239,12 @@ ExcludeSegmentRuleFormset = inlineformset_factory(
 )
 
 class SegmentForm(forms.ModelForm):
-    include_rules = IncludeSegmentRuleFormset()
-    exclude_rules = ExcludeSegmentRuleFormset()
-
     class Meta:
         model = Segment
         fields = (
             'name',
             'description'
         )
-
-    def __init__(self, *args, **kwargs):
-        super(SegmentForm, self).__init__(*args, **kwargs)
-        self.include_rules = IncludeSegmentRuleFormset()
-        self.exclude_rules = ExcludeSegmentRuleFormset()
-
 class SettingCreateUpdateForm(forms.ModelForm):
 
     class Meta:

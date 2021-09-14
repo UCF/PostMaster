@@ -753,11 +753,13 @@ class SegmentUpdateView(UpdateView):
         else:
             data['include_rules'] = IncludeSegmentRuleFormset(
                 instance=self.object,
-                prefix='include_rules'
+                prefix='include_rules',
+                queryset=self.object.include_rules.all()
             )
             data['exclude_rules'] = ExcludeSegmentRuleFormset(
                 instance=self.object,
-                prefix='exclude_rules'
+                prefix='exclude_rules',
+                queryset=self.object.exclude_rules.all()
             )
 
         return data
