@@ -43,7 +43,7 @@
             <label>Email instance</label>
             <select class="rule-conditional-input" data-width="100%">
               {% if rule.field.value == 'clicked_url_in_instance' and rule.key.value %}
-              <option value="{{ rule.key.value }}" selected>{{rule.instance.key_as_option}}</option>
+              <option value="{{ rule.key.value }}" selected>{{ rule.instance.key_as_option }}</option>
               {% endif %}
             </select>
           </div>
@@ -57,7 +57,7 @@
               type="text"
               class="rule-conditional-input form-control"
               {% if rule.field.value == '' and rule.key.value %}
-              value="{{ rule.value.value }}"
+              value="{{ rule.instance.key_as_option }}"
               {% endif %}
               >
           </div>
@@ -86,7 +86,7 @@
             <label>Recipient attribute</label>
             <select class="rule-conditional-input" data-width="100%">
               {% if rule.field.value == 'has_attribute' and rule.value.value %}
-              <option value="{{ rule.value.value }}" selected>TODO</option>
+              <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
               {% endif %}
             </select>
           </div>
@@ -100,7 +100,7 @@
             <select class="rule-conditional-input" data-width="100%">
               {% if rule.field.value == 'received_instance' or rule.field.value == 'opened_instance' or rule.field.value == 'clicked_any_url_in_email' %}
                 {% if rule.value.value %}
-                <option value="{{ rule.value.value }}" selected>TODO</option>
+                <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
                 {% endif %}
               {% endif %}
             </select>
@@ -114,7 +114,7 @@
             <label>Email</label>
             <select class="rule-conditional-input" data-width="100%">
               {% if rule.field.value == 'opened_email' and rule.value.value %}
-              <option value="{{ rule.value.value }}" selected>TODO</option>
+              <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
               {% endif %}
             </select>
           </div>
@@ -129,7 +129,7 @@
               class="rule-conditional-input form-control"
               {% if rule.field.value == 'clicked_link' or rule.field.value == 'clicked_link' %}
                 {% if rule.value.value %}
-                value="{{ rule.value.value }}"
+                value="{{ rule.instance.value_as_option }}"
                 {% endif %}
               {% endif %}
               >
