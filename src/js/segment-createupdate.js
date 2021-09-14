@@ -29,21 +29,6 @@
   }
 
   //
-  // Hide the Condition input for the first row in
-  // a list of rules
-  //
-  function toggleConditionInput($row) {
-    const $conditionInput = $row.find('.rule-group-condition');
-
-    if ($row.is(':visible:first-child')) {
-      $conditionInput.find('select').val('');
-      $conditionInput.hide();
-    } else {
-      $conditionInput.show();
-    }
-  }
-
-  //
   // Finds all rows in the given parent $target and
   // resets label, input ID indexes
   //
@@ -107,10 +92,6 @@
     $row
       .find('.rule-control-field')
       .on('change', handleFieldInputChange);
-
-    // Make sure the condition input is hidden if this
-    // is the first row in its list:
-    toggleConditionInput($row);
   }
 
   //
@@ -258,7 +239,6 @@
       $.each($list.find('.ruleset:visible'), (idx, el) => {
         const $row = $(el);
         resetRowIndexes($row, idx);
-        toggleConditionInput($row);
       });
     }
   });
