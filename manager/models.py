@@ -268,7 +268,7 @@ class SegmentRule(models.Model):
             return Q(attributes__name=self.key, attributes__value=self.value)
         elif self.field == 'received_instance':
             # If the recipient received a particular instance
-            return Q(instances=int(self.value))
+            return Q(instance=int(self.value))
         elif self.field == 'opened_email':
             # TODO: See if we can map this to `open_recipients` on instances
             # If the recipient opened any instance of an email
