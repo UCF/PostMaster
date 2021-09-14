@@ -1,5 +1,6 @@
 {% load widget_tweaks %}
 {% load filters %}
+
 <div class="card d-flex flex-row flex-nowrap mb-3">
   <div class="card-header border-bottom-0 position-relative px-3">
     <div class="ruleset-grip stretched-link" style="cursor: move;">
@@ -11,11 +12,8 @@
   <div class="card-block">
     {% if rule.errors %}
     <div class="alert alert-danger">
-      <ul>
-        {% for error in rule.errors %}
-        <li class="list-item">{{ error }} is required.</li>
-        {% endfor %}
-      </ul>
+      <p><strong>Something went wrong while saving these rules:</strong></p>
+      {{ rule.errors }}
     </div>
     {% endif %}
     <div class="row">
