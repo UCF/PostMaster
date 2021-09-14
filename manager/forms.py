@@ -220,23 +220,28 @@ class SegmentRuleForm(forms.ModelForm):
             'value'
         ]
 
-IncludeSegmentRuleFormset = inlineformset_factory(
+class IncludeSegmentRuleFormset(inlineformset_factory(
     Segment,
     SegmentRule,
     form=SegmentRuleForm,
-    extra=1,
+    extra=0,
     min_num=1,
     max_num=10
-)
+)):
+    def clean(self):
+        super(IncludeSegmentRuleFormset, self).clean()
 
-ExcludeSegmentRuleFormset = inlineformset_factory(
+
+class ExcludeSegmentRuleFormset(inlineformset_factory(
     Segment,
     SegmentRule,
     form=SegmentRuleForm,
-    extra=1,
+    extra=0,
     min_num=0,
     max_num=10
-)
+)):
+    def clean(self):
+        super(ExcludeSegmentRuleFormset, self).clean()
 
 class SegmentForm(forms.ModelForm):
     class Meta:

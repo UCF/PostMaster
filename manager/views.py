@@ -770,6 +770,8 @@ class SegmentUpdateView(UpdateView):
         include_formset = context['include_rules']
         exclude_formset = context['exclude_rules']
 
+        print(exclude_formset.errors)
+
         if include_formset.is_valid() and exclude_formset.is_valid():
             self.object.include_rules.delete()
             self.object.exclude_rules.delete()
@@ -807,6 +809,7 @@ class SegmentUpdateView(UpdateView):
 
             return response
         else:
+            print("Fail")
             return super(SegmentUpdateView, self).form_invalid(form)
 
     def get_success_url(self):
