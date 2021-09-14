@@ -3,6 +3,7 @@
 
 {% block page-body %}
 <h1 class="h2 heading-underline">Update Segment: {{segment.name}}</h1>
+<p class="small">Current Recipient Count: <strong>{{segment.recipients.count}}</strong></p>
 <form class="form-horizontal" action="{% url 'manager-segments-update' object.pk %}" method="post">
   <fieldset>
     {% for error in form.non_field_errors %}
