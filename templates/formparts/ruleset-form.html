@@ -53,7 +53,13 @@
             data-field-values="has_attribute"
             data-input-type="text">
             <label>Attribute value</label>
-            <input type="text" class="rule-conditional-input form-control">
+            <input
+              type="text"
+              class="rule-conditional-input form-control"
+              {% if rule.field.value == '' and rule.key.value %}
+              value="{{ rule.value.value }}"
+              {% endif %}
+              >
           </div>
           <!-- END key inputs -->
 
@@ -118,7 +124,15 @@
             data-field-values="clicked_link clicked_url_in_instance"
             data-input-type="text">
             <label>URL</label>
-            <input type="text" class="rule-conditional-input form-control">
+            <input
+              type="text"
+              class="rule-conditional-input form-control"
+              {% if rule.field.value == 'clicked_link' or rule.field.value == 'clicked_link' %}
+                {% if rule.value.value %}
+                value="{{ rule.value.value }}"
+                {% endif %}
+              {% endif %}
+              >
           </div>
           <!-- END value inputs -->
         </div>
