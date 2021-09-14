@@ -208,7 +208,7 @@
     deleteCssClass: 'close ml-0', // CSS class applied to the delete link
     added: handleRowAdd,
     removed: handleRowDelete,
-    hideLastAddForm: true
+    hideLastAddForm: false
   };
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_INCLUDE_RULES_PREFIX,
