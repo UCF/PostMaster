@@ -12,9 +12,9 @@
     {% if rule.errors %}
     <div class="alert alert-danger">
       <ul>
-      {% for error in rule.errors %}
-        <li class="list-item">The field {{error}}must have value.</li>
-      {% endfor %}
+        {% for error in rule.errors %}
+        <li class="list-item">{{ error }} is required.</li>
+        {% endfor %}
       </ul>
     </div>
     {% endif %}
@@ -34,70 +34,93 @@
         </div>
 
         <div class="row">
-          <div class="col mb-0 form-group rule-group-value">
-            <div
-              class="rule-conditional-input-container"
-              data-controls="{{ rule.value.id_for_label }}"
-              data-field-values="in_recipient_group"
-              data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
-              data-input-type="select2">
-              <label>Recipient group</label>
-              <select class="rule-conditional-input" data-width="100%"></select>
-            </div>
-            <div
-              class="rule-conditional-input-container"
-              data-controls="{{ rule.key.id_for_label }}"
-              data-field-values="has_attribute"
-              data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
-              data-input-type="select2">
-              <label>Recipient attribute</label>
-              <select class="rule-conditional-input" data-width="100%"></select>
-            </div>
-            <div
-              class="rule-conditional-input-container"
-              data-controls="{{ rule.key.id_for_label }}"
-              data-field-values="received_instance opened_instance clicked_any_url_in_email"
-              data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
-              data-input-type="select2">
-              <label>Email instance</label>
-              <select class="rule-conditional-input" data-width="100%"></select>
-            </div>
-            <div
-              class="rule-conditional-input-container"
-              data-controls="{{ rule.key.id_for_label }}"
-              data-field-values="opened_email"
-              data-options-endpoint="{% url 'manager-lookups' %}?type=email"
-              data-input-type="select2">
-              <label>Email</label>
-              <select class="rule-conditional-input" data-width="100%"></select>
-            </div>
-            <div
-              class="rule-conditional-input-container"
-              data-controls="{{ rule.key.id_for_label }}"
-              data-field-values="clicked_link clicked_url_in_instance"
-              data-input-type="text">
-              <label>URL</label>
-              <input type="text" class="rule-conditional-input form-control">
-            </div>
+          <!-- START key inputs -->
+          <div class="col mb-0 form-group rule-group-key rule-conditional-input-container"
+            data-controls="{{ rule.key.id_for_label }}"
+            data-field-values="clicked_url_in_instance"
+            data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
+            data-input-type="select2">
+            <label>Email instance</label>
+            <select class="rule-conditional-input" data-width="100%">
+              {% if rule.field.value == 'clicked_url_in_instance' and rule.key.value %}
+              <option value="{{ rule.key.value }}" selected>TODO</option>
+              {% endif %}
+            </select>
           </div>
-          <div class="col mb-0 form-group rule-group-value">
-            <div class="rule-conditional-input-container"
-              data-controls="{{ rule.value.id_for_label }}"
-              data-field-values="clicked_url_in_instance"
-              data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
-              data-input-type="select2">
-              <label>Email instance</label>
-              <select class="rule-conditional-input" data-width="100%"></select>
-            </div>
-            <div
-              class="rule-conditional-input-container"
-              data-controls="{{ rule.value.id_for_label }}"
-              data-field-values="has_attribute"
-              data-input-type="text">
-              <label>Attribute value</label>
-              <input type="text" class="rule-conditional-input form-control">
-            </div>
+          <div
+            class="col mb-0 form-group rule-group-key rule-conditional-input-container"
+            data-controls="{{ rule.key.id_for_label }}"
+            data-field-values="has_attribute"
+            data-input-type="text">
+            <label>Attribute value</label>
+            <input type="text" class="rule-conditional-input form-control">
           </div>
+          <!-- END key inputs -->
+
+          <!-- START value inputs -->
+          <div
+            class="col mb-0 form-group rule-group-value rule-conditional-input-container"
+            data-controls="{{ rule.value.id_for_label }}"
+            data-field-values="in_recipient_group"
+            data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
+            data-input-type="select2">
+            <label>Recipient group</label>
+            <select class="rule-conditional-input" data-width="100%">
+              {% if rule.field.value == 'in_recipient_group' and rule.value.value %}
+              <option value="{{ rule.value.value }}" selected>TODO</option>
+              {% endif %}
+            </select>
+          </div>
+          <div
+            class="col mb-0 form-group rule-group-value rule-conditional-input-container"
+            data-controls="{{ rule.value.id_for_label }}"
+            data-field-values="has_attribute"
+            data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
+            data-input-type="select2">
+            <label>Recipient attribute</label>
+            <select class="rule-conditional-input" data-width="100%">
+              {% if rule.field.value == 'has_attribute' and rule.value.value %}
+              <option value="{{ rule.value.value }}" selected>TODO</option>
+              {% endif %}
+            </select>
+          </div>
+          <div
+            class="col mb-0 form-group rule-group-value rule-conditional-input-container"
+            data-controls="{{ rule.value.id_for_label }}"
+            data-field-values="received_instance opened_instance clicked_any_url_in_email"
+            data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
+            data-input-type="select2">
+            <label>Email instance</label>
+            <select class="rule-conditional-input" data-width="100%">
+              {% if rule.field.value == 'received_instance' or rule.field.value == 'opened_instance' or rule.field.value == 'clicked_any_url_in_email' %}
+                {% if rule.value.value %}
+                <option value="{{ rule.value.value }}" selected>TODO</option>
+                {% endif %}
+              {% endif %}
+            </select>
+          </div>
+          <div
+            class="col mb-0 form-group rule-group-value rule-conditional-input-container"
+            data-controls="{{ rule.value.id_for_label }}"
+            data-field-values="opened_email"
+            data-options-endpoint="{% url 'manager-lookups' %}?type=email"
+            data-input-type="select2">
+            <label>Email</label>
+            <select class="rule-conditional-input" data-width="100%">
+              {% if rule.field.value == 'opened_email' and rule.value.value %}
+              <option value="{{ rule.value.value }}" selected>TODO</option>
+              {% endif %}
+            </select>
+          </div>
+          <div
+            class="col mb-0 form-group rule-group-value rule-conditional-input-container"
+            data-controls="{{ rule.value.id_for_label }}"
+            data-field-values="clicked_link clicked_url_in_instance"
+            data-input-type="text">
+            <label>URL</label>
+            <input type="text" class="rule-conditional-input form-control">
+          </div>
+          <!-- END value inputs -->
         </div>
       </div>
     </div>

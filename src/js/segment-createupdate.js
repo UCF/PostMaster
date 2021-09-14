@@ -56,15 +56,10 @@
   // Applies event handlers and such to new rows
   //
   function rowInit($row) {
-    const $keyCol = $row.find('.rule-group-key');
-    const $valCol = $row.find('.rule-group-value');
     const fieldVal = $row.find('.rule-control-field').val();
 
     // Hide all conditional inputs:
-    $keyCol
-      .find('.rule-conditional-input-container')
-      .hide();
-    $valCol
+    $row
       .find('.rule-conditional-input-container')
       .hide();
 
@@ -125,7 +120,6 @@
         case 'select2':
           $input = $inputContainer.find('select');
           $input.select2({
-            // TODO this will need a callback for massaging incoming data
             ajax: {
               url: $inputContainer.data('optionsEndpoint'),
               dataType: 'json'
@@ -141,6 +135,7 @@
       $input
         .attr('id', inputID)
         .val($controlledInput.val()) // set initial input value based on controlled input
+        .trigger('change') // required for select2 inputs
         .on('change', function () {
           $controlledInput.val($(this).val());
         })
@@ -160,23 +155,17 @@
   function handleFieldInputChange(e) {
     const $input = $(e.target);
     const $row = $input.parents('.ruleset');
-    const $keyCol = $row.find('.rule-group-key');
-    const $valCol = $row.find('.rule-group-value');
     const fieldVal = $input.val();
 
     // Hide all conditional inputs, and clear their values:
-    $keyCol
+    $row
       .find('.rule-conditional-input-container')
       .hide()
       .find('.rule-conditional-input')
-      .val('');
-    $valCol
-      .find('.rule-conditional-input-container')
-      .hide()
-      .find('.rule-conditional-input')
-      .val('');
+      .val('')
+      .trigger('change');
 
-    // Clear key/value inputs:
+    // Clear hidden key/value inputs:
     $row.find('.rule-controlled-input').val('');
 
     const $toggledInputs = $row.find(`.rule-conditional-input-container[data-field-values*="${fieldVal}"]`);
