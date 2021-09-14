@@ -221,6 +221,36 @@ class SegmentRule(models.Model):
     def __str__(self):
         return f"{self.field} - {self.value}"
 
+    @property
+    def value_as_option(self):
+        if self.field == 'in_recipient_group':
+            try:
+                retval = RecipientGroup.objects.get(pk=int(self.value))
+                return retval.name
+            except:
+                return 'Not Found'
+
+        if self.field == 'opened_email':
+            try:
+                retval = Email.objects.get(pk=int(self.value))
+                return retval.title
+            except:
+                return 'Not Found'
+
+        if self.field in ['opened_instance', 'clicked_any_url_in_email', 'clicked_url_in_instance']:
+            try:
+                retval = Instance.objects.get(pk=int(self.value))
+                return retval.option_text
+            except:
+                return 'Not Found'
+
+        if self.field in ['has_attribute', 'clicked_link']:
+            return self.value
+
+    @property
+    def key_as_option(self):
+        return self.key
+
     def get_query(self):
         if self.field == 'in_recipient_group':
             # If recipient is in the recipient group. Pass recipient group ID.
@@ -251,7 +281,6 @@ class SegmentRule(models.Model):
             return Q(url_clicks__name=self.key, url_clicks__url__instance=int(self.value))
 
         return Q()
-
 
 class SubscriptionCategory(models.Model):
     """

@@ -43,7 +43,7 @@
             <label>Email instance</label>
             <select class="rule-conditional-input" data-width="100%">
               {% if rule.field.value == 'clicked_url_in_instance' and rule.key.value %}
-              <option value="{{ rule.key.value }}" selected>TODO</option>
+              <option value="{{ rule.key.value }}" selected>{{rule.instance.key_as_option}}</option>
               {% endif %}
             </select>
           </div>
@@ -67,7 +67,7 @@
             <label>Recipient group</label>
             <select class="rule-conditional-input" data-width="100%">
               {% if rule.field.value == 'in_recipient_group' and rule.value.value %}
-              <option value="{{ rule.value.value }}" selected>TODO</option>
+              <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
               {% endif %}
             </select>
           </div>
