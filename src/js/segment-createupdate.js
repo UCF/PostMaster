@@ -205,18 +205,19 @@
     addContainerClass: null, // Container CSS class for the add link
     deleteContainerClass: 'ruleset-remove-container', // Container CSS class for the delete link.
     addCssClass: 'btn btn-sm btn-default px-3', // CSS class applied to the add link
-    deleteCssClass: 'close ml-0', // CSS class applied to the delete link
     added: handleRowAdd,
     removed: handleRowDelete,
     hideLastAddForm: false
   };
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_INCLUDE_RULES_PREFIX,
-    formCssClass: 'ruleset-include'
+    formCssClass: 'ruleset-include',
+    deleteCssClass: 'close ml-0 include-ruleset-remove'
   });
   const excludeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_EXCLUDE_RULES_PREFIX,
-    formCssClass: 'ruleset-exclude'
+    formCssClass: 'ruleset-exclude',
+    deleteCssClass: 'close ml-0 exclude-ruleset-remove'
   });
 
   $('.ruleset-include').formset(includeRulesetArgs);
