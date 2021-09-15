@@ -2,14 +2,14 @@
 {% load filters %}
 
 <div class="card d-flex flex-row flex-nowrap mb-3">
-  <div class="card-header border-bottom-0 position-relative px-3">
+  <div class="ruleset-panel-side card-header border-bottom-0 position-relative text-center px-0">
     <div class="ruleset-grip stretched-link" style="cursor: move;">
       <span class="fas fa-grip-vertical fa-lg text-default" aria-hidden="true"></span>
       <span class="sr-only">Move rule</span>
     </div>
   </div>
 
-  <div class="card-block">
+  <div class="card-block ruleset-panel-inner">
     {% if rule.errors %}
     <div class="alert alert-danger">
       <p><strong>Something went wrong while saving these rules:</strong></p>
@@ -17,13 +17,13 @@
     </div>
     {% endif %}
     <div class="row">
-      <div class="col-lg-2 form-group rule-group-condition">
+      <div class="col-lg-3 col-xl-2 form-group rule-group-condition">
         <label class="form-control-label" for="{{ rule.conditional.id_for_label }}">
           Condition
         </label>
         {{ rule.conditional|add_class:"form-control custom-select rule-control-condition" }}
       </div>
-      <div class="col-lg-10">
+      <div class="col-lg-9 col-xl-10">
         <div class="form-group">
           <label class="form-control-label" for="{{ rule.field.id_for_label }}">
             Filter recipients by...
@@ -148,7 +148,7 @@
 
   </div>
 
-  <div class="card-footer border-top-0 px-2">
+  <div class="ruleset-panel-side card-footer border-top-0 text-center px-0">
     <div class="ruleset-remove-container"></div>
   </div>
 </div>
