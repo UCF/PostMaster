@@ -285,7 +285,7 @@ class SegmentRule(models.Model):
             return Q(urls_clicked__url__instance=int(self.value))
         elif self.field == 'clicked_url_in_instance':
             # If the recipient clicked on a specific URL string in a particular instance
-            return Q(url_clicks__name=self.key, url_clicks__url__instance=int(self.value))
+            return Q(urls_clicked__url__name=self.key, urls_clicked__url__instance=int(self.value))
 
         return Q()
 
