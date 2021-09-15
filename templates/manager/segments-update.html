@@ -46,7 +46,7 @@
       <div class="col-form-label col-md-3 text-left text-md-right">
         Exclude rules
       </div>
-      <div class="col">
+      <div class="col-md-9">
         <div class="jumbotron p-4 mb-3" id="exclude-rules-empty">
           No exclude rules have been added for this segment.
         </div>
@@ -70,11 +70,17 @@
     <div class="row form-group mt-5">
       <div class="offset-sm-3 col-sm-9">
         <button type="submit" class="btn btn-primary">
-          <span class="fas fa-plus" aria-hidden="true"></span> Update</button>
+          <span class="fas fa-plus" aria-hidden="true"></span>
+          Update
+        </button>
         <a href="{% url 'manager-segments' %}" class="btn btn-default">
-          <span class="fas fa-minus" aria-hidden="true"></span> Cancel</a>
+          <span class="fas fa-minus" aria-hidden="true"></span>
+          Cancel
+        </a>
         <a href="{% url 'manager-segments-delete' object.pk %}" class="btn btn-danger">
-          <span class"fas fas-trash" aria-hidden="true"></span> Delete</a>
+          <span class"fas fas-trash" aria-hidden="true"></span>
+          Delete
+        </a>
       </div>
     </div>
   </fieldset>
