@@ -38,8 +38,9 @@
 
 @import 'forms/base';
 @import 'forms/datepickers';
-@import 'forms/multiselects';
+@import 'forms/select2';
 @import 'forms/timepickers';
 @import 'forms/typeaheads';
 
 @import 'views/email-instance';
+@import 'views/segment-createupdate';

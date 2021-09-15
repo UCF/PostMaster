@@ -1,0 +1,152 @@
+{% load widget_tweaks %}
+{% load filters %}
+
+<div class="card d-flex flex-row flex-nowrap mb-3">
+  <div class="ruleset-panel-side card-header border-bottom-0 position-relative text-center px-0">
+    <div class="ruleset-grip stretched-link" style="cursor: move;">
+      <span class="fas fa-grip-vertical fa-lg text-default" aria-hidden="true"></span>
+      <span class="sr-only">Move rule</span>
+    </div>
+  </div>
+
+  <div class="card-block ruleset-panel-inner pb-1">
+    {% if rule.errors %}
+    <div class="alert alert-danger">
+      <p><strong>Something went wrong while saving these rules:</strong></p>
+      {{ rule.errors }}
+    </div>
+    {% endif %}
+    <div class="row">
+      <div class="col-lg-3 col-xl-2 form-group rule-group-condition">
+        <label class="form-control-label" for="{{ rule.conditional.id_for_label }}">
+          Condition
+        </label>
+        {{ rule.conditional|add_class:"form-control custom-select rule-control-condition" }}
+      </div>
+      <div class="col-lg-9 col-xl-10">
+        <div class="form-group">
+          <label class="form-control-label" for="{{ rule.field.id_for_label }}">
+            Filter recipients by...
+          </label>
+          {{ rule.field|add_class:"form-control custom-select rule-control-field" }}
+        </div>
+
+        <!-- START key inputs -->
+        <div
+          class="mb-3 form-group rule-group-key rule-conditional-input-container"
+          data-controls="{{ rule.key.id_for_label }}"
+          data-field-values="clicked_url_in_instance"
+          data-input-type="text">
+          <label>URL</label>
+          <input
+            type="text"
+            class="rule-conditional-input form-control"
+            {% if rule.field.value == 'clicked_url_in_instance' and rule.key.value %}
+            value="{{ rule.instance.key_as_option }}"
+            {% endif %}
+            >
+        </div>
+        <div
+          class="mb-3 form-group rule-group-key rule-conditional-input-container"
+          data-controls="{{ rule.key.id_for_label }}"
+          data-field-values="has_attribute"
+          data-options-endpoint="{% url 'manager-lookups' %}?type=recipientattribute"
+          data-input-type="select2">
+          <label>Attribute name</label>
+          <select class="rule-conditional-input" data-width="100%">
+            {% if rule.field.value == 'has_attribute' and rule.key.value %}
+            <option value="{{ rule.key.value }}" selected>{{ rule.instance.key_as_option }}</option>
+            {% endif %}
+          </select>
+        </div>
+        <!-- END key inputs -->
+
+        <!-- START value inputs -->
+        <div
+          class="mb-3 form-group rule-group-value rule-conditional-input-container"
+          data-controls="{{ rule.value.id_for_label }}"
+          data-field-values="in_recipient_group"
+          data-options-endpoint="{% url 'manager-lookups' %}?type=recipientgroup"
+          data-input-type="select2">
+          <label>Recipient group</label>
+          <select class="rule-conditional-input" data-width="100%">
+            {% if rule.field.value == 'in_recipient_group' and rule.value.value %}
+            <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
+            {% endif %}
+          </select>
+        </div>
+        <div
+          class="mb-3 form-group rule-group-value rule-conditional-input-container"
+          data-controls="{{ rule.value.id_for_label }}"
+          data-field-values="has_attribute"
+          data-input-type="text">
+          <label>Attribute value</label>
+          <input
+            type="text"
+            class="rule-conditional-input form-control"
+            {% if rule.field.value == 'has_attribute' and rule.value.value %}
+            value="{{ rule.instance.value_as_option }}"
+            {% endif %}
+            >
+        </div>
+        <div
+          class="mb-3 form-group rule-group-value rule-conditional-input-container"
+          data-controls="{{ rule.value.id_for_label }}"
+          data-field-values="received_instance opened_instance clicked_any_url_in_email clicked_url_in_instance"
+          data-options-endpoint="{% url 'manager-lookups' %}?type=instance"
+          data-input-type="select2">
+          <label>Email instance</label>
+          <select class="rule-conditional-input" data-width="100%">
+            {% if rule.field.value == 'received_instance' or rule.field.value == 'opened_instance' or rule.field.value == 'clicked_any_url_in_email' or rule.field.value == 'clicked_url_in_instance' %}
+              {% if rule.value.value %}
+              <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
+              {% endif %}
+            {% endif %}
+          </select>
+        </div>
+        <div
+          class="mb-3 form-group rule-group-value rule-conditional-input-container"
+          data-controls="{{ rule.value.id_for_label }}"
+          data-field-values="opened_email"
+          data-options-endpoint="{% url 'manager-lookups' %}?type=email"
+          data-input-type="select2">
+          <label>Email</label>
+          <select class="rule-conditional-input" data-width="100%">
+            {% if rule.field.value == 'opened_email' and rule.value.value %}
+            <option value="{{ rule.value.value }}" selected>{{ rule.instance.value_as_option }}</option>
+            {% endif %}
+          </select>
+        </div>
+        <div
+          class="mb-3 form-group rule-group-value rule-conditional-input-container"
+          data-controls="{{ rule.value.id_for_label }}"
+          data-field-values="clicked_link"
+          data-input-type="text">
+          <label>URL</label>
+          <input
+            type="text"
+            class="rule-conditional-input form-control"
+            {% if rule.field.value == 'clicked_link' and rule.value.value %}
+            value="{{ rule.instance.value_as_option }}"
+            {% endif %}
+            >
+        </div>
+        <!-- END value inputs -->
+      </div>
+    </div>
+
+    {{ rule.DELETE }}
+    {{ rule.key|attr:"type:hidden"|add_class:"rule-controlled-input rule-control-key" }}
+    {{ rule.value|attr:"type:hidden"|add_class:"rule-controlled-input rule-control-value" }}
+    {% for field in rule %}
+      {% if field.is_hidden and field.name not in 'key,value' %}
+        {{ field }}
+      {% endif %}
+    {% endfor %}
+
+  </div>
+
+  <div class="ruleset-panel-side card-footer border-top-0 text-center px-0">
+    <div class="ruleset-remove-container"></div>
+  </div>
+</div>

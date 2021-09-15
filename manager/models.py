@@ -137,6 +137,157 @@ class RecipientGroup(models.Model):
     def __str__(self):
         return self.name + ' (' + str(self.recipients.exclude(disable=True).count()) + ' active recipients)'
 
+class Segment(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True, help_text='Details about this segment for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    archived = models.BooleanField(default=False)
+    preview = models.BooleanField(
+        default=False,
+        verbose_name='Is a Preview Group',
+        help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
+    )
+
+    @property
+    def include_rules(self):
+        return self.rules.filter(rule_type='include').order_by('index')
+
+    @property
+    def exclude_rules(self):
+        return self.rules.filter(rule_type='exclude').order_by('index')
+
+    @property
+    def recipients(self):
+        include_filter = Q()
+        for rule in self.include_rules.all():
+            if rule.conditional in ['AND', None]:
+                include_filter &= rule.get_query()
+            elif rule.conditional == 'OR':
+                include_filter |= rule.get_query()
+
+        exclude_filter = None
+
+        if self.exclude_rules.count() > 0:
+            exclude_filter = Q()
+            for rule in self.exclude_rules.all():
+                if rule.conditional in ['AND', None]:
+                    exclude_filter &= rule.get_query()
+                elif rule.conditional == 'OR':
+                    exclude_filter |= rule.get_query()
+
+        retval = Recipient.objects.filter(include_filter)
+
+        if exclude_filter is not None:
+            retval = retval.exclude(exclude_filter)
+
+        return retval
+
+class SegmentRule(models.Model):
+    rule_types = (
+        ('include', 'Include'),
+        ('exclude', 'Exclude')
+    )
+
+    rule_fields = (
+        ('in_recipient_group', 'In recipient group'),
+        ('has_attribute', 'Has attribute'),
+        ('received_instance', 'Received instance'),
+        ('opened_email', 'Opened email'),
+        ('opened_instance', 'Opened instance'),
+        ('clicked_link', 'Clicked on URL'),
+        ('clicked_any_url_in_email', 'Clicked on any url in instance'),
+        ('clicked_url_in_instance', 'Clicked on a specific url in an instance')
+    )
+
+    rule_conditionals = (
+        ('AND', 'AND'),
+        ('OR', 'OR')
+    )
+
+    segment = models.ForeignKey(Segment, related_name='rules', on_delete=models.CASCADE)
+    rule_type = models.CharField(max_length=7, null=False, blank=False, choices=rule_types)
+    field = models.CharField(max_length=40, null=False, blank=False, choices=rule_fields)
+    conditional = models.CharField(max_length=3, null=True, blank=True, choices=rule_conditionals)
+    key = models.CharField(max_length=255, null=True, blank=True, help_text="The key within a key/value pair lookup")
+    value = models.CharField(max_length=255, null=False, blank=False, help_text="The value which to filter the segment by")
+    group = models.IntegerField(default=0, null=False, blank=False)
+    index = models.IntegerField(default=0, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.field} - {self.value}"
+
+    @property
+    def value_as_option(self):
+        if self.field == 'in_recipient_group':
+            try:
+                retval = RecipientGroup.objects.get(pk=int(self.value))
+                return retval.name
+            except:
+                return 'Not Found'
+
+        if self.field == 'opened_email':
+            try:
+                retval = Email.objects.get(pk=int(self.value))
+                return retval.title
+            except:
+                return 'Not Found'
+
+        if self.field in [
+            'received_instance',
+            'opened_instance',
+            'clicked_any_url_in_email',
+            'clicked_url_in_instance'
+        ]:
+            try:
+                retval = Instance.objects.get(pk=int(self.value))
+                return retval.option_text
+            except:
+                return 'Not Found'
+
+        return self.value
+
+    @property
+    def key_as_option(self):
+        if self.field == 'has_attribute':
+            try:
+                retval = RecipientAttribute.objects.get(pk=int(self.key))
+                return retval.name
+            except:
+                return 'Not Found'
+
+        return self.key
+
+    def get_query(self):
+        if self.field == 'in_recipient_group':
+            # If recipient is in the recipient group. Pass recipient group ID.
+            return Q(groups=int(self.value))
+        elif self.field == 'has_attribute':
+            # If the recipient has an attribute with a specific value. Pass
+            # attribute name as key, and desired value as value.
+            return Q(attributes__name=self.key, attributes__value=self.value)
+        elif self.field == 'received_instance':
+            # If the recipient received a particular instance
+            return Q(instance=int(self.value))
+        elif self.field == 'opened_email':
+            # TODO: See if we can map this to `open_recipients` on instances
+            # If the recipient opened any instance of an email
+            return Q(instances_opened__instance__email=int(self.value))
+        elif self.field == 'opened_instance':
+            # TODO: See if we can map this to `open_recipients` on instances
+            # If the recipient opened a specific instance
+            return Q(instances_opened__instance=int(self.value))
+        elif self.field == 'clicked_link':
+            # If the recipient clicked on a particular URL
+            return Q(urls_clicked__url__name=self.value)
+        elif self.field =='clicked_any_url_in_email':
+            # If the recipient clicked on any URL in a particular instance
+            return Q(urls_clicked__url__instance=int(self.value))
+        elif self.field == 'clicked_url_in_instance':
+            # If the recipient clicked on a specific URL string in a particular instance
+            return Q(urls_clicked__url__name=self.key, urls_clicked__url__instance=int(self.value))
+
+        return Q()
 
 class SubscriptionCategory(models.Model):
     """
@@ -1140,6 +1291,14 @@ class Instance(models.Model):
             return round(float(self.click_recipient_count) / float(self.open_recipient_count) * 100, 2)
 
         return 0
+
+    @property
+    def option_text(self):
+        start = self.start.strftime('%Y-%m-%d %-I:%M %p')
+        if self.subject:
+            return f"{self.email.title}: {self.subject} ({start})"
+        else:
+            return f"{self.email.title} ({start})"
 
     class Meta:
         ordering = ('-start',)

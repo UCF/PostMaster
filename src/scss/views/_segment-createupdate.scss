@@ -1,0 +1,11 @@
+//
+// Segment create/update views
+//
+
+.ruleset-panel-side {
+  width: $ruleset-panel-side-width;
+}
+
+.ruleset-panel-inner {
+  width: calc(100% - #{$ruleset-panel-side-width * 2});
+}
