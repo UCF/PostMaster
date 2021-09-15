@@ -212,12 +212,12 @@
   const includeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_INCLUDE_RULES_PREFIX,
     formCssClass: 'ruleset-include',
-    deleteCssClass: 'close ml-0 include-ruleset-remove'
+    deleteCssClass: 'close mx-auto float-none include-ruleset-remove'
   });
   const excludeRulesetArgs = $.extend({}, rulesetArgs, {
     prefix: SEGMENT_EXCLUDE_RULES_PREFIX,
     formCssClass: 'ruleset-exclude',
-    deleteCssClass: 'close ml-0 exclude-ruleset-remove'
+    deleteCssClass: 'close mx-auto float-none exclude-ruleset-remove'
   });
 
   $('.ruleset-include').formset(includeRulesetArgs);
