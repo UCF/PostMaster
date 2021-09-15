@@ -139,7 +139,7 @@ class RecipientGroup(models.Model):
 
 class Segment(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(null=True, blank=True, help_text='Details about this recipient group for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
+    description = models.TextField(null=True, blank=True, help_text='Details about this segment for internal reference, such as specific details about included recipients, frequency of imported data, etc.')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     archived = models.BooleanField(default=False)
