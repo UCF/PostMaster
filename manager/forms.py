@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ValidationError
 from django.db.models import fields
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -27,6 +28,15 @@ class EmailCreateUpdateForm(forms.ModelForm):
         super(EmailCreateUpdateForm, self).__init__(*args, **kwargs)
         self.fields['recipient_groups'].queryset = RecipientGroup.objects.filter(
             archived=False, preview=False)
+
+    def clean(self):
+        cleaned_data = super(EmailCreateUpdateForm, self).clean()
+        if not cleaned_data.get('recipient_groups') and not cleaned_data.get('segments'):
+            raise ValidationError(
+                {
+                    'recipient_groups': 'There must be either one recipient group or one segment selected.'
+                }
+            )
 
 
 class EmailInstantSendForm(forms.Form):
