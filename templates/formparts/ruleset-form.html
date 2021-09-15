@@ -17,13 +17,13 @@
     </div>
     {% endif %}
     <div class="row">
-      <div class="col-lg-3 col-xl-2 form-group rule-group-condition">
+      <div class="col-lg-2 form-group rule-group-condition">
         <label class="form-control-label" for="{{ rule.conditional.id_for_label }}">
           Condition
         </label>
         {{ rule.conditional|add_class:"form-control custom-select rule-control-condition" }}
       </div>
-      <div class="col">
+      <div class="col-lg-10">
         <div class="form-group">
           <label class="form-control-label" for="{{ rule.field.id_for_label }}">
             Filter recipients by...
