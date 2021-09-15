@@ -149,6 +149,9 @@ class Segment(models.Model):
         help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
     )
 
+    def __str__(self):
+        return self.name
+
     @property
     def include_rules(self):
         return self.rules.filter(rule_type='include').order_by('index')
@@ -589,6 +592,7 @@ class Email(models.Model):
         'recurrence': 'If and how often the email will be resent.',
         'replace_delimiter': 'Character(s) that replacement labels are wrapped in.',
         'recipient_groups': 'Which group(s) of recipients this email will go to.',
+        'segments': 'Which segment(s) this email will go to.',
         'from_email_address': 'Email address from where the sent emails will originate',
         'from_friendly_name': 'A display name associated with the from email address',
         'track_urls': 'Rewrites all URLs in the email content to be recorded',
@@ -609,7 +613,8 @@ class Email(models.Model):
     from_email_address = models.CharField(max_length=256, help_text=_HELP_TEXT['from_email_address'])
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
     replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
-    recipient_groups = models.ManyToManyField(RecipientGroup, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
+    recipient_groups = models.ManyToManyField(RecipientGroup, blank=True, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
+    segments = models.ManyToManyField(Segment, blank=True, related_name='emails', help_text=_HELP_TEXT['segments'])
     track_urls = models.BooleanField(default=True, help_text=_HELP_TEXT['track_urls'])
     track_opens = models.BooleanField(default=True, help_text=_HELP_TEXT['track_opens'])
     preview = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
@@ -625,6 +630,15 @@ class Email(models.Model):
 
     class Meta:
             ordering = ["title"]
+            constraints = [
+                models.CheckConstraint(
+                    name="%(app_label)s_%(class)s_recipientgroups_or_segment",
+                    check=(
+                        Q(recipient_groups__gte=0)
+                        | Q(segments__gte=0)
+                    )
+                )
+            ]
 
     def is_sending_today(self, now=datetime.now()):
         """
@@ -725,6 +739,12 @@ class Email(models.Model):
                 retval = recipient_group.recipients.all()
             else:
                 retval = retval | recipient_group.recipients.all()
+
+        for segment in self.segments.all():
+            if retval is None:
+                retval = segment.recipients.all()
+            else:
+                retval = retval | segment.recipients.all()
 
         return retval.distinct()
 
