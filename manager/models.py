@@ -184,7 +184,7 @@ class Segment(models.Model):
         if exclude_filter is not None:
             retval = retval.exclude(exclude_filter)
 
-        return retval
+        return retval.distinct()
 
 class SegmentRule(models.Model):
     rule_types = (
