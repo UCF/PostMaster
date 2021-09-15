@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page-body %}
+<h1 class="h2 heading-underline">Create Segment</h1>
+<form class="form-horizontal" action="{% url 'manager-segments-create' %}" method="post">
+  <fieldset>
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ error }}
+      </div>
+    {% endfor %}
+    {% for field in form %}
+      {% include 'form-control-group.html' %}
+    {% endfor %}
+
+    <!-- START Include Rules -->
+    <div class="row my-5">
+      <div class="col-form-label col-md-3 text-left text-md-right">
+        Include rules
+      </div>
+      <div class="col">
+        <div class="jumbotron p-4 mb-3" id="include-rules-empty">
+          No include rules have been added for this segment.
+        </div>
+
+        <div class="rules-list">
+          {% for rule in include_rules %}
+          <div class="ruleset ruleset-include" data-empty-msg="include-rules-empty">
+            {% include 'formparts/ruleset-form.html' %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {{ include_rules.management_form }}
+        <script>
+          var SEGMENT_INCLUDE_RULES_PREFIX = "{{ include_rules.prefix }}";
+        </script>
+      </div>
+    </div>
+    <!-- END Include Rules -->
+
+    <!-- START Exclude Rules -->
+    <div class="row mb-5">
+      <div class="col-form-label col-md-3 text-left text-md-right">
+        Exclude rules
+      </div>
+      <div class="col">
+        <div class="jumbotron p-4 mb-3" id="exclude-rules-empty">
+          No exclude rules have been added for this segment.
+        </div>
+
+        <div class="rules-list">
+        {% for rule in exclude_rules %}
+          <div class="ruleset ruleset-exclude" data-empty-msg="exclude-rules-empty">
+            {% include 'formparts/ruleset-form.html' %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {{ exclude_rules.management_form }}
+        <script>
+          var SEGMENT_EXCLUDE_RULES_PREFIX = "{{ exclude_rules.prefix }}";
+        </script>
+      </div>
+    </div>
+    <!-- END Exclude Rules -->
+
+    <div class="row form-group mt-5">
+      <div class="offset-sm-3 col-sm-9">
+        <button type="submit" class="btn btn-primary">
+          <span class="fas fa-plus" aria-hidden="true"></span>
+          Create
+        </button>
+        <a href="{% url 'manager-segments' %}" class="btn btn-default">
+          <span class="fas fa-minus" aria-hidden="true"></span>
+          Cancel
+        </a>
+      </div>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}
+
+{% block javascript-footer %}
+{{ block.super }}
+<script src="{% static 'js/segment-createupdate.min.js' %}"></script>
+{% endblock %}

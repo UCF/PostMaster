@@ -188,11 +188,17 @@ gulp.task('js-build-lockcontent-script', () => {
   return buildJS(`${config.src.jsPath}/lockcontent.js`);
 });
 
+// Concat and uglify segment create+update script
+gulp.task('js-build-segment-createupdate-script', () => {
+  return buildJS(`${config.src.jsPath}/segment-createupdate.js`);
+});
+
 // All js-related tasks
 gulp.task('js', gulp.series(
   'es-lint',
   'js-build-global',
-  'js-build-lockcontent-script'
+  'js-build-lockcontent-script',
+  'js-build-segment-createupdate-script'
 ));
 
 

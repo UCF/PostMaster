@@ -22,7 +22,7 @@ from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
 from django.urls import reverse
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Q
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -55,6 +55,9 @@ from manager.forms import RecipientGroupCreateForm
 from manager.forms import RecipientGroupUpdateForm
 from manager.forms import RecipientSearchForm
 from manager.forms import RecipientSubscriptionsForm
+from manager.forms import SegmentForm
+from manager.forms import IncludeSegmentRuleFormset
+from manager.forms import ExcludeSegmentRuleFormset
 from manager.forms import SettingCreateUpdateForm
 from manager.forms import SubscriptionCategoryForm
 from manager.models import Campaign
@@ -65,13 +68,14 @@ from manager.models import PreviewInstance
 from manager.models import RecipientAttribute
 from manager.models import Recipient
 from manager.models import RecipientGroup
+from manager.models import Segment
+from manager.models import SegmentRule
 from manager.models import Setting
 from manager.models import StaleRecord
 from manager.models import SubprocessStatus
 from manager.models import SubscriptionCategory
 from manager.models import URL
 from manager.models import URLClick
-from manager.utils import CSVImport
 from manager.utils import EmailSender
 from manager.utils import AmazonS3Helper
 
@@ -648,6 +652,172 @@ class RecipientGroupDeleteView(RecipientGroupsMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('manager-recipientgroups')
+
+##
+# Segments
+##
+
+class SegmentListView(ListView):
+    model = Segment
+    template_name = 'manager/segments-list.html'
+    context_object_name = 'segments'
+    paginate_by = 20
+
+class SegmentCreateView(CreateView):
+    model = Segment
+    form_class = SegmentForm
+    template_name = 'manager/segments-create.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(SegmentCreateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['include_rules'] = IncludeSegmentRuleFormset(
+                self.request.POST,
+                prefix='include_rules'
+            )
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(
+                self.request.POST,
+                prefix='exclude_rules'
+            )
+        else:
+            data['include_rules'] = IncludeSegmentRuleFormset(
+                prefix='include_rules'
+            )
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(
+                prefix='exclude_rules'
+            )
+
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save()
+        context = self.get_context_data(form=form)
+        include_formset = context['include_rules']
+        exclude_formset = context['exclude_rules']
+
+        if include_formset.is_valid() and exclude_formset.is_valid():
+            response = super(SegmentCreateView, self).form_valid(form)
+            for idx, subform in enumerate(include_formset.forms):
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    rule = SegmentRule(
+                        segment=self.object,
+                        rule_type='include',
+                        field=cleaned_data['field'],
+                        conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                        key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        value=cleaned_data['value'],
+                        index=idx
+                    )
+                    rule.save()
+
+            for idx, subform in enumerate(exclude_formset.forms):
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    rule = SegmentRule(
+                        segment=self.object,
+                        rule_type='exclude',
+                        field=cleaned_data['field'],
+                        conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                        key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        value=cleaned_data['value'],
+                        index=idx
+                    )
+                    rule.save()
+
+            return response
+        else:
+            return super(SegmentCreateView, self).form_invalid(form)
+
+    def get_success_url(self):
+        return reverse('manager-segments-update', args=(self.object.id,))
+
+class SegmentUpdateView(UpdateView):
+    model = Segment
+    form_class = SegmentForm
+    template_name = 'manager/segments-update.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(SegmentUpdateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['include_rules'] = IncludeSegmentRuleFormset(
+                self.request.POST,
+                instance=self.object,
+                prefix='include_rules'
+            )
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(
+                self.request.POST,
+                instance=self.object,
+                prefix='exclude_rules'
+            )
+        else:
+            data['include_rules'] = IncludeSegmentRuleFormset(
+                instance=self.object,
+                prefix='include_rules',
+                queryset=self.object.include_rules.all()
+            )
+            data['exclude_rules'] = ExcludeSegmentRuleFormset(
+                instance=self.object,
+                prefix='exclude_rules',
+                queryset=self.object.exclude_rules.all()
+            )
+
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        context = self.get_context_data(form=form)
+        include_formset = context['include_rules']
+        exclude_formset = context['exclude_rules']
+
+        if include_formset.is_valid() and exclude_formset.is_valid():
+            self.object.include_rules.delete()
+            self.object.exclude_rules.delete()
+
+            for idx, subform in enumerate(include_formset.ordered_forms):
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    rule = SegmentRule(
+                        segment=self.object,
+                        rule_type='include',
+                        field=cleaned_data['field'],
+                        conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                        key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        value=cleaned_data['value'],
+                        index=idx
+                    )
+                    rule.save()
+
+            for idx, subform in enumerate(exclude_formset.ordered_forms):
+                cleaned_data = subform.cleaned_data
+                if cleaned_data:
+                    rule = SegmentRule(
+                        segment=self.object,
+                        rule_type='exclude',
+                        field=cleaned_data['field'],
+                        conditional='AND' if idx == 0 else cleaned_data['conditional'],
+                        key=None if cleaned_data['field'] not in ['has_attribute', 'clicked_url_in_instance'] else cleaned_data['key'],
+                        value=cleaned_data['value'],
+                        index=idx
+                    )
+                    rule.save()
+
+            form.save()
+            response = super(SegmentUpdateView, self).form_valid(form)
+
+            return response
+        else:
+            return super(SegmentUpdateView, self).form_invalid(form)
+
+    def get_success_url(self):
+        return reverse('manager-segments-update', args=(self.object.id,))
+
+class SegmentDeleteView(DeleteView):
+    model = Segment
+    template_name = 'manager/segments-delete.html'
+
+    def get_success_url(self):
+        return reverse('manager-segments')
 
 ##
 # Recipients
@@ -1393,6 +1563,58 @@ def recipient_json_feed(request):
         retval.append(r)
 
     return HttpResponse(json.dumps(retval), content_type='application/json')
+
+
+def objects_as_options(request):
+    """
+    Provides a simple API endpoint for retrieving
+    various postmaster objects as options for a
+    select2 control.
+    """
+    object_type = request.GET.get('type', None)
+    query = request.GET.get('q', None)
+
+    retval = {}
+    ret_status = 200
+
+    if object_type:
+        results = []
+
+        if object_type == 'recipientgroup':
+            objects = RecipientGroup.objects.all()
+            if query:
+                objects = objects.filter(name__contains=query)
+            results = [{'text': x.name, 'id': x.id} for x in objects]
+        elif object_type == 'recipientattribute':
+            objects = RecipientAttribute.objects.values_list('name').distinct()
+            results = [{'text': x[0], 'id': x[0]} for x in objects]
+        elif object_type == 'instance':
+            objects = Instance.objects.all()
+            if query:
+                objects = objects.filter(
+                    Q(email__title__icontains=query) |
+                    Q(subject__icontains=query)
+                )
+            results = [{'text': x.option_text, 'id': x.id} for x in objects]
+        elif object_type == 'email':
+            objects = Email.objects.all()
+            if query:
+                objects = objects.filter(title__icontains=query)
+            results = [{'text': x.title, 'id': x.id} for x in objects]
+        elif object_type == 'url':
+            objects = URL.objects.all()
+            if query:
+                objects = objects.filter(name__iconatins=query)
+            results = [{'text': x.name, 'id': x.id} for x in objects]
+
+        retval['results'] = results
+    else:
+        ret_status = 400
+        retval = {
+            'error': 'You must specify an object type to query for by passing a "type" parameter.'
+        }
+
+    return HttpResponse(json.dumps(retval), content_type='application/json', status=ret_status)
 
 ##
 # Creates a recipient group based on email opens.
