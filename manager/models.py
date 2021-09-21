@@ -149,6 +149,9 @@ class Segment(models.Model):
         help_text='Specify whether this group should be used for organizing recipients of preview emails. Leave unchecked if this group contains/will contain recipients for live emails.',
     )
 
+    def __str__(self):
+        return self.name
+
     @property
     def include_rules(self):
         return self.rules.filter(rule_type='include').order_by('index')
@@ -181,7 +184,7 @@ class Segment(models.Model):
         if exclude_filter is not None:
             retval = retval.exclude(exclude_filter)
 
-        return retval
+        return retval.distinct()
 
 class SegmentRule(models.Model):
     rule_types = (
@@ -270,13 +273,31 @@ class SegmentRule(models.Model):
             # If the recipient received a particular instance
             return Q(instance=int(self.value))
         elif self.field == 'opened_email':
-            # TODO: See if we can map this to `open_recipients` on instances
-            # If the recipient opened any instance of an email
-            return Q(instances_opened__instance__email=int(self.value))
+            # If the recipient opened any instance of a specific email
+            # (includes clicks--matches logic in Instance.open_recipients)
+            recipient_opens = Recipient.objects.filter(
+                instances_opened__instance__email=int(self.value)
+            )
+            recipient_clicks = Recipient.objects.filter(
+                urls_clicked__url__instance__email=int(self.value)
+            )
+
+            recipient_pks = list(recipient_opens.union(recipient_clicks).values_list('pk', flat=True))
+
+            return Q(pk__in=recipient_pks)
         elif self.field == 'opened_instance':
-            # TODO: See if we can map this to `open_recipients` on instances
-            # If the recipient opened a specific instance
-            return Q(instances_opened__instance=int(self.value))
+            # If the recipient opened a particular instance
+            # (includes clicks--matches logic in Instance.open_recipients)
+            recipient_opens = Recipient.objects.filter(
+                instances_opened__instance=int(self.value)
+            )
+            recipient_clicks = Recipient.objects.filter(
+                urls_clicked__url__instance=int(self.value)
+            )
+
+            recipient_pks = list(recipient_opens.union(recipient_clicks).values_list('pk', flat=True))
+
+            return Q(pk__in=recipient_pks)
         elif self.field == 'clicked_link':
             # If the recipient clicked on a particular URL
             return Q(urls_clicked__url__name=self.value)
@@ -589,6 +610,7 @@ class Email(models.Model):
         'recurrence': 'If and how often the email will be resent.',
         'replace_delimiter': 'Character(s) that replacement labels are wrapped in.',
         'recipient_groups': 'Which group(s) of recipients this email will go to.',
+        'segments': 'Which segment(s) this email will go to.',
         'from_email_address': 'Email address from where the sent emails will originate',
         'from_friendly_name': 'A display name associated with the from email address',
         'track_urls': 'Rewrites all URLs in the email content to be recorded',
@@ -609,7 +631,8 @@ class Email(models.Model):
     from_email_address = models.CharField(max_length=256, help_text=_HELP_TEXT['from_email_address'])
     from_friendly_name = models.CharField(max_length=100, blank=True, null=True, help_text=_HELP_TEXT['from_friendly_name'])
     replace_delimiter = models.CharField(max_length=10, default='!@!', help_text=_HELP_TEXT['replace_delimiter'])
-    recipient_groups = models.ManyToManyField(RecipientGroup, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
+    recipient_groups = models.ManyToManyField(RecipientGroup, blank=True, related_name='emails', help_text=_HELP_TEXT['recipient_groups'])
+    segments = models.ManyToManyField(Segment, blank=True, related_name='emails', help_text=_HELP_TEXT['segments'])
     track_urls = models.BooleanField(default=True, help_text=_HELP_TEXT['track_urls'])
     track_opens = models.BooleanField(default=True, help_text=_HELP_TEXT['track_opens'])
     preview = models.BooleanField(default=True, help_text=_HELP_TEXT['preview'])
@@ -625,6 +648,15 @@ class Email(models.Model):
 
     class Meta:
             ordering = ["title"]
+            constraints = [
+                models.CheckConstraint(
+                    name="%(app_label)s_%(class)s_recipientgroups_or_segment",
+                    check=(
+                        Q(recipient_groups__gte=0)
+                        | Q(segments__gte=0)
+                    )
+                )
+            ]
 
     def is_sending_today(self, now=datetime.now()):
         """
@@ -725,6 +757,12 @@ class Email(models.Model):
                 retval = recipient_group.recipients.all()
             else:
                 retval = retval | recipient_group.recipients.all()
+
+        for segment in self.segments.all():
+            if retval is None:
+                retval = segment.recipients.all()
+            else:
+                retval = retval | segment.recipients.all()
 
         return retval.distinct()
 
