@@ -275,19 +275,29 @@ class SegmentRule(models.Model):
         elif self.field == 'opened_email':
             # If the recipient opened any instance of a specific email
             # (includes clicks--matches logic in Instance.open_recipients)
-            return Q(
+            recipient_opens = Recipient.objects.filter(
                 instances_opened__instance__email=int(self.value)
-            ) | Q(
+            )
+            recipient_clicks = Recipient.objects.filter(
                 urls_clicked__url__instance__email=int(self.value)
             )
+
+            recipient_pks = list(recipient_opens.union(recipient_clicks).values_list('pk', flat=True))
+
+            return Q(pk__in=recipient_pks)
         elif self.field == 'opened_instance':
             # If the recipient opened a particular instance
             # (includes clicks--matches logic in Instance.open_recipients)
-            return Q(
+            recipient_opens = Recipient.objects.filter(
                 instances_opened__instance=int(self.value)
-            ) | Q(
+            )
+            recipient_clicks = Recipient.objects.filter(
                 urls_clicked__url__instance=int(self.value)
             )
+
+            recipient_pks = list(recipient_opens.union(recipient_clicks).values_list('pk', flat=True))
+
+            return Q(pk__in=recipient_pks)
         elif self.field == 'clicked_link':
             # If the recipient clicked on a particular URL
             return Q(urls_clicked__url__name=self.value)
