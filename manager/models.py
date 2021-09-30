@@ -1097,10 +1097,7 @@ class Email(models.Model):
             campaign        = self.campaign
         )
 
-        recipients = Recipient.objects.filter(
-            groups__in = self.recipient_groups.all(),
-            disable=False
-            ).distinct()
+        recipients = self.recipients.filter(disable=False)
 
         if self.subscription_category:
             unsubscriptions = self.subscription_category.unsubscriptions.all()
