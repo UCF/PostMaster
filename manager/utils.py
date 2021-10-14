@@ -256,7 +256,10 @@ class CSVImport:
             self.tracker.status = status
             self.tracker.error = error
             self.tracker.current_unit = current_unit
-            self.tracker.success_url = reverse('manager-recipients-csv-import')
+
+            if status == "Error":
+                self.tracker.success_url = reverse('manager-recipients-csv-import')
+
             self.tracker.save()
 
     def delete_file(self, filename):
