@@ -38,14 +38,6 @@ class CSVImport:
         Provides functionality for importing csv files of emails/attributes
         into existing or new recipient groups.
     '''
-    csv_file = ''
-    recipient_group_name = ''
-    skip_first_row = False
-    column_order = 'email,preferred_name'
-    subprocess = None
-    update_factor = 1
-    remove_stale = False
-
     def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False, stderr=None):
         if csv_file:
             self.csv_file = csv_file
@@ -57,13 +49,11 @@ class CSVImport:
         else:
             raise Exception('Recipient Group Name is null or empty string')
 
-        if skip_first_row:
-            self.skip_first_row = skip_first_row
-
-        if column_order:
-            self.column_order = column_order
-
+        self.skip_first_row = skip_first_row if skip_first_row else False
+        self.column_order = column_order if column_order else 'email,preferred_name'
+        self.update_factor = 1
         self.remove_stale = remove_stale
+        self.new_group = False
 
         self.subprocess = subprocess
         self.stderr = stderr
@@ -76,14 +66,13 @@ class CSVImport:
             print('email is a required column for import')
             raise Exception('email is a required column for import')
 
-        new_group = False
         group = None
         try:
             group = RecipientGroup.objects.get(name=self.recipient_group_name)
         except RecipientGroup.DoesNotExist:
             log.info('Recipient group does not exist. Creating...')
+            self.new_group = True
             group = RecipientGroup(name=self.recipient_group_name)
-            new_group = True
             group.save()
 
         if self.remove_stale:
@@ -92,8 +81,7 @@ class CSVImport:
         if self.subprocess:
             self.tracker = SubprocessStatus.objects.get(pk=self.subprocess)
             self.tracker.total_units = self.get_line_count()
-            if new_group:
-                self.tracker.success_url = reverse('manager-recipientgroup-update', kwargs={'pk': group.pk})
+            self.tracker.success_url = reverse('manager-recipientgroup-update', kwargs={'pk': group.pk})
             self.tracker.save()
 
             # Update the update_factor to prevent a save every time it loops through
@@ -129,8 +117,6 @@ class CSVImport:
         attribute_creates = []
         attribute_updates = []
 
-        created_objs = []
-
         for idx, row in enumerate(csv_reader):
             if self.skip_first_row and idx == 0: continue
 
@@ -141,13 +127,13 @@ class CSVImport:
                 first_name = row['first_name'].strip() if 'first_name' in csv_reader.fieldnames else None
                 last_name = row['last_name'].strip() if 'last_name' in csv_reader.fieldnames else None
                 preferred_name = row['preferred_name'].strip() if 'preferred_name' in csv_reader.fieldnames else None
-            except IndexError:
-                self.revert()
-                self.update_status("Error", f'There is a malformed row at line {row_num}')
+            except (IndexError, AttributeError):
+                self.update_status("Error", f'There is a malformed row at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
                 raise Exception(f'There is a malformed row at line {row_num}')
             else:
                 if email_address == '':
-                    log.error(('Empty email address at line %d' % row_num))
+                    log.error(f'Skipping row with empty email address at line {row_num}')
+                    continue
                 else:
                     try:
                         recipient = Recipient.objects.get(email_address=email_address)
@@ -155,13 +141,22 @@ class CSVImport:
                         processed_emails.append(email_address)
                     except:
                         recipient = Recipient(
-                                email_address=email_address
+                            email_address=email_address
                         )
 
                         # Protect against dupe insert
                         if email_address not in processed_emails:
                             processed_emails.append(email_address)
                             recipient_creates.append(recipient)
+                        else:
+                            log.error(f'Skipping row with duplicate email address {email_address} at line {row_num}')
+                            continue
+
+                    try:
+                        recipient.save()
+                    except Exception as e:
+                        self.update_status("Error", f'Error saving recipient at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
+                        raise Exception(f'Error saving recipient at line {row_num}: {str(e)}')
 
 
                     if first_name is not None:
@@ -177,6 +172,11 @@ class CSVImport:
                             )
                             attribute_creates.append(attribute_first_name)
 
+                        try:
+                            attribute_first_name.save()
+                        except Exception as e:
+                            log.error(f'Error saving recipient attribute First Name at line {row_num}: {str(e)}')
+
 
                     if last_name is not None:
                         try:
@@ -190,6 +190,11 @@ class CSVImport:
                                 value = last_name
                             )
                             attribute_creates.append(attribute_last_name)
+
+                        try:
+                            attribute_last_name.save()
+                        except Exception as e:
+                            log.error(f'Error saving recipient attribute Last Name at line {row_num}: {str(e)}')
 
 
                     if preferred_name is not None:
@@ -205,22 +210,21 @@ class CSVImport:
                                 value = preferred_name
                             )
                             attribute_creates.append(attribute_preferred_name)
+
+                        try:
+                            attribute_preferred_name.save()
+                        except Exception as e:
+                            log.error(f'Error saving recipient attribute Preferred Name at line {row_num}: {str(e)}')
             # Increment
             self.update_status("In Progress", "", row_num)
 
-        created_objs = Recipient.objects.bulk_create(recipient_creates, batch_size=100)
-
-        RecipientAttribute.objects.bulk_create(attribute_creates, batch_size=100)
-        RecipientAttribute.objects.bulk_update(attribute_updates, ['value'], batch_size=100)
-
-        if group is not None:
-            try:
-                all_objs = created_objs + recipient_updates
-                group.recipients.add(*all_objs)
-            except Exception as e:
-                pass
-
-        self.update_status("Completed", "", self.tracker.total_units)
+        try:
+            all_objs = recipient_creates + recipient_updates
+            group.recipients.add(*all_objs)
+            self.update_status("Completed", "", self.tracker.total_units)
+        except Exception as e:
+            self.update_status("Error", f'Error adding recipients to recipient group. Please try again.', self.tracker.total_units)
+            raise Exception(f'Error adding recipients to recipient group: {str(e)}')
 
         if self.subprocess:
             self.delete_file(self.csv_file.name)
@@ -239,6 +243,10 @@ class CSVImport:
             self.tracker.status = status
             self.tracker.error = error
             self.tracker.current_unit = current_unit
+
+            if status == "Error":
+                self.tracker.success_url = reverse('manager-recipients-csv-import')
+
             self.tracker.save()
 
     def delete_file(self, filename):
@@ -246,14 +254,6 @@ class CSVImport:
 
     def remove_tracker(self, tracker_pk):
         self.tracker.delete()
-
-    def revert(self):
-        try:
-            recipient_group = RecipientAttribute.objects.get(name=self.recipient_group_name)
-        except:
-            return
-        else:
-            recipient_group.delete()
 
     def get_line_count(self):
         return sum(1 for line in self.csv_file)

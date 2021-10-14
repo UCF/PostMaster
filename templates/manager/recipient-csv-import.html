@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block page-body %}
 <h1 class="h2 heading-underline">Import Recipients via CSV File</h1>
+<div class="alert alert-info mb-4">
+  <p class="mb-0">
+    <strong>Note:</strong> Larger CSVs (e.g. 10k+ recipients) may take longer to finish importing.  Additionally, imports will run more slowly depending on the number of columns/recipient attributes being processed.  Please allow adequate time for your import to finish.
+  </p>
+</div>
+
 <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
 	<fieldset>
 		{% for error in form.non_field_errors %}
