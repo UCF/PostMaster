@@ -38,15 +38,6 @@ class CSVImport:
         Provides functionality for importing csv files of emails/attributes
         into existing or new recipient groups.
     '''
-    csv_file = ''
-    recipient_group_name = ''
-    skip_first_row = False
-    column_order = 'email,preferred_name'
-    subprocess = None
-    update_factor = 1
-    remove_stale = False
-    new_group = False
-
     def __init__(self, csv_file, recipient_group_name, skip_first_row, column_order, subprocess, remove_stale=False, stderr=None):
         if csv_file:
             self.csv_file = csv_file
@@ -58,13 +49,11 @@ class CSVImport:
         else:
             raise Exception('Recipient Group Name is null or empty string')
 
-        if skip_first_row:
-            self.skip_first_row = skip_first_row
-
-        if column_order:
-            self.column_order = column_order
-
+        self.skip_first_row = skip_first_row if skip_first_row else False
+        self.column_order = column_order if column_order else 'email,preferred_name'
+        self.update_factor = 1
         self.remove_stale = remove_stale
+        self.new_group = False
 
         self.subprocess = subprocess
         self.stderr = stderr
@@ -139,7 +128,6 @@ class CSVImport:
                 last_name = row['last_name'].strip() if 'last_name' in csv_reader.fieldnames else None
                 preferred_name = row['preferred_name'].strip() if 'preferred_name' in csv_reader.fieldnames else None
             except (IndexError, AttributeError):
-                self.revert()
                 self.update_status("Error", f'There is a malformed row at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
                 raise Exception(f'There is a malformed row at line {row_num}')
             else:
@@ -167,7 +155,6 @@ class CSVImport:
                     try:
                         recipient.save()
                     except Exception as e:
-                        self.revert()
                         self.update_status("Error", f'Error saving recipient at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
                         raise Exception(f'Error saving recipient at line {row_num}: {str(e)}')
 
@@ -267,17 +254,6 @@ class CSVImport:
 
     def remove_tracker(self, tracker_pk):
         self.tracker.delete()
-
-    def revert(self):
-        if self.new_group:
-            try:
-                # TODO should we even be doing this?
-                recipient_group = RecipientGroup.objects.get(name=self.recipient_group_name)
-            except:
-                return
-            else:
-                recipient_group.delete()
-        return
 
     def get_line_count(self):
         return sum(1 for line in self.csv_file)
