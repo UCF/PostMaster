@@ -754,9 +754,9 @@ class Email(models.Model):
         retval = None
         for recipient_group in self.recipient_groups.all():
             if retval is None:
-                retval = recipient_group.recipients.all()
+                retval = recipient_group.recipients.all().distinct()
             else:
-                retval = retval | recipient_group.recipients.all()
+                retval = retval | recipient_group.recipients.all().distinct()
 
         for segment in self.segments.all():
             if retval is None:
