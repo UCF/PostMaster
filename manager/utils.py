@@ -140,7 +140,7 @@ class CSVImport:
                 preferred_name = row['preferred_name'].strip() if 'preferred_name' in csv_reader.fieldnames else None
             except (IndexError, AttributeError):
                 self.revert()
-                self.update_status("Error", f'There is a malformed row at line {row_num} of the provided CSV.', row_num)
+                self.update_status("Error", f'There is a malformed row at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
                 raise Exception(f'There is a malformed row at line {row_num}')
             else:
                 if email_address == '':
@@ -168,7 +168,7 @@ class CSVImport:
                         recipient.save()
                     except Exception as e:
                         self.revert()
-                        self.update_status("Error", f'Error saving recipient at line {row_num} of the provided CSV', row_num)
+                        self.update_status("Error", f'Error saving recipient at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
                         raise Exception(f'Error saving recipient at line {row_num}: {str(e)}')
 
 
@@ -236,7 +236,7 @@ class CSVImport:
             group.recipients.add(*all_objs)
             self.update_status("Completed", "", self.tracker.total_units)
         except Exception as e:
-            self.update_status("Error", f'Error adding recipients to recipient group', self.tracker.total_units)
+            self.update_status("Error", f'Error adding recipients to recipient group. Please try again.', self.tracker.total_units)
             raise Exception(f'Error adding recipients to recipient group: {str(e)}')
 
         if self.subprocess:
