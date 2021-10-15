@@ -146,24 +146,25 @@ class CSVImport:
 
                         # Protect against dupe insert
                         if email_address not in processed_emails:
-                            processed_emails.append(email_address)
+                            try:
+                                recipient.save()
+                            except Exception as e:
+                                self.update_status("Error", f'Error saving recipient at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
+                                raise Exception(f'Error saving recipient at line {row_num}: {str(e)}')
+
                             recipient_creates.append(recipient)
+                            processed_emails.append(email_address)
                         else:
                             log.error(f'Skipping row with duplicate email address {email_address} at line {row_num}')
                             continue
-
-                    try:
-                        recipient.save()
-                    except Exception as e:
-                        self.update_status("Error", f'Error saving recipient at line {row_num} of the provided CSV. Please review your CSV file and try again.', row_num)
-                        raise Exception(f'Error saving recipient at line {row_num}: {str(e)}')
 
 
                     if first_name is not None:
                         try:
                             attribute_first_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='First Name')
-                            attribute_first_name.value = first_name
-                            attribute_updates.append(attribute_first_name)
+                            if attribute_first_name.value != first_name:
+                                attribute_first_name.value = first_name
+                                attribute_updates.append(attribute_first_name)
                         except:
                             attribute_first_name = RecipientAttribute(
                                 recipient = recipient,
@@ -172,17 +173,13 @@ class CSVImport:
                             )
                             attribute_creates.append(attribute_first_name)
 
-                        try:
-                            attribute_first_name.save()
-                        except Exception as e:
-                            log.error(f'Error saving recipient attribute First Name at line {row_num}: {str(e)}')
-
 
                     if last_name is not None:
                         try:
                             attribute_last_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Last Name')
-                            attribute_last_name.value = last_name
-                            attribute_updates.append(attribute_last_name)
+                            if attribute_last_name.value != last_name:
+                                attribute_last_name.value = last_name
+                                attribute_updates.append(attribute_last_name)
                         except:
                             attribute_last_name = RecipientAttribute(
                                 recipient = recipient,
@@ -191,17 +188,13 @@ class CSVImport:
                             )
                             attribute_creates.append(attribute_last_name)
 
-                        try:
-                            attribute_last_name.save()
-                        except Exception as e:
-                            log.error(f'Error saving recipient attribute Last Name at line {row_num}: {str(e)}')
-
 
                     if preferred_name is not None:
                         try:
                             attribute_preferred_name = RecipientAttribute.objects.get(recipient=recipient.pk, name='Preferred Name')
-                            attribute_preferred_name.value = preferred_name
-                            attribute_updates.append(attribute_preferred_name)
+                            if attribute_preferred_name.value != preferred_name:
+                                attribute_preferred_name.value = preferred_name
+                                attribute_updates.append(attribute_preferred_name)
                         except:
                             log.debug('Preferred Name attribute does not exist')
                             attribute_preferred_name = RecipientAttribute(
@@ -211,12 +204,12 @@ class CSVImport:
                             )
                             attribute_creates.append(attribute_preferred_name)
 
-                        try:
-                            attribute_preferred_name.save()
-                        except Exception as e:
-                            log.error(f'Error saving recipient attribute Preferred Name at line {row_num}: {str(e)}')
             # Increment
             self.update_status("In Progress", "", row_num)
+
+
+        RecipientAttribute.objects.bulk_create(attribute_creates, batch_size=100)
+        RecipientAttribute.objects.bulk_update(attribute_updates, ['value'], batch_size=100)
 
         try:
             all_objs = recipient_creates + recipient_updates
