@@ -7,7 +7,7 @@ long_description = (here / 'README.markdown').read_text(encoding='utf-8')
 
 setup(
     name='PostMaster',
-    version='3.3.0',
+    version='3.3.1',
     description='An application for sending emails with remote content to arbitrary recipients.',
     long_description=long_description,
     long_description_content_type='text/markdown',
