@@ -30,7 +30,7 @@ pyasn1==0.4.8
     #   python-ldap
 pyasn1-modules==0.2.8
     # via python-ldap
-python-ldap==3.3.1
+python-ldap==3.4.0
     # via PostMaster (setup.py)
 pytz==2020.1
     # via django
