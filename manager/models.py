@@ -595,7 +595,7 @@ class Email(models.Model):
             (never, 'Never'),
             (daily, 'Daily'),
             (weekly, 'Weekly'),
-            (biweekly, 'Biweekly'),
+            # (biweekly, 'Biweekly'),
             (monthly, 'Monthly'),
         )
 
