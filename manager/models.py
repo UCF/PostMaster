@@ -450,9 +450,9 @@ class EmailManager(models.Manager):
                 # Daily
                 Q(Q(recurrence=self.model.Recurs.daily) & Q(start_date__lte=today)) |
                 # Weekly
-                Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) |
+                Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1) & Q(start_date__lte=today)) |
                 # Monthly
-                Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
+                Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day) & Q(start_date__lte=today))
             ),
             active=True
         )
@@ -489,9 +489,9 @@ class EmailManager(models.Manager):
                 # Daily
                 ~Q(Q(recurrence=self.model.Recurs.daily) & Q(start_date__lte=today)) &
                 # Weekly
-                ~Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1)) &
+                ~Q(Q(recurrence=self.model.Recurs.weekly) & Q(start_date__week_day=today.isoweekday() % 7 + 1) & Q(start_date__lte=today)) &
                 # Monthly
-                ~Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day))
+                ~Q(Q(recurrence=self.model.Recurs.monthly) & Q(start_date__day=today.day) & Q(start_date__lte=today))
             )
         )
 
@@ -595,7 +595,7 @@ class Email(models.Model):
             (never, 'Never'),
             (daily, 'Daily'),
             (weekly, 'Weekly'),
-            (biweekly, 'Biweekly'),
+            # (biweekly, 'Biweekly'),
             (monthly, 'Monthly'),
         )
 
@@ -669,9 +669,9 @@ class Email(models.Model):
             return True
         if self.recurrence == self.Recurs.daily and self.start_date <= now.date():
             return True
-        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == now.date().weekday():
+        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == now.date().weekday() and self.start_date <= now.date():
             return True
-        if self.recurrence == self.Recurs.monthly and self.start_date.day == now.day:
+        if self.recurrence == self.Recurs.monthly and self.start_date.day == now.day and self.start_date <= now.date():
             return True
 
         return False
