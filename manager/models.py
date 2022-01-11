@@ -591,11 +591,11 @@ class Email(models.Model):
 
     class Recurs:
         never, daily, weekly, biweekly, monthly = list(range(0, 5))
+        # NOTE: biweekly rule is unused.
         choices = (
             (never, 'Never'),
             (daily, 'Daily'),
             (weekly, 'Weekly'),
-            # (biweekly, 'Biweekly'),
             (monthly, 'Monthly'),
         )
 
