@@ -669,9 +669,9 @@ class Email(models.Model):
             return True
         if self.recurrence == self.Recurs.daily and self.start_date <= now.date():
             return True
-        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == now.date().weekday():
+        if self.recurrence == self.Recurs.weekly and self.start_date.weekday() == now.date().weekday() and self.start_date <= now.date():
             return True
-        if self.recurrence == self.Recurs.monthly and self.start_date.day == now.day:
+        if self.recurrence == self.Recurs.monthly and self.start_date.day == now.day and self.start_date <= now.date():
             return True
 
         return False
