@@ -1,5 +1,3 @@
-import enum
-import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -11,23 +9,19 @@ import math
 import os
 import re
 import smtplib
-import urllib.request, urllib.parse, urllib.error
-from urllib.parse import urlparse
 
 from io import StringIO
 
-from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
-from manager.models import Email
-from manager.models import Instance
 from manager.models import Recipient
 from manager.models import RecipientGroup
 from manager.models import RecipientAttribute
 from manager.models import SubprocessStatus
+from manager.models import EmailMessage
 
 
 log = logging.getLogger(__name__)
@@ -251,6 +245,7 @@ class CSVImport:
     def get_line_count(self):
         return sum(1 for line in self.csv_file)
 
+
 class EmailSender:
     '''
     This helper class will send an email without creating
@@ -304,11 +299,13 @@ class EmailSender:
                             replacement = attributes[placeholder]
                         customized_html = customized_html.replace(delimiter + placeholder + delimiter, replacement)
 
-                msg = MIMEMultipart('alternative')
-                msg['subject'] = self.email.subject
-                msg['From'] = self.email.smtp_from_address
-                msg['To'] = recipient.email_address
-                msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
+                msg = EmailMessage(
+                    subject=self.email.subject,
+                    from_friendly_name=self.email.from_friendly_name,
+                    from_address=self.email.from_email_address,
+                    to_address=recipient.email_address,
+                    html=customized_html
+                )
                 try:
                     amazon.sendmail(self.email.from_email_address, recipient.email_address, msg.as_string())
                 except smtplib.SMTPException as e:
