@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand, CommandError
-from manager.models              import Recipient, RecipientGroup, RecipientImporterStatus
-from manager.utils               import SimpleEmailSender
-from django.conf                 import settings
-from django.db                   import connections, transaction
+from django.core.management.base import BaseCommand
+from manager.models import RecipientGroup, RecipientImporterStatus
+from manager.utilities.simple_email_sender import SimpleEmailSender
+from django.conf import settings
+from django.db import connections, transaction
 import logging
 import hashlib
 import sys
