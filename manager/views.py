@@ -76,8 +76,8 @@ from manager.models import SubprocessStatus
 from manager.models import SubscriptionCategory
 from manager.models import URL
 from manager.models import URLClick
-from manager.utils import EmailSender
-from manager.utils import AmazonS3Helper
+from manager.utilities.email_sender import EmailSender
+from manager.utilities.s3_helper import AmazonS3Helper
 
 
 log = logging.getLogger(__name__)
