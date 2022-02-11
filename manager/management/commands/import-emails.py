@@ -1,8 +1,5 @@
-from django.core.management.base import BaseCommand, CommandError
-from util                        import LDAPHelper
-from django.conf                 import settings
-from manager.models               import Recipient, RecipientAttribute, RecipientGroup
-from manager.utils               import CSVImport
+from django.core.management.base import BaseCommand
+from manager.utilities.csv_import import CSVImport
 
 class Command(BaseCommand):
 
