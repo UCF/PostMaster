@@ -12,7 +12,7 @@ def alter_collation(character_set, collation, schema_editor):
 		cursor.execute(
 			'SHOW TABLES;'
 		)
-		for table in cursor.fetchall():
+		for table, in cursor.fetchall():
 			print(f'Altering table `{table}`…')
 			cursor.execute(
 				f'ALTER TABLE {table} CONVERT TO CHARACTER '
