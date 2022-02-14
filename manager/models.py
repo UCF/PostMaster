@@ -4,15 +4,12 @@ from datetime import datetime, timedelta, date
 from django.db.models import Q
 from util import calc_url_mac, calc_open_mac, calc_unsubscribe_mac, create_hash
 from django.urls import reverse
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from itertools import chain
 import logging
-import math
 import smtplib
 import re
 import urllib.request, urllib.parse, urllib.error
@@ -22,8 +19,9 @@ import threading
 import requests
 import random
 from collections import OrderedDict
-from unidecode import unidecode
 from bs4 import BeautifulSoup
+
+from manager.utilities.email_message import EmailMessage
 
 
 log = logging.getLogger(__name__)
@@ -54,7 +52,7 @@ class Recipient(models.Model):
         except RecipientAttribute.DoesNotExist:
             raise AttributeError
         else:
-            return attribute.value.encode('ascii', 'ignore').decode('ascii')
+            return attribute.value
 
     @property
     def hmac_hash(self):
@@ -712,13 +710,6 @@ class Email(models.Model):
         return False
 
     @property
-    def smtp_from_address(self):
-        if self.from_friendly_name:
-            return '"%s" <%s>' % (self.from_friendly_name, self.from_email_address)
-        else:
-            return self.from_email_address
-
-    @property
     def total_sent(self):
         return sum(list(i.recipient_details.count() for i in self.instances.all()))
 
@@ -737,7 +728,7 @@ class Email(models.Model):
                 request = requests.get(self.source_html_uri, verify=False)
 
                 # Get the email html
-                html = self.sanitize_html(request.text.encode())
+                html = request.text
                 return (request.status_code, html)
             except IOError as e:
                 log.exception('Unable to fetch email html')
@@ -788,26 +779,6 @@ class Email(models.Model):
                 log.exception('Unable to fetch email text')
                 raise self.EmailException()
 
-    def sanitize_html(self, html):
-        """
-        Returns email HTML as a string, suitable for sending via SES in
-        ASCII format.  More info:
-        http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-raw.html#send-email-mime-encoding
-
-        BS4 decodes existing HTML entities, then re-generates them during
-        this step.  Other characters outside of the ASCII range are replaced
-        with placeholder characters.
-        """
-        if isinstance(html, BeautifulSoup):
-            soup = html
-        else:
-            soup = BeautifulSoup(html, 'html.parser')
-
-        html = soup.decode(eventual_encoding='ascii', formatter='html')
-        html = unidecode(html)
-
-        return html
-
     def send_preview(self):
         '''
             Send preview emails
@@ -847,7 +818,7 @@ class Email(models.Model):
         soup = BeautifulSoup(html.encode(), 'html.parser')
         explanation = BeautifulSoup(html_explanation.encode(), 'html.parser')
         soup.body.insert(0, explanation)
-        html = self.sanitize_html(soup)
+        html = str(soup)
 
         # The recipients for the preview emails aren't the same as regular
         # recipients. They are defined in the comma-separate field preview_recipients
@@ -878,21 +849,16 @@ class Email(models.Model):
             )
 
             for recipient in recipients:
-                # Use alterantive subclass here so that both HTML and plain
-                # versions can be attached
-                msg = MIMEMultipart('alternative')
-                msg['subject'] = self.subject + ' **PREVIEW**'
-                msg['From'] = self.smtp_from_address
-                msg['To'] = recipient
-
-                msg.attach(MIMEText(html,
-                                    'html',
-                                    _charset='us-ascii'))
+                msg = EmailMessage(
+                    subject='{0} **PREVIEW**'.format(self.subject),
+                    from_friendly_name=self.from_friendly_name,
+                    from_address=self.from_email_address,
+                    to_address=recipient,
+                    html=html
+                )
 
                 if text is not None:
-                    msg.attach(MIMEText(text_explanation + text,
-                                        'plain',
-                                        _charset='us-ascii'))
+                    msg.attach_text(text_explanation + text)
 
                 try:
                     amazon.sendmail(self.from_email_address,
@@ -918,7 +884,7 @@ class Email(models.Model):
         '''
         class TerminationThread(threading.Thread):
             def run(self):
-                from manager.utils import flush_transaction
+                from manager.utilities.flush_transaction import flush_transaction
                 while True:
                     # Flushes sql transaction so we get fresh data
                     flush_transaction()
@@ -1024,13 +990,15 @@ class Email(models.Model):
                             customized_html)
 
                         # Construct the message
-                        msg            = MIMEMultipart('alternative')
-                        msg['subject'] = subject
-                        msg['From']    = display_from
-                        msg['To']      = recipient_details.recipient.email_address
-                        msg.attach(MIMEText(customized_html, 'html', _charset='us-ascii'))
+                        msg = EmailMessage(
+                            subject=subject,
+                            from_friendly_name=from_friendly_name,
+                            from_address=from_address,
+                            to_address=recipient_details.recipient.email_address,
+                            html=customized_html
+                        )
                         if text is not None:
-                            msg.attach(MIMEText(text, 'plain', _charset='us-ascii' ))
+                            msg.attach_text(text)
 
                         log.debug('thread: %s, email: %s' % (self.name, recipient_details.recipient.email_address))
                         try:
@@ -1122,7 +1090,8 @@ class Email(models.Model):
         # The interval between ticks is one second. This is used to make
         # sure that the threads don't exceed the sending limit
         subject                 = self.subject + str(additional_subject)
-        display_from            = self.smtp_from_address
+        from_address            = self.from_email_address
+        from_friendly_name      = self.from_friendly_name
         real_from               = self.from_email_address
         recipient_details_queue = Queue()
         sender_stop             = threading.Event()

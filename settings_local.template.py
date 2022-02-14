@@ -38,6 +38,12 @@ DATABASES = {
         'HOST'    : '',
         # Set to empty string for default. Not used with sqlite3.
         'PORT'    : '',
+        # Required after running the `manager` app migration #0032.
+        # If you're running an older version of the app that hasn't
+        # applied this migration yet, comment this out:
+        'OPTIONS': {
+            'charset': 'utf8mb4'
+        }
     },
     # Currently on the database name needs to be filled in for the rds_warehouse
     # database. It is only used in the recipient-importer script.
