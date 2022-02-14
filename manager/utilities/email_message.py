@@ -1,4 +1,5 @@
 import base64
+from bs4 import BeautifulSoup
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -72,7 +73,16 @@ class EmailMessage:
         Encodes and attaches an HTML string to the message.
         '''
         self.html = html
-        html_encoded = html.encode('utf-8')
+
+        # Convert the HTML string to soup and back again.
+        # BeautifulSoup converts HTML entities to unicode chars before encoding
+        # to UTF-8. While not necessary for sending HTML via SES, this step
+        # ensures we _always_ convert HTML entities, reducing potential
+        # differences between previews and live sends (since we have to
+        # transform email HTML to soup when inserting preview headers).
+        html_soup = BeautifulSoup(html, 'html.parser')
+        html_encoded = html_soup.encode('utf-8')
+
         self.msg.attach(MIMEText(html_encoded, 'html', _charset='utf-8'))
 
     def attach_text(self, text):
