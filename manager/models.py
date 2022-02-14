@@ -52,7 +52,7 @@ class Recipient(models.Model):
         except RecipientAttribute.DoesNotExist:
             raise AttributeError
         else:
-            return attribute.value.encode('ascii', 'ignore').decode('ascii')
+            return attribute.value
 
     @property
     def hmac_hash(self):
