@@ -23,11 +23,11 @@ setup(
     ],
     packages=find_packages('.'),
     install_requires=[
-        'Django==3.1.12',
+        'Django==3.1.14',
         'django-widget-tweaks',
         'gunicorn',
         'mysqlclient',
-        'python-ldap',
+        'python-ldap>=3.4.0',
         'requests==2.25.1',
         'tqdm',
         'unicodecsv',
