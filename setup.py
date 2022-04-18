@@ -7,7 +7,7 @@ long_description = (here / 'README.markdown').read_text(encoding='utf-8')
 
 setup(
     name='PostMaster',
-    version='4.0.0',
+    version='4.0.1',
     description='An application for sending emails with remote content to arbitrary recipients.',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -23,11 +23,11 @@ setup(
     ],
     packages=find_packages('.'),
     install_requires=[
-        'Django==3.1.12',
+        'Django==3.1.14',
         'django-widget-tweaks',
         'gunicorn',
         'mysqlclient',
-        'python-ldap',
+        'python-ldap>=3.4.0',
         'requests==2.25.1',
         'tqdm',
         'unicodecsv',
