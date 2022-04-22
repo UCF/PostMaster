@@ -24,6 +24,8 @@ idna==2.10
     # via requests
 mysqlclient==2.0.1
     # via PostMaster (setup.py)
+progress==1.6
+    # via PostMaster (setup.py)
 pyasn1==0.4.8
     # via
     #   pyasn1-modules
