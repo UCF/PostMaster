@@ -348,6 +348,10 @@ class Campaign(models.Model):
     description = models.TextField(blank=True, null=True)
     open_rate_target = models.FloatField(default=25, null=False, blank=False)
     click_to_open_rate_target = models.FloatField(default=10, null=False, blank=False)
+    avg_open_rate = models.FloatField(default=0, null=False, blank=False)
+    avg_click_rate = models.FloatField(default=0, null=False, blank=False)
+    avg_recipient_count = models.IntegerField(default=0, null=False, blank=False)
+    avg_click_to_open_rate = models.FloatField(default=0, null=False, blank=False)
 
     def __str__(self):
         return self.name
@@ -355,44 +359,40 @@ class Campaign(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def avg_open_rate(self):
+    def calc_avg_open_rate(self):
         aggr = 0
-        for instance in self.instances.all():
+        for instance in self.instance_stats.all():
             aggr += instance.open_rate
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0, 2)
 
-    @property
-    def avg_click_rate(self):
+    def calc_avg_click_rate(self):
         aggr = 0
-        for instance in self.instances.all():
+        for instance in self.instance_stats.all():
             aggr += instance.click_rate
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0, 2)
 
-    @property
-    def avg_recipient_count(self):
+    def calc_avg_recipient_count(self):
         aggr = 0
-        for instance in self.instances.all():
-            aggr += instance.recipients.count()
+        for instance in self.instance_stats.all():
+            aggr += instance.recipient_count
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0)
 
-    @property
-    def avg_click_to_open_rate(self):
+    def calc_avg_click_to_open_rate(self):
         aggr = 0
-        for instance in self.instances.all():
+        for instance in self.instance_stats.all():
             aggr += instance.click_to_open_rate
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0)
 
     @property
@@ -1392,6 +1392,18 @@ class InstanceOpen(models.Model):
     instance  = models.ForeignKey(Instance, related_name='opens', on_delete=models.CASCADE)
     when      = models.DateTimeField(auto_now_add=True)
     is_reopen = models.BooleanField(default=False)
+
+class CampaignInstanceStat(models.Model):
+    '''
+    Describes the aggregate stats of an instance.
+    Cached in this model for performance reasons.
+    '''
+    campaign = models.ForeignKey(Campaign, related_name='instance_stats', on_delete=models.CASCADE)
+    instance = models.ForeignKey(Instance, related_name='stats', on_delete=models.CASCADE)
+    open_rate = models.FloatField(default=0, null=False, blank=False)
+    click_rate = models.FloatField(default=0, null=False, blank=False)
+    recipient_count = models.IntegerField(default=0, null=False, blank=False)
+    click_to_open_rate = models.FloatField(default=0, null=False, blank=False)
 
 
 class Setting(models.Model):
