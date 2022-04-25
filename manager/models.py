@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.conf import settings
 from datetime import datetime, timedelta, date
 from django.db.models import Q
@@ -14,6 +16,7 @@ import smtplib
 import re
 import urllib.request, urllib.parse, urllib.error
 import time
+from functools import lru_cache
 from queue import Queue
 import threading
 import requests
@@ -1143,6 +1146,12 @@ class Email(models.Model):
     def __str__(self):
         return self.title
 
+@receiver(post_save, sender=Email)
+def on_post_save_email(sender, instance, **kwargs):
+    if instance.campaign is not None:
+        instance.instances.update(
+            campaign=instance.campaign
+        )
 
 class Instance(models.Model):
     '''
@@ -1175,7 +1184,12 @@ class Instance(models.Model):
             Open rate of this instance as a percent.
         '''
         opens = self.initial_opens
-        return 0 if self.sent_count == 0 else round(float(opens)/float(self.sent_count)*100, significance)
+        return 0 if self.recipient_details_count == 0 else round(float(opens)/float(self.recipient_details_count)*100, significance)
+
+    @property
+    @lru_cache(1)
+    def recipient_details_count(self):
+        return self.recipient_details.count()
 
     @property
     def sent_count(self):
@@ -1284,8 +1298,8 @@ class Instance(models.Model):
         The percentage of recipients who clicked on
         at least one URL in the email.
         """
-        if self.click_recipient_count > 0 and self.sent_count > 0:
-            return round(float(self.click_recipient_count) / float(self.sent_count) * 100, 2)
+        if self.click_recipient_count > 0 and self.recipient_details_count > 0:
+            return round(float(self.click_recipient_count) / float(self.recipient_details_count) * 100, 2)
 
         return 0
 
