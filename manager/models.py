@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.conf import settings
 from datetime import datetime, timedelta, date
 from django.db.models import Q
@@ -14,6 +16,7 @@ import smtplib
 import re
 import urllib.request, urllib.parse, urllib.error
 import time
+from functools import lru_cache
 from queue import Queue
 import threading
 import requests
@@ -348,6 +351,10 @@ class Campaign(models.Model):
     description = models.TextField(blank=True, null=True)
     open_rate_target = models.FloatField(default=25, null=False, blank=False)
     click_to_open_rate_target = models.FloatField(default=10, null=False, blank=False)
+    avg_open_rate = models.FloatField(default=0, null=False, blank=False)
+    avg_click_rate = models.FloatField(default=0, null=False, blank=False)
+    avg_recipient_count = models.IntegerField(default=0, null=False, blank=False)
+    avg_click_to_open_rate = models.FloatField(default=0, null=False, blank=False)
 
     def __str__(self):
         return self.name
@@ -355,44 +362,40 @@ class Campaign(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def avg_open_rate(self):
+    def calc_avg_open_rate(self):
         aggr = 0
-        for instance in self.instances.all():
+        for instance in self.instance_stats.all():
             aggr += instance.open_rate
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0, 2)
 
-    @property
-    def avg_click_rate(self):
+    def calc_avg_click_rate(self):
         aggr = 0
-        for instance in self.instances.all():
+        for instance in self.instance_stats.all():
             aggr += instance.click_rate
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0, 2)
 
-    @property
-    def avg_recipient_count(self):
+    def calc_avg_recipient_count(self):
         aggr = 0
-        for instance in self.instances.all():
-            aggr += instance.recipients.count()
+        for instance in self.instance_stats.all():
+            aggr += instance.recipient_count
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0)
 
-    @property
-    def avg_click_to_open_rate(self):
+    def calc_avg_click_to_open_rate(self):
         aggr = 0
-        for instance in self.instances.all():
+        for instance in self.instance_stats.all():
             aggr += instance.click_to_open_rate
 
-        return round(aggr / self.instances.count()
-            if self.instances.count() != 0
+        return round(aggr / self.instance_stats.count()
+            if self.instance_stats.count() != 0
             else 0)
 
     @property
@@ -1143,6 +1146,12 @@ class Email(models.Model):
     def __str__(self):
         return self.title
 
+@receiver(post_save, sender=Email)
+def on_post_save_email(sender, instance, **kwargs):
+    if instance.campaign is not None:
+        instance.instances.update(
+            campaign=instance.campaign
+        )
 
 class Instance(models.Model):
     '''
@@ -1175,7 +1184,12 @@ class Instance(models.Model):
             Open rate of this instance as a percent.
         '''
         opens = self.initial_opens
-        return 0 if self.sent_count == 0 else round(float(opens)/float(self.sent_count)*100, significance)
+        return 0 if self.recipient_details_count == 0 else round(float(opens)/float(self.recipient_details_count)*100, significance)
+
+    @property
+    @lru_cache(1)
+    def recipient_details_count(self):
+        return self.recipient_details.count()
 
     @property
     def sent_count(self):
@@ -1284,8 +1298,8 @@ class Instance(models.Model):
         The percentage of recipients who clicked on
         at least one URL in the email.
         """
-        if self.click_recipient_count > 0 and self.sent_count > 0:
-            return round(float(self.click_recipient_count) / float(self.sent_count) * 100, 2)
+        if self.click_recipient_count > 0 and self.recipient_details_count > 0:
+            return round(float(self.click_recipient_count) / float(self.recipient_details_count) * 100, 2)
 
         return 0
 
@@ -1392,6 +1406,18 @@ class InstanceOpen(models.Model):
     instance  = models.ForeignKey(Instance, related_name='opens', on_delete=models.CASCADE)
     when      = models.DateTimeField(auto_now_add=True)
     is_reopen = models.BooleanField(default=False)
+
+class CampaignInstanceStat(models.Model):
+    '''
+    Describes the aggregate stats of an instance.
+    Cached in this model for performance reasons.
+    '''
+    campaign = models.ForeignKey(Campaign, related_name='instance_stats', on_delete=models.CASCADE)
+    instance = models.ForeignKey(Instance, related_name='stats', on_delete=models.CASCADE)
+    open_rate = models.FloatField(default=0, null=False, blank=False)
+    click_rate = models.FloatField(default=0, null=False, blank=False)
+    recipient_count = models.IntegerField(default=0, null=False, blank=False)
+    click_to_open_rate = models.FloatField(default=0, null=False, blank=False)
 
 
 class Setting(models.Model):

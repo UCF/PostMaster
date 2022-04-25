@@ -34,6 +34,7 @@ setup(
         'Unidecode',
         'urllib3>=1.26',
         'beautifulsoup4',
-        'boto'
+        'boto',
+        'progress'
     ]
 )

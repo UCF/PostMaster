@@ -96,9 +96,9 @@
                 {% endif %}</a>
             </td>
             <td class="col">{{instance.start}}</td>
-            <td class="col">{{instance.open_rate}}%</td>
-            <td class="col">{{instance.click_rate}}%</td>
-            <td class="col">{{instance.click_to_open_rate}}%</td>
+            <td class="col">{{instance.stats.first.open_rate}}%</td>
+            <td class="col">{{instance.stats.first.click_rate}}%</td>
+            <td class="col">{{instance.stats.first.click_to_open_rate}}%</td>
           </tr>
           {% endif %}
           {% endfor %}
