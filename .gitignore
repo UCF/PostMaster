@@ -1,6 +1,7 @@
 .DS_Store
 .idea
 *.pyc
+.venv/
 settings_local.py
 *.db
 db.sqlite3
