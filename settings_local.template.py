@@ -3,6 +3,9 @@ import os
 
 DEBUG = True
 LOCAL_DEBUG = False
+
+LOG_LEVEL = 'WARNING'
+
 ADMINS = (
     #('Your Name', 'your_email@domain.com'),
 )
@@ -173,37 +176,30 @@ LOGGING = {
             'filters': ['require_debug_true']
         },
         'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
+            'level': LOG_LEVEL,
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'application.log'),
             'formatter': 'talkative',
-            'filters': ['require_debug_false']
+            'filters': ['require_debug_false'],
+            'maxBytes': 1024*1024*5,
+            'backupCount': 5
         }
     },
     'loggers': {
-        'core': {
+        'default': {
             'handlers': ['console', 'file'],
-            'propogate': True,
-            'level': 'WARNING'
+            'propagate': True,
+            'level': LOG_LEVEL
         },
         'django': {
             'handlers': ['console', 'file'],
-            'propogate': True,
-            'level': 'WARNING'
+            'propagate': True,
+            'level': LOG_LEVEL
         },
-        'events': {
+        'manager': {
             'handlers': ['console', 'file'],
-            'propogate': True,
-            'level': 'WARNING'
-        },
-        'profiles': {
-            'handlers': ['console', 'file'],
-            'propogate': True,
-            'level': 'WARNING'
-        },
-        'util': {
-            'handlers': ['console', 'file'],
-            'level': 'WARNING'
+            'propagate': True,
+            'level': LOG_LEVEL
         }
     }
 }
